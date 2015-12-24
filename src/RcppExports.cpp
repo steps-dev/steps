@@ -5,13 +5,15 @@
 
 using namespace Rcpp;
 
-// rcpp_hello_world
-List rcpp_hello_world();
-RcppExport SEXP ramasr_rcpp_hello_world() {
+// demographic_stochast
+NumericVector demographic_stochast(NumericVector v, NumericMatrix tmat);
+RcppExport SEXP ramasr_demographic_stochast(SEXP vSEXP, SEXP tmatSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
-    __result = Rcpp::wrap(rcpp_hello_world());
+    Rcpp::traits::input_parameter< NumericVector >::type v(vSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type tmat(tmatSEXP);
+    __result = Rcpp::wrap(demographic_stochast(v, tmat));
     return __result;
 END_RCPP
 }
