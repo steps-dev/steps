@@ -5,3 +5,7 @@ demographic_stochast <- function(v, tmat) {
     .Call('ramasr_demographic_stochast', PACKAGE = 'ramasr', v, tmat)
 }
 
+envir_stochast <- function(tmat, sdmat, equalsign = TRUE) {
+    .Call('ramasr_envir_stochast', PACKAGE = 'ramasr', tmat, sdmat, equalsign)
+}
+

@@ -18,3 +18,16 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// envir_stochast
+arma::mat envir_stochast(arma::mat tmat, arma::mat sdmat, bool equalsign);
+RcppExport SEXP ramasr_envir_stochast(SEXP tmatSEXP, SEXP sdmatSEXP, SEXP equalsignSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< arma::mat >::type tmat(tmatSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type sdmat(sdmatSEXP);
+    Rcpp::traits::input_parameter< bool >::type equalsign(equalsignSEXP);
+    __result = Rcpp::wrap(envir_stochast(tmat, sdmat, equalsign));
+    return __result;
+END_RCPP
+}
