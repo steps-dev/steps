@@ -89,8 +89,13 @@ NumericVector demo_proj(NumericVector v0, NumericMatrix tmat, Rcpp::Nullable<Rcp
                         bool estamb=false, bool estdem=false, bool equalsign=true,  bool fecundity1=false) 
   {
     NumericVector v1 = v0;
-    if (estamb == false && estdem == false) 
-      v1 = tmat * v0;
+    arma::vec av = as<arma::vec>(v0);
+    arma::mat m1;
+    m1.insert_cols(0, av);
+    arma::mat tmat1 = as<arma::mat>(tmat);
+    if (estamb == false && estdem == false)
+      v1 = tmat1 * m1;
+      wrap(v1);
       if (estamb == false && estdem == true && stmat.isNull() && fecundity1 == true) 
         v1 = demographic_stochast(v0, tmat);
         if (estamb == false && estdem == true && stmat.isNull() && fecundity1 == false)
@@ -126,10 +131,14 @@ List demo_proj_n_cpp(List vn, NumericMatrix tmat, Rcpp::Nullable<Rcpp::NumericMa
     for (int ii=0;ii<nrep;ii++) {
       NumericMatrix vii = vn[ii];
       NumericVector vii_i = vii(_,i+1);
+//       Rcpp::Rcout << vii_i << std::endl;
       NumericVector v = demo_proj(vii_i, tmat, matsd, stmat, estamb, estdem,
                     equalsign, fecundity1);
+//                    Rcpp::Rcout << v << std::endl;
         arma::vec v1 = as<arma::vec>(v);
         arma::mat m1 = as<arma::mat>(vn1[ii]);
+//        Rcpp::Rcout << m1 << std::endl;
+//        Rcpp::Rcout << v1 << std::endl;
         m1.insert_cols(m1.n_cols, v1);
         vn1[ii] =  m1; 
       }
