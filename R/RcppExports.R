@@ -9,3 +9,7 @@ envir_stochast <- function(tmat, sdmat, equalsign = TRUE) {
     .Call('ramasr_envir_stochast', PACKAGE = 'ramasr', tmat, sdmat, equalsign)
 }
 
+demo_proj <- function(v0, tmat, matsd = NULL, stmat = NULL, estamb = FALSE, estdem = FALSE, equalsign = TRUE, fecundity1 = TRUE) {
+    .Call('ramasr_demo_proj', PACKAGE = 'ramasr', v0, tmat, matsd, stmat, estamb, estdem, equalsign, fecundity1)
+}
+

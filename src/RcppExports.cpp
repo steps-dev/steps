@@ -19,15 +19,33 @@ BEGIN_RCPP
 END_RCPP
 }
 // envir_stochast
-arma::mat envir_stochast(arma::mat tmat, arma::mat sdmat, bool equalsign);
+NumericMatrix envir_stochast(NumericMatrix tmat, NumericMatrix sdmat, bool equalsign);
 RcppExport SEXP ramasr_envir_stochast(SEXP tmatSEXP, SEXP sdmatSEXP, SEXP equalsignSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< arma::mat >::type tmat(tmatSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type sdmat(sdmatSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type tmat(tmatSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type sdmat(sdmatSEXP);
     Rcpp::traits::input_parameter< bool >::type equalsign(equalsignSEXP);
     __result = Rcpp::wrap(envir_stochast(tmat, sdmat, equalsign));
+    return __result;
+END_RCPP
+}
+// demo_proj
+NumericVector demo_proj(NumericVector v0, NumericMatrix tmat, Rcpp::Nullable<Rcpp::NumericMatrix> matsd, Rcpp::Nullable<Rcpp::NumericMatrix> stmat, bool estamb, bool estdem, bool equalsign, bool fecundity1);
+RcppExport SEXP ramasr_demo_proj(SEXP v0SEXP, SEXP tmatSEXP, SEXP matsdSEXP, SEXP stmatSEXP, SEXP estambSEXP, SEXP estdemSEXP, SEXP equalsignSEXP, SEXP fecundity1SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< NumericVector >::type v0(v0SEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type tmat(tmatSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericMatrix> >::type matsd(matsdSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericMatrix> >::type stmat(stmatSEXP);
+    Rcpp::traits::input_parameter< bool >::type estamb(estambSEXP);
+    Rcpp::traits::input_parameter< bool >::type estdem(estdemSEXP);
+    Rcpp::traits::input_parameter< bool >::type equalsign(equalsignSEXP);
+    Rcpp::traits::input_parameter< bool >::type fecundity1(fecundity1SEXP);
+    __result = Rcpp::wrap(demo_proj(v0, tmat, matsd, stmat, estamb, estdem, equalsign, fecundity1));
     return __result;
 END_RCPP
 }
