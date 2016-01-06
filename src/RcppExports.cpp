@@ -49,3 +49,23 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// demo_proj_n_cpp
+List demo_proj_n_cpp(List vn, NumericMatrix tmat, Rcpp::Nullable<Rcpp::NumericMatrix> matsd, Rcpp::Nullable<Rcpp::NumericMatrix> stmat, bool estamb, bool estdem, bool equalsign, bool fecundity1, int nrep, int time);
+RcppExport SEXP ramasr_demo_proj_n_cpp(SEXP vnSEXP, SEXP tmatSEXP, SEXP matsdSEXP, SEXP stmatSEXP, SEXP estambSEXP, SEXP estdemSEXP, SEXP equalsignSEXP, SEXP fecundity1SEXP, SEXP nrepSEXP, SEXP timeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< List >::type vn(vnSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type tmat(tmatSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericMatrix> >::type matsd(matsdSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericMatrix> >::type stmat(stmatSEXP);
+    Rcpp::traits::input_parameter< bool >::type estamb(estambSEXP);
+    Rcpp::traits::input_parameter< bool >::type estdem(estdemSEXP);
+    Rcpp::traits::input_parameter< bool >::type equalsign(equalsignSEXP);
+    Rcpp::traits::input_parameter< bool >::type fecundity1(fecundity1SEXP);
+    Rcpp::traits::input_parameter< int >::type nrep(nrepSEXP);
+    Rcpp::traits::input_parameter< int >::type time(timeSEXP);
+    __result = Rcpp::wrap(demo_proj_n_cpp(vn, tmat, matsd, stmat, estamb, estdem, equalsign, fecundity1, nrep, time));
+    return __result;
+END_RCPP
+}

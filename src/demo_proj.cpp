@@ -115,6 +115,27 @@ NumericVector demo_proj(NumericVector v0, NumericMatrix tmat, Rcpp::Nullable<Rcp
             return(v1);
 }
 
+// [[Rcpp::export]]
+List demo_proj_n_cpp(List vn, NumericMatrix tmat, Rcpp::Nullable<Rcpp::NumericMatrix> matsd= R_NilValue, 
+                       Rcpp::Nullable<Rcpp::NumericMatrix> stmat = R_NilValue,
+                       bool estamb=false, bool estdem=false, bool equalsign=true,  bool fecundity1=false,
+                       int nrep = 1, int time = 10)//, Rcpp::Nullable<Rcpp::NumericMatrix> management= R_NilValue, bool round = true) 
+{
+  List vn1 = vn;
+  for (int i=0;i<time;i++) {
+    for (int ii=0;ii<nrep;ii++) {
+      NumericMatrix vii = vn[ii];
+      NumericVector vii_i = vii(_,i+1);
+      NumericVector v = demo_proj(vii_i, tmat, matsd, stmat, estamb, estdem,
+                    equalsign, fecundity1);
+        arma::vec v1 = as<arma::vec>(v);
+        arma::mat m1 = as<arma::mat>(vn1[ii]);
+        m1.insert_cols(m1.n_cols, v1);
+        vn1[ii] =  m1; 
+      }
+  }
+  return(vn1);
+}
 
 // You can include R code blocks in C++ files processed with sourceCpp
 // (useful for testing and development). The R code will be automatically 
