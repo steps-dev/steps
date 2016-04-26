@@ -10,4 +10,3 @@ License: MIT + file LICENSE
 Imports: Rcpp, RcppArmadillo, magrittr
 LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 5.0.1
-
