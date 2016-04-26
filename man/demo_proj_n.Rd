@@ -30,7 +30,7 @@ demo_proj_n(v0, tmat, matsd = NULL, stmat = NULL, estamb = FALSE,
 \item{time}{int length of the demographic trajectory.}
 }
 \value{
-list of demograph projections
+list of demographic projections
 }
 \description{
 Demographic projection
@@ -40,8 +40,9 @@ Make deterministic and stochastic demographic projections according to a transit
 }
 \examples{
 tmat <- matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
+matsd <- tmat/10
 v0 <- c(80,20,0)
-sim_t10_rep100 <- demo_proj_n(v0=v0,tmat=tmat,time=10,nrep=100) 
+sim_t10_rep100 <- demo_proj_n(v0=v0,tmat=tmat,matsd=matsd,estdem=TRUE,time=10,nrep=100) 
 }
 \author{
 Skipton Woolley
