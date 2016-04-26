@@ -5,15 +5,44 @@ demographic_stochast <- function(v, tmat) {
     .Call('ramasr_demographic_stochast', PACKAGE = 'ramasr', v, tmat)
 }
 
+#'environmental stochastic function in C++
+#' @param tmat NumericMatrix. Vector with the initial abundance of each stage.
+#' @param sdmat NumericMatrix. Transition matrix.
+#' @param equalsign bool. Should the environmental deviations have all the same sign and magnitude? TRUE or FALSE
+#' @export
 envir_stochast <- function(tmat, sdmat, equalsign = TRUE) {
     .Call('ramasr_envir_stochast', PACKAGE = 'ramasr', tmat, sdmat, equalsign)
 }
 
-demo_proj <- function(v0, tmat, matsd = NULL, stmat = NULL, estamb = FALSE, estdem = FALSE, equalsign = TRUE, fecundity1 = FALSE) {
-    .Call('ramasr_demo_proj', PACKAGE = 'ramasr', v0, tmat, matsd, stmat, estamb, estdem, equalsign, fecundity1)
+#' Single time step demographic projection function in C++
+#' 
+#' @param v0 NumericVector. Vector with the initial abundance of each stage.
+#' @param tmat NumericMatrix. Transition matrix.
+#' @param matsd NumericMatrix. Matrix with the standard deviation of the probabilities in tmat. 
+#' @param stmat NumericMatrix. Matrix indicating for each transition probability in mat which part (i.e. which proportion) should be considered resulting from fecundity.
+#' @param estamb bool. Environmental stochasticity included in population dynamics?
+#' @param estdem bool. Demographic stochasticity included in population dynamics?
+#' @param equalsign bool. Should the environmental deviations have all the same sign and magnitude?
+#' @param tmat_fecundity bool. Should the first row of tmat as fecundities? TRUE or FALSE
+#' @export
+demo_proj <- function(v0, tmat, matsd = NULL, stmat = NULL, estamb = FALSE, estdem = FALSE, equalsign = TRUE, tmat_fecundity = FALSE) {
+    .Call('ramasr_demo_proj', PACKAGE = 'ramasr', v0, tmat, matsd, stmat, estamb, estdem, equalsign, tmat_fecundity)
 }
 
-demo_proj_n_cpp <- function(vn, tmat, matsd = NULL, stmat = NULL, estamb = FALSE, estdem = FALSE, equalsign = TRUE, fecundity1 = FALSE, nrep = 1L, time = 10L) {
-    .Call('ramasr_demo_proj_n_cpp', PACKAGE = 'ramasr', vn, tmat, matsd, stmat, estamb, estdem, equalsign, fecundity1, nrep, time)
+#' Multiple time step and repetition demographic projection function in C++
+#' 
+#' @param vn List. List of vectors for simulation.
+#' @param tmat NumericMatrix. Transition matrix.
+#' @param matsd NumericMatrix. Transtion matrix error.
+#' @param stmat NumericMatrix. Matrix indicating for each transition probability in mat which part (i.e. which proportion) should be considered resulting from fecundity
+#' @param estamb bool. Environmental stochasticity included in population dynamics?
+#' @param estdem bool. Demographic stochasticity included in population dynamics?
+#' @param equalsign Logical. Should the environmental deviations have all the same sign and magnitude?
+#' @param tmat_fecundity bool Should the first row of tmat as fecundities? TRUE or FALSE
+#' @param nrep int number of simulations
+#' @param time int number of time-steps.
+#' @export
+demo_proj_n_cpp <- function(vn, tmat, matsd = NULL, stmat = NULL, estamb = FALSE, estdem = FALSE, equalsign = TRUE, tmat_fecundity = FALSE, nrep = 1L, time = 10L) {
+    .Call('ramasr_demo_proj_n_cpp', PACKAGE = 'ramasr', vn, tmat, matsd, stmat, estamb, estdem, equalsign, tmat_fecundity, nrep, time)
 }
 

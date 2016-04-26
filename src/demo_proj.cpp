@@ -1,10 +1,14 @@
 // we only include RcppArmadillo.h which pulls Rcpp.h in for us
 #include "RcppArmadillo.h"
 using namespace Rcpp;
-// [[Rcpp::depends(RcppArmadillo)]]
 
+//'Demographic stochastic function in C++
+//' @param v NumericVector. Vector with the initial abundance of each stage.
+//' @param tmat NumericMatrix. Transition matrix.
+//' @export
+// [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
-NumericVector demographic_stochast(NumericVector v, NumericMatrix tmat)//, NumericMatrix stmat = NULL,  Logical fecundity1 = TRUE) 
+NumericVector demographic_stochast(NumericVector v, NumericMatrix tmat)//, NumericMatrix stmat = NULL,  Logical tmat_fecundity = TRUE) 
 {
   int tmncols = tmat.ncol();
   NumericMatrix sij(tmncols-1,tmncols);
@@ -38,6 +42,12 @@ NumericVector demographic_stochast(NumericVector v, NumericMatrix tmat)//, Numer
   return(result);
 }
 
+
+//'environmental stochastic function in C++
+//' @param tmat NumericMatrix. Vector with the initial abundance of each stage.
+//' @param sdmat NumericMatrix. Transition matrix.
+//' @param equalsign bool. Should the environmental deviations have all the same sign and magnitude? TRUE or FALSE
+//' @export
 // [[Rcpp::export]]
 NumericMatrix envir_stochast(NumericMatrix tmat, NumericMatrix sdmat, bool equalsign = true)
 { 
@@ -83,10 +93,21 @@ NumericMatrix envir_stochast(NumericMatrix tmat, NumericMatrix sdmat, bool equal
   return(wrap(mat1));
 }
 
+//' Single time step demographic projection function in C++
+//' 
+//' @param v0 NumericVector. Vector with the initial abundance of each stage.
+//' @param tmat NumericMatrix. Transition matrix.
+//' @param matsd NumericMatrix. Matrix with the standard deviation of the probabilities in tmat. 
+//' @param stmat NumericMatrix. Matrix indicating for each transition probability in mat which part (i.e. which proportion) should be considered resulting from fecundity.
+//' @param estamb bool. Environmental stochasticity included in population dynamics?
+//' @param estdem bool. Demographic stochasticity included in population dynamics?
+//' @param equalsign bool. Should the environmental deviations have all the same sign and magnitude?
+//' @param tmat_fecundity bool. Should the first row of tmat as fecundities? TRUE or FALSE
+//' @export
 // [[Rcpp::export]]
 NumericVector demo_proj(NumericVector v0, NumericMatrix tmat, Rcpp::Nullable<Rcpp::NumericMatrix> matsd= R_NilValue, 
                         Rcpp::Nullable<Rcpp::NumericMatrix> stmat = R_NilValue,
-                        bool estamb=false, bool estdem=false, bool equalsign=true,  bool fecundity1=false) 
+                        bool estamb=false, bool estdem=false, bool equalsign=true,  bool tmat_fecundity=false) 
   {
     NumericVector v1 = v0;
     arma::vec av = as<arma::vec>(v0);
@@ -96,10 +117,10 @@ NumericVector demo_proj(NumericVector v0, NumericMatrix tmat, Rcpp::Nullable<Rcp
     if (estamb == false && estdem == false)
       v1 = tmat1 * m1;
       wrap(v1);
-      if (estamb == false && estdem == true && stmat.isNull() && fecundity1 == true) 
+      if (estamb == false && estdem == true && stmat.isNull() && tmat_fecundity == true) 
         v1 = demographic_stochast(v0, tmat);
-        if (estamb == false && estdem == true && stmat.isNull() && fecundity1 == false)
-          v1 =  demographic_stochast(v0, tmat);//, fecundity1 = false);
+        if (estamb == false && estdem == true && stmat.isNull() && tmat_fecundity == false)
+          v1 =  demographic_stochast(v0, tmat);//, tmat_fecundity = false);
           if (estamb == false && estdem == true && stmat.isNotNull()) 
             v1 =  demographic_stochast(v0, tmat);//, stmat = stmat);
             if (estamb == true && estdem == false) {
@@ -110,20 +131,33 @@ NumericVector demo_proj(NumericVector v0, NumericMatrix tmat, Rcpp::Nullable<Rcp
 //             if (estamb == true && estdem == true) {
 //               if (matsd.isNotNull()) 
 //                 stop("there is not SD matrix provided\n (argument matsd=NULL)");
-//                 if (stmat.isNull() && fecundity1 == true) 
+//                 if (stmat.isNull() && tmat_fecundity == true) 
 //                   //v1 =  demographic_stochast(v0, envir_stochast(tmat, matsd, equalsign = equalsign));
-//                   //if (stmat.isNull() && fecundity1 == false); 
-//                     //v1 =  demographic_stochast(v0, envir_stochast(tmat, matsd, equalsign = equalsign),fecundity1 = false);
+//                   //if (stmat.isNull() && tmat_fecundity == false); 
+//                     //v1 =  demographic_stochast(v0, envir_stochast(tmat, matsd, equalsign = equalsign),tmat_fecundity = false);
 //                     //if (stmat.isNotNull()) 
 //                       //v1 =  demographic_stochast(v0, envir_stochast(tmat, matsd, equalsign = equalsign),stmat = stmat);
 //             }
             return(v1);
 }
 
+//' Multiple time step and repetition demographic projection function in C++
+//' 
+//' @param vn List. List of vectors for simulation.
+//' @param tmat NumericMatrix. Transition matrix.
+//' @param matsd NumericMatrix. Transtion matrix error.
+//' @param stmat NumericMatrix. Matrix indicating for each transition probability in mat which part (i.e. which proportion) should be considered resulting from fecundity
+//' @param estamb bool. Environmental stochasticity included in population dynamics?
+//' @param estdem bool. Demographic stochasticity included in population dynamics?
+//' @param equalsign Logical. Should the environmental deviations have all the same sign and magnitude?
+//' @param tmat_fecundity bool Should the first row of tmat as fecundities? TRUE or FALSE
+//' @param nrep int number of simulations
+//' @param time int number of time-steps.
+//' @export
 // [[Rcpp::export]]
 List demo_proj_n_cpp(List vn, NumericMatrix tmat, Rcpp::Nullable<Rcpp::NumericMatrix> matsd= R_NilValue, 
                        Rcpp::Nullable<Rcpp::NumericMatrix> stmat = R_NilValue,
-                       bool estamb=false, bool estdem=false, bool equalsign=true,  bool fecundity1=false,
+                       bool estamb=false, bool estdem=false, bool equalsign=true,  bool tmat_fecundity=false,
                        int nrep = 1, int time = 10)//, Rcpp::Nullable<Rcpp::NumericMatrix> management= R_NilValue, bool round = true) 
 {
   List vn1 = vn;
@@ -133,7 +167,7 @@ List demo_proj_n_cpp(List vn, NumericMatrix tmat, Rcpp::Nullable<Rcpp::NumericMa
       NumericVector vii_i = vii(_,i+1);
 //       Rcpp::Rcout << vii_i << std::endl;
       NumericVector v = demo_proj(vii_i, tmat, matsd, stmat, estamb, estdem,
-                    equalsign, fecundity1);
+                    equalsign, tmat_fecundity);
 //                    Rcpp::Rcout << v << std::endl;
         arma::vec v1 = as<arma::vec>(v);
         arma::mat m1 = as<arma::mat>(vn1[ii]);
@@ -145,12 +179,3 @@ List demo_proj_n_cpp(List vn, NumericMatrix tmat, Rcpp::Nullable<Rcpp::NumericMa
   }
   return(vn1);
 }
-
-// You can include R code blocks in C++ files processed with sourceCpp
-// (useful for testing and development). The R code will be automatically 
-// run after the compilation.
-//
-
- /*** R
-# timesTwo(42)
-*/

@@ -2,19 +2,51 @@
 % Please edit documentation in R/dem_proj_n.R
 \name{demo_proj_n}
 \alias{demo_proj_n}
-\title{Demographic projection}
+\title{demo_proj_n}
 \usage{
 demo_proj_n(v0, tmat, matsd = NULL, stmat = NULL, estamb = FALSE,
-  estdem = FALSE, equalsign = TRUE, fecundity1 = FALSE, nrep = 10,
+  estdem = FALSE, equalsign = TRUE, tmat_fecundity = FALSE, nrep = 10,
   time = 10)
 }
 \arguments{
-\item{v0}{}
+\item{v0}{vector Starting abundances at each timestep.}
+
+\item{tmat}{matrix. Transition matrix}
+
+\item{matsd}{matrix. Matrix with the standard deviation of the probabilities in tmat.}
+
+\item{stmat}{martix. Matrix indicating for each transition probability in mat which part (i.e. which proportion) should be considered resulting from fecundity.}
+
+\item{estamb}{Logical. Should environmental stochasticity be considered to projet the dynamics of the population?}
+
+\item{estdem}{Logical. Should demographic stochasticity be employed to project the dynamics of the population?}
+
+\item{equalsign}{Logical. Should the environmental deviations have all the same sign and magnitude?}
+
+\item{tmat_fecundity}{Logical. Should the first row of tmat as fecundities?}
+
+\item{nrep}{int number of simulations to run.}
+
+\item{time}{int length of the demographic trajectory.}
 }
 \value{
 list of demograph projections
 }
 \description{
 Demographic projection
+}
+\details{
+Make deterministic and stochastic demographic projections according to a transition matrix.
+}
+\examples{
+tmat <- matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
+v0 <- c(80,20,0)
+sim_t10_rep100 <- demo_proj_n(v0=v0,tmat=tmat,time=10,nrep=100) 
+}
+\author{
+Skipton Woolley
+}
+\seealso{
+\code{link{demo_proj_n_cpp}}
 }
 
