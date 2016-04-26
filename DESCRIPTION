@@ -6,8 +6,8 @@ Date: 2015-12-16
 Author: Skipton Woolley
 Maintainer: Skipton Woolley <swoolley@museum.vic.gov.au>
 Description: Linking spatial data with population viability analysis.
-License: GPL (>= 2)
-Imports: Rcpp, RcppArmadillo
+License: MIT + file LICENSE
+Imports: Rcpp, RcppArmadillo, magrittr
 LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 5.0.1
 
