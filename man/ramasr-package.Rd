@@ -9,26 +9,16 @@
 \packageDescription{ramasr}
 }
 \details{
-
 The DESCRIPTION file:
 \packageDESCRIPTION{ramasr}
 \packageIndices{ramasr}
-~~ An overview of how to use the package, including the most important functions ~~
+~~ An overview of how to use the package, including the most important functions, more details to come soon...~~
 }
 \author{
 \packageAuthor{ramasr}
-
 Maintainer: \packageMaintainer{ramasr}
 }
 \references{
-~~ Literature or other references for background information ~~
+Akçakaya, H. & Root, W. (2005). RAMAS GIS: Linking spatial data with population viability analysis (version 5.0). Applied Biomathematics, Setauket, New York.
 }
-~~ Optionally other standard keywords, one per line, from file KEYWORDS in the R documentation directory ~~
 \keyword{ package }
-\seealso{
-~~ Optional links to other man pages, e.g. ~~
-~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~
-}
-\examples{
-%% ~~ simple examples of the most important functions ~~
-}
