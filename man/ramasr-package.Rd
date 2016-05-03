@@ -19,6 +19,6 @@ The DESCRIPTION file:
 Maintainer: \packageMaintainer{ramasr}
 }
 \references{
-Akçakaya, H. & Root, W. (2005). RAMAS GIS: Linking spatial data with population viability analysis (version 5.0). Applied Biomathematics, Setauket, New York.
+Akcakaya, H. & Root, W. (2005). RAMAS GIS: Linking spatial data with population viability analysis (version 5.0). Applied Biomathematics, Setauket, New York.
 }
 \keyword{ package }

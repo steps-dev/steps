@@ -20,15 +20,19 @@ plot.ramasr <- function(x,mean_pop=TRUE,...){
     stages <- base::dim(x[[1]])[1]
     time <- base::dim(x[[1]])[2]
     if(mean_pop==TRUE){
+    graphics::par(mfrow = c(1,1))
     graphics::matplot(0:(time - 1), (base::sapply(x, function(re) base::apply(re,2, base::sum))),
             type = 'l', xlab = "time", ylab = "abundance",pch = 1,col="#00000030", ...)
     graphics::lines(0:(time - 1), base::apply(base::sapply(x, function(re) base::apply(re,2, sum)), 1, base::mean),
          type = 'l', col='red',lwd=2)  
     } else {
     graphics::par(mfrow = c(1,stages))
-    for (i in 1:stages) graphics::matplot(0:(time - 1), base::sapply(x,function(st) st[i, ]), 
+    for (i in 1:stages) {graphics::matplot(0:(time - 1), base::sapply(x,function(st) st[i, ]), 
                                           xlab = "time", ylab = "abundance", 
-                                          type = 'l', col = grDevices::rainbow(stages)[i], pch = 1, 
+                                          type = 'l', col="#00000030", pch = 1, 
                                           main = base::paste("stage", i),...)
+                        graphics::lines(0:(time - 1), base::apply(base::sapply(x,function(st) st[i, ]),1,mean),
+                                        type = 'l', col=grDevices::rainbow(stages)[i],lwd=2)
+    }
     }
 }
