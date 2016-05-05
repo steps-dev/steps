@@ -2,7 +2,7 @@
 #' @importFrom Rcpp sourceCpp
 NULL
 
-#' demo_proj_n
+#' ramas
 #' 
 #' Demographic projection
 #' 
@@ -18,20 +18,22 @@ NULL
 #' @param tmat_fecundity Logical. Should the first row of tmat as fecundities?
 #' @param nrep int number of simulations to run.
 #' @param time int length of the demographic trajectory.
-#' @return list of demographic projections
+#' @return ramas object a list of demographic projections
 #' @author Skipton Woolley
 #' @seealso \code{link{demo_proj_n_cpp}}
+#' 
 #' @examples 
 #' tmat <- matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
 #' matsd <- tmat/10
 #' v0 <- c(80,20,0)
-#' sim_t10_rep100 <- demo_proj_n(v0=v0,tmat=tmat,matsd=matsd,estdem=TRUE,time=10,nrep=100) 
+#' sim_t10_rep100 <- ramas(v0=v0,tmat=tmat,matsd=matsd,estdem=TRUE,time=10,nrep=100) 
 #' @export
-demo_proj_n <- function (v0, tmat, matsd = NULL, stmat = NULL,
-                         estamb = FALSE, estdem = FALSE, 
-                         equalsign = TRUE, tmat_fecundity = FALSE, nrep = 10, 
-                         time = 10)
-{
+#' 
+setGeneric("ramas",
+  function (v0, tmat, matsd = NULL, stmat = NULL,
+            estamb = FALSE, estdem = FALSE, 
+            equalsign = TRUE, tmat_fecundity = FALSE, nrep = 10, 
+            time = 10) {
   vn <- NULL
   # vm <- NULL
   for (i in 1:nrep) {
@@ -43,6 +45,7 @@ demo_proj_n <- function (v0, tmat, matsd = NULL, stmat = NULL,
                        nrep = nrep, time = time)
   vn <- base::lapply(v, function(x) x[,-1])
   vn <- base::list(vn = vn, tmat = tmat)
-  class(vn) <- "ramasr"
+  class(vn) <- "ramas"
   return(vn)
 }
+)

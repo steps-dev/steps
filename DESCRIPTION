@@ -10,6 +10,6 @@ Description: Linking spatial data with population viability analysis.
 Depends:
     R (>= 3.2.2),
 License:GPL (>= 2)
-Imports: Rcpp, magrittr
+Imports: Rcpp, magrittr, methods
 LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 5.0.1
