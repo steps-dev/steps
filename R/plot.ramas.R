@@ -32,7 +32,8 @@ plot.ramas <- function(x,mean_pop=TRUE,...){
                                           type = 'l', col="#00000030", pch = 1, 
                                           main = base::paste("stage", i),...)
                         graphics::lines(0:(time - 1), base::apply(base::sapply(x,function(st) st[i, ]),1,mean),
-                                        type = 'l', col=grDevices::rainbow(stages)[i],lwd=2)
+                                        type = 'l', col=base::suppressWarnings(RColorBrewer::brewer.pal(base::length(base::unique(stages)),
+                                                                                                        "Set1"))[i],lwd=2)
     }
     }
 }
