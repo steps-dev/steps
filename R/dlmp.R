@@ -1,8 +1,8 @@
-#' @useDynLib ramasr
+#' @useDynLib dlmpr
 #' @importFrom Rcpp sourceCpp
 NULL
 
-#' ramas
+#' dlmp
 #' 
 #' Demographic projection
 #' 
@@ -18,7 +18,7 @@ NULL
 #' @param tmat_fecundity Logical. Should the first row of tmat as fecundities?
 #' @param nrep int number of simulations to run.
 #' @param time int length of the demographic trajectory.
-#' @return ramas object a list of demographic projections
+#' @return dlmp object a list of demographic projections
 #' @author Skipton Woolley
 #' @seealso \code{link{demo_proj_n_cpp}}
 #' 
@@ -26,10 +26,10 @@ NULL
 #' tmat <- matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
 #' matsd <- tmat/10
 #' v0 <- c(80,20,0)
-#' sim_t10_rep100 <- ramas(v0=v0,tmat=tmat,matsd=matsd,estdem=TRUE,time=10,nrep=100) 
+#' sim_t10_rep100 <- dlmp(v0=v0,tmat=tmat,matsd=matsd,estdem=TRUE,time=10,nrep=100) 
 #' @export
 #' 
-setGeneric("ramas",
+setGeneric("dlmp",
   function (v0, tmat, matsd = NULL, stmat = NULL,
             estamb = FALSE, estdem = FALSE, 
             equalsign = TRUE, tmat_fecundity = FALSE, nrep = 10, 
@@ -40,12 +40,12 @@ setGeneric("ramas",
     vn[[i]] <- base::cbind(v0, v0)
   }
   # call c++ function that does this loop.
-  v <- ramasr::demo_proj_n_cpp(vn, tmat, matsd = matsd, estamb = estamb, estdem = estdem, 
+  v <- dlmpr::demo_proj_n_cpp(vn, tmat, matsd = matsd, estamb = estamb, estdem = estdem, 
                        equalsign = equalsign, stmat = stmat, tmat_fecundity = tmat_fecundity,
                        nrep = nrep, time = time)
   vn <- base::lapply(v, function(x) x[,-1])
   vn <- base::list(vn = vn, tmat = tmat)
-  class(vn) <- "ramas"
+  class(vn) <- "dlmp"
   return(vn)
 }
 )

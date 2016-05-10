@@ -2,7 +2,7 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 demographic_stochast <- function(v, tmat) {
-    .Call('ramasr_demographic_stochast', PACKAGE = 'ramasr', v, tmat)
+    .Call('dlmpr_demographic_stochast', PACKAGE = 'dlmpr', v, tmat)
 }
 
 #'environmental stochastic function in C++
@@ -11,7 +11,7 @@ demographic_stochast <- function(v, tmat) {
 #' @param equalsign bool. Should the environmental deviations have all the same sign and magnitude? TRUE or FALSE
 #' @export
 envir_stochast <- function(tmat, sdmat, equalsign = TRUE) {
-    .Call('ramasr_envir_stochast', PACKAGE = 'ramasr', tmat, sdmat, equalsign)
+    .Call('dlmpr_envir_stochast', PACKAGE = 'dlmpr', tmat, sdmat, equalsign)
 }
 
 #' Single time step demographic projection function in C++
@@ -26,7 +26,7 @@ envir_stochast <- function(tmat, sdmat, equalsign = TRUE) {
 #' @param tmat_fecundity bool. Should the first row of tmat as fecundities? TRUE or FALSE
 #' @export
 demo_proj <- function(v0, tmat, matsd = NULL, stmat = NULL, estamb = FALSE, estdem = FALSE, equalsign = TRUE, tmat_fecundity = FALSE) {
-    .Call('ramasr_demo_proj', PACKAGE = 'ramasr', v0, tmat, matsd, stmat, estamb, estdem, equalsign, tmat_fecundity)
+    .Call('dlmpr_demo_proj', PACKAGE = 'dlmpr', v0, tmat, matsd, stmat, estamb, estdem, equalsign, tmat_fecundity)
 }
 
 #' Multiple time step and repetition demographic projection function in C++
@@ -43,6 +43,6 @@ demo_proj <- function(v0, tmat, matsd = NULL, stmat = NULL, estamb = FALSE, estd
 #' @param time int number of time-steps.
 #' @export
 demo_proj_n_cpp <- function(vn, tmat, matsd = NULL, stmat = NULL, estamb = FALSE, estdem = FALSE, equalsign = TRUE, tmat_fecundity = FALSE, nrep = 1L, time = 10L) {
-    .Call('ramasr_demo_proj_n_cpp', PACKAGE = 'ramasr', vn, tmat, matsd, stmat, estamb, estdem, equalsign, tmat_fecundity, nrep, time)
+    .Call('dlmpr_demo_proj_n_cpp', PACKAGE = 'dlmpr', vn, tmat, matsd, stmat, estamb, estdem, equalsign, tmat_fecundity, nrep, time)
 }
 

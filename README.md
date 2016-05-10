@@ -1,2 +1,2 @@
-[![Travis-CI Build Status](https://travis-ci.org/skiptoniam/ramasr.svg?branch=master)](https://travis-ci.org/skiptoniam/ramasr)
-## ramasr an R version of RAMAS with extensions and improvements.
+[![Travis-CI Build Status](https://travis-ci.org/skiptoniam/dlmpr.svg?branch=master)](https://travis-ci.org/skiptoniam/dlmpr)
+## dlmpr is an dynamic landscape meta-population tools program for R.
