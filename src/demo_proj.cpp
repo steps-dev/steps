@@ -1,10 +1,12 @@
-// we only include RcppArmadillo.h which pulls Rcpp.h in for us
+ // we only include RcppArmadillo.h which pulls Rcpp.h in for us
 #include "RcppArmadillo.h"
 using namespace Rcpp;
 
 //'Demographic stochastic function in C++
 //' @param v NumericVector. Vector with the initial abundance of each stage.
 //' @param tmat NumericMatrix. Transition matrix.
+// //' @param stmat NumericMatrix. Matrix indicating for each transition probability in mat which part (i.e. which proportion) should be considered resulting from fecundity.
+// //' @paran tmat_fecundity Logical. If TRUE use first row of transition matrix as fecunity. 
 //' @export
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
