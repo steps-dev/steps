@@ -46,3 +46,11 @@ demo_proj_n_cpp <- function(vn, tmat, matsd = NULL, stmat = NULL, estamb = FALSE
     .Call('dlmpr_demo_proj_n_cpp', PACKAGE = 'dlmpr', vn, tmat, matsd, stmat, estamb, estdem, equalsign, tmat_fecundity, nrep, time)
 }
 
+meta_dispersal_fun <- function(dist, alpha, beta = 1, hanski_dispersal_kernal = TRUE) {
+    .Call('dlmpr_meta_dispersal_fun', PACKAGE = 'dlmpr', dist, alpha, beta, hanski_dispersal_kernal)
+}
+
+sim_metapop <- function(time, dist, area, presence, y = 1L, x = 1L, e = 1L, alpha = 1, beta = 1, hanski_dispersal_kernal = TRUE, locations = NULL) {
+    .Call('dlmpr_sim_metapop', PACKAGE = 'dlmpr', time, dist, area, presence, y, x, e, alpha, beta, hanski_dispersal_kernal, locations)
+}
+

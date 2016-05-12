@@ -5,12 +5,12 @@ using namespace Rcpp;
 //'Demographic stochastic function in C++
 //' @param v NumericVector. Vector with the initial abundance of each stage.
 //' @param tmat NumericMatrix. Transition matrix.
-// //' @param stmat NumericMatrix. Matrix indicating for each transition probability in mat which part (i.e. which proportion) should be considered resulting from fecundity.
-// //' @paran tmat_fecundity Logical. If TRUE use first row of transition matrix as fecunity. 
+//' @param stmat NumericMatrix. Matrix indicating for each transition probability in mat which part (i.e. which proportion) should be considered resulting from fecundity.
+//' @paran tmat_fecundity Logical. If TRUE use first row of transition matrix as fecunity. 
 //' @export
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
-NumericVector demographic_stochast(NumericVector v, NumericMatrix tmat)//, NumericMatrix stmat = NULL,  Logical tmat_fecundity = TRUE) 
+NumericVector demographic_stochast(NumericVector v, NumericMatrix tmat)//,  Rcpp::Nullable<Rcpp::NumericMatrix> stmat = R_NilValue,  bool tmat_fecundity = true) 
 {
   int tmncols = tmat.ncol();
   NumericMatrix sij(tmncols-1,tmncols);
@@ -19,6 +19,7 @@ NumericVector demographic_stochast(NumericVector v, NumericMatrix tmat)//, Numer
   int bs = sum(v);
   NumericVector Bi(bs);
   
+  // if (stmat.isNull() && tmat_fecundity == true) {
   int b = 0;
   for(int i = 0; i<tmncols; i++) {
     if (tmat(0, i) > 0) 
@@ -41,6 +42,26 @@ NumericVector demographic_stochast(NumericVector v, NumericMatrix tmat)//, Numer
   for(int k = 0; k<tmncols-1;k++){
     result[k+1] = sum(sij(k,_));
   }
+  // }
+  // if (stmat.isNull() && tmat_fecundity == false) {
+  //   for(int i = 0; i<tmncols; i++) {
+  //         //Rcpp::Rcout << ii << std::endl;
+  //       for (int j = 0; j<tmncols-1; j++) {
+  //         if (tmat(j + 1, i) > 0) {
+  //           if (tmat(j + 1, i) > 1) 
+  //             sj[j] = sum(rpois(v[i], tmat(j + 1, i)));
+  //           else sj[j] = sum(rbinom(v[i], 1, tmat(j + 1, i)));
+  //         }
+  //         else sj[j] = 0;
+  //       }
+  //       sij(_,i) = sj;
+  //     // b = b+v[i];
+  //   }  
+  //   // result[0] = sum(Bi);
+  //   for(int k = 0; k<tmncols;k++){
+  //     result[k] = sum(sij(k,_));
+  //   }
+  // }
   return(result);
 }
 
