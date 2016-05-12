@@ -19,6 +19,7 @@ NumericMatrix meta_dispersal_fun(NumericMatrix dist, double alpha,
 }
 
 //'Simulate a metapopulation system in C++
+//'this function is not complete.
 //' @param time Number of time steps
 //' @param dist Distances between patches (symetrical matrix)
 //' @param area Area of patches - This needs to be calculated somehow - using occupancy models?
@@ -27,9 +28,10 @@ NumericMatrix meta_dispersal_fun(NumericMatrix dist, double alpha,
 //' @param x incidence function parameters
 //' @param e Minimum area of patches
 //' @param alpha Exponential decay rate of patch connectivity (dispersion parameter)
+//' @param beta double parameter that represents the shape of the dispersal kernel.
+//' @param hanski_dispersal_kernal bool if true uses hanski(1994), if false uses shaw(1995).
 //' @param locations NULL or NumericMatrix Longitudes and latitudes of coordinates of the patches
 //' @export
-// [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
 NumericMatrix sim_metapop(int time, NumericMatrix dist, NumericVector area, NumericVector presence, 
                  int y = 1, int x = 1, int e=1, double alpha = 1, double beta = 1, bool hanski_dispersal_kernal = true,
@@ -38,24 +40,4 @@ NumericMatrix sim_metapop(int time, NumericMatrix dist, NumericVector area, Nume
   edis.diag().zeros(); 
   return(wrap(edis));
 }
-//   arma::mat pmat
-//   edis <- sweep(edis, 2, A, "*")
-//   E <- e/A^x
-//   E <- ifelse(E > 1, 1, E)
-//   if (locations.isNull())NumericVector locations = R::cmdscale(d);
-//     pmat <- matrix(0, nrow = length(p), ncol = steps + 1)
-//     pmat[, 1] <- p
-//     for (i in 1:steps) pmat[, i + 1] <- metastep(pmat[, i], 
-//          edis, E, y)
-//       out <- list(p = pmat, d = edis, A = A, y = y, x = x, e = e, 
-//                   alpha = alpha, locations = locations)
-//       out$J.obs <- rowSums(pmat[, -1, drop = FALSE])/steps
-//       out$P.obs <- colSums(pmat)
-//       S <- rowSums(edis)
-//       C <- S^2/(S^2 + y)
-//       out$J.pot <- C/(C + E - C * E)
-//       out$S.pot <- S
-//       out$C.pot <- C
-//       class(out) <- "metacycle"
-//     out
-// }
+
