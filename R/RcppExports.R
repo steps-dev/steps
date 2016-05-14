@@ -74,7 +74,7 @@ metapop <- function(presence, dist_mat, Ei, y) {
 #' @param hanski_dispersal_kernal bool if true uses hanski(1994), if false uses shaw(1995).
 #' @param locations NULL or NumericMatrix Longitudes and latitudes of coordinates of the patches
 #' @export
-metapop_n <- function(time, dist, area, presence, y = 1L, x = 1L, e = 1L, alpha = 1, beta = 1, hanski_dispersal_kernal = TRUE, locations = NULL) {
+metapop_n <- function(time, dist, area, presence, y = 1, x = 1, e = 1, alpha = 1, beta = 1, hanski_dispersal_kernal = TRUE, locations = NULL) {
     .Call('dlmpr_metapop_n', PACKAGE = 'dlmpr', time, dist, area, presence, y, x, e, alpha, beta, hanski_dispersal_kernal, locations)
 }
 

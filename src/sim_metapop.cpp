@@ -18,7 +18,6 @@ NumericMatrix meta_dispersal_fun(NumericMatrix dist, double alpha,
   return(wrap(disp_mat));
 }
 
-
 //'C++ metapopulation function for a single timestep.
 //' @param presence NumericVector Initial occupancy of each patch
 //' @param dist_mat Exponential decay rate of patch connectivity (dispersion parameter)
@@ -28,14 +27,21 @@ NumericMatrix meta_dispersal_fun(NumericMatrix dist, double alpha,
 // [[Rcpp::export]]
 NumericVector metapop(NumericVector presence, NumericMatrix dist_mat, NumericVector Ei, double y){
   int presences = presence.length();
+  arma::vec pres = presence;
   NumericVector s(presences);
+  arma::mat dist_mat1 = as<arma::mat>(dist_mat);
+  IntegerVector id = ifelse(presence>0,1,0);
+  arma::vec ids = as<arma::vec>(id);
+  arma::mat dm = dist_mat1.cols(arma::find(ids==1));
+  // Rcpp::Rcout << dm << std::endl;
+  NumericMatrix dm1 =wrap(dm);
   for(int i=0; i < presences; i++) {
-    if(presence[i]>0) s[i] = sum(dist_mat(_,i));
-    else s[i] = NA_REAL;
+    s[i] = sum(dm1(i,_));//made a mistake here.
+    // else s[i] = NA_REAL;
   }
-  NumericVector si = Rcpp::na_omit(s);
+  // NumericVector si = Rcpp::na_omit(s);
   NumericVector pa(presences); 
-  NumericVector c = Rcpp::pow(si,2)/(Rcpp::pow(si,2) + (y*y));
+  NumericVector c = Rcpp::pow(s,2)/(Rcpp::pow(s,2) + (y*y));
   for (int j=0; j < presences; j++) {
     if (presence[j] == 0 && R::runif(0,1)  < c[j])
       presence[j] = 1;
@@ -61,20 +67,31 @@ NumericVector metapop(NumericVector presence, NumericMatrix dist_mat, NumericVec
 //' @export
 // [[Rcpp::export]]
 NumericMatrix metapop_n(int time, NumericMatrix dist, NumericVector area, NumericVector presence, 
-                 int y = 1, int x = 1, int e=1, double alpha = 1, double beta = 1, bool hanski_dispersal_kernal = true,
+                 double y = 1, double x = 1, double e=1, double alpha = 1, double beta = 1, bool hanski_dispersal_kernal = true,
                  Rcpp::Nullable<Rcpp::NumericMatrix> locations = R_NilValue){
  arma::mat dist_mat = as<arma::mat>(meta_dispersal_fun(dist,alpha,beta,hanski_dispersal_kernal));
  dist_mat.diag().zeros();
- NumericMatrix dist_mat2 = wrap(dist_mat);
+ int ps = presence.size();
+ arma::mat dist_mat2;
+ dist_mat2.copy_size(dist_mat);
+ for (int i=0; i < ps; i++) {
+   dist_mat2.col(i) = dist_mat.col(i) * area[i];
+ }
+ NumericMatrix dist_mat3 = wrap(dist_mat2);
+ // Rcpp::Rcout << dist_mat3 << std::endl;
  int presences = presence.length();
  NumericMatrix presence_mat(presences,time+1);
- NumericVector E = e/pow(area,x);
+ NumericVector E = e/Rcpp::pow(area,x);// this is the issue.
  // Rcpp::Rcout << E << std::endl;
  NumericVector Ei = ifelse(E > 1, 1, E);
  // Rcpp::Rcout << Ei << std::endl;
  presence_mat(_,0) = presence;
  for (int i=0; i<time;i++){
-   presence_mat(_,i + 1) = metapop(presence_mat(_,i),dist_mat2, Ei, y);
+   NumericVector tmp = presence_mat(_,i);
+   NumericVector tmp1 = metapop(tmp,dist_mat3, Ei, y);
+   // Rcpp::Rcout << i << std::endl;
+   // Rcpp::Rcout << tmp << '\n' << tmp1 << std::endl;
+   presence_mat(_,i+1)=tmp1;
  }
  return(presence_mat);
 }

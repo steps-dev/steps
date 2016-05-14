@@ -5,7 +5,7 @@
 \title{Simulate a metapopulation system in C++
 this function is not complete.}
 \usage{
-metapop_n(time, dist, area, presence, y = 1L, x = 1L, e = 1L, alpha = 1,
+metapop_n(time, dist, area, presence, y = 1, x = 1, e = 1, alpha = 1,
   beta = 1, hanski_dispersal_kernal = TRUE, locations = NULL)
 }
 \arguments{
