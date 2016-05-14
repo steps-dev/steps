@@ -50,6 +50,16 @@ meta_dispersal_fun <- function(dist, alpha, beta = 1, hanski_dispersal_kernal = 
     .Call('dlmpr_meta_dispersal_fun', PACKAGE = 'dlmpr', dist, alpha, beta, hanski_dispersal_kernal)
 }
 
+#'C++ metapopulation function for a single timestep.
+#' @param presence NumericVector Initial occupancy of each patch
+#' @param dist_mat Exponential decay rate of patch connectivity (dispersion parameter)
+#' @param Ei patch extinction rate at time i. note: In the future I need to pull this from demographic model.
+#' @param y incidence function parameters.
+#' @export
+metapop <- function(presence, dist_mat, Ei, y) {
+    .Call('dlmpr_metapop', PACKAGE = 'dlmpr', presence, dist_mat, Ei, y)
+}
+
 #'Simulate a metapopulation system in C++
 #'this function is not complete.
 #' @param time Number of time steps
@@ -64,7 +74,7 @@ meta_dispersal_fun <- function(dist, alpha, beta = 1, hanski_dispersal_kernal = 
 #' @param hanski_dispersal_kernal bool if true uses hanski(1994), if false uses shaw(1995).
 #' @param locations NULL or NumericMatrix Longitudes and latitudes of coordinates of the patches
 #' @export
-sim_metapop <- function(time, dist, area, presence, y = 1L, x = 1L, e = 1L, alpha = 1, beta = 1, hanski_dispersal_kernal = TRUE, locations = NULL) {
-    .Call('dlmpr_sim_metapop', PACKAGE = 'dlmpr', time, dist, area, presence, y, x, e, alpha, beta, hanski_dispersal_kernal, locations)
+metapop_n <- function(time, dist, area, presence, y = 1L, x = 1L, e = 1L, alpha = 1, beta = 1, hanski_dispersal_kernal = TRUE, locations = NULL) {
+    .Call('dlmpr_metapop_n', PACKAGE = 'dlmpr', time, dist, area, presence, y, x, e, alpha, beta, hanski_dispersal_kernal, locations)
 }
 

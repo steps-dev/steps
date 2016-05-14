@@ -83,9 +83,23 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
-// sim_metapop
-NumericMatrix sim_metapop(int time, NumericMatrix dist, NumericVector area, NumericVector presence, int y, int x, int e, double alpha, double beta, bool hanski_dispersal_kernal, Rcpp::Nullable<Rcpp::NumericMatrix> locations);
-RcppExport SEXP dlmpr_sim_metapop(SEXP timeSEXP, SEXP distSEXP, SEXP areaSEXP, SEXP presenceSEXP, SEXP ySEXP, SEXP xSEXP, SEXP eSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP hanski_dispersal_kernalSEXP, SEXP locationsSEXP) {
+// metapop
+NumericVector metapop(NumericVector presence, NumericMatrix dist_mat, NumericVector Ei, double y);
+RcppExport SEXP dlmpr_metapop(SEXP presenceSEXP, SEXP dist_matSEXP, SEXP EiSEXP, SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< NumericVector >::type presence(presenceSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type dist_mat(dist_matSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type Ei(EiSEXP);
+    Rcpp::traits::input_parameter< double >::type y(ySEXP);
+    __result = Rcpp::wrap(metapop(presence, dist_mat, Ei, y));
+    return __result;
+END_RCPP
+}
+// metapop_n
+NumericMatrix metapop_n(int time, NumericMatrix dist, NumericVector area, NumericVector presence, int y, int x, int e, double alpha, double beta, bool hanski_dispersal_kernal, Rcpp::Nullable<Rcpp::NumericMatrix> locations);
+RcppExport SEXP dlmpr_metapop_n(SEXP timeSEXP, SEXP distSEXP, SEXP areaSEXP, SEXP presenceSEXP, SEXP ySEXP, SEXP xSEXP, SEXP eSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP hanski_dispersal_kernalSEXP, SEXP locationsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -100,7 +114,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
     Rcpp::traits::input_parameter< bool >::type hanski_dispersal_kernal(hanski_dispersal_kernalSEXP);
     Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericMatrix> >::type locations(locationsSEXP);
-    __result = Rcpp::wrap(sim_metapop(time, dist, area, presence, y, x, e, alpha, beta, hanski_dispersal_kernal, locations));
+    __result = Rcpp::wrap(metapop_n(time, dist, area, presence, y, x, e, alpha, beta, hanski_dispersal_kernal, locations));
     return __result;
 END_RCPP
 }

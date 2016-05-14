@@ -194,7 +194,8 @@ List demo_proj_n_cpp(List vn, NumericMatrix tmat, Rcpp::Nullable<Rcpp::NumericMa
 //                    Rcpp::Rcout << v << std::endl;
         arma::vec v1 = as<arma::vec>(v);
         arma::mat m1 = as<arma::mat>(vn1[ii]);
-//        Rcpp::Rcout << m1 << std::endl;
+//        
+
 //        Rcpp::Rcout << v1 << std::endl;
         m1.insert_cols(m1.n_cols, v1);
         vn1[ii] =  m1; 
