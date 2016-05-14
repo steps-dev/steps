@@ -88,3 +88,28 @@ NumericMatrix metapop_n(int time, NumericMatrix dist, NumericVector area, Numeri
  return(presence_mat);
 }
 
+// 
+// // [[Rcpp::export]]
+// List metapop_n_cpp(int time, int nrep, NumericMatrix dist, NumericVector area, NumericVector presence, 
+//                    double y = 1, double x = 1, double e=1, double alpha = 1, double beta = 1, bool hanski_dispersal_kernal = true,
+//                    Rcpp::Nullable<Rcpp::NumericMatrix> locations = R_NilValue){
+//   List vn1 = vn;
+//   for (int i=0;i<time;i++) {
+//     for (int ii=0;ii<nrep;ii++) {
+//       NumericMatrix vii = vn[ii];
+//       NumericVector vii_i = vii(_,i+1);
+//       //       Rcpp::Rcout << vii_i << std::endl;
+//       NumericVector v = demo_proj(vii_i, tmat, matsd, stmat, estamb, estdem,
+//                                   equalsign, tmat_fecundity);
+//       //                    Rcpp::Rcout << v << std::endl;
+//       arma::vec v1 = as<arma::vec>(v);
+//       arma::mat m1 = as<arma::mat>(vn1[ii]);
+//       //        
+//       
+//       //        Rcpp::Rcout << v1 << std::endl;
+//       m1.insert_cols(m1.n_cols, v1);
+//       vn1[ii] =  m1; 
+//     }
+//   }
+//   return(vn1);
+// }
