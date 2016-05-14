@@ -33,13 +33,10 @@ NumericVector metapop(NumericVector presence, NumericMatrix dist_mat, NumericVec
   IntegerVector id = ifelse(presence>0,1,0);
   arma::vec ids = as<arma::vec>(id);
   arma::mat dm = dist_mat1.cols(arma::find(ids==1));
-  // Rcpp::Rcout << dm << std::endl;
   NumericMatrix dm1 =wrap(dm);
   for(int i=0; i < presences; i++) {
-    s[i] = sum(dm1(i,_));//made a mistake here.
-    // else s[i] = NA_REAL;
+    s[i] = sum(dm1(i,_));
   }
-  // NumericVector si = Rcpp::na_omit(s);
   NumericVector pa(presences); 
   NumericVector c = Rcpp::pow(s,2)/(Rcpp::pow(s,2) + (y*y));
   for (int j=0; j < presences; j++) {
@@ -78,19 +75,14 @@ NumericMatrix metapop_n(int time, NumericMatrix dist, NumericVector area, Numeri
    dist_mat2.col(i) = dist_mat.col(i) * area[i];
  }
  NumericMatrix dist_mat3 = wrap(dist_mat2);
- // Rcpp::Rcout << dist_mat3 << std::endl;
  int presences = presence.length();
  NumericMatrix presence_mat(presences,time+1);
  NumericVector E = e/Rcpp::pow(area,x);// this is the issue.
- // Rcpp::Rcout << E << std::endl;
  NumericVector Ei = ifelse(E > 1, 1, E);
- // Rcpp::Rcout << Ei << std::endl;
  presence_mat(_,0) = presence;
  for (int i=0; i<time;i++){
    NumericVector tmp = presence_mat(_,i);
    NumericVector tmp1 = metapop(tmp,dist_mat3, Ei, y);
-   // Rcpp::Rcout << i << std::endl;
-   // Rcpp::Rcout << tmp << '\n' << tmp1 << std::endl;
    presence_mat(_,i+1)=tmp1;
  }
  return(presence_mat);
