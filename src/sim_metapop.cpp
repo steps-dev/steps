@@ -93,7 +93,7 @@ NumericMatrix metapop_n(int time, NumericMatrix dist, NumericVector area, Numeri
 // List metapop_n_cpp(int time, int nrep, NumericMatrix dist, NumericVector area, NumericVector presence, 
 //                    double y = 1, double x = 1, double e=1, double alpha = 1, double beta = 1, bool hanski_dispersal_kernal = true,
 //                    Rcpp::Nullable<Rcpp::NumericMatrix> locations = R_NilValue){
-//   List vn1 = vn;
+//   List TempList(nrep);
 //   for (int i=0;i<time;i++) {
 //     for (int ii=0;ii<nrep;ii++) {
 //       NumericMatrix vii = vn[ii];
