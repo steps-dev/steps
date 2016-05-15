@@ -88,28 +88,30 @@ NumericMatrix metapop_n(int time, NumericMatrix dist, NumericVector area, Numeri
  return(presence_mat);
 }
 
-// 
-// // [[Rcpp::export]]
-// List metapop_n_cpp(int time, int nrep, NumericMatrix dist, NumericVector area, NumericVector presence, 
-//                    double y = 1, double x = 1, double e=1, double alpha = 1, double beta = 1, bool hanski_dispersal_kernal = true,
-//                    Rcpp::Nullable<Rcpp::NumericMatrix> locations = R_NilValue){
-//   List TempList(nrep);
-//   for (int i=0;i<time;i++) {
-//     for (int ii=0;ii<nrep;ii++) {
-//       NumericMatrix vii = vn[ii];
-//       NumericVector vii_i = vii(_,i+1);
-//       //       Rcpp::Rcout << vii_i << std::endl;
-//       NumericVector v = demo_proj(vii_i, tmat, matsd, stmat, estamb, estdem,
-//                                   equalsign, tmat_fecundity);
-//       //                    Rcpp::Rcout << v << std::endl;
-//       arma::vec v1 = as<arma::vec>(v);
-//       arma::mat m1 = as<arma::mat>(vn1[ii]);
-//       //        
-//       
-//       //        Rcpp::Rcout << v1 << std::endl;
-//       m1.insert_cols(m1.n_cols, v1);
-//       vn1[ii] =  m1; 
-//     }
-//   }
-//   return(vn1);
-// }
+//'Simulate a metapopulation system in C++
+//'this function is not complete.
+//' @param nrep Number of simulations.
+//' @param time Number of time steps
+//' @param dist Distances between patches (symetrical matrix)
+//' @param area Area of patches - This needs to be calculated somehow - using occupancy models?
+//' @param presence Initial occupancies of patches. Must be presence 1 or absence 0.
+//' @param y incidence function parameters
+//' @param x incidence function parameters
+//' @param e Minimum area of patches
+//' @param alpha Exponential decay rate of patch connectivity (dispersion parameter)
+//' @param beta double parameter that represents the shape of the dispersal kernel.
+//' @param hanski_dispersal_kernal bool if true uses hanski(1994), if false uses shaw(1995).
+//' @param locations NULL or NumericMatrix Longitudes and latitudes of coordinates of the patches
+//' @export
+// [[Rcpp::export]]
+List metapop_n_cpp(int nrep, int time, NumericMatrix dist, NumericVector area, NumericVector presence,
+                   double y = 1, double x = 1, double e=1, double alpha = 1, double beta = 1, bool hanski_dispersal_kernal = true,
+                   Rcpp::Nullable<Rcpp::NumericMatrix> locations = R_NilValue){
+  List TempList(nrep);
+   for (int ii=0;ii<nrep;ii++) {
+      TempList[ii] = metapop_n(time = time, dist = dist, area = area, presence = presence,
+                               y = y, x = x, e=e, alpha = alpha, beta = beta, 
+                               hanski_dispersal_kernal = hanski_dispersal_kernal, locations = locations);
+    }
+    return(TempList);
+}

@@ -10,6 +10,6 @@ Description: Dynamic metapopulation models and population viability analysis in 
 Depends:
     R (>= 3.2.2),
 License:GPL (>= 2)
-Imports: Rcpp, magrittr, RColorBrewer
+Imports: Rcpp, magrittr, RColorBrewer, plyr
 LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 5.0.1

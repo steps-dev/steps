@@ -78,3 +78,22 @@ metapop_n <- function(time, dist, area, presence, y = 1, x = 1, e = 1, alpha = 1
     .Call('dlmpr_metapop_n', PACKAGE = 'dlmpr', time, dist, area, presence, y, x, e, alpha, beta, hanski_dispersal_kernal, locations)
 }
 
+#'Simulate a metapopulation system in C++
+#'this function is not complete.
+#' @param nrep Number of simulations.
+#' @param time Number of time steps
+#' @param dist Distances between patches (symetrical matrix)
+#' @param area Area of patches - This needs to be calculated somehow - using occupancy models?
+#' @param presence Initial occupancies of patches. Must be presence 1 or absence 0.
+#' @param y incidence function parameters
+#' @param x incidence function parameters
+#' @param e Minimum area of patches
+#' @param alpha Exponential decay rate of patch connectivity (dispersion parameter)
+#' @param beta double parameter that represents the shape of the dispersal kernel.
+#' @param hanski_dispersal_kernal bool if true uses hanski(1994), if false uses shaw(1995).
+#' @param locations NULL or NumericMatrix Longitudes and latitudes of coordinates of the patches
+#' @export
+metapop_n_cpp <- function(nrep, time, dist, area, presence, y = 1, x = 1, e = 1, alpha = 1, beta = 1, hanski_dispersal_kernal = TRUE, locations = NULL) {
+    .Call('dlmpr_metapop_n_cpp', PACKAGE = 'dlmpr', nrep, time, dist, area, presence, y, x, e, alpha, beta, hanski_dispersal_kernal, locations)
+}
+
