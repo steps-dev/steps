@@ -16,7 +16,7 @@
 #' @param e Minimum area of patches
 #' @param alpha Exponential decay rate of patch connectivity (dispersion parameter)
 #' @param beta double parameter that represents the shape of the dispersal kernel.
-#' @param hanski_dispersal_kernal bool if true uses hanski(1994), if false uses shaw(1995).
+#' @param hanski_dispersal_kernal char if 'H' uses hanski(1994), if 'S' uses shaw(1995).
 #' @param locations NULL or NumericMatrix Longitudes and latitudes of coordinates of the patches
 #' @param c double colonisation scale parameter see Ovaskainen 2002.
 #' @param col_meth char which method to use? 'H' = Hanski 1994, 'M'= Moilanen 2004, 'O'= Ovaskainen 2002. See decription for details.
@@ -35,7 +35,7 @@
 setGeneric("sim_metapop",
            function(nrep=10, time=20, dist, area, presence,
                     y = 1, x = 1, e=1, alpha = 1, beta = 1,
-                    hanski_dispersal_kernal = TRUE,locations = NULL,
+                    hanski_dispersal_kernal = 'H',locations = NULL,
                     c=1,col_meth='H') {
              # call c++ function that does this loop.
              mp <- dlmpr::metapop_n_cpp(nrep=nrep, time=time, dist=dist, area=area, presence=presence,
