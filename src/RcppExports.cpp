@@ -70,7 +70,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // meta_dispersal_fun
-NumericMatrix meta_dispersal_fun(NumericMatrix dist, double alpha, double beta, bool hanski_dispersal_kernal);
+NumericMatrix meta_dispersal_fun(NumericMatrix dist, double alpha, double beta, char hanski_dispersal_kernal);
 RcppExport SEXP dlmpr_meta_dispersal_fun(SEXP distSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP hanski_dispersal_kernalSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
@@ -78,7 +78,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericMatrix >::type dist(distSEXP);
     Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
     Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
-    Rcpp::traits::input_parameter< bool >::type hanski_dispersal_kernal(hanski_dispersal_kernalSEXP);
+    Rcpp::traits::input_parameter< char >::type hanski_dispersal_kernal(hanski_dispersal_kernalSEXP);
     __result = Rcpp::wrap(meta_dispersal_fun(dist, alpha, beta, hanski_dispersal_kernal));
     return __result;
 END_RCPP
@@ -114,7 +114,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // metapop_n
-NumericMatrix metapop_n(int time, NumericMatrix dist, NumericVector area, NumericVector presence, double y, double x, double e, double alpha, double beta, bool hanski_dispersal_kernal, Rcpp::Nullable<Rcpp::NumericMatrix> locations, double c, char col_meth);
+NumericMatrix metapop_n(int time, NumericMatrix dist, NumericVector area, NumericVector presence, double y, double x, double e, double alpha, double beta, char hanski_dispersal_kernal, Rcpp::Nullable<Rcpp::NumericMatrix> locations, double c, char col_meth);
 RcppExport SEXP dlmpr_metapop_n(SEXP timeSEXP, SEXP distSEXP, SEXP areaSEXP, SEXP presenceSEXP, SEXP ySEXP, SEXP xSEXP, SEXP eSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP hanski_dispersal_kernalSEXP, SEXP locationsSEXP, SEXP cSEXP, SEXP col_methSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
@@ -128,7 +128,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type e(eSEXP);
     Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
     Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
-    Rcpp::traits::input_parameter< bool >::type hanski_dispersal_kernal(hanski_dispersal_kernalSEXP);
+    Rcpp::traits::input_parameter< char >::type hanski_dispersal_kernal(hanski_dispersal_kernalSEXP);
     Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericMatrix> >::type locations(locationsSEXP);
     Rcpp::traits::input_parameter< double >::type c(cSEXP);
     Rcpp::traits::input_parameter< char >::type col_meth(col_methSEXP);
@@ -137,7 +137,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // metapop_n_cpp
-List metapop_n_cpp(int nrep, int time, NumericMatrix dist, NumericVector area, NumericVector presence, double y, double x, double e, double alpha, double beta, bool hanski_dispersal_kernal, Rcpp::Nullable<Rcpp::NumericMatrix> locations, double c, char col_meth);
+List metapop_n_cpp(int nrep, int time, NumericMatrix dist, NumericVector area, NumericVector presence, double y, double x, double e, double alpha, double beta, char hanski_dispersal_kernal, Rcpp::Nullable<Rcpp::NumericMatrix> locations, double c, char col_meth);
 RcppExport SEXP dlmpr_metapop_n_cpp(SEXP nrepSEXP, SEXP timeSEXP, SEXP distSEXP, SEXP areaSEXP, SEXP presenceSEXP, SEXP ySEXP, SEXP xSEXP, SEXP eSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP hanski_dispersal_kernalSEXP, SEXP locationsSEXP, SEXP cSEXP, SEXP col_methSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
@@ -152,7 +152,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type e(eSEXP);
     Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
     Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
-    Rcpp::traits::input_parameter< bool >::type hanski_dispersal_kernal(hanski_dispersal_kernalSEXP);
+    Rcpp::traits::input_parameter< char >::type hanski_dispersal_kernal(hanski_dispersal_kernalSEXP);
     Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericMatrix> >::type locations(locationsSEXP);
     Rcpp::traits::input_parameter< double >::type c(cSEXP);
     Rcpp::traits::input_parameter< char >::type col_meth(col_methSEXP);

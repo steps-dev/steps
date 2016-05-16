@@ -46,7 +46,7 @@ demo_proj_n_cpp <- function(vn, tmat, matsd = NULL, stmat = NULL, estamb = FALSE
     .Call('dlmpr_demo_proj_n_cpp', PACKAGE = 'dlmpr', vn, tmat, matsd, stmat, estamb, estdem, equalsign, tmat_fecundity, nrep, time)
 }
 
-meta_dispersal_fun <- function(dist, alpha, beta = 1, hanski_dispersal_kernal = TRUE) {
+meta_dispersal_fun <- function(dist, alpha, beta = 1, hanski_dispersal_kernal = 'H') {
     .Call('dlmpr_meta_dispersal_fun', PACKAGE = 'dlmpr', dist, alpha, beta, hanski_dispersal_kernal)
 }
 
@@ -77,12 +77,12 @@ metapop <- function(presence, dist_mat, Ei, y, c = 1, col_meth = 'H') {
 #' @param e Minimum area of patches
 #' @param alpha Exponential decay rate of patch connectivity (dispersion parameter)
 #' @param beta double parameter that represents the shape of the dispersal kernel.
-#' @param hanski_dispersal_kernal bool if true uses hanski(1994), if false uses shaw(1995).
+#' @param hanski_dispersal_kernal char if 'H' uses hanski(1994), if 'S' uses shaw(1995).
 #' @param locations NULL or NumericMatrix Longitudes and latitudes of coordinates of the patches
 #' @param c double colonisation scale parameter see Ovaskainen 2002.
 #' @param col_meth char which method to use? 'H' = Hanski 1994, 'M'= Moilanen 2004, 'O'= Ovaskainen 2002. See decription for details.
 #' @export
-metapop_n <- function(time, dist, area, presence, y = 1, x = 1, e = 1, alpha = 1, beta = 1, hanski_dispersal_kernal = TRUE, locations = NULL, c = 1, col_meth = 'H') {
+metapop_n <- function(time, dist, area, presence, y = 1, x = 1, e = 1, alpha = 1, beta = 1, hanski_dispersal_kernal = 'H', locations = NULL, c = 1, col_meth = 'H') {
     .Call('dlmpr_metapop_n', PACKAGE = 'dlmpr', time, dist, area, presence, y, x, e, alpha, beta, hanski_dispersal_kernal, locations, c, col_meth)
 }
 
@@ -98,12 +98,12 @@ metapop_n <- function(time, dist, area, presence, y = 1, x = 1, e = 1, alpha = 1
 #' @param e Minimum area of patches
 #' @param alpha Exponential decay rate of patch connectivity (dispersion parameter)
 #' @param beta double parameter that represents the shape of the dispersal kernel.
-#' @param hanski_dispersal_kernal bool if true uses hanski(1994), if false uses shaw(1995).
+#' @param hanski_dispersal_kernal char if 'H' uses hanski(1994), if 'S' uses shaw(1995).
 #' @param locations NULL or NumericMatrix Longitudes and latitudes of coordinates of the patches
 #' @param c double colonisation scale parameter see Ovaskainen 2002.
 #' @param col_meth char which method to use? 'H' = Hanski 1994, 'M'= Moilanen 2004, 'O'= Ovaskainen 2002. See decription for details.
 #' @export
-metapop_n_cpp <- function(nrep, time, dist, area, presence, y = 1, x = 1, e = 1, alpha = 1, beta = 1, hanski_dispersal_kernal = TRUE, locations = NULL, c = 1, col_meth = 'H') {
+metapop_n_cpp <- function(nrep, time, dist, area, presence, y = 1, x = 1, e = 1, alpha = 1, beta = 1, hanski_dispersal_kernal = 'H', locations = NULL, c = 1, col_meth = 'H') {
     .Call('dlmpr_metapop_n_cpp', PACKAGE = 'dlmpr', nrep, time, dist, area, presence, y, x, e, alpha, beta, hanski_dispersal_kernal, locations, c, col_meth)
 }
 

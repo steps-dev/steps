@@ -6,7 +6,7 @@
 this function is not complete.}
 \usage{
 metapop_n_cpp(nrep, time, dist, area, presence, y = 1, x = 1, e = 1,
-  alpha = 1, beta = 1, hanski_dispersal_kernal = TRUE, locations = NULL,
+  alpha = 1, beta = 1, hanski_dispersal_kernal = "H", locations = NULL,
   c = 1, col_meth = "H")
 }
 \arguments{
@@ -30,7 +30,7 @@ metapop_n_cpp(nrep, time, dist, area, presence, y = 1, x = 1, e = 1,
 
 \item{beta}{double parameter that represents the shape of the dispersal kernel.}
 
-\item{hanski_dispersal_kernal}{bool if true uses hanski(1994), if false uses shaw(1995).}
+\item{hanski_dispersal_kernal}{char if 'H' uses hanski(1994), if 'S' uses shaw(1995).}
 
 \item{locations}{NULL or NumericMatrix Longitudes and latitudes of coordinates of the patches}
 
