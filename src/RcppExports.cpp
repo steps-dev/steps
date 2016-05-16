@@ -83,9 +83,23 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// meta_colonisation_fun
+NumericVector meta_colonisation_fun(NumericVector s, double y, double c, char col_meth);
+RcppExport SEXP dlmpr_meta_colonisation_fun(SEXP sSEXP, SEXP ySEXP, SEXP cSEXP, SEXP col_methSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< NumericVector >::type s(sSEXP);
+    Rcpp::traits::input_parameter< double >::type y(ySEXP);
+    Rcpp::traits::input_parameter< double >::type c(cSEXP);
+    Rcpp::traits::input_parameter< char >::type col_meth(col_methSEXP);
+    __result = Rcpp::wrap(meta_colonisation_fun(s, y, c, col_meth));
+    return __result;
+END_RCPP
+}
 // metapop
-NumericVector metapop(NumericVector presence, NumericMatrix dist_mat, NumericVector Ei, double y);
-RcppExport SEXP dlmpr_metapop(SEXP presenceSEXP, SEXP dist_matSEXP, SEXP EiSEXP, SEXP ySEXP) {
+NumericVector metapop(NumericVector presence, NumericMatrix dist_mat, NumericVector Ei, double y, double c, char col_meth);
+RcppExport SEXP dlmpr_metapop(SEXP presenceSEXP, SEXP dist_matSEXP, SEXP EiSEXP, SEXP ySEXP, SEXP cSEXP, SEXP col_methSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -93,13 +107,15 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericMatrix >::type dist_mat(dist_matSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type Ei(EiSEXP);
     Rcpp::traits::input_parameter< double >::type y(ySEXP);
-    __result = Rcpp::wrap(metapop(presence, dist_mat, Ei, y));
+    Rcpp::traits::input_parameter< double >::type c(cSEXP);
+    Rcpp::traits::input_parameter< char >::type col_meth(col_methSEXP);
+    __result = Rcpp::wrap(metapop(presence, dist_mat, Ei, y, c, col_meth));
     return __result;
 END_RCPP
 }
 // metapop_n
-NumericMatrix metapop_n(int time, NumericMatrix dist, NumericVector area, NumericVector presence, double y, double x, double e, double alpha, double beta, bool hanski_dispersal_kernal, Rcpp::Nullable<Rcpp::NumericMatrix> locations);
-RcppExport SEXP dlmpr_metapop_n(SEXP timeSEXP, SEXP distSEXP, SEXP areaSEXP, SEXP presenceSEXP, SEXP ySEXP, SEXP xSEXP, SEXP eSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP hanski_dispersal_kernalSEXP, SEXP locationsSEXP) {
+NumericMatrix metapop_n(int time, NumericMatrix dist, NumericVector area, NumericVector presence, double y, double x, double e, double alpha, double beta, bool hanski_dispersal_kernal, Rcpp::Nullable<Rcpp::NumericMatrix> locations, double c, char col_meth);
+RcppExport SEXP dlmpr_metapop_n(SEXP timeSEXP, SEXP distSEXP, SEXP areaSEXP, SEXP presenceSEXP, SEXP ySEXP, SEXP xSEXP, SEXP eSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP hanski_dispersal_kernalSEXP, SEXP locationsSEXP, SEXP cSEXP, SEXP col_methSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -114,13 +130,15 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
     Rcpp::traits::input_parameter< bool >::type hanski_dispersal_kernal(hanski_dispersal_kernalSEXP);
     Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericMatrix> >::type locations(locationsSEXP);
-    __result = Rcpp::wrap(metapop_n(time, dist, area, presence, y, x, e, alpha, beta, hanski_dispersal_kernal, locations));
+    Rcpp::traits::input_parameter< double >::type c(cSEXP);
+    Rcpp::traits::input_parameter< char >::type col_meth(col_methSEXP);
+    __result = Rcpp::wrap(metapop_n(time, dist, area, presence, y, x, e, alpha, beta, hanski_dispersal_kernal, locations, c, col_meth));
     return __result;
 END_RCPP
 }
 // metapop_n_cpp
-List metapop_n_cpp(int nrep, int time, NumericMatrix dist, NumericVector area, NumericVector presence, double y, double x, double e, double alpha, double beta, bool hanski_dispersal_kernal, Rcpp::Nullable<Rcpp::NumericMatrix> locations);
-RcppExport SEXP dlmpr_metapop_n_cpp(SEXP nrepSEXP, SEXP timeSEXP, SEXP distSEXP, SEXP areaSEXP, SEXP presenceSEXP, SEXP ySEXP, SEXP xSEXP, SEXP eSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP hanski_dispersal_kernalSEXP, SEXP locationsSEXP) {
+List metapop_n_cpp(int nrep, int time, NumericMatrix dist, NumericVector area, NumericVector presence, double y, double x, double e, double alpha, double beta, bool hanski_dispersal_kernal, Rcpp::Nullable<Rcpp::NumericMatrix> locations, double c, char col_meth);
+RcppExport SEXP dlmpr_metapop_n_cpp(SEXP nrepSEXP, SEXP timeSEXP, SEXP distSEXP, SEXP areaSEXP, SEXP presenceSEXP, SEXP ySEXP, SEXP xSEXP, SEXP eSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP hanski_dispersal_kernalSEXP, SEXP locationsSEXP, SEXP cSEXP, SEXP col_methSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -136,7 +154,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
     Rcpp::traits::input_parameter< bool >::type hanski_dispersal_kernal(hanski_dispersal_kernalSEXP);
     Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericMatrix> >::type locations(locationsSEXP);
-    __result = Rcpp::wrap(metapop_n_cpp(nrep, time, dist, area, presence, y, x, e, alpha, beta, hanski_dispersal_kernal, locations));
+    Rcpp::traits::input_parameter< double >::type c(cSEXP);
+    Rcpp::traits::input_parameter< char >::type col_meth(col_methSEXP);
+    __result = Rcpp::wrap(metapop_n_cpp(nrep, time, dist, area, presence, y, x, e, alpha, beta, hanski_dispersal_kernal, locations, c, col_meth));
     return __result;
 END_RCPP
 }

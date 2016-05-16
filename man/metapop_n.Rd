@@ -6,7 +6,8 @@
 this function is not complete.}
 \usage{
 metapop_n(time, dist, area, presence, y = 1, x = 1, e = 1, alpha = 1,
-  beta = 1, hanski_dispersal_kernal = TRUE, locations = NULL)
+  beta = 1, hanski_dispersal_kernal = TRUE, locations = NULL, c = 1,
+  col_meth = "H")
 }
 \arguments{
 \item{time}{Number of time steps}
@@ -30,6 +31,10 @@ metapop_n(time, dist, area, presence, y = 1, x = 1, e = 1, alpha = 1,
 \item{hanski_dispersal_kernal}{bool if true uses hanski(1994), if false uses shaw(1995).}
 
 \item{locations}{NULL or NumericMatrix Longitudes and latitudes of coordinates of the patches}
+
+\item{c}{double colonisation scale parameter see Ovaskainen 2002.}
+
+\item{col_meth}{char which method to use? 'H' = Hanski 1994, 'M'= Moilanen 2004, 'O'= Ovaskainen 2002. See decription for details.}
 }
 \description{
 Simulate a metapopulation system in C++

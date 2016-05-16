@@ -4,7 +4,7 @@
 \alias{metapop}
 \title{C++ metapopulation function for a single timestep.}
 \usage{
-metapop(presence, dist_mat, Ei, y)
+metapop(presence, dist_mat, Ei, y, c = 1, col_meth = "H")
 }
 \arguments{
 \item{presence}{NumericVector Initial occupancy of each patch}
@@ -13,7 +13,11 @@ metapop(presence, dist_mat, Ei, y)
 
 \item{Ei}{patch extinction rate at time i. note: In the future I need to pull this from demographic model.}
 
-\item{y}{incidence function parameters.}
+\item{y}{double colonisation parameter}
+
+\item{c}{double colonisation scale parameter see Ovaskainen 2002.}
+
+\item{col_meth}{char which method to use? 'H' = Hanski 1994, 'M'= Moilanen 2004, 'O'= Ovaskainen 2002. See decription for details.}
 }
 \description{
 C++ metapopulation function for a single timestep.
