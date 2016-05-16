@@ -16,7 +16,6 @@
 #' plot(mp)
 #' @export
 plot.sim_metapop <- function(x,...){
-  
     # graphics::par(mfrow = c(1,2))
     # M <- base::as.matrix(exp(-x$alpha * x$dist))
     # base::diag(M) <- 0

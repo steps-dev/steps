@@ -18,6 +18,22 @@ NumericMatrix meta_dispersal_fun(NumericMatrix dist, double alpha,
   return(wrap(disp_mat));
 }
 
+//'C++ dispersal function
+//' @param s NumericVector that represents connectivity
+//' @param y double colonisation parameter
+//' @param c double colonisation scale parameter see Ovaskainen 2002.
+//' @param col_meth char which method to use? 'H' = Hanski 1994, 'M'= Moilanen 2004, 'O'= Ovaskainen 2002. See decription for details.
+//' @export
+// [[Rcpp::depends(RcppArmadillo)]]
+// [[Rcpp::export]]
+NumericVector meta_colonisation_fun(NumericVector s, double y, double c=1, char col_meth='H') {
+  NumericVector cl(s.size()); 
+  if(col_meth == 'H') cl = Rcpp::pow(s,2)/(Rcpp::pow(s,2) + (y*y));
+  if(col_meth == 'M') cl = 1-Rcpp::exp(-y*s);
+  if(col_meth == 'O') cl = Rcpp::pow(s,2)/(Rcpp::pow(s,2) + (1/c));
+  return(cl);
+}
+
 //'C++ metapopulation function for a single timestep.
 //' @param presence NumericVector Initial occupancy of each patch
 //' @param dist_mat Exponential decay rate of patch connectivity (dispersion parameter)
@@ -38,7 +54,7 @@ NumericVector metapop(NumericVector presence, NumericMatrix dist_mat, NumericVec
     s[i] = sum(dm1(i,_));
   }
   NumericVector pa(presences); 
-  NumericVector c = Rcpp::pow(s,2)/(Rcpp::pow(s,2) + (y*y));
+  NumericVector c = Rcpp::pow(s,2)/(Rcpp::pow(s,2) + (y*y)); // replace this with the colonisation metapop function
   for (int j=0; j < presences; j++) {
     if (presence[j] == 0 && R::runif(0,1)  < c[j])
       presence[j] = 1;
