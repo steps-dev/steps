@@ -12,7 +12,7 @@
 #' area <- meta_data$area
 #' dist <- as.matrix(with(meta_data, dist(cbind(x1, x2))))
 #' presence <- meta_data$presence
-#' mp <- sim_metapop(nrep=10, time=20, dist, area, presence, x = 0.42, e = 0.061, y = 15.2)
+#' mp <- sim_metapop(nrep=100, time=50, dist, area, presence, x = 0.42, e = 0.061, y = 15.2)
 #' plot(mp)
 #' @export
 plot.sim_metapop <- function(x,...){
