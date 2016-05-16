@@ -16,12 +16,16 @@
 #' plot(mp)
 #' @export
 plot.sim_metapop <- function(x,...){
+  
     # graphics::par(mfrow = c(1,2))
-    # cl <-  (1 - x$x/max(x$x))*254 + 1
-    # ## Make largest dot cex=5
-    # dia <- sqrt(max(x$A))/cex
-    # plot(locations, asp=1, cex=sqrt(x$A)/dia, xlab="", ylab="", pch=21,
-    #    col="blue", bg=cl
+    # M <- base::as.matrix(exp(-x$alpha * x$dist))
+    # base::diag(M) <- 0
+    # M <- M * base::outer(x$area, x$area)
+    # tmp <- base::eigen(M)
+    # y <- tmp$vectors[, 1]^2
+    # cl <-  (1 - y/max(y))*254 + 1
+    # dia <- sqrt(max(y));
+    # plot(locations, asp=1, cex=sqrt(x$area)/dia, xlab="", ylab="", pch=21,col="blue", bg=cl)
     graphics::matplot(0:x$time, base::sapply(x$mp, function(zz) base::apply(zz,2, base::sum)),
                       type = 'l', xlab = "time", ylab = "abundance",pch = 1,col="#00000030", ...)
     graphics::lines(0:(x$time), x$sim_p_obs,type = 'l', col='red',lwd=2)  
