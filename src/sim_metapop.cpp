@@ -34,6 +34,8 @@ NumericVector meta_colonisation_fun(NumericVector s, double y, double c=1, char 
   return(cl);
 }
 
+// C++ Extinction function
+
 //'C++ metapopulation function for a single timestep.
 //' @param presence NumericVector Initial occupancy of each patch
 //' @param dist_mat Exponential decay rate of patch connectivity (dispersion parameter)
@@ -57,7 +59,7 @@ NumericVector metapop(NumericVector presence, NumericMatrix dist_mat, NumericVec
     s[i] = sum(dm1(i,_));
   }
   NumericVector pa(presences); 
-  NumericVector cl =  meta_colonisation_fun(s,y,c,col_meth); // replace this with the colonisation metapop function
+  NumericVector cl =  meta_colonisation_fun(s,y,c,col_meth);
   for (int j=0; j < presences; j++) {
     if (presence[j] == 0 && R::runif(0,1)  < cl[j])
       presence[j] = 1;
@@ -98,7 +100,7 @@ NumericMatrix metapop_n(int time, NumericMatrix dist, NumericVector area, Numeri
  NumericMatrix dist_mat3 = wrap(dist_mat2);
  int presences = presence.length();
  NumericMatrix presence_mat(presences,time+1);
- NumericVector E = e/Rcpp::pow(area,x);// this is the issue.
+ NumericVector E = e/Rcpp::pow(area,x);
  NumericVector Ei = ifelse(E > 1, 1, E);
  presence_mat(_,0) = presence;
  for (int i=0; i<time;i++){

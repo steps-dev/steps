@@ -42,26 +42,6 @@ NumericVector demographic_stochast(NumericVector v, NumericMatrix tmat)//,  Rcpp
   for(int k = 0; k<tmncols-1;k++){
     result[k+1] = sum(sij(k,_));
   }
-  // }
-  // if (stmat.isNull() && tmat_fecundity == false) {
-  //   for(int i = 0; i<tmncols; i++) {
-  //         //Rcpp::Rcout << ii << std::endl;
-  //       for (int j = 0; j<tmncols-1; j++) {
-  //         if (tmat(j + 1, i) > 0) {
-  //           if (tmat(j + 1, i) > 1) 
-  //             sj[j] = sum(rpois(v[i], tmat(j + 1, i)));
-  //           else sj[j] = sum(rbinom(v[i], 1, tmat(j + 1, i)));
-  //         }
-  //         else sj[j] = 0;
-  //       }
-  //       sij(_,i) = sj;
-  //     // b = b+v[i];
-  //   }  
-  //   // result[0] = sum(Bi);
-  //   for(int k = 0; k<tmncols;k++){
-  //     result[k] = sum(sij(k,_));
-  //   }
-  // }
   return(result);
 }
 
@@ -100,19 +80,13 @@ NumericMatrix envir_stochast(NumericMatrix tmat, NumericMatrix sdmat, bool equal
       } else {
         draw = -1;
       }
-      // Rcpp::Rcout << R::rnorm(0, sdmat_v[i])*draw << std::endl;
       deriv_v[i] = R::rnorm(0, sdmat_v[i])*draw;
     }                     
     deriv_v = abs(deriv_v);
-    // Rcpp::Rcout << deriv_v << std::endl;
     mat1.insert_cols(0, deriv_v);
     mat1.reshape(nr, nc);
-    // Rcpp::Rcout << mat1 << std::endl;
     mat1 = tmat1 + mat1;
-    
-  }       
-  // mat[mat < 0] = 0;
-  // mat[-1, ][mat[-1, ] > 1] = 1;
+    }       
   return(wrap(mat1));
 }
 
@@ -149,18 +123,8 @@ NumericVector demo_proj(NumericVector v0, NumericMatrix tmat, Rcpp::Nullable<Rcp
             if (estamb == true && estdem == false) {
               if (matsd.isNull()) 
                 stop("there is not SD matrix provided\n (argument matsd=NULL)");
-                //v1 = envir_stochast(tmat, matsd, equalsign = equalsign) * v0;
+                
             }
-//             if (estamb == true && estdem == true) {
-//               if (matsd.isNotNull()) 
-//                 stop("there is not SD matrix provided\n (argument matsd=NULL)");
-//                 if (stmat.isNull() && tmat_fecundity == true) 
-//                   //v1 =  demographic_stochast(v0, envir_stochast(tmat, matsd, equalsign = equalsign));
-//                   //if (stmat.isNull() && tmat_fecundity == false); 
-//                     //v1 =  demographic_stochast(v0, envir_stochast(tmat, matsd, equalsign = equalsign),tmat_fecundity = false);
-//                     //if (stmat.isNotNull()) 
-//                       //v1 =  demographic_stochast(v0, envir_stochast(tmat, matsd, equalsign = equalsign),stmat = stmat);
-//             }
             return(v1);
 }
 
@@ -188,17 +152,12 @@ List demo_proj_n_cpp(List vn, NumericMatrix tmat, Rcpp::Nullable<Rcpp::NumericMa
     for (int ii=0;ii<nrep;ii++) {
       NumericMatrix vii = vn[ii];
       NumericVector vii_i = vii(_,i+1);
-//       Rcpp::Rcout << vii_i << std::endl;
       NumericVector v = demo_proj(vii_i, tmat, matsd, stmat, estamb, estdem,
                     equalsign, tmat_fecundity);
-//                    Rcpp::Rcout << v << std::endl;
-        arma::vec v1 = as<arma::vec>(v);
-        arma::mat m1 = as<arma::mat>(vn1[ii]);
-//        
-
-//        Rcpp::Rcout << v1 << std::endl;
-        m1.insert_cols(m1.n_cols, v1);
-        vn1[ii] =  m1; 
+      arma::vec v1 = as<arma::vec>(v);
+      arma::mat m1 = as<arma::mat>(vn1[ii]);
+      m1.insert_cols(m1.n_cols, v1);
+      vn1[ii] =  m1; 
       }
   }
   return(vn1);
