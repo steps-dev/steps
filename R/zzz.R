@@ -10,7 +10,7 @@
           if (.Platform$OS.type == "windows") {
             base::Sys.which("OSGeo4W.bat")
           } else {
-            base::Sys.which("OSGeo4W")
+            base::Sys.which("gdal_polygonize.py")
           }
         }
       )

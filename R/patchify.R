@@ -13,6 +13,11 @@
 #'           units of p4s, and are shortest cartesian distances between patches.
 #' @author John Baumgartner
 #' @export
+
+#' @importFrom methods is
+#' @importFrom raster raster
+#' @importFrom sp CRS
+
 #' @examples
 #' library(rasterVis)
 #' library(raster)
