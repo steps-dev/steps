@@ -14,17 +14,26 @@
 
 polygonizer <- function(x, outshape=NULL, pypath=NULL, readpoly=TRUE, 
                         quietish=TRUE) {
-  if (base::isTRUE(readpoly)) 
-    if (base::is.null(pypath)) {
-    cmd <- base::Sys.which('OSGeo4W.bat')
-    pypath <- 'gdal_polygonize'
-    if(cmd=='') {
-      cmd <- 'python'
-      pypath <- base::Sys.which('gdal_polygonize.py')
-      if (!base::file.exists(pypath)) 
-        stop("Could not find gdal_polygonize.py or OSGeo4W on your system.") 
-    }
+  if (base::isTRUE(readpoly))
+  if (base::is.null(pypath)) {  
+  cmd <- base::getOption("cmd.path");
+  pypath <- base::getOption("py.path");
+  if (!base::nzchar(cmd)) base::stop("cmd path not found");
+  if (!base::nzchar(pypath)) base::stop("gdal path not found");
+    #   if (!base::file.exists(pypath))
+    #     stop("Could not find gdal_polygonize.py or OSGeo4W on your system.")
   }
+  #   
+  #   if (base::is.null(pypath)) {
+  #   cmd <- base::Sys.which('OSGeo4W.bat')
+  #   pypath <- 'gdal_polygonize'
+  #   if(cmd=='') {
+  #     cmd <- 'python'
+  #     pypath <- base::Sys.which('gdal_polygonize.py')
+  #     if (!base::file.exists(pypath)) 
+  #       stop("Could not find gdal_polygonize.py or OSGeo4W on your system.") 
+  #   }
+  # }
   if (!base::is.null(outshape)) {
     outshape <- base::sub('\\.shp$', '', outshape)
     f.exists <- base::file.exists(base::paste(outshape, c('shp', 'shx', 'dbf'), sep='.'))

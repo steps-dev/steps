@@ -1,16 +1,22 @@
-# Check for OSGeo4W.bat binary
-
+# Check for OSGeo4W.bat and gdal_polygonize.py
 .onLoad <-
   function(libname, pkgname) {
     op <-
       base::options()
     op.dlmpr <-
       base::list(
-        dlmpr.path = {
+        cmd.path = {
           if (.Platform$OS.type == "windows") {
             base::Sys.which("OSGeo4W.bat")
           } else {
-            base::Sys.which("gdal_polygonize.py")
+            'python'
+          }
+        },
+        py.path = {
+          if (.Platform$OS.type == "windows") {
+            'gdal_polygonize'
+            } else {
+            base::Sys.which('gdal_polygonize.py')
           }
         }
       )

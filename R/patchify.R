@@ -14,7 +14,6 @@
 #' @author John Baumgartner
 #' @export
 
-#' @importFrom methods is
 #' @importFrom raster raster
 #' @importFrom sp CRS
 
@@ -39,12 +38,12 @@
 #' spplot(foo$patchrast, col.regions=rainbow(length(foo$patchpoly)))
 
 patchify <- function(x, distance, p4s, givedist=TRUE) {
-  if(!is(x, 'Raster')) x <- raster::raster(x)
-  if(!is(p4s, 'CRS')) p4s <- sp::CRS(p4s)
+  if(!methods::is(x, 'Raster')) x <- raster::raster(x)
+  if(!methods::is(p4s, 'CRS')) p4s <- sp::CRS(p4s)
   x[x == 0] <- NA
   if(base::is.na(sp::proj4string(x))) stop(base::substitute(x), ' lacks a CRS.')
   cc <- SDMTools::ConnCompLabel(x)
-  p <- dlmpr::polygonizer(cc)
+  p <- base::suppressWarnings(dlmpr::polygonizer(cc))
   sp::proj4string(p) <- sp::proj4string(x)
   pproj <- sp::spTransform(p, p4s)
   bproj <- rgeos::gBuffer(pproj, width=distance)
