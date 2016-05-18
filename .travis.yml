@@ -4,7 +4,7 @@
 language: c
 
 # use containers
-sudo: true
+sudo: required
 
 # only run for pushes to master branch
 branches:
