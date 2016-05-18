@@ -13,5 +13,5 @@ Depends:
     R (>= 3.2.2),
 License:GPL (>= 2)
 Imports: Rcpp, magrittr, RColorBrewer, plyr, raster, rasterVis, sp, rgeos, rgdal, SDMTools
-LinkingTo: Rcpp, RcppArmadillo
+LinkingTo: Rcpp, RcppArmadillo  
 RoxygenNote: 5.0.1
