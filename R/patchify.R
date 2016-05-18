@@ -38,10 +38,16 @@
 #' spplot(foo$patchrast, col.regions=rainbow(length(foo$patchpoly)))
 
 patchify <- function(x, distance, p4s, givedist=TRUE) {
+<<<<<<< HEAD
   if(!methods::is(x, 'Raster')) x <- raster::raster(x)
   if(!methods::is(p4s, 'CRS')) p4s <- sp::CRS(p4s)
   x[x == 0] <- NA
+=======
+  if(!is(x, 'Raster')) x <- raster::raster(x)
+  if(!is(p4s, 'CRS')) p4s <- sp::CRS(p4s)
+>>>>>>> 90df5b80a1cdc85da835eb9cd0e0f4f564dc33cb
   if(base::is.na(sp::proj4string(x))) stop(base::substitute(x), ' lacks a CRS.')
+  x[x == 0] <- NA
   cc <- SDMTools::ConnCompLabel(x)
   p <- base::suppressWarnings(dlmpr::polygonizer(cc))
   sp::proj4string(p) <- sp::proj4string(x)
