@@ -1,74 +1,21 @@
-# .travis.yml using container-based infrastructure
-# based on https://github.com/dmenne/bugsexamples/blob/master/.travis.yml
-# use c as catch-all language
-language: c
-
-# use containers
+language: r
+warnings_are_errors: true
 sudo: required
+r: devel
 
-# only run for pushes to master branch
-branches:
-  only:
-   - master
-
-# install R: use r-packages-precise (https://cran.r-project.org/bin/linux/ubuntu/precise/)
-# as source which is white listed (https://github.com/travis-ci/apt-source-whitelist/)
-addons:
-  apt:
-    sources:
-    - r-packages-precise
-    packages:
-    - r-base-dev
-    - r-recommended
-    - pandoc
-    - libgdal-dev
-    - libproj-dev
-
-# cache local R libraries directory:
-cache:
-  directories:
-    - ~/Rlib
-
-# install the package and dependencies:
-# - create directory for R libraries (if not already exists)
-# - create .Renviron with location of R libraries
-# - define R repository in .Rprofile
-# - add .travis.yml to .Rbuildignore
-# - install devtools if not already installed
-# - update all installed packages
-# - install package with dependencies
-install:
-  - mkdir -p ~/Rlib
-  - echo 'R_LIBS=~/Rlib' > .Renviron
-  - echo 'options(repos = "http://cran.rstudio.com")' > .Rprofile
-  - Rscript -e 'if(!"devtools" %in% rownames(installed.packages())) { install.packages("devtools", dependencies = TRUE) }'
-  - Rscript -e 'update.packages(ask = FALSE, instlib = "~/Rlib")'
-  - Rscript -e 'devtools::install_deps(pkg = ".", dependencies = TRUE)'
-  - WORKDIR=`pwd`
-  - cd $HOME
-  - mkdir -p gdal
-  - cd gdal
-  - sudo apt-get install build-essential python-all-dev
-  - wget http://download.osgeo.org/gdal/gdal-1.9.0.tar.gz
-  - tar xvfz gdal-1.9.0.tar.gz
-  - cd gdal-1.9.0
-  - ./configure --with-python
-  - make
-  - sudo make install
-  - mkdir -p $HOME/bin
-  - ln -sf ~/gdal/bin/gdal_polygonize.py /home/travis/bin/gdal_polygonize.py
-  - cd $WORKDIR
-
-# Build and check package
-script:
-  - R CMD build .  --no-manual
-  - PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
-  - R CMD check "${PKG_FILE_NAME}"  --no-build-vignettes --no-manual --as-cran
-
- # send e-mails if stuff changes
-notifications:
-  email:
-    on_success: change
-    on_failure: change
+dist: trusty
+before_install:
+- sudo apt-get update -qq
+- sudo apt-get install -y
+  libhdf5-7 libhdf5-dev
+  libgdal1h libnetcdf-dev
+  gdal-bin libproj-dev libgdal-dev
 
   
+install:
+  - Rscript -e 'if(!"devtools" %in% rownames(installed.packages())) install.packages("devtools", dependencies = TRUE)'
+  - Rscript -e 'install.packages(c("Rcpp", "magrittr", "RColorBrewer", "plyr", "raster", "rasterVis", "sp", "rgeos", "rgdal", "SDMTools"), dependencies = TRUE)'
+
+notifications:
+  on_success: change
+  on_failure: always
