@@ -4,7 +4,7 @@
 language: c
 
 # use containers
-sudo: false
+sudo: true
 
 # only run for pushes to master branch
 branches:
@@ -48,15 +48,15 @@ install:
   - cd $HOME
   - mkdir -p gdal
   - cd gdal
-  - apt-get install build-essential python-all-dev
+  - sudo apt-get install build-essential python-all-dev
   - wget http://download.osgeo.org/gdal/gdal-1.9.0.tar.gz
   - tar xvfz gdal-1.9.0.tar.gz
   - cd gdal-1.9.0
   - ./configure --with-python
   - make
-  - make install
+  - sudo make install
   - mkdir -p $HOME/bin
-  - ln -sf ~/gdal/bin/gdal_polygonize /home/travis/bin/gdal_polygonize
+  - ln -sf ~/gdal/bin/gdal_polygonize.py /home/travis/bin/gdal_polygonize.py
   - cd $WORKDIR
 
 # Build and check package
