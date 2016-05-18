@@ -13,45 +13,45 @@
 #'           units of p4s, and are shortest cartesian distances between patches.
 #' @author John Baumgartner
 #' @export
-# #' @examples
-# #' library(rasterVis)
-# #' library(raster)
-# #' set.seed(1)
-# #' xy <- expand.grid(x=seq(145, 150, 0.1), y=seq(-40, -35, 0.1))
-# #' Dd <- as.matrix(dist(xy))
-# #' w <- exp(-1/nrow(xy) * Dd)
-# #' Ww <- chol(w)
-# #' xy$z <- t(Ww) %*% rnorm(nrow(xy), 0, 0.1)
-# #' coordinates(xy) <- ~x+y
-# #' r <- rasterize(xy, raster(points2grid(xy)), 'z')
-# #' r2 <- raster(r)
-# #' res(r2) <- 0.01
-# #' r2 <- resample(r, r2)
-# #' proj4string(r2) <- '+init=epsg:4283'
-# #' rthr <- r2 > quantile(r2, 0.9)
-# #' levelplot(rthr, margin=FALSE, col.regions=0:1, colorkey=FALSE)
-# #' foo <- patchify(rthr, distance=1000, '+init=epsg:3577')
-# #' spplot(foo$patchrast, col.regions=rainbow(length(foo$patchpoly)))
+#' @examples
+#' library(rasterVis)
+#' library(raster)
+#' set.seed(1)
+#' xy <- expand.grid(x=seq(145, 150, 0.1), y=seq(-40, -35, 0.1))
+#' Dd <- as.matrix(dist(xy))
+#' w <- exp(-1/nrow(xy) * Dd)
+#' Ww <- chol(w)
+#' xy$z <- t(Ww) %*% rnorm(nrow(xy), 0, 0.1)
+#' coordinates(xy) <- ~x+y
+#' r <- rasterize(xy, raster(points2grid(xy)), 'z')
+#' r2 <- raster(r)
+#' res(r2) <- 0.01
+#' r2 <- resample(r, r2)
+#' proj4string(r2) <- '+init=epsg:4283'
+#' rthr <- r2 > quantile(r2, 0.9)
+#' levelplot(rthr, margin=FALSE, col.regions=0:1, colorkey=FALSE)
+#' foo <- patchify(rthr, distance=1000, '+init=epsg:3577')
+#' spplot(foo$patchrast, col.regions=rainbow(length(foo$patchpoly)))
 
 patchify <- function(x, distance, p4s, givedist=TRUE) {
-  if(!is(x, 'Raster')) x <- raster(x)
-  if(!is(p4s, 'CRS')) p4s <- CRS(p4s)
+  if(!is(x, 'Raster')) x <- raster::raster(x)
+  if(!is(p4s, 'CRS')) p4s <- sp::CRS(p4s)
   x[x == 0] <- NA
-  if(is.na(proj4string(x))) stop(substitute(x), ' lacks a CRS.')
-  cc <- ConnCompLabel(x)
-  p <- polygonizer(cc)
-  proj4string(p) <- proj4string(x)
-  pproj <- spTransform(p, p4s)
-  bproj <- gBuffer(pproj, width=distance)
-  pproj$patch <- over(pproj, disaggregate(bproj))
-  b <- spTransform(pproj, CRS(proj4string(x)))
-  pout <- aggregate(b, vars='patch')
-  pout$patch <- as.factor(pout$patch)
-  rout <- rasterize(pout, x)
-  out <- list(patchrast=rout, patchpoly=pout)
-  if(isTRUE(givedist)) {
-    poutproj <- spTransform(pout, p4s)
-    d <- gDistance(poutproj, poutproj, byid=TRUE)
-    out <- c(out, list(distance=d))
+  if(base::is.na(sp::proj4string(x))) stop(base::substitute(x), ' lacks a CRS.')
+  cc <- SDMTools::ConnCompLabel(x)
+  p <- dlmpr::polygonizer(cc)
+  sp::proj4string(p) <- sp::proj4string(x)
+  pproj <- sp::spTransform(p, p4s)
+  bproj <- rgeos::gBuffer(pproj, width=distance)
+  pproj$patch <- sp::over(pproj, sp::disaggregate(bproj))
+  b <- sp::spTransform(pproj, sp::CRS(sp::proj4string(x)))
+  pout <- raster::aggregate(b, vars='patch')
+  pout$patch <- base::as.factor(pout$patch)
+  rout <- raster::rasterize(pout, x)
+  out <- base::list(patchrast=rout, patchpoly=pout)
+  if(base::isTRUE(givedist)) {
+    poutproj <- sp::spTransform(pout, p4s)
+    d <- rgeos::gDistance(poutproj, poutproj, byid=TRUE)
+    out <- base::c(out, base::list(distance=d))
   } 
 }  

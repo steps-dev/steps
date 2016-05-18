@@ -14,39 +14,38 @@
 
 polygonizer <- function(x, outshape=NULL, pypath=NULL, readpoly=TRUE, 
                         quietish=TRUE) {
-  if (isTRUE(readpoly)) 
-    if (is.null(pypath)) {
-    cmd <- Sys.which('OSGeo4W.bat')
+  if (base::isTRUE(readpoly)) 
+    if (base::is.null(pypath)) {
+    cmd <- base::Sys.which('OSGeo4W.bat')
     pypath <- 'gdal_polygonize'
     if(cmd=='') {
       cmd <- 'python'
-      pypath <- Sys.which('gdal_polygonize.py')
-      if (!file.exists(pypath)) 
+      pypath <- base::Sys.which('gdal_polygonize.py')
+      if (!base::file.exists(pypath)) 
         stop("Could not find gdal_polygonize.py or OSGeo4W on your system.") 
     }
   }
-  if (!is.null(outshape)) {
-    outshape <- sub('\\.shp$', '', outshape)
-    f.exists <- file.exists(paste(outshape, c('shp', 'shx', 'dbf'), sep='.'))
-    if (any(f.exists)) 
-      stop(sprintf('File already exists: %s', 
-                   toString(paste(outshape, c('shp', 'shx', 'dbf'), 
+  if (!base::is.null(outshape)) {
+    outshape <- base::sub('\\.shp$', '', outshape)
+    f.exists <- base::file.exists(base::paste(outshape, c('shp', 'shx', 'dbf'), sep='.'))
+    if (base::any(f.exists)) 
+      stop(base::sprintf('File already exists: %s', 
+                   toString(base::paste(outshape, c('shp', 'shx', 'dbf'), 
                                   sep='.')[f.exists])), call.=FALSE)
-  } else outshape <- tempfile()
+  } else outshape <- base::tempfile()
   if (is(x, 'Raster')) {
-    # require(raster)
-    writeRaster(x, {f <- tempfile(fileext='.tif')})
-    rastpath <- normalizePath(f)
-  } else if (is.character(x)) {
-    rastpath <- normalizePath(x)
+    raster::writeRaster(x, {f <- base::tempfile(fileext='.tif')})
+    rastpath <- base::normalizePath(f)
+  } else if (base::is.character(x)) {
+    rastpath <- base::normalizePath(x)
   } else stop('x must be a file path (character string), or a Raster object.')
   
-  system2(cmd, args=(
-    sprintf('"%s" "%s" %s -f "ESRI Shapefile" "%s.shp"', 
-            pypath, rastpath, ifelse(quietish, '-q ', ''), outshape)))
+  base::system2(cmd, args=(
+    base::sprintf('"%s" "%s" %s -f "ESRI Shapefile" "%s.shp"', 
+            pypath, rastpath, base::ifelse(quietish, '-q ', ''), outshape)))
   
-  if (isTRUE(readpoly)) {
-    shp <- readOGR(dirname(outshape), layer = basename(outshape), 
+  if (base::isTRUE(readpoly)) {
+    shp <- rgdal::readOGR(base::dirname(outshape), layer = base::basename(outshape), 
                    verbose=!quietish)
     return(shp) 
   }

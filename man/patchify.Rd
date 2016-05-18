@@ -26,6 +26,26 @@ units of p4s, and are shortest cartesian distances between patches.}
 patchify
 Clump raster cells into patches, with optional neighbourhood distance.
 }
+\examples{
+library(rasterVis)
+library(raster)
+set.seed(1)
+xy <- expand.grid(x=seq(145, 150, 0.1), y=seq(-40, -35, 0.1))
+Dd <- as.matrix(dist(xy))
+w <- exp(-1/nrow(xy) * Dd)
+Ww <- chol(w)
+xy$z <- t(Ww) \%*\% rnorm(nrow(xy), 0, 0.1)
+coordinates(xy) <- ~x+y
+r <- rasterize(xy, raster(points2grid(xy)), 'z')
+r2 <- raster(r)
+res(r2) <- 0.01
+r2 <- resample(r, r2)
+proj4string(r2) <- '+init=epsg:4283'
+rthr <- r2 > quantile(r2, 0.9)
+levelplot(rthr, margin=FALSE, col.regions=0:1, colorkey=FALSE)
+foo <- patchify(rthr, distance=1000, '+init=epsg:3577')
+spplot(foo$patchrast, col.regions=rainbow(length(foo$patchpoly)))
+}
 \author{
 John Baumgartner
 }
