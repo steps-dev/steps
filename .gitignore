@@ -2,6 +2,7 @@
 .Rhistory
 .RData
 developing_functions/
+data/
 ramasr.Rproj
 src/*.o
 src/*.so
