@@ -2,7 +2,7 @@
 #' @importFrom Rcpp sourceCpp
 NULL
 
-#' dlmp
+#' demographic_mod
 #' 
 #' Demographic projection
 #' 
@@ -18,7 +18,7 @@ NULL
 #' @param tmat_fecundity Logical. Should the first row of tmat as fecundities?
 #' @param nrep int number of simulations to run.
 #' @param time int length of the demographic trajectory.
-#' @return dlmp object a list of demographic projections
+#' @return demographic_mod object a list of demographic projections
 #' @author Skipton Woolley
 #' @seealso \code{link{demo_proj_n_cpp}}
 #' 
@@ -26,16 +26,16 @@ NULL
 #' tmat <- matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
 #' matsd <- tmat/10
 #' v0 <- c(80,20,0)
-#' sim_t10_rep100 <- dlmp(v0=v0,tmat=tmat,matsd=matsd,estdem=TRUE,time=10,nrep=100) 
+#' sim_t10_rep100 <- demographic_mod(v0=v0,tmat=tmat,matsd=matsd,estdem=TRUE,time=10,nrep=100) 
 #' @export
 #' 
-setGeneric("dlmp",
+setGeneric("demographic_mod",
   function (v0, tmat, matsd = NULL, stmat = NULL,
             estamb = FALSE, estdem = FALSE, 
             equalsign = TRUE, tmat_fecundity = FALSE, nrep = 10, 
             time = 10) {
+  if(diff(dim(tmat)) !=0) stop("transition matrix has different number of cols and row. only square matrices please!")  
   vn <- NULL
-  # vm <- NULL
   for (i in 1:nrep) {
     vn[[i]] <- base::cbind(v0, v0)
   }
@@ -44,8 +44,20 @@ setGeneric("dlmp",
                        equalsign = equalsign, stmat = stmat, tmat_fecundity = tmat_fecundity,
                        nrep = nrep, time = time)
   vn <- base::lapply(v, function(x) x[,-1])
-  vn <- base::list(vn = vn, tmat = tmat)
-  class(vn) <- "dlmp"
+  di <- dim(tmat)[1]
+  m.names <- dimnames(tmat)[[1]]
+  if(is.null(m.names)) m.names <- paste("stage.",1:di ,sep="")
+  ea<- eigen(tmat)
+  lambda <-abs( ea$values[1])
+  ssd <- abs(ea$vectors[,1]/sum(ea$vectors[,1]) ) 
+  ae <- eigen(t(tmat))
+  vr <- abs(ae$vectors[,1]/ae$vectors[1,1] )
+  sensitivity <-  (vr  %*%  t(ssd))  / (t(vr) %*% ssd)[1,1]
+  elasticity <- sensitivity * tmat / lambda
+  vn <- base::list(vn = vn, tmat = tmat,lambda=lambda, stable.stage.distribution = ssd,
+                   reproductive.value =vr, sensitivity = sensitivity,
+                   elasticity=elasticity,m.names= m.names)
+  class(vn) <- "demographic_mod"
   return(vn)
 }
 )
