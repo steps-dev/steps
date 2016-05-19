@@ -16,6 +16,9 @@
 
 #' @importFrom raster raster
 #' @importFrom sp CRS
+#' @importFrom methods is
+#' @importClassesFrom raster Raster
+#' @importClassesFrom sp CRS
 
 #' @examples
 #' library(rasterVis)

@@ -26,6 +26,6 @@ plot.sim_metapop <- function(x,...){
     # dia <- sqrt(max(y));
     # plot(locations, asp=1, cex=sqrt(x$area)/dia, xlab="", ylab="", pch=21,col="blue", bg=cl)
     graphics::matplot(0:x$time, base::sapply(x$mp, function(zz) base::apply(zz,2, base::sum)),
-                      type = 'l', lty = 1, xlab = "time", ylab = "abundance",pch = 1,col="#00000030", ...)
+                      type = 'l', lty = 1, xlab = "time", ylab = "population size",pch = 1,col="#00000030", ...)
     graphics::lines(0:(x$time), x$sim_p_obs,type = 'l', col='red',lwd=2)  
 }

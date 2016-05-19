@@ -4,7 +4,7 @@
 \alias{metapop}
 \title{C++ metapopulation function for a single timestep.}
 \usage{
-metapop(presence, dist_mat, Ei, y, c = 1, col_meth = "H")
+metapop(presence, dist_mat, Ei, y, c = 1, coln_fun = "H")
 }
 \arguments{
 \item{presence}{NumericVector Initial occupancy of each patch}
@@ -17,7 +17,7 @@ metapop(presence, dist_mat, Ei, y, c = 1, col_meth = "H")
 
 \item{c}{double colonisation scale parameter see Ovaskainen 2002.}
 
-\item{col_meth}{char which method to use? 'H' = Hanski 1994, 'M'= Moilanen 2004, 'O'= Ovaskainen 2002. See decription for details.}
+\item{coln_fun}{char which method to use? 'H' = Hanski 1994, 'M'= Moilanen 2004, 'O'= Ovaskainen 2002. See decription for details.}
 }
 \description{
 C++ metapopulation function for a single timestep.

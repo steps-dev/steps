@@ -5,8 +5,8 @@
 \title{sim_metapop}
 \usage{
 sim_metapop(nrep = 10, time = 20, dist, area, presence, y = 1, x = 1,
-  e = 1, alpha = 1, beta = 1, hanski_dispersal_kernal = "H",
-  locations = NULL, c = 1, col_meth = "H")
+  e = 1, alpha = 1, beta = 1, disp_fun = "H", locations = NULL,
+  c = 1, coln_fun = "H")
 }
 \arguments{
 \item{nrep}{Number of simulations.}
@@ -29,13 +29,13 @@ sim_metapop(nrep = 10, time = 20, dist, area, presence, y = 1, x = 1,
 
 \item{beta}{double parameter that represents the shape of the dispersal kernel.}
 
-\item{hanski_dispersal_kernal}{char if 'H' uses hanski(1994), if 'S' uses shaw(1995).}
+\item{disp_fun}{char Which dispersal function to use. 'H' uses hanski(1994), if 'S' uses shaw(1995).}
 
 \item{locations}{NULL or NumericMatrix Longitudes and latitudes of coordinates of the patches}
 
 \item{c}{double colonisation scale parameter see Ovaskainen 2002.}
 
-\item{col_meth}{char which method to use? 'H' = Hanski 1994, 'M'= Moilanen 2004, 'O'= Ovaskainen 2002. See decription for details.}
+\item{coln_fun}{char which colonisation function to use. 'H' = Hanski (1994), 'M'= Moilanen (2004), 'O'= Ovaskainen (2002). See decription for details.}
 }
 \description{
 Demographic projection
@@ -53,7 +53,9 @@ area=exp(-seq(.1,10,length.out = n))*10,presence=rbinom(n,1,.8))
 area <- meta_data$area
 dist <- as.matrix(with(meta_data, dist(cbind(x1, x2))))
 presence <- meta_data$presence
-mp <- sim_metapop(nrep=10, time=20, dist, area, presence, x = 0.42, e = 0.061, y = 15.2)
+locations <- meta_data[,c('x1','x2')]
+mp <- sim_metapop(nrep=10, time=100, dist=dist, area=area, presence=presence,locations=locations,
+                  x = 0.42, e = 0.0061, y = 1.2)
 }
 \author{
 Skipton Woolley

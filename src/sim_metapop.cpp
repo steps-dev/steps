@@ -5,16 +5,16 @@ using namespace Rcpp;
 //' @param dist Distances between patches (symetrical matrix)
 //' @param alpha Exponential decay rate of patch connectivity (dispersion parameter)
 //' @param beta double parameter that represents the shape of the dispersal kernel.
-//' @param hanski_dispersal_kernal char if 'H' uses hanski(1994), if 'S' uses shaw(1995).
+//' @param disp_fun char if 'H' uses hanski(1994), if 'S' uses shaw(1995).
 //' @export
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
 NumericMatrix meta_dispersal_fun(NumericMatrix dist, double alpha, 
-                                 double  beta=1, char hanski_dispersal_kernal = 'H') {
+                                 double  beta=1, char disp_fun = 'H') {
   arma::mat dist1 = as<arma::mat>(dist);
   arma::mat disp_mat(dist1.n_rows,dist1.n_cols);
-  if(hanski_dispersal_kernal == 'H') disp_mat = exp(-alpha * dist1);
-  if(hanski_dispersal_kernal == 'S') disp_mat = 1/(1+(alpha * arma::pow(dist1,beta)));
+  if(disp_fun == 'H') disp_mat = exp(-alpha * dist1);
+  if(disp_fun == 'S') disp_mat = 1/(1+(alpha * arma::pow(dist1,beta)));
   return(wrap(disp_mat));
 }
 
@@ -22,15 +22,15 @@ NumericMatrix meta_dispersal_fun(NumericMatrix dist, double alpha,
 //' @param s NumericVector that represents connectivity
 //' @param y double colonisation parameter
 //' @param c double colonisation scale parameter see Ovaskainen 2002.
-//' @param col_meth char which method to use? 'H' = Hanski 1994, 'M'= Moilanen 2004, 'O'= Ovaskainen 2002. See decription for details.
+//' @param coln_fun char which method to use? 'H' = Hanski 1994, 'M'= Moilanen 2004, 'O'= Ovaskainen 2002. See decription for details.
 //' @export
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
-NumericVector meta_colonisation_fun(NumericVector s, double y, double c=1, char col_meth='H') {
+NumericVector meta_colonisation_fun(NumericVector s, double y, double c=1, char coln_fun='H') {
   NumericVector cl(s.size()); 
-  if(col_meth == 'H') cl = Rcpp::pow(s,2)/(Rcpp::pow(s,2) + (y*y));
-  if(col_meth == 'M') cl = 1-Rcpp::exp(-y*s);
-  if(col_meth == 'O') cl = Rcpp::pow(s,2)/(Rcpp::pow(s,2) + (1/c));
+  if(coln_fun == 'H') cl = Rcpp::pow(s,2)/(Rcpp::pow(s,2) + (y*y));
+  if(coln_fun == 'M') cl = 1-Rcpp::exp(-y*s);
+  if(coln_fun == 'O') cl = Rcpp::pow(s,2)/(Rcpp::pow(s,2) + (1/c));
   return(cl);
 }
 
@@ -42,11 +42,11 @@ NumericVector meta_colonisation_fun(NumericVector s, double y, double c=1, char 
 //' @param Ei patch extinction rate at time i. note: In the future I need to pull this from demographic model.
 //' @param y double colonisation parameter
 //' @param c double colonisation scale parameter see Ovaskainen 2002.
-//' @param col_meth char which method to use? 'H' = Hanski 1994, 'M'= Moilanen 2004, 'O'= Ovaskainen 2002. See decription for details.
+//' @param coln_fun char which method to use? 'H' = Hanski 1994, 'M'= Moilanen 2004, 'O'= Ovaskainen 2002. See decription for details.
 //' @export
 // [[Rcpp::export]]
 NumericVector metapop(NumericVector presence, NumericMatrix dist_mat, NumericVector Ei, 
-                      double y, double c = 1, char col_meth='H'){
+                      double y, double c = 1, char coln_fun='H'){
   int presences = presence.length();
   arma::vec pres = presence;
   NumericVector s(presences);
@@ -59,7 +59,7 @@ NumericVector metapop(NumericVector presence, NumericMatrix dist_mat, NumericVec
     s[i] = sum(dm1(i,_));
   }
   NumericVector pa(presences); 
-  NumericVector cl =  meta_colonisation_fun(s,y,c,col_meth);
+  NumericVector cl =  meta_colonisation_fun(s,y,c,coln_fun);
   for (int j=0; j < presences; j++) {
     if (presence[j] == 0 && R::runif(0,1)  < cl[j])
       presence[j] = 1;
@@ -80,16 +80,16 @@ NumericVector metapop(NumericVector presence, NumericMatrix dist_mat, NumericVec
 //' @param e Minimum area of patches
 //' @param alpha Exponential decay rate of patch connectivity (dispersion parameter)
 //' @param beta double parameter that represents the shape of the dispersal kernel.
-//' @param hanski_dispersal_kernal char if 'H' uses hanski(1994), if 'S' uses shaw(1995).
+//' @param disp_fun char if 'H' uses hanski(1994), if 'S' uses shaw(1995).
 //' @param locations NULL or NumericMatrix Longitudes and latitudes of coordinates of the patches
 //' @param c double colonisation scale parameter see Ovaskainen 2002.
-//' @param col_meth char which method to use? 'H' = Hanski 1994, 'M'= Moilanen 2004, 'O'= Ovaskainen 2002. See decription for details.
+//' @param coln_fun char which method to use? 'H' = Hanski 1994, 'M'= Moilanen 2004, 'O'= Ovaskainen 2002. See decription for details.
 //' @export
 // [[Rcpp::export]]
 NumericMatrix metapop_n(int time, NumericMatrix dist, NumericVector area, NumericVector presence, 
-                 double y = 1, double x = 1, double e=1, double alpha = 1, double beta = 1, char hanski_dispersal_kernal = 'H',
-                 Rcpp::Nullable<Rcpp::NumericMatrix> locations = R_NilValue, double c = 1, char col_meth='H'){
- arma::mat dist_mat = as<arma::mat>(meta_dispersal_fun(dist,alpha,beta,hanski_dispersal_kernal));
+                 double y = 1, double x = 1, double e=1, double alpha = 1, double beta = 1, char disp_fun = 'H',
+                 Rcpp::Nullable<Rcpp::NumericMatrix> locations = R_NilValue, double c = 1, char coln_fun='H'){
+ arma::mat dist_mat = as<arma::mat>(meta_dispersal_fun(dist,alpha,beta,disp_fun));
  dist_mat.diag().zeros();
  int ps = presence.size();
  arma::mat dist_mat2;
@@ -105,7 +105,7 @@ NumericMatrix metapop_n(int time, NumericMatrix dist, NumericVector area, Numeri
  presence_mat(_,0) = presence;
  for (int i=0; i<time;i++){
    NumericVector tmp = presence_mat(_,i);
-   NumericVector tmp1 = metapop(tmp,dist_mat3, Ei, y, c, col_meth);
+   NumericVector tmp1 = metapop(tmp,dist_mat3, Ei, y, c, coln_fun);
    presence_mat(_,i+1)=tmp1;
  }
  return(presence_mat);
@@ -123,20 +123,20 @@ NumericMatrix metapop_n(int time, NumericMatrix dist, NumericVector area, Numeri
 //' @param e Minimum area of patches
 //' @param alpha Exponential decay rate of patch connectivity (dispersion parameter)
 //' @param beta double parameter that represents the shape of the dispersal kernel.
-//' @param hanski_dispersal_kernal char if 'H' uses hanski(1994), if 'S' uses shaw(1995).
+//' @param disp_fun char if 'H' uses hanski(1994), if 'S' uses shaw(1995).
 //' @param locations NULL or NumericMatrix Longitudes and latitudes of coordinates of the patches
 //' @param c double colonisation scale parameter see Ovaskainen 2002.
-//' @param col_meth char which method to use? 'H' = Hanski 1994, 'M'= Moilanen 2004, 'O'= Ovaskainen 2002. See decription for details.
+//' @param coln_fun char which method to use? 'H' = Hanski 1994, 'M'= Moilanen 2004, 'O'= Ovaskainen 2002. See decription for details.
 //' @export
 // [[Rcpp::export]]
 List metapop_n_cpp(int nrep, int time, NumericMatrix dist, NumericVector area, NumericVector presence,
-                   double y = 1, double x = 1, double e=1, double alpha = 1, double beta = 1, char hanski_dispersal_kernal = 'H',
-                   Rcpp::Nullable<Rcpp::NumericMatrix> locations = R_NilValue, double c = 1, char col_meth='H'){
+                   double y = 1, double x = 1, double e=1, double alpha = 1, double beta = 1, char disp_fun = 'H',
+                   Rcpp::Nullable<Rcpp::NumericMatrix> locations = R_NilValue, double c = 1, char coln_fun='H'){
   List TempList(nrep);
    for (int ii=0;ii<nrep;ii++) {
       TempList[ii] = metapop_n(time = time, dist = dist, area = area, presence = presence,
                                y = y, x = x, e=e, alpha = alpha, beta = beta, 
-                               hanski_dispersal_kernal = hanski_dispersal_kernal, locations = locations, c=c,col_meth=col_meth);
+                               disp_fun = disp_fun, locations = locations, c=c,coln_fun=coln_fun);
     }
     return(TempList);
 }
