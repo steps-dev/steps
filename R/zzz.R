@@ -13,11 +13,7 @@
           }
         },
         py.path = {
-          if (.Platform$OS.type == "windows") {
-            'gdal_polygonize'
-            } else {
-            base::Sys.which('gdal_polygonize.py')
-          }
+          system.file("python", "gdal_polygonize.py", package = "dlmpr");
         }
       )
     toset <-

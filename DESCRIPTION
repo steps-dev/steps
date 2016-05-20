@@ -15,3 +15,4 @@ License:GPL (>= 2)
 Imports: Rcpp, magrittr, RColorBrewer, plyr, raster, rasterVis, sp, rgeos, rgdal, SDMTools, methods
 LinkingTo: Rcpp, RcppArmadillo  
 RoxygenNote: 5.0.1
+SystemRequirements: python

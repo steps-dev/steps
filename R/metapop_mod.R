@@ -1,4 +1,4 @@
-#' sim_metapop
+#' metapop_mod
 #'
 #' Demographic projection
 #' 
@@ -31,10 +31,10 @@
 #' dist <- as.matrix(with(meta_data, dist(cbind(x1, x2))))
 #' presence <- meta_data$presence
 #' locations <- meta_data[,c('x1','x2')]
-#' mp <- sim_metapop(nrep=10, time=100, dist=dist, area=area, presence=presence,locations=locations,
+#' mp <- metapop_mod(nrep=10, time=100, dist=dist, area=area, presence=presence,locations=locations,
 #'                   x = 0.42, e = 0.0061, y = 1.2)
 
-setGeneric("sim_metapop",
+setGeneric("metapop_mod",
            function(nrep=10, time=20, dist, area, presence,
                     y = 1, x = 1, e=1, alpha = 1, beta = 1,
                     disp_fun = 'H',locations = NULL,
@@ -49,7 +49,7 @@ setGeneric("sim_metapop",
              results <- base::list(mp = mp, sim_p_obs = sim_p_obs, sim_i_obs = sim_i_obs,
                              nrep=nrep, time = time, dist = dist, area = area, y = y, x = x, e = e, 
                              alpha = alpha, beta=beta,locations = locations)
-             base::class(results) <- "sim_metapop"
+             base::class(results) <- "metapop_mod"
              return(results)
            }
 )
