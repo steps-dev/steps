@@ -11,28 +11,12 @@
 #' @param givedist should the distance matrix be returned? (logical). Distances are in the 
 #'           units of p4s, and are shortest cartesian distances between patches.
 #' @param x a raster of species habitit suitability (occupancy)
-#' @param a=6
-#' @param b=3
-#' @param c=0.5
+#' @param a parameter for carrying capacity model
+#' @param b parameter for carrying capacity model
+#' @param c parameter for carrying capacity model
 #' @param cc_mod model form for converting hs to carrying capacity. 
 
 #' @importFrom raster raster
-#' @examples 
-library(raster)
-set.seed(1)
-xy <- expand.grid(x=seq(145, 150, 0.1), y=seq(-40, -35, 0.1))
-Dd <- as.matrix(dist(xy))
-w <- exp(-1/nrow(xy) * Dd)
-Ww <- chol(w)
-xy$z <- t(Ww) %*% rnorm(nrow(xy), 0, 0.1)
-coordinates(xy) <- ~x+y
-r <- rasterize(xy, raster(points2grid(xy)), 'z')
-r2 <- raster(r)
-res(r2) <- 0.01
-r2 <- resample(r, r2)
-proj4string(r2) <- '+init=epsg:4283'
-r2[] <-scales::rescale(r2[])
-hsm <- r2
 
 hsm_to_metapop <- function(hsm,occ_thresh=0.8,x, distance, p4s, 
                            givedist=TRUE, a, b, c, cc_mod){
@@ -41,7 +25,7 @@ hsm_to_metapop <- function(hsm,occ_thresh=0.8,x, distance, p4s,
   K <- cc_fun(hsm,a=a,b=b,c=c,cc_mod=cc_mod)
   totalHS <- raster::extract(hsm,patches$patchpoly,sum,na.rm=TRUE)
   meanHS <- raster::extract(hsm,patches$patchpoly,mean,na.rm=TRUE)
-  patchK <- C
+  patchK <- raster::extract(K,patches$patchpoly,sum,na.rm=TRUE)
   ppgs <- patches$patchpoly
   pp <- slot(ppgs, "data")
   di <- unlist(lapply(1:nrow(pp), function(i) {

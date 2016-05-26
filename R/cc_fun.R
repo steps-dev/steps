@@ -1,9 +1,9 @@
 #' calculate carrying capacity from occupancy
 #' 
 #' @param x a raster of species habitit suitability (occupancy)
-#' @param a=6
-#' @param b=3
-#' @param c=0.5
+#' @param a parameter for carrying capacity model
+#' @param b parameter for carrying capacity model
+#' @param c parameter for carrying capacity model
 #' @param cc_mod model form for converting hs to carrying capacity. 
 #' @author Skipton Woolley
 
