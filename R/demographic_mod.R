@@ -15,7 +15,7 @@ NULL
 #' @param estamb Logical. Should environmental stochasticity be considered to projet the dynamics of the population?
 #' @param estdem Logical. Should demographic stochasticity be employed to project the dynamics of the population?
 #' @param equalsign Logical. Should the environmental deviations have all the same sign and magnitude? 
-#' @param tmat_fecundity Logical. Should the first row of tmat as fecundities?
+#' @param tmat_fecundity Logical. Should you use the first row of tmat as fecundities?
 #' @param nrep int number of simulations to run.
 #' @param time int length of the demographic trajectory.
 #' @return demographic_mod object a list of demographic projections
@@ -34,7 +34,7 @@ setGeneric("demographic_mod",
             estamb = FALSE, estdem = FALSE, 
             equalsign = TRUE, tmat_fecundity = FALSE, nrep = 10, 
             time = 10) {
-  if(diff(dim(tmat)) !=0) stop("transition matrix has different number of cols and row. only square matrices please!")  
+  if(base::diff(base::dim(tmat)) !=0) stop("transition matrix has different number of cols and row. only square matrices please!")  
   vn <- NULL
   for (i in 1:nrep) {
     vn[[i]] <- base::cbind(v0, v0)
@@ -46,14 +46,14 @@ setGeneric("demographic_mod",
   vn <- base::lapply(v, function(x) x[,-1])
   di <- dim(tmat)[1]
   m.names <- dimnames(tmat)[[1]]
-  if(is.null(m.names)) m.names <- paste("stage.",1:di ,sep="")
-  ea<- eigen(tmat)
-  lambda <-abs( ea$values[1])
-  ssd <- abs(ea$vectors[,1]/sum(ea$vectors[,1]) ) 
-  ae <- eigen(t(tmat))
-  vr <- abs(ae$vectors[,1]/ae$vectors[1,1] )
-  sensitivity <-  (vr  %*%  t(ssd))  / (t(vr) %*% ssd)[1,1]
-  elasticity <- sensitivity * tmat / lambda
+  if(base::is.null(m.names)) m.names <- base::paste0("stage.",1:di)
+  ea<- base::eigen(tmat)
+  lambda <-base::abs(ea$values[1])
+  ssd <- base::abs(ea$vectors[,1]/sum(ea$vectors[,1]) ) 
+  ae <- base::eigen(base::t(tmat))
+  vr <- base::abs(ae$vectors[,1]/ae$vectors[1,1] )
+  sensitivity <- (vr %*% t(ssd))/(base::t(vr) %*% ssd)[1,1]
+  elasticity <- sensitivity*tmat/lambda
   vn <- base::list(vn = vn, tmat = tmat,lambda=lambda, stable.stage.distribution = ssd,
                    reproductive.value =vr, sensitivity = sensitivity,
                    elasticity=elasticity,m.names= m.names)

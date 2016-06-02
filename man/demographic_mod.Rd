@@ -23,7 +23,7 @@ demographic_mod(v0, tmat, matsd = NULL, stmat = NULL, estamb = FALSE,
 
 \item{equalsign}{Logical. Should the environmental deviations have all the same sign and magnitude?}
 
-\item{tmat_fecundity}{Logical. Should the first row of tmat as fecundities?}
+\item{tmat_fecundity}{Logical. Should you use the first row of tmat as fecundities?}
 
 \item{nrep}{int number of simulations to run.}
 
