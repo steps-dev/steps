@@ -17,29 +17,46 @@
 #' @param cc_mod model form for converting hs to carrying capacity. 
 
 #' @importFrom raster raster
-
-hsm_to_metapop <- function(hsm,occ_thresh=0.8,x, distance, p4s, 
-                           givedist=TRUE, a, b, c, cc_mod){
+#' @export
+#' @examples 
+#' library(raster)
+#' set.seed(42)
+#' xy <- expand.grid(x=seq(145, 150, 0.1), y=seq(-40, -35, 0.1))
+#' Dd <- as.matrix(dist(xy))
+#' w <- exp(-1/nrow(xy) * Dd)
+#' Ww <- chol(w)
+#' xy$z <- t(Ww) %*% rnorm(nrow(xy), 0, 0.1)
+#' coordinates(xy) <- ~x+y
+#' r <- rasterize(xy, raster(points2grid(xy)), 'z')
+#' r2 <- raster(r)
+#' res(r2) <- 0.01
+#' r2 <- resample(r, r2)
+#' metapop_spatial <- hsm_to_metapop(r2,occ_thresh=0.8,x, distance=1000, p4s='+init=epsg:3577', 
+#'                                   givedist=TRUE, a=6,b=3,c=0.5,cc_mod='exp')
+hsm_to_metapop <- function(hsm, occ_thresh=0.8, distance, p4s, 
+                           givedist=TRUE, a=6,b=3,c=0.5,cc_mod='exp'){
   rthr <- hsm > stats::quantile(hsm[], occ_thresh)
   patches <- dlmpr::patchify(rthr,distance = distance,p4s=p4s)  
-  K <- cc_fun(hsm,a=a,b=b,c=c,cc_mod=cc_mod)
+  K <- dlmpr::cc_fun(hsm,a=a,b=b,c=c,cc_mod=cc_mod)
   totalHS <- raster::extract(hsm,patches$patchpoly,sum,na.rm=TRUE)
   meanHS <- raster::extract(hsm,patches$patchpoly,mean,na.rm=TRUE)
   patchK <- raster::extract(K,patches$patchpoly,sum,na.rm=TRUE)
   ppgs <- patches$patchpoly
-  pp <- slot(ppgs, "data")
-  di <- unlist(lapply(1:nrow(pp), function(i) {
-    x <- coordinates(ppgs@polygons[[i]]@Polygons[[1]])
-    y <- rbind(x[-1,], x[1,])
+  pp <- methods::slot(ppgs, "data")
+  di <- base::unlist(base::lapply(1:base::nrow(pp), function(i) {
+    x <- sp::coordinates(ppgs@polygons[[i]]@Polygons[[1]])
+    y <- base::rbind(x[-1,], x[1,])
     d <- raster::pointDistance(x, y, lonlat=FALSE)
-    perimeter <- sum(d)
+    perimeter <- base::sum(d)
     perimeter
     }))
-  intN <- raster::extract(K,patches$patchpoly,fun=function(x,...)sum(!is.na(x)))
+  intN <- raster::extract(K,patches$patchpoly,fun=function(x,...)base::sum(!base::is.na(x)))
   intN <- intN*1.2 - (.1*di)
-  intN <- ifelse(intN<0,0,intN)
-  mean_coords <- getSpPPolygonsLabptSlots(ppgs)
-  colnames(mean_coords) <- c('x','y')
-  results <- list(hsm=hsm,patches=patches,k=K,indices=data.frame(totalHS=totalHS,meanHS=meanHS,patchK=patchK,intN=intN),mean_coords=mean_coords)
+  intN <- base::ifelse(intN<0,0,intN)
+  mean_coords <- sp::getSpPPolygonsLabptSlots(ppgs)
+  base::colnames(mean_coords) <- c('x','y')
+  results <- base::list(hsm=hsm,patches=patches,k=K,
+                  indices=base::data.frame(totalHS=totalHS,meanHS=meanHS,patchK=patchK,intN=intN),
+                  mean_coords=mean_coords)
   return(results)
 }

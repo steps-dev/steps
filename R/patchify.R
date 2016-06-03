@@ -23,7 +23,7 @@
 #' @examples
 #' library(rasterVis)
 #' library(raster)
-#' set.seed(1)
+#' set.seed(42)
 #' xy <- expand.grid(x=seq(145, 150, 0.1), y=seq(-40, -35, 0.1))
 #' Dd <- as.matrix(dist(xy))
 #' w <- exp(-1/nrow(xy) * Dd)

@@ -6,7 +6,7 @@
 #' @param c parameter for carrying capacity model
 #' @param cc_mod model form for converting hs to carrying capacity. 
 #' @author Skipton Woolley
-
+#' @export
 cc_fun<-function(x,a=6,b=3,c=0.5,cc_mod=c('exp','logit','linear')){
   type <- match.arg(cc_mod)
   switch(type,

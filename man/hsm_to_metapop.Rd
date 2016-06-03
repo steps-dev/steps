@@ -4,13 +4,11 @@
 \alias{hsm_to_metapop}
 \title{hsm_to_metapop}
 \usage{
-hsm_to_metapop(hsm, occ_thresh = 0.8, x, distance, p4s, givedist = TRUE, a,
-  b, c, cc_mod)
+hsm_to_metapop(hsm, occ_thresh = 0.8, distance, p4s, givedist = TRUE,
+  a = 6, b = 3, c = 0.5, cc_mod = "exp")
 }
 \arguments{
 \item{hsm}{a occupancy model Raster layer}
-
-\item{x}{a raster of species habitit suitability (occupancy)}
 
 \item{distance}{the neighbourhood distance. Patches that occur within this distance of
 one another will be clumped. This should be in the units of the CRS given
@@ -31,8 +29,26 @@ units of p4s, and are shortest cartesian distances between patches.}
 \item{c}{parameter for carrying capacity model}
 
 \item{cc_mod}{model form for converting hs to carrying capacity.}
+
+\item{x}{a raster of species habitit suitability (occupancy)}
 }
 \description{
 hsm_to_metapop
+}
+\examples{
+library(raster)
+set.seed(42)
+xy <- expand.grid(x=seq(145, 150, 0.1), y=seq(-40, -35, 0.1))
+Dd <- as.matrix(dist(xy))
+w <- exp(-1/nrow(xy) * Dd)
+Ww <- chol(w)
+xy$z <- t(Ww) \%*\% rnorm(nrow(xy), 0, 0.1)
+coordinates(xy) <- ~x+y
+r <- rasterize(xy, raster(points2grid(xy)), 'z')
+r2 <- raster(r)
+res(r2) <- 0.01
+r2 <- resample(r, r2)
+metapop_spatial <- hsm_to_metapop(r2,occ_thresh=0.8,x, distance=1000, p4s='+init=epsg:3577', 
+                                  givedist=TRUE, a=6,b=3,c=0.5,cc_mod='exp')
 }
 
