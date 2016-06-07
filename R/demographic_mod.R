@@ -23,7 +23,7 @@ NULL
 #' @seealso \code{link{demo_proj_n_cpp}}
 #' 
 #' @examples 
-#' tmat <- matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
+#' tmat <- as.trans_matrix(matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE))
 #' matsd <- tmat/10
 #' v0 <- c(80,20,0)
 #' sim_t10_rep100 <- demographic_mod(v0=v0,tmat=tmat,matsd=matsd,estdem=TRUE,time=10,nrep=100) 
@@ -34,7 +34,7 @@ setGeneric("demographic_mod",
             estamb = FALSE, estdem = FALSE, 
             equalsign = TRUE, tmat_fecundity = FALSE, nrep = 10, 
             time = 10) {
-  if(base::diff(base::dim(tmat)) !=0) stop("transition matrix has different number of cols and row. only square matrices please!")  
+  if(!is.trans_matrix(tmat)) stop("The transition matrix is not of trans_matrix class")  
   vn <- NULL
   for (i in 1:nrep) {
     vn[[i]] <- base::cbind(v0, v0)

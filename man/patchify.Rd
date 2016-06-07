@@ -44,7 +44,8 @@ proj4string(r2) <- '+init=epsg:4283'
 rthr <- r2 > quantile(r2, 0.9)
 levelplot(rthr, margin=FALSE, col.regions=0:1, colorkey=FALSE)
 foo <- patchify(rthr, distance=1000, '+init=epsg:3577')
-spplot(foo$patchrast, col.regions=rainbow(length(foo$patchpoly)))
+plot(foo$patchrast)
+text(foo$coords[, 2:3], labels = foo$coords[, 1])
 }
 \author{
 John Baumgartner

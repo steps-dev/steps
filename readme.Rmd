@@ -1,0 +1,27 @@
+---
+output:
+  md_document:
+    variant: markdown_github
+---
+
+[![Travis-CI Build Status](https://travis-ci.org/skiptoniam/dlmpr.svg?branch=master)](https://travis-ci.org/skiptoniam/dlmpr)
+## dlmpr is an r package for simulating dynamic landscape meta-population models.
+
+The package aims to develop a dynamic landscape meta-population models in R using a modular framework. 
+
+```{r install, eval=FALSE}
+devtools::install_github('skiptoniam/dlmpr')
+library(dlmpr)
+```
+
+Because we are interested in matrix population models (or stage based models) we have develop a matrix population model for a single population.
+
+```{r single pop}
+tmat <- as.trans_matrix(matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE))
+matsd <- tmat/10
+v0 <- c(80,20,0)
+sim_t10_rep100 <- demographic_mod(v0=v0,tmat=tmat,matsd=matsd,estdem=TRUE,time=10,nrep=100) 
+plot(sim_t10_rep100)
+```
+
+

@@ -2,6 +2,7 @@
 .Rhistory
 .RData
 developing_functions/
+old_function/
 data/
 ramasr.Rproj
 src/*.o

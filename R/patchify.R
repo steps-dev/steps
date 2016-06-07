@@ -17,6 +17,10 @@
 #' @importFrom raster raster
 #' @importFrom sp CRS
 #' @importFrom methods is
+#' @importFrom sp spDists
+#' @importFrom raster xyFromCell
+#' @importFrom raster clump
+#' @importFrom raster getValues
 #' @importClassesFrom raster Raster
 #' @importClassesFrom sp CRS
 
@@ -38,27 +42,21 @@
 #' rthr <- r2 > quantile(r2, 0.9)
 #' levelplot(rthr, margin=FALSE, col.regions=0:1, colorkey=FALSE)
 #' foo <- patchify(rthr, distance=1000, '+init=epsg:3577')
-#' spplot(foo$patchrast, col.regions=rainbow(length(foo$patchpoly)))
+#' plot(foo$patchrast)
+#' text(foo$coords[, 2:3], labels = foo$coords[, 1])
 
 patchify <- function(x, distance, p4s, givedist=TRUE) {
   if(!is(x, 'Raster')) x <- raster::raster(x)
   if(!is(p4s, 'CRS')) p4s <- sp::CRS(p4s)
   if(base::is.na(sp::proj4string(x))) stop(base::substitute(x), ' lacks a CRS.')
-  x[x == 0] <- NA
-  cc <- SDMTools::ConnCompLabel(x)
-  p <- base::suppressWarnings(dlmpr::polygonizer(cc))
-  suppressWarnings(sp::proj4string(p) <- sp::proj4string(x))
-  pproj <- sp::spTransform(p, p4s)
-  bproj <- rgeos::gBuffer(pproj, width=distance)
-  pproj$patch <- sp::over(pproj, sp::disaggregate(bproj))
-  b <- sp::spTransform(pproj, sp::CRS(sp::proj4string(x)))
-  pout <- raster::aggregate(b, by='patch')
-  pout$patch <- base::as.factor(pout$patch)
-  rout <- raster::rasterize(pout, x)
-  out <- base::list(patchrast=rout, patchpoly=pout)
+  rc <- raster::clump(rthr,directions = 4)
+  clump_id <- raster::getValues(rc)    
+  xy <- raster::xyFromCell(rc,1:ncell(rc))
+  df <- base::data.frame(xy, clump_id, is_clump = rc[] %in% freq(rc, useNA = 'no')[,1])
+  patch_coords <- plyr::ddply(df[df$is_clump == TRUE, ], .(clump_id), summarise, xm = mean(x), ym = mean(y))
+  out <- base::list(patchrast=rc, coords=patch_coords)
   if(base::isTRUE(givedist)) {
-    poutproj <- sp::spTransform(pout, p4s)
-    d <- rgeos::gDistance(poutproj, poutproj, byid=TRUE)
+    d <-  sp::spDists(coordinates(patch_coords))
     out <- base::c(out, base::list(distance=d))
   } 
 }  

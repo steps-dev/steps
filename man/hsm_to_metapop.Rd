@@ -48,7 +48,8 @@ r <- rasterize(xy, raster(points2grid(xy)), 'z')
 r2 <- raster(r)
 res(r2) <- 0.01
 r2 <- resample(r, r2)
-metapop_spatial <- hsm_to_metapop(r2,occ_thresh=0.8,x, distance=1000, p4s='+init=epsg:3577', 
-                                  givedist=TRUE, a=6,b=3,c=0.5,cc_mod='exp')
+proj4string(r2) <- '+init=epsg:4283'
+metapop_spatial <- hsm_to_metapop(r2,occ_thresh=0.8, distance=1000, p4s='+init=epsg:3577', 
+                                  givedist=TRUE, a=10,b=2,c=0.5,cc_mod='exp')
 }
 
