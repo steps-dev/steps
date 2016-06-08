@@ -1,6 +1,10 @@
-#' patchify
-#' Clump raster cells into patches, with optional neighbourhood distance.
- 
+#' @title environment objects
+#' @name environment
+#' @rdname environment
+#' @description Underlying environment for dlmpr.
+
+#' @rdname landscape
+#' @name patchify
 #' @param x a binary Raster layer (0 or NA for background, and 1 for areas to be clumped)
 #' @param distance the neighbourhood distance. Patches that occur within this distance of
 #'  one another will be clumped. This should be in the units of the CRS given
