@@ -7,12 +7,13 @@ Authors@R: person("Skipton", "Woolley", email = "swoolley@museum.vic.gov.au",
   role = c("aut", "cre"))
   person("John", "Baumgartner", email = "john.baumgartner@mq.edu.au",
   role = c("aut", "cre"))
+  person("Nick", "Golding", email = "nick.golding.research@gmail.com",
+  role = c("aut", "cre"))
 Maintainer: Skipton Woolley <swoolley@museum.vic.gov.au>
 Description: Dynamic Landscape Meta-Population Models in R
 Depends:
     R (>= 3.2.2),
 License:GPL (>= 2)
-Imports: Rcpp, magrittr, RColorBrewer, plyr, raster, rasterVis, sp, rgeos, rgdal, SDMTools, methods
-LinkingTo: Rcpp, RcppArmadillo  
+Imports: Rcpp, magrittr, RColorBrewer, plyr, raster, rasterVis, sp, rgeos, rgdal, SDMTools, methods, igraph
+LinkingTo: Rcpp, RcppArmadillo, plyr  
 RoxygenNote: 5.0.1
-SystemRequirements: python
