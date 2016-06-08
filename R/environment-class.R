@@ -3,7 +3,7 @@
 #' @rdname environment
 #' @description Underlying environment for dlmpr.
 
-#' @rdname landscape
+#' @rdname environment
 #' @name patchify
 #' @param x a binary Raster layer (0 or NA for background, and 1 for areas to be clumped)
 #' @param distance the neighbourhood distance. Patches that occur within this distance of
