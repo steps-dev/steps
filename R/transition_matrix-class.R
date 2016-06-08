@@ -1,5 +1,5 @@
 #' @title transition matrix objects 
-#' @name transition_matrix
+#' @name as.transition_matrix
 #' @rdname transition_matrix
 #' @param x For as.transition_matrix, x is a square matrix, that has transition states between population stages.
 #' @param names.st string of names for each stage
@@ -24,6 +24,7 @@ as.transition_matrix <- function(x, names.st=NULL,...){
 }
 
 #' @rdname transition_matrix
+#' @name is.transition_matrix
 #' @export
 #' @examples
 #' is.transition_matrix(tmat)
