@@ -1,9 +1,9 @@
-#' @title environment objects
-#' @name environment
-#' @rdname environment
-#' @description Underlying environment for dlmpr.
+#' @title habitat objects
+#' @name habitat
+#' @rdname habitat
+#' @description Underlying habitat for dlmpr.
 
-#' @rdname environment
+#' @rdname habitat
 #' @name patchify
 #' @param x a binary Raster layer (0 or NA for background, and 1 for areas to be clumped)
 #' @param distance the neighbourhood distance. Patches that occur within this distance of
@@ -64,3 +64,9 @@ patchify <- function(x, distance, p4s, givedist=TRUE) {
     out <- base::c(out, base::list(distance=d))
   } 
 }  
+
+#' @rdname habitat
+#' @export
+is.habitat <- function(x) {
+  inherits(x, "habitat")
+}

@@ -3,6 +3,7 @@
 \name{metapopulation}
 \alias{metapopulation}
 \alias{plot.metapopulation}
+\alias{pop_patch_name}
 \title{metapopulation objects}
 \usage{
 metapopulation(nrep = 10, time = 20, dist, area, presence, y1 = 1,
@@ -10,6 +11,8 @@ metapopulation(nrep = 10, time = 20, dist, area, presence, y1 = 1,
   locations = NULL, c = 1, coln_fun = "H")
 
 \method{plot}{metapopulation}(x, ...)
+
+pop_patch_name(population)
 }
 \arguments{
 \item{nrep}{Number of simulations.}
@@ -43,6 +46,8 @@ metapopulation(nrep = 10, time = 20, dist, area, presence, y1 = 1,
 \item{x}{a metapopulation object}
 
 \item{...}{other plot arguments}
+
+\item{population}{matrix of states as cols and patches as rows.}
 }
 \description{
 do some metapopulation modelling in R

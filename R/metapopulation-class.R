@@ -69,3 +69,20 @@ plot.metapopulation <- function(x,...){
                     type = 'l', lty = 1, xlab = "time", ylab = "population size",pch = 1,col="#00000030", ...)
   graphics::lines(0:(x$time), x$sim_p_obs,type = 'l', col='red',lwd=2)  
 }
+
+#' @rdname metapopulation
+#' @name pop_patch_name
+#' @param population matrix of states as cols and patches as rows.
+pop_patch_name <- function (population) 
+{
+  states <- colnames(population)
+  patches <- as.character(seq_len(nrow(population)))
+  if (length(patches) == 1) {
+    names <- states
+  }
+  else {
+    names <- apply(expand.grid(states, patches), 1, paste, 
+                   sep = "", collapse = "_patch_")
+  }
+  return(names)
+}
