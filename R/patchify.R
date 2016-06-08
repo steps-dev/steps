@@ -53,10 +53,10 @@ patchify <- function(x, distance, p4s, givedist=TRUE) {
   clump_id <- raster::getValues(rc)    
   xy <- raster::xyFromCell(rc,1:ncell(rc))
   df <- base::data.frame(xy, clump_id, is_clump = rc[] %in% freq(rc, useNA = 'no')[,1])
-  patch_coords <- plyr::ddply(df[df$is_clump == TRUE, ], .(clump_id), summarise, xm = mean(x), ym = mean(y))
+  patch_coords <- plyr::ddply(df[df$is_clump == TRUE, ], plyr::.(clump_id), plyr::summarise, xm = base::mean(x), ym = base::mean(y))
   out <- base::list(patchrast=rc, coords=patch_coords)
   if(base::isTRUE(givedist)) {
-    d <-  sp::spDists(coordinates(patch_coords))
+    d <-  sp::spDists(sp::coordinates(patch_coords[,2:3]),longlat=TRUE)
     out <- base::c(out, base::list(distance=d))
   } 
 }  
