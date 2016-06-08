@@ -1,15 +1,9 @@
+# Sample .travis.yml for R projects
 language: r
-warnings_are_errors: false
+cache: packages
 sudo: required
-r: devel
 
-install:
-  - Rscript -e 'if(!"devtools" %in% rownames(installed.packages())) install.packages("devtools", dependencies = TRUE)'
-  - Rscript -e 'install.packages(c("Rcpp","RcppArmadillo", "magrittr", "RColorBrewer", "plyr", "raster", "rasterVis", "sp", "rgeos", "rgdal", "SDMTools"), dependencies = TRUE)'
-
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
-
+warnings_are_errors: false
 notifications:
   on_success: always
   on_failure: always

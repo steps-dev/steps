@@ -75,7 +75,7 @@ plot.transition_matrix <- function (object, ...) {
   # plot a dynamic using igraph
   
   # extract the transition matrix & create an igraph graph object
-  textmat <- object
+  textmat <- base::t(object)
   textmat[textmat>0]<-base::paste0('p(',base::as.character(textmat[textmat>0]),')')
   textmat[textmat=='0'] <-''
   linkmat <- textmat != ''
