@@ -21,11 +21,12 @@
 #' @importFrom raster xyFromCell
 #' @importFrom raster clump
 #' @importFrom raster getValues
+#' @importFrom raster ncell
+#' @importFrom raster freq
 #' @importClassesFrom raster Raster
 #' @importClassesFrom sp CRS
 
 #' @examples
-#' library(rasterVis)
 #' library(raster)
 #' set.seed(42)
 #' xy <- expand.grid(x=seq(145, 150, 0.1), y=seq(-40, -35, 0.1))
@@ -40,7 +41,6 @@
 #' r2 <- resample(r, r2)
 #' proj4string(r2) <- '+init=epsg:4283'
 #' rthr <- r2 > quantile(r2, 0.9)
-#' levelplot(rthr, margin=FALSE, col.regions=0:1, colorkey=FALSE)
 #' foo <- patchify(rthr, distance=1000, '+init=epsg:3577')
 #' plot(foo$patchrast)
 #' text(foo$coords[, 2:3], labels = foo$coords[, 1])
@@ -49,10 +49,10 @@ patchify <- function(x, distance, p4s, givedist=TRUE) {
   if(!is(x, 'Raster')) x <- raster::raster(x)
   if(!is(p4s, 'CRS')) p4s <- sp::CRS(p4s)
   if(base::is.na(sp::proj4string(x))) stop(base::substitute(x), ' lacks a CRS.')
-  rc <- raster::clump(rthr,directions = 4)
+  rc <- raster::clump(x,directions = 4)
   clump_id <- raster::getValues(rc)    
-  xy <- raster::xyFromCell(rc,1:ncell(rc))
-  df <- base::data.frame(xy, clump_id, is_clump = rc[] %in% freq(rc, useNA = 'no')[,1])
+  xy <- raster::xyFromCell(rc,1:raster::ncell(rc))
+  df <- base::data.frame(xy, clump_id, is_clump = rc[] %in% raster::freq(rc, useNA = 'no')[,1])
   patch_coords <- plyr::ddply(df[df$is_clump == TRUE, ], plyr::.(clump_id), plyr::summarise, xm = base::mean(x), ym = base::mean(y))
   out <- base::list(patchrast=rc, coords=patch_coords)
   if(base::isTRUE(givedist)) {
