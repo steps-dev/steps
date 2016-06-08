@@ -9,7 +9,7 @@ demographic(v0, tmat, matsd = NULL, stmat = NULL, estamb = FALSE,
   estdem = FALSE, equalsign = TRUE, tmat_fecundity = FALSE, nrep = 10,
   time = 10)
 
-\method{plot}{demographic}(object, mean_pop = TRUE, ...)
+\method{plot}{demographic}(x, mean_pop = TRUE, ...)
 }
 \arguments{
 \item{v0}{vector Starting abundances at each timestep.}
@@ -32,7 +32,7 @@ demographic(v0, tmat, matsd = NULL, stmat = NULL, estamb = FALSE,
 
 \item{time}{int length of the demographic trajectory.}
 
-\item{object}{a demographic_mod object}
+\item{x}{demographic model object}
 
 \item{mean_pop}{logical. If TRUE plots the mean demographic change in population through time. Otherwise it plots the population changes for each stage in the transition matrix.}
 
@@ -41,12 +41,17 @@ demographic(v0, tmat, matsd = NULL, stmat = NULL, estamb = FALSE,
 \value{
 demographic_mod object a list of demographic projections
 }
+\description{
+do some demographic modelling in R
+}
 \examples{
-tmat <- as.transition_matrix(matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE))
+tmat <- as.transition_matrix(matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),
+nrow = 3,ncol = 3,byrow = TRUE))
 matsd <- tmat/10
 v0 <- c(80,20,0)
 sim_t10_rep100 <- demographic(v0=v0,tmat=tmat,matsd=matsd,estdem=TRUE,time=10,nrep=100) 
-tmat <- as.transition_matrix(matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE))
+tmat <- as.transition_matrix(matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),
+nrow = 3,ncol = 3,byrow = TRUE))
 matsd <- tmat/10
 v0 <- c(80,20,0)
 sim_t20_rep100 <- demographic(v0=v0,tmat=tmat,matsd=matsd,estdem=TRUE,time=20,nrep=100) 

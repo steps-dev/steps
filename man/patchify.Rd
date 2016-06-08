@@ -27,7 +27,6 @@ patchify
 Clump raster cells into patches, with optional neighbourhood distance.
 }
 \examples{
-library(rasterVis)
 library(raster)
 set.seed(42)
 xy <- expand.grid(x=seq(145, 150, 0.1), y=seq(-40, -35, 0.1))
@@ -42,7 +41,6 @@ res(r2) <- 0.01
 r2 <- resample(r, r2)
 proj4string(r2) <- '+init=epsg:4283'
 rthr <- r2 > quantile(r2, 0.9)
-levelplot(rthr, margin=FALSE, col.regions=0:1, colorkey=FALSE)
 foo <- patchify(rthr, distance=1000, '+init=epsg:3577')
 plot(foo$patchrast)
 text(foo$coords[, 2:3], labels = foo$coords[, 1])

@@ -5,11 +5,11 @@
 \alias{plot.metapopulation}
 \title{metapopulation objects}
 \usage{
-metapopulation(nrep = 10, time = 20, dist, area, presence, y = 1, x = 1,
-  e = 1, alpha = 1, beta = 1, disp_fun = "H", locations = NULL,
-  c = 1, coln_fun = "H")
+metapopulation(nrep = 10, time = 20, dist, area, presence, y1 = 1,
+  x1 = 1, e1 = 1, alpha = 1, beta = 1, disp_fun = "H",
+  locations = NULL, c = 1, coln_fun = "H")
 
-\method{plot}{metapopulation}(object, ...)
+\method{plot}{metapopulation}(x, ...)
 }
 \arguments{
 \item{nrep}{Number of simulations.}
@@ -22,11 +22,11 @@ metapopulation(nrep = 10, time = 20, dist, area, presence, y = 1, x = 1,
 
 \item{presence}{Initial occupancies of patches. Must be presence 1 or absence 0.}
 
-\item{y}{incidence function parameters}
+\item{y1}{incidence function parameters}
 
-\item{x}{incidence function parameters}
+\item{x1}{incidence function parameters}
 
-\item{e}{Minimum area of patches}
+\item{e1}{Minimum area of patches}
 
 \item{alpha}{Exponential decay rate of patch connectivity (dispersion parameter)}
 
@@ -40,9 +40,12 @@ metapopulation(nrep = 10, time = 20, dist, area, presence, y = 1, x = 1,
 
 \item{coln_fun}{char which colonisation function to use. 'H' = Hanski (1994), 'M'= Moilanen (2004), 'O'= Ovaskainen (2002). See decription for details.}
 
-\item{object}{a metapopulation object}
+\item{x}{a metapopulation object}
 
 \item{...}{other plot arguments}
+}
+\description{
+do some metapopulation modelling in R
 }
 \examples{
 n <- 50
@@ -53,7 +56,7 @@ dist <- as.matrix(with(meta_data, dist(cbind(x1, x2))))
 presence <- meta_data$presence
 locations <- meta_data[,c('x1','x2')]
 mp <- metapopulation(nrep=10, time=100, dist=dist, area=area, presence=presence,locations=locations,
-                  x = 0.42, e = 0.0061, y = 1.2)
+                  x1 = 0.42, e1 = 0.0061, y1 = 1.2)
 n <- 50
 meta_data <- data.frame(x1=runif( n, min=-10, max=10), x2=runif( n, min=-10, max=10),
 area=exp(-seq(.1,10,length.out = n))*10,presence=rbinom(n,1,.8))

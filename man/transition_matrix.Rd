@@ -8,24 +8,20 @@
 \alias{transition_matrix}
 \title{transition matrix objects}
 \usage{
-as.transition_matrix(object, names.st = NULL, ...)
+as.transition_matrix(x, names.st = NULL, ...)
 
-is.transition_matrix(object)
+is.transition_matrix(x)
 
-\method{summary}{transition_matrix}(object, ...)
+\method{summary}{transition_matrix}(x, ...)
 
-\method{plot}{transition_matrix}(object, ...)
+\method{plot}{transition_matrix}(x, ...)
 }
 \arguments{
-\item{object}{For as.transition_matrix, x is a square matrix, that has transition states between population stages.}
+\item{x}{For as.transition_matrix, x is a square matrix, that has transition states between population stages.}
 
-\item{...}{other function calls from igraph.}
+\item{names.st}{string of names for each stage}
 
-\item{object}{a transition_matrix object}
-
-\item{object}{a transition_matrix object}
-
-\item{object}{a transition_matrix object}
+\item{...}{other function calls.}
 }
 \value{
 An object of class tmatrix, i.e, resulting from as.transition_matrix.
