@@ -1,4 +1,7 @@
-[![Travis-CI Build Status](https://travis-ci.org/skiptoniam/dlmpr.svg?branch=master)](https://travis-ci.org/skiptoniam/dlmpr) [![codecov.io](https://codecov.io/github/skiptoniam/dlmpr/coverage.svg?branch=master)](https://codecov.io/github/skiptoniam/dlmpr?branch=master) \#\# dlmpr is an r package for simulating dynamic landscape meta-population models.
+[![Travis-CI Build Status](https://travis-ci.org/skiptoniam/dlmpr.svg?branch=master)](https://travis-ci.org/skiptoniam/dlmpr) [![codecov.io](https://codecov.io/github/skiptoniam/dlmpr/coverage.svg?branch=master)](https://codecov.io/github/skiptoniam/dlmpr?branch=master)
+
+dlmpr is an r package for simulating dynamic landscape meta-population models.
+------------------------------------------------------------------------------
 
 The package aims to develop a dynamic landscape meta-population models in R using a modular framework.
 
