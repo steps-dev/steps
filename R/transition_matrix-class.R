@@ -33,6 +33,7 @@ is.transition_matrix <- function (x) {
 }
 
 #' @rdname transition_matrix
+#' @param object an object of \code{transition_matrix} class
 #' @export
 #' @description prints the main parameters of the transition matrix: the finite rate of increase ("lambda"), the stable stage distribution, the reproductive value and the sensitivities and elasticities matrices.
 #' @examples
@@ -40,9 +41,9 @@ is.transition_matrix <- function (x) {
 #' tmat <- as.transition_matrix(mat)
 #' summary(tmat)
 summary.transition_matrix <-
-  function(x,...){
-    name.mat<-deparse(substitute(x))
-    x <- x
+  function(object,...){
+    name.mat<-deparse(substitute(object))
+    x <- object
     di <- base::dim(x)[1]
     m.names <- base::dimnames(x)[[1]] 
     ea<- base::eigen(x)

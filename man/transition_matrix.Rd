@@ -11,7 +11,7 @@ as.transition_matrix(x, names.st = NULL, ...)
 
 is.transition_matrix(x)
 
-\method{summary}{transition_matrix}(x, ...)
+\method{summary}{transition_matrix}(object, ...)
 
 \method{plot}{transition_matrix}(x, ...)
 }
@@ -21,6 +21,8 @@ is.transition_matrix(x)
 \item{names.st}{string of names for each stage}
 
 \item{...}{other function calls.}
+
+\item{object}{an object of \code{transition_matrix} class}
 }
 \value{
 An object of class tmatrix, i.e, resulting from as.transition_matrix.
