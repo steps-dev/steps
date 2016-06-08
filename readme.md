@@ -66,9 +66,6 @@ Having assessed the matric population model for this population we can look at h
 
 ``` r
 tmat <- as.transition_matrix(matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE))
-# we can add noise to each transition in the matrix as follows
-matsd <- tmat/10
-tmat_results <- summary(tmat)
 v0 <-   c(80,40,10)
 dm1 <- demographic(v0=v0,tmat=tmat,time=100,nrep=100)
 ```
@@ -89,13 +86,11 @@ plot(dm1,mean_pop = FALSE)
 
 ![](readme_files/figure-markdown_github/plot_all_stages1-1.png)
 
-Have assessed how the population changes over time, we can include stochastisty to our projections of population change through time. Here we include demographic uncertainty to each step in the stage based model by including `matsd` in to the demographic model run.
+Have assessed how the population changes over time, we can include stochastisty to our projections of population change through time. Here we include demographic uncertainty to each step in the stage based model by including `matsd` in to the demographic model run, we do this by adding a simple stochastic element by creating a the same sized matrix filled witht he `runif` call values.
 
 ``` r
 tmat <- as.transition_matrix(matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE))
-# we can add noise to each transition in the matrix as follows
-matsd <- tmat/10
-tmat_results <- summary(tmat)
+matsd <- matrix(runif(dim(tmat)[1]*dim(tmat)[1]), dim(tmat)[1],dim(tmat)[2])
 v0 <-   c(80,40,10)
 dm2 <- demographic(v0=v0,tmat=tmat,matsd = matsd, estdem = TRUE,time=100,nrep=100)
 ```
