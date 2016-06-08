@@ -27,7 +27,7 @@ summary(tmat)
 ```
 
 We can also plot the population dynamics based on our population matrix.
-```{r single_pop_plot,fig.width = 6, fig.height = 6, dpi = 300, set_xpd = TRUE}
+```{r single_pop_plot,fig.width = 4, fig.height = 4, dpi = 300, set_xpd = TRUE}
 plot(tmat)
 ```
 
@@ -39,7 +39,7 @@ dm1 <- demographic(v0=v0,tmat=tmat,time=100,nrep=100)
 ```
 
 We can now look at how this single population changes through time.
-```{r plot_all1,fig.width = 6, fig.height = 6, dpi = 300, set_xpd = TRUE}
+```{r plot_all1,fig.width = 4, fig.height = 4, dpi = 300, set_xpd = TRUE}
 plot(dm1)
 ```
 
@@ -57,7 +57,7 @@ dm2 <- demographic(v0=v0,tmat=tmat,matsd = matsd, estdem = TRUE,time=100,nrep=10
 ```
 
 We can now look at how this single population changes over time with demographic uncertainty.
-```{r plot_all2,fig.width = 6, fig.height = 6, dpi = 300, set_xpd = TRUE}
+```{r plot_all2,fig.width = 4, fig.height = 4, dpi = 300, set_xpd = TRUE}
 plot(dm2)
 ```
 
