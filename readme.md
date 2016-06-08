@@ -3,13 +3,13 @@
 dlmpr is an r package for simulating dynamic landscape meta-population models.
 ------------------------------------------------------------------------------
 
-The package aims to develop a dynamic landscape meta-population models in R using a modular framework.
+The package aims to run dynamic landscape meta-population models in R using a modular framework.
 
 ``` r
 devtools::install_github('skiptoniam/dlmpr')
 ```
 
-Because we are interested in matrix population models (or stage based models) we have develop a matrix population model for a single population. He I have generated a simple example of matrix population with three stages.
+Because we are interested in matrix population models (or stage based models) we have develop a matrix population model for a single population. Here I have generated a simple example of matrix population with three stages.
 
 ``` r
 library(dlmpr)
@@ -60,23 +60,23 @@ We can also plot the population dynamics based on our population matrix.
 plot(tmat)
 ```
 
-![](readme_files/figure-markdown_github/single_pop_plot-1.png)
+![](readme_files/figure-markdown_github/single_pop_plot-1.png)<!-- -->
 
-Having assessed the matric population model for this population we can look at how a population will shift over time.
+Having assessed the matrix population model for this population we can look at how a population will shift over time.
 
 ``` r
 tmat <- as.transition_matrix(matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE))
-v0 <-   c(80,40,10)
+v0 <-   as.population(c(80,40,10))
 dm1 <- demographic(v0=v0,tmat=tmat,time=100,nrep=100)
 ```
 
-We can now look at how this single population changes over time.
+We can now look at how this single population changes through time.
 
 ``` r
 plot(dm1)
 ```
 
-![](readme_files/figure-markdown_github/plot_all1-1.png)
+![](readme_files/figure-markdown_github/plot_all1-1.png)<!-- -->
 
 We can all see the different stages in the population structure change through time.
 
@@ -84,29 +84,29 @@ We can all see the different stages in the population structure change through t
 plot(dm1,mean_pop = FALSE)
 ```
 
-![](readme_files/figure-markdown_github/plot_all_stages1-1.png)
+![](readme_files/figure-markdown_github/plot_all_stages1-1.png)<!-- -->
 
-Have assessed how the population changes over time, we can include stochastisty to our projections of population change through time. Here we include demographic uncertainty to each step in the stage based model by including `matsd` in to the demographic model run, we do this by adding a simple stochastic element by creating a the same sized matrix filled witht he `runif` call values.
+Have assessed how the population changes over time, we can include stochasticity to our projections of population change through time. Here we include demographic uncertainty to each step in the stage based model by including `matsd` in to the demographic model run, we do this by adding a simple stochastic element by creating a the same sized matrix filled with he `runif` call values.
 
 ``` r
 tmat <- as.transition_matrix(matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE))
 matsd <- matrix(runif(dim(tmat)[1]*dim(tmat)[1]), dim(tmat)[1],dim(tmat)[2])
-v0 <-   c(80,40,10)
+v0 <- as.population(c(80,40,10))
 dm2 <- demographic(v0=v0,tmat=tmat,matsd = matsd, estdem = TRUE,time=100,nrep=100)
 ```
 
-We can now look at how this single population changes over time with demograhic uncertainty.
+We can now look at how this single population changes over time with demographic uncertainty.
 
 ``` r
 plot(dm2)
 ```
 
-![](readme_files/figure-markdown_github/plot_all2-1.png)
+![](readme_files/figure-markdown_github/plot_all2-1.png)<!-- -->
 
-We can all see the different stages in the population structure change through time with demograhic uncertainty.
+We can all see the different stages in the population structure change through time with demographic uncertainty.
 
 ``` r
 plot(dm2,mean_pop = FALSE)
 ```
 
-![](readme_files/figure-markdown_github/plot_all_stages2-1.png)
+![](readme_files/figure-markdown_github/plot_all_stages2-1.png)<!-- -->
