@@ -17,4 +17,4 @@ License: GPL (>= 2)
 Imports: Rcpp, magrittr, RColorBrewer, plyr, raster, sp, methods, igraph
 LinkingTo: Rcpp, RcppArmadillo, plyr  
 RoxygenNote: 5.0.1
-Suggests: testthat
+Suggests: testthat, knitr
