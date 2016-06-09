@@ -3,8 +3,11 @@ language: r
 cache: packages
 sudo: required
 
+r_github_packages:
+  - jimhester/covr
+
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - Rscript -e 'library(covr);codecov()'
 
 warnings_are_errors: false
 notifications:
