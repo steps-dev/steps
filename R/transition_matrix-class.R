@@ -105,3 +105,14 @@ plot.transition_matrix <- function (x, ...) {
   return (base::invisible(g))
   
 }
+
+#' @rdname transition_matrix
+#' @name is.transition_matrix
+#' @export
+#' @examples
+#' mat <- matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
+#' tmat <- as.transition_matrix(mat)
+#' is.transition_matrix(tmat)
+is.transition_matrix <- function (x) {
+  inherits(x, 'transition_matrix')
+}

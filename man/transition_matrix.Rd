@@ -14,6 +14,8 @@ is.transition_matrix(x)
 \method{summary}{transition_matrix}(object, ...)
 
 \method{plot}{transition_matrix}(x, ...)
+
+is.transition_matrix(x)
 }
 \arguments{
 \item{x}{For as.transition_matrix, x is a square matrix, that has transition states between population stages.}
@@ -40,6 +42,9 @@ summary(tmat)
 mat <- matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
 tmat <- as.transition_matrix(mat)
 plot(tmat)
+mat <- matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
+tmat <- as.transition_matrix(mat)
+is.transition_matrix(tmat)
 }
 \author{
 Skipton Woolley
