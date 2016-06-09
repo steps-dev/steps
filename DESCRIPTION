@@ -13,7 +13,8 @@ Maintainer: Skipton Woolley <swoolley@museum.vic.gov.au>
 Description: Dynamic Landscape Meta-Population Models in R
 Depends:
     R (>= 3.2.2),
-License:GPL (>= 2)
+License: GPL (>= 2)
 Imports: Rcpp, magrittr, RColorBrewer, plyr, raster, sp, methods, igraph
 LinkingTo: Rcpp, RcppArmadillo, plyr  
 RoxygenNote: 5.0.1
+Suggests: testthat
