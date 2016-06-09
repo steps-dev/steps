@@ -1,4 +1,4 @@
-[![Travis-CI Build Status](https://travis-ci.org/skiptoniam/dlmpr.svg?branch=master)](https://travis-ci.org/skiptoniam/dlmpr) [![codecov](https://codecov.io/gh/skiptoniam/dlmpr/branch/master/graph/badge.svg)](https://codecov.io/gh/skiptoniam/dlmpr)
+[![Travis-CI Build Status](https://travis-ci.org/skiptoniam/dlmpr.svg?branch=master)](https://travis-ci.org/skiptoniam/dlmpr) <!-- [![codecov](https://codecov.io/gh/skiptoniam/dlmpr/branch/master/graph/badge.svg)](https://codecov.io/gh/skiptoniam/dlmpr) -->
 
 dlmpr is an r package for simulating dynamic landscape meta-population models.
 ------------------------------------------------------------------------------
@@ -60,7 +60,7 @@ We can also plot the population dynamics based on our population matrix.
 plot(tmat)
 ```
 
-![](readme_files/figure-markdown_github/single_pop_plot-1.png)
+![](readme_files/figure-markdown_github/single_pop_plot-1.png)<!-- -->
 
 Having assessed the matrix population model for this population we can look at how a population will shift over time.
 
@@ -76,7 +76,7 @@ We can now look at how this single population changes through time.
 plot(dm1)
 ```
 
-![](readme_files/figure-markdown_github/plot_all1-1.png)
+![](readme_files/figure-markdown_github/plot_all1-1.png)<!-- -->
 
 We can all see the different stages in the population structure change through time.
 
@@ -84,7 +84,7 @@ We can all see the different stages in the population structure change through t
 plot(dm1,mean_pop = FALSE)
 ```
 
-![](readme_files/figure-markdown_github/plot_all_stages1-1.png)
+![](readme_files/figure-markdown_github/plot_all_stages1-1.png)<!-- -->
 
 Have assessed how the population changes over time, we can include stochasticity to our projections of population change through time. Here we include demographic uncertainty to each step in the stage based model by including `matsd` in to the demographic model run, we do this by adding a simple stochastic element by creating a the same sized matrix filled with he `runif` call values.
 
@@ -101,7 +101,7 @@ We can now look at how this single population changes over time with demographic
 plot(dm2)
 ```
 
-![](readme_files/figure-markdown_github/plot_all2-1.png)
+![](readme_files/figure-markdown_github/plot_all2-1.png)<!-- -->
 
 We can all see the different stages in the population structure change through time with demographic uncertainty.
 
@@ -109,4 +109,4 @@ We can all see the different stages in the population structure change through t
 plot(dm2,mean_pop = FALSE)
 ```
 
-![](readme_files/figure-markdown_github/plot_all_stages2-1.png)
+![](readme_files/figure-markdown_github/plot_all_stages2-1.png)<!-- -->
