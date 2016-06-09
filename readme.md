@@ -13,7 +13,9 @@ Because we are interested in matrix population models (or stage based models) we
 
 ``` r
 library(dlmpr)
-tmat <- as.transition_matrix(matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE))
+tmat <- as.transition_matrix(matrix(c(0.53,0.00,0.42,
+                                      0.10,0.77,0.00,
+                                      0.00,0.12,0.90),nrow = 3,ncol = 3,byrow = TRUE))
 ```
 
 We can now look at the standard matrix population metrics for this population.

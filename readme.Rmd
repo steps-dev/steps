@@ -19,7 +19,9 @@ Because we are interested in matrix population models (or stage based models) we
 
 ```{r single_pop}
 library(dlmpr)
-tmat <- as.transition_matrix(matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE))
+tmat <- as.transition_matrix(matrix(c(0.53,0.00,0.42,
+                                      0.10,0.77,0.00,
+                                      0.00,0.12,0.90),nrow = 3,ncol = 3,byrow = TRUE))
 ```
 
 We can now look at the standard matrix population metrics for this population.
@@ -40,7 +42,7 @@ dm1 <- demographic(v0=v0,tmat=tmat,time=100,nrep=100)
 ```
 
 We can now look at how this single population changes through time.
-```{r plot_all1,fig.width = 4, fig.height = 4, dpi = 300, set_xpd = TRUE}
+```{r plot_all1,fig.width = 2, fig.height = 2, dpi = 300, set_xpd = TRUE}
 plot(dm1)
 ```
 
