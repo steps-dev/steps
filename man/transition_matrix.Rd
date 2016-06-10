@@ -9,8 +9,6 @@
 \usage{
 as.transition_matrix(x, names.st = NULL, ...)
 
-is.transition_matrix(x)
-
 \method{summary}{transition_matrix}(object, ...)
 
 \method{plot}{transition_matrix}(x, ...)
@@ -35,7 +33,6 @@ prints the main parameters of the transition matrix: the finite rate of increase
 \examples{
 mat <- matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
 tmat <- as.transition_matrix(mat)
-is.transition_matrix(tmat)
 mat <- matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
 tmat <- as.transition_matrix(mat)
 summary(tmat)

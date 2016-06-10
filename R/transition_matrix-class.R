@@ -14,6 +14,7 @@
 as.transition_matrix <- function(x, names.st=NULL,...){
     x <- base::as.matrix(x,...)
     if(base::diff(base::dim(x)) !=0) stop("Needs to be a square matrix with transition probabilities between each stage.")
+    transitionCheck(x)
     di <- base::dim(x)[[1]]
     m.names <- base::dimnames(x)[[1]]
     if(base::is.null(m.names)) m.names <- names.st
@@ -21,15 +22,6 @@ as.transition_matrix <- function(x, names.st=NULL,...){
     base::dimnames(x) <- base::list(m.names, m.names)
     base::class(x)<-c("transition_matrix", class(x))
     return(x)
-}
-
-#' @rdname transition_matrix
-#' @name is.transition_matrix
-#' @export
-#' @examples
-#' is.transition_matrix(tmat)
-is.transition_matrix <- function (x) {
-  inherits(x, 'transition_matrix')
 }
 
 #' @rdname transition_matrix
@@ -42,6 +34,7 @@ is.transition_matrix <- function (x) {
 #' summary(tmat)
 summary.transition_matrix <-
   function(object,...){
+    transitionCheck(x)
     name.mat<-deparse(substitute(object))
     x <- object
     di <- base::dim(x)[1]
@@ -75,6 +68,7 @@ plot.transition_matrix <- function (x, ...) {
   # plot a dynamic using igraph
   
   # extract the transition matrix & create an igraph graph x
+  transitionCheck(x)
   textmat <- base::t(x)
   textmat[textmat>0]<-base::paste0('p(',base::as.character(textmat[textmat>0]),')')
   textmat[textmat=='0'] <-''
@@ -114,5 +108,12 @@ plot.transition_matrix <- function (x, ...) {
 #' tmat <- as.transition_matrix(mat)
 #' is.transition_matrix(tmat)
 is.transition_matrix <- function (x) {
+  transitionCheck(x)
   inherits(x, 'transition_matrix')
+}
+
+transitionCheck <- function (x) {
+  stopifnot(ncol(x) == nrow(x))
+  stopifnot(is.matrix(x))
+  stopifnot(all(is.finite(x)))
 }
