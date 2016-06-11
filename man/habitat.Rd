@@ -3,10 +3,9 @@
 \name{habitat}
 \alias{habitat}
 \alias{is.habitat}
-\alias{patchify}
 \title{habitat objects}
 \usage{
-patchify(x, distance, p4s, givedist = TRUE)
+habitat(x, distance, p4s, givedist = TRUE)
 
 is.habitat(x)
 }
@@ -43,7 +42,7 @@ res(r2) <- 0.01
 r2 <- resample(r, r2)
 proj4string(r2) <- '+init=epsg:4283'
 rthr <- r2 > quantile(r2, 0.9)
-foo <- patchify(rthr, distance=1000, '+init=epsg:3577')
+foo <- habitat(rthr, distance=1000, '+init=epsg:3577')
 plot(foo$patchrast)
 text(foo$coords[, 2:3], labels = foo$coords[, 1])
 }

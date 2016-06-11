@@ -4,7 +4,7 @@
 #' @description Underlying habitat for dlmpr.
 
 #' @rdname habitat
-#' @name patchify
+#' @name habitat
 #' @param x a binary Raster layer (0 or NA for background, and 1 for areas to be clumped)
 #' @param distance the neighbourhood distance. Patches that occur within this distance of
 #'  one another will be clumped. This should be in the units of the CRS given
@@ -45,15 +45,19 @@
 #' r2 <- resample(r, r2)
 #' proj4string(r2) <- '+init=epsg:4283'
 #' rthr <- r2 > quantile(r2, 0.9)
-#' foo <- patchify(rthr, distance=1000, '+init=epsg:3577')
+#' foo <- habitat(rthr, distance=1000, '+init=epsg:3577')
 #' plot(foo$patchrast)
 #' text(foo$coords[, 2:3], labels = foo$coords[, 1])
 
-patchify <- function(x, distance, p4s, givedist=TRUE) {
+habitat <- function(x, distance, p4s, givedist=TRUE) {
   if(!is(x, 'Raster')) x <- raster::raster(x)
   if(!is(p4s, 'CRS')) p4s <- sp::CRS(p4s)
   if(base::is.na(sp::proj4string(x))) stop(base::substitute(x), ' lacks a CRS.')
-  rc <- raster::clump(x,directions = 4)
+  mask <- x
+  mask[mask == 0] <- NA
+  ## create a buffer around original patch
+  buff <- overlay(gridDistance(mask,origin=c(1),omit=NULL) <= distance, x, fun=function(a,b) ifelse(b > 0, b, a*2))
+  rc <- raster::clump(buff,directions = 4)
   clump_id <- raster::getValues(rc)    
   xy <- raster::xyFromCell(rc,1:raster::ncell(rc))
   df <- base::data.frame(xy, clump_id, is_clump = rc[] %in% raster::freq(rc, useNA = 'no')[,1])
@@ -63,6 +67,8 @@ patchify <- function(x, distance, p4s, givedist=TRUE) {
     d <-  sp::spDists(sp::coordinates(patch_coords[,2:3]),longlat=TRUE)
     out <- base::c(out, base::list(distance=d))
   } 
+  base::class(out) <- "habitat"
+  return(out)
 }  
 
 #' @rdname habitat
