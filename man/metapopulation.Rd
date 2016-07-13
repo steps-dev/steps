@@ -5,9 +5,9 @@
 \alias{plot.metapopulation}
 \title{metapopulation objects}
 \usage{
-metapopulation(nrep = 10, time = 20, dist, area, presence, y1 = 1,
-  x1 = 1, e1 = 1, alpha = 1, beta = 1, disp_fun = "H",
-  locations = NULL, c = 1, coln_fun = "H")
+metapopulation(nrep = 10, time = 20, habitat, y1 = 1, x1 = 1, e1 = 1,
+  alpha = 1, beta = 1, disp_fun = "H", locations = NULL, c = 1,
+  coln_fun = "H")
 
 \method{plot}{metapopulation}(x, ...)
 }
@@ -16,11 +16,7 @@ metapopulation(nrep = 10, time = 20, dist, area, presence, y1 = 1,
 
 \item{time}{Number of time steps}
 
-\item{dist}{Distances between patches (symetrical matrix)}
-
-\item{area}{Area of patches - This needs to be calculated somehow - using occupancy models?}
-
-\item{presence}{Initial occupancies of patches. Must be presence 1 or absence 0.}
+\item{habitat}{object}
 
 \item{y1}{incidence function parameters}
 
@@ -48,14 +44,13 @@ metapopulation(nrep = 10, time = 20, dist, area, presence, y1 = 1,
 do some metapopulation modelling in R
 }
 \examples{
-n <- 50
-meta_data <- data.frame(x1=runif( n, min=-10, max=10), x2=runif( n, min=-10, max=10),
-area=exp(-seq(.1,10,length.out = n))*10,presence=rbinom(n,1,.8))
-area <- meta_data$area
-dist <- as.matrix(with(meta_data, dist(cbind(x1, x2))))
-presence <- meta_data$presence
-locations <- meta_data[,c('x1','x2')]
-mp <- metapopulation(nrep=10, time=100, dist=dist, area=area, presence=presence,locations=locations,
+habitat <- as.habitat(list(coordinates = data.frame(x=runif( 10, min=-10, max=10),
+                                                    y=runif( 10, min=-10, max=10)),
+                               area = as.data.frame(exp(-seq(.1,10,length.out = 10))*10),
+                               population = as.population(t(rmultinom(10, 
+                               size = 100, prob = c(0.8,0.2,0.01)))),
+                               features = data.frame(temperature = 10)))
+mp <- metapopulation(nrep=10, time=100, habitat,
                   x1 = 0.42, e1 = 0.0061, y1 = 1.2)
 n <- 50
 meta_data <- data.frame(x1=runif( n, min=-10, max=10), x2=runif( n, min=-10, max=10),
