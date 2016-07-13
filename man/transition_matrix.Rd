@@ -9,7 +9,7 @@
 \usage{
 as.transition_matrix(x, names.st = NULL, ...)
 
-\method{summary}{transition_matrix}(object, ...)
+\method{summary}{transition_matrix}(x, ...)
 
 \method{plot}{transition_matrix}(x, ...)
 

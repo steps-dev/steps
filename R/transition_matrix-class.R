@@ -33,10 +33,10 @@ as.transition_matrix <- function(x, names.st=NULL,...){
 #' tmat <- as.transition_matrix(mat)
 #' summary(tmat)
 summary.transition_matrix <-
-  function(object,...){
+  function(x,...){
     transitionCheck(x)
-    name.mat<-deparse(substitute(object))
-    x <- object
+    name.mat<-deparse(substitute(x))
+    x <- x
     di <- base::dim(x)[1]
     m.names <- base::dimnames(x)[[1]] 
     ea<- base::eigen(x)
@@ -68,6 +68,7 @@ plot.transition_matrix <- function (x, ...) {
   # plot a dynamic using igraph
   
   # extract the transition matrix & create an igraph graph x
+  par(mar=c(4,4,4,4))
   transitionCheck(x)
   textmat <- base::t(x)
   textmat[textmat>0]<-base::paste0('p(',base::as.character(textmat[textmat>0]),')')

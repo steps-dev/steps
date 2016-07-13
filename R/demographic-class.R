@@ -62,6 +62,7 @@ setGeneric("demographic",
 )
 
 #' @rdname demographic
+#' @method plot demographic
 #' @param x demographic model object
 #' @param mean_pop logical. If TRUE plots the mean demographic change in population through time. Otherwise it plots the population changes for each stage in the transition matrix.
 #' @param ... other plot arguments
