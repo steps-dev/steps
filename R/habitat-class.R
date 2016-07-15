@@ -42,6 +42,7 @@
 #' res(r2) <- 0.01
 #' r2 <- resample(r, r2)
 #' proj4string(r2) <- '+init=epsg:4283'
+#' foo <- patches(r2,distance=1000,p4s='+init=epsg:4283')
 
 patches <- function(x, distance, p4s, givedist=TRUE) {
   if(!is(x, 'Raster')) x <- raster::raster(x)
@@ -367,7 +368,7 @@ raster2habitat <- function(list){ # will add in other options here later, but fi
   # work out column numbers
   ncoord <- ncol(coordinates)
   narea <- 1
-  npop <- ncol(populations)
+  npop <- ncol(population)
   
   attr(habitat, 'coordinates') <- seq_len(ncoord)
   attr(habitat, 'area') <- narea + ncoord

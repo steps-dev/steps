@@ -65,7 +65,8 @@ r2 <- raster(r)
 res(r2) <- 0.01
 r2 <- resample(r, r2)
 proj4string(r2) <- '+init=epsg:4283'                 
-habitat <- as.habitat(r2)
+habitat <- as.habitat(list(r2,population = as.population(t(rmultinom(1, 
+                               size = 100, prob = c(0.8,0.2,0.1))))))
 mp1 <- metapopulation(nrep=10, time=100, habitat=habitat, dispersal=adult.dispersal,
                   x1 = 0.42, e1 = 0.0061, y1 = 1.2)
 n <- 50

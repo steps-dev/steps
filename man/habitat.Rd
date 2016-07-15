@@ -110,6 +110,7 @@ r2 <- raster(r)
 res(r2) <- 0.01
 r2 <- resample(r, r2)
 proj4string(r2) <- '+init=epsg:4283'
+foo <- patches(r2,distance=1000,p4s='+init=epsg:4283')
 
 #'# create a habitat from a list containing a raster that represents a habitat suitability model / species distribution model.
 habitat <- as.habitat(list(r2,population = as.population(t(rmultinom(1, 
