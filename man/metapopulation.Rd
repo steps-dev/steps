@@ -48,8 +48,25 @@ habitat <- as.habitat(list(coordinates = data.frame(x=runif( 10, min=-10, max=10
                                size = 100, prob = c(0.8,0.2,0.01)))),
                                features = data.frame(temperature = 10)))
 params <- list(alpha=1,beta=1,disp_fun="H")
-adult.disperal <- dispersal(params) 
+adult.dispersal <- dispersal(params) 
 mp <- metapopulation(nrep=10, time=100, habitat=habitat, dispersal=adult.dispersal,
+                  x1 = 0.42, e1 = 0.0061, y1 = 1.2)
+                  
+library(raster)
+set.seed(42)
+xy <- expand.grid(x=seq(145, 150, 0.1), y=seq(-40, -35, 0.1))
+Dd <- as.matrix(dist(xy))
+w <- exp(-1/nrow(xy) * Dd)
+Ww <- chol(w)
+xy$z <- t(Ww) \%*\% rnorm(nrow(xy), 0, 0.1)
+coordinates(xy) <- ~x+y
+r <- rasterize(xy, raster(points2grid(xy)), 'z')
+r2 <- raster(r)
+res(r2) <- 0.01
+r2 <- resample(r, r2)
+proj4string(r2) <- '+init=epsg:4283'                 
+habitat <- as.habitat(r2)
+mp1 <- metapopulation(nrep=10, time=100, habitat=habitat, dispersal=adult.dispersal,
                   x1 = 0.42, e1 = 0.0061, y1 = 1.2)
 n <- 50
 meta_data <- data.frame(x1=runif( n, min=-10, max=10), x2=runif( n, min=-10, max=10),

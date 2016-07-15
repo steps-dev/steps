@@ -5,6 +5,7 @@
 \alias{area}
 \alias{as.habitat}
 \alias{as.population}
+\alias{coordinates}
 \alias{distance}
 \alias{features}
 \alias{is.distance}
@@ -14,6 +15,7 @@
 \alias{patches}
 \alias{pop_patch_name}
 \alias{population}
+\alias{population<-}
 \alias{print.habitat}
 \title{habitat objects}
 \usage{
@@ -27,17 +29,21 @@ is.habitat(x)
 
 \method{print}{habitat}(x, ...)
 
+area(habitat)
+
 as.population(x, ...)
 
 is.population(x)
 
-pop_patch_name(population)
-
-area(habitat)
-
 population(habitat)
 
+population(habitat) <- value
+
+pop_patch_name(population)
+
 features(habitat)
+
+coordinates(habitat)
 
 distance(habitat)
 
@@ -61,12 +67,12 @@ original coordinate system.}
 units of p4s, and are shortest cartesian distances between patches.}
 
 \item{patches}{an object to turn into a \code{habitat} object. Currently
-this can either be a dynamic, a list or \code{NULL} (see \code{details}),
+this can either be a \link[raster]{raster}, a list or \code{NULL} (see \code{details}),
 though more approaches will be added in the future}
 
-\item{population}{matrix of states as cols and patches as rows.}
-
 \item{habitat}{an object of class \code{habitat}}
+
+\item{population}{matrix of states as cols and patches as rows.}
 
 \item{i}{index specifying the patches to include in the subset
 \code{habitat} object}
@@ -104,35 +110,43 @@ r2 <- raster(r)
 res(r2) <- 0.01
 r2 <- resample(r, r2)
 proj4string(r2) <- '+init=epsg:4283'
-rthr <- r2 > quantile(r2, 0.9)
-foo <- patches(rthr, distance=1000, '+init=epsg:3577')
-plot(foo$patchrast)
-text(foo$coords[, 2:3], labels = foo$coords[, 1])
+
+#'# create a habitat from a list containing a raster that represents a habitat suitability model / species distribution model.
+habitat <- as.habitat(list(r2,population = as.population(t(rmultinom(1, 
+                               size = 100, prob = c(0.8,0.2,0.01))))))
+
 # create a default habitat
 habitat <- as.habitat(NULL)
 
-# create a marginally more interesting one-patch habitat
-habitat <- as.habitat(list(coordinates = data.frame(x=runif( 10, min=-10, max=10),
+# create a multipatch habitat
+patches <- list(coordinates = data.frame(x=runif( 10, min=-10, max=10),
                                                     y=runif( 10, min=-10, max=10)),
                                area = as.data.frame(exp(-seq(.1,10,length.out = 10))*10),
-                               population = as.population(t(rmultinom(10, 
+                               population = as.population(t(rmultinom(1, 
                                size = 100, prob = c(0.8,0.2,0.01)))),
-                               features = data.frame(temperature = 10)))
+                               features = data.frame(temperature = 10))
+habitat <- as.habitat(patches)
+                               
 # print method
 print(habitat)
+
+# get and set the area
+area(habitat)
 
 # starting population numbers for each step in the demographic function
 population <- as.population(c(80,30,10))
 population <- as.population(t(rmultinom(10, size = 100, prob = c(0.8,0.2,0.01))))
 population <- as.population(c(80,30,10))
 is.population(population)
-# get and set the area
-area(habitat)
-
 # get and set the population
 population(habitat)
+population(habitat) <- population(habitat) * 2
+population(habitat)
+
 # get and set the features
 features(habitat)
+# get and set the features
+coordinates(habitat)
 
 # get and set the distance matrix
 distance(habitat)
