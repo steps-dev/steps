@@ -41,16 +41,16 @@ alpha, the decay rate of patch connectivity (dispersion parameter); beta, parame
 do some metapopulation modelling in R
 }
 \examples{
-habitat <- as.habitat(list(coordinates = data.frame(x=runif( 10, min=-10, max=10),
-                                                    y=runif( 10, min=-10, max=10)),
-                               area = as.data.frame(exp(-seq(.1,10,length.out = 10))*10),
-                               population = as.population(t(rmultinom(10, 
+habitat <- as.habitat(list(coordinates = data.frame(x=runif( 100, min=-20, max=20),
+                                                    y=runif( 100, min=-20, max=20)),
+                               area = as.data.frame(exp(-seq(.1,10,length.out = 100))*10),
+                               population = as.population(t(rmultinom(100, 
                                size = 100, prob = c(0.8,0.2,0.01)))),
                                features = data.frame(temperature = 10)))
 params <- list(alpha=1,beta=1,disp_fun="H")
 adult.dispersal <- dispersal(params) 
 mp <- metapopulation(nrep=10, time=100, habitat=habitat, dispersal=adult.dispersal,
-                  x1 = 0.42, e1 = 0.0061, y1 = 1.2)
+                  x1 = 0.42, e1 = 0.061, y1 = 1.2)
                   
 library(raster)
 set.seed(42)
@@ -68,7 +68,11 @@ proj4string(r2) <- '+init=epsg:4283'
 habitat <- as.habitat(list(r2,population = as.population(t(rmultinom(1, 
                                size = 100, prob = c(0.8,0.2,0.1))))))
 mp1 <- metapopulation(nrep=10, time=100, habitat=habitat, dispersal=adult.dispersal,
-                  x1 = 0.42, e1 = 0.0061, y1 = 1.2)
+                  x1 = 0.42, e1 = 0.061, y1 = .2)
+                  
+habitat <- as.habitat(list(r2))
+mp2 <- metapopulation(nrep=10, time=100, habitat=habitat, dispersal=adult.dispersal,
+                  x1 = 0.42, e1 = 0.0061, y1 = .2)
 n <- 50
 meta_data <- data.frame(x1=runif( n, min=-10, max=10), x2=runif( n, min=-10, max=10),
 area=exp(-seq(.1,10,length.out = n))*10,presence=rbinom(n,1,.8))

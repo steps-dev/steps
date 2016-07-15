@@ -85,14 +85,20 @@ plot.demographic <- function(x,mean_pop=TRUE,...){
     graphics::par(mfrow = c(1,1))
     graphics::matplot(0:(time - 1), (base::sapply(x, function(re) base::apply(re,2, base::sum))),
                       type = 'l', xlab = "time", ylab = "abundance",pch = 1,col="#00000030", ...)
+    ci <- base::apply(base::sapply(x, function(re) base::apply(re,2, base::sum)),1,function(x)quantile(x,c(0.025,0.975)))
+    polygon(c(0:(time-1),rev(0:(time-1))),c(ci[1,],rev(ci[2,])),col="grey80",border=NA)
     graphics::lines(0:(time - 1), base::apply(base::sapply(x, function(re) base::apply(re,2, sum)), 1, base::mean),
-                    type = 'l', col='red',lwd=2)  
+                    type = 'l', col='black',lwd=2)  
   } else {
     graphics::par(mfrow = c(1,stages))
-    for (i in 1:stages) {graphics::matplot(0:(time - 1), base::sapply(x,function(st) st[i, ]), 
+    for (i in 1:stages) {
+      graphics::matplot(0:(time - 1), base::sapply(x,function(st) st[i, ]), 
                                            xlab = "time", ylab = "abundance", 
-                                           type = 'l', col="#00000030", pch = 1, 
+                                           type = 'n', col="#00000030", pch = 1, 
                                            main = base::paste("stage", i),...)
+      ci <- base::apply( base::sapply(x,function(st) st[i, ]),1,function(x)quantile(x,c(0.025,0.975)))
+      polygon(c(0:(time-1),rev(0:(time-1))),c(ci[1,],rev(ci[2,])),col="grey80",border=NA)
+      
       graphics::lines(0:(time - 1), base::apply(base::sapply(x,function(st) st[i, ]),1,mean),
                       type = 'l', col=base::suppressWarnings(RColorBrewer::brewer.pal(base::length(base::unique(stages)),
                                                                                       "Set1"))[i],lwd=2)
