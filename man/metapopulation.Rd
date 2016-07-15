@@ -5,9 +5,8 @@
 \alias{plot.metapopulation}
 \title{metapopulation objects}
 \usage{
-metapopulation(nrep = 10, time = 20, habitat, y1 = 1, x1 = 1, e1 = 1,
-  alpha = 1, beta = 1, disp_fun = "H", locations = NULL, c = 1,
-  coln_fun = "H")
+metapopulation(nrep = 10, time = 20, habitat, dispersal, y1 = 1, x1 = 1,
+  e1 = 1, locations = NULL, c = 1, coln_fun = "H")
 
 \method{plot}{metapopulation}(x, ...)
 }
@@ -18,17 +17,15 @@ metapopulation(nrep = 10, time = 20, habitat, y1 = 1, x1 = 1, e1 = 1,
 
 \item{habitat}{object}
 
+\item{dispersal}{object see \link[bbgdm]{dispersal} an object that contains information on:
+alpha, the decay rate of patch connectivity (dispersion parameter); beta, parameter that controls
+ the shape of the dispersal kernel; and disp_fun, which selects the disperal function: 'H' uses hanski(1994)}
+
 \item{y1}{incidence function parameters}
 
 \item{x1}{incidence function parameters}
 
 \item{e1}{Minimum area of patches}
-
-\item{alpha}{Exponential decay rate of patch connectivity (dispersion parameter)}
-
-\item{beta}{double parameter that represents the shape of the dispersal kernel.}
-
-\item{disp_fun}{char Which dispersal function to use. 'H' uses hanski(1994), if 'S' uses shaw(1995).}
 
 \item{locations}{NULL or NumericMatrix Longitudes and latitudes of coordinates of the patches}
 
@@ -50,7 +47,9 @@ habitat <- as.habitat(list(coordinates = data.frame(x=runif( 10, min=-10, max=10
                                population = as.population(t(rmultinom(10, 
                                size = 100, prob = c(0.8,0.2,0.01)))),
                                features = data.frame(temperature = 10)))
-mp <- metapopulation(nrep=10, time=100, habitat,
+params <- list(alpha=1,beta=1,disp_fun="H")
+adult.disperal <- dispersal(params) 
+mp <- metapopulation(nrep=10, time=100, habitat=habitat, dispersal=adult.dispersal,
                   x1 = 0.42, e1 = 0.0061, y1 = 1.2)
 n <- 50
 meta_data <- data.frame(x1=runif( n, min=-10, max=10), x2=runif( n, min=-10, max=10),

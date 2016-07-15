@@ -3,7 +3,6 @@
 \name{patches}
 \alias{[[.habitat}
 \alias{area}
-\alias{as.distance}
 \alias{as.habitat}
 \alias{as.population}
 \alias{distance}
@@ -28,10 +27,6 @@ is.habitat(x)
 
 \method{print}{habitat}(x, ...)
 
-as.distance(x, ...)
-
-is.distance(x)
-
 as.population(x, ...)
 
 is.population(x)
@@ -45,6 +40,8 @@ population(habitat)
 features(habitat)
 
 distance(habitat)
+
+is.distance(x)
 
 \method{[[}{habitat}(x, i)
 }
@@ -77,8 +74,6 @@ though more approaches will be added in the future}
 \item{x}{an object to print or test as a habitat object}
 
 \item{\dots}{further arguments passed to or from other methods.}
-
-\item{x}{a vector, data.frame or matrix of distance(s) numbers for each stage(s) and each patch(s)}
 
 \item{x}{a vector, data.frame or matrix of population(s) numbers for each stage(s) and each patch(s)}
 }
@@ -126,11 +121,6 @@ habitat <- as.habitat(list(coordinates = data.frame(x=runif( 10, min=-10, max=10
 # print method
 print(habitat)
 
-# starting distance numbers for each step in the demographic function
-distance <- as.distance(c(80,30,10))
-distance <- as.distance(t(rmultinom(10, size = 100, prob = c(0.8,0.2,0.01))))
-distance <- as.distance(c(80,30,10))
-is.distance(distance)
 # starting population numbers for each step in the demographic function
 population <- as.population(c(80,30,10))
 population <- as.population(t(rmultinom(10, size = 100, prob = c(0.8,0.2,0.01))))
@@ -156,5 +146,7 @@ habitat[[1:2]]
 }
 \author{
 John Baumgartner
+
+Nick Golding
 }
 

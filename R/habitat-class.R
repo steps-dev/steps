@@ -24,6 +24,7 @@
 #' @importFrom raster getValues
 #' @importFrom raster ncell
 #' @importFrom raster freq
+#' @importFrom SDMTools PatchStat
 #' @importClassesFrom raster Raster
 #' @importClassesFrom sp CRS
 
@@ -59,7 +60,7 @@ patches <- function(x, distance, p4s, givedist=TRUE) {
   xy <- raster::xyFromCell(rc,1:raster::ncell(rc))
   df <- base::data.frame(xy, clump_id, is_clump = rc[] %in% raster::freq(rc, useNA = 'no')[,1])
   patch_coords <- plyr::ddply(df[df$is_clump == TRUE, ], plyr::.(clump_id), plyr::summarise, xm = base::mean(x), ym = base::mean(y))
-  out <- base::list(patchrast=rc, coords=patch_coords)
+  out <- base::list(patchrast=rc, coords=patch_coords, patchstats = SDMTools::PatchStat(rc))
   if(base::isTRUE(givedist)) {
     d <-  sp::spDists(sp::coordinates(patch_coords[,2:3]),longlat=TRUE)
     out <- base::c(out, base::list(distance=d))
@@ -74,6 +75,11 @@ is.patches <- function(x) {
   inherits(x, "patches")
 }
 
+raster2habitat <- function(occurrence){
+  
+  
+  
+}
 
 ## set up habitat with 
 #' @rdname habitat
@@ -84,6 +90,7 @@ is.patches <- function(x) {
 #' @return an object of class \code{habitat}, essentially a dataframe
 #'   containing the coordinates, area, population and features (as columns) for
 #'   each patch (rows)
+#' @author Nick Golding
 #' @export
 #' @examples
 
@@ -100,8 +107,9 @@ is.patches <- function(x) {
 as.habitat <- function (patches) {
   switch(class(patches)[1],
          NULL = habitatDefault(),
-         dynamic = dynamichabitatDefault(patches),
-         list = list2habitat(patches))
+         list = list2habitat(patches),
+         raster = raster2habitat(patches)
+         )
 }
 
 #' @rdname habitat
@@ -120,42 +128,6 @@ print.habitat <- function(x, ...) {
   text <- sprintf('habitat with %s patches\n',
                   nrow(x))
   cat(text)
-}
-
-#' @rdname habitat
-#' @name as.distance
-#' @param x a vector, data.frame or matrix of distance(s) numbers for each stage(s) and each patch(s)
-#' @export
-#' @examples 
-#' # starting distance numbers for each step in the demographic function
-#' distance <- as.distance(c(80,30,10))
-#' distance <- as.distance(t(rmultinom(10, size = 100, prob = c(0.8,0.2,0.01))))
-
-as.distance <- function(x,...){
-  if(base::is.null(base::dim(x))){
-    names(x) <- base::paste0("stage",seq_along(x))
-  } else { 
-    x <- base::as.data.frame(x,...)
-    ns <- base::dim(x)[[2]]
-    np <- base::dim(x)[[1]]
-    s.names <- base::dimnames(x)[[2]]
-    p.names <- base::dimnames(x)[[1]]
-    if(base::is.null(s.names)) s.names <- base::paste0("stage",1:ns)
-    if(base::is.null(p.names)) p.names <- base::paste0("patch",1:np)
-    base::dimnames(x) <- base::list(p.names, s.names)
-  }
-  base::class(x)<-c("distance", class(x))
-  return(x)
-}
-
-#' @rdname habitat
-#' @name is.distance
-#' @export
-#' @examples
-#' distance <- as.distance(c(80,30,10))
-#' is.distance(distance)
-is.distance <- function (x) {
-  inherits(x, 'distance')
 }
 
 #' @rdname habitat
@@ -269,6 +241,13 @@ distance <- function (habitat) {
 }
 
 #' @rdname habitat
+#' @name is.distance
+#' @export
+is.distance <- function (x) {
+  inherits(x, 'distance')
+}
+
+#' @rdname habitat
 #' @param i index specifying the patches to include in the subset
 #'   \code{habitat} object
 #' @export
@@ -354,7 +333,7 @@ list2habitat <- function (list) {
   # add distance matrix
   coord <- coordinates(habitat)
   distance <- as.matrix(dist(coord))
-  distance(habitat) <- distance
+  attr(habitat, 'distance') <- distance
   
   # set class & return
   return (habitat)
@@ -366,19 +345,6 @@ habitatDefault <- function () {
   habitat_list <- list(coordinates = data.frame(x = 0, y = 0),
                          area = data.frame(area = 1),
                          population = data.frame()[1, ],
-                         features = data.frame()[1, ])
-  habitat <- list2habitat(habitat_list)
-  return (habitat)
-}
-
-# default habitat for a dynamic
-dynamichabitatDefault <- function (dynamic) {
-  population <- as.list(rep(0, length(states(dynamic))))
-  names(population) <- states(dynamic)
-  population <- as.data.frame(population)
-  habitat_list <- list(coordinates = data.frame(x = 0, y = 0),
-                         area = data.frame(area = 1),
-                         population = population,
                          features = data.frame()[1, ])
   habitat <- list2habitat(habitat_list)
   return (habitat)
