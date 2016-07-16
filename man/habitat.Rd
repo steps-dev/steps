@@ -17,6 +17,7 @@
 \alias{population}
 \alias{population<-}
 \alias{print.habitat}
+\alias{spatial}
 \title{habitat objects}
 \usage{
 patches(x, distance, p4s, givedist = TRUE)
@@ -42,6 +43,8 @@ population(habitat) <- value
 pop_patch_name(population)
 
 features(habitat)
+
+spatial(habitat)
 
 coordinates(habitat)
 
@@ -146,6 +149,9 @@ population(habitat)
 
 # get and set the features
 features(habitat)
+# get and set the features
+spatial(habitat)
+
 # get and set the features
 coordinates(habitat)
 

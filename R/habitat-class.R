@@ -243,6 +243,20 @@ features <- function (habitat) {
 #' @export
 #' @examples
 #'# get and set the features
+#' spatial(habitat)
+#'
+spatial <- function (habitat) {
+  stopifnot(is.habitat(habitat))
+  ans <- habitat[, attr(habitat, 'spatial'), drop = FALSE]
+  ans <- squashhabitat(ans)
+  return (ans)
+}
+
+
+#' @rdname habitat
+#' @export
+#' @examples
+#'# get and set the features
 #' coordinates(habitat)
 #'
 coordinates <- function (habitat) {
@@ -343,14 +357,16 @@ raster2habitat <- function(list){ # will add in other options here later, but fi
   k <- K(r,type='exp') # will make this customisable one day.
   k_mask <- raster::mask(k,patches$patchrast)
   
-  #calculate carrying capacity
+  # calculate carrying capacity
   clump_id <- raster::getValues(patches$patchrast)    
   df <- base::data.frame(k=getValues(k_mask), clump_id, is_clump = patches$patchrast[] %in% raster::freq(patches$patchrast, useNA = 'no')[,1])
   intN <- plyr::ddply(df[df$is_clump == TRUE, ], plyr::.(clump_id), plyr::summarise, intN = base::sum(k))
+  
+  # calculate intial abundance per patch.
   intN <- intN[,2]*1.2 - (.1*patches$patchstats$perimeter)
   intN <- base::ifelse(intN<0,0,intN)
   
-  # estimate population size based on starting K.
+  # estimate population size based on starting K. # will need to replace this with stable states.
   population <- as.population(t(sapply(intN, function(x)rmultinom(1,size=x,prob=c(0.8,0.2,0.01))))) #replace these with stable states.
   } else {
   p_id <-  which(sapply(list,function(x)inherits(x,"population")))
@@ -380,7 +396,7 @@ raster2habitat <- function(list){ # will add in other options here later, but fi
   # add distance matrix
   distance <- as.matrix(dist(coordinates))
   attr(habitat, 'distance') <- distance
-  attr(habitat, 'patches') <- patches$patchrast
+  attr(habitat, 'spatial') <- patches$patchrast
   
   # set class & return
   return (habitat)

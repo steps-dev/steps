@@ -28,7 +28,7 @@
 #' params <- list(alpha=1,beta=1,disp_fun="H")
 #' adult.dispersal <- dispersal(params) 
 #' mp <- metapopulation(nrep=10, time=100, habitat=habitat, dispersal=adult.dispersal,
-#'                   x1 = 0.42, e1 = 0.061, y1 = 1.2)
+#'                   x1 = 200, e1 = 0.00061, y1 = 200)
 #'                   
 #' library(raster)
 #' set.seed(42)
@@ -46,22 +46,25 @@
 #' habitat <- as.habitat(list(r2,population = as.population(t(rmultinom(1, 
 #'                                size = 100, prob = c(0.8,0.2,0.1))))))
 #' mp1 <- metapopulation(nrep=10, time=100, habitat=habitat, dispersal=adult.dispersal,
-#'                   x1 = 0.42, e1 = 0.061, y1 = .2)
+#'                   x1 = 0.42, e1 = 2.61, y1 = 2.2)
 #'                   
 #' habitat <- as.habitat(list(r2))
 #' mp2 <- metapopulation(nrep=10, time=100, habitat=habitat, dispersal=adult.dispersal,
-#'                   x1 = 0.42, e1 = 0.0061, y1 = .2)
+#'                    x1 = 200, e1 = 0.00061, y1 = 200)
 
 setGeneric("metapopulation",
            function(nrep=10, time=20, habitat, dispersal, y1 = 1, x1 = 1, e1=1,
                     locations = NULL, c=1,coln_fun='H') {
              if(!is.habitat(habitat))stop('metapopulation needs a habitat')
-             dist <- as.matrix(distance(habitat))
-             area <- as.numeric(unlist(area(habitat)))
-             locations <- as.matrix(coordinates(habitat))
-             pop <- population(habitat)# need to integrate demographic and presence correctly.
+             dist <- as.matrix(dlmpr::distance(habitat))
+             area <- as.numeric(unlist(dlmpr::area(habitat)))
+             locations <- as.matrix(dlmpr::coordinates(habitat))
+             pop <- dlmpr::population(habitat)# need to integrate demographic and presence correctly.
              presence <- as.vector(ifelse(pop[,ncol(pop)]>0,1,0))
              dist <- dispersal$dist(habitat)
+             if(nrow(dist) > 1) {
+                 dist <- sweep(dist, 1, rowSums(dist), '/')
+               }
              # call c++ function that does this loop.
              mp <- dlmpr::metapop_n_cpp(nrep=nrep, time=time, dist=dist, area=area, presence=presence,
                                         y = y1, x = x1, e = e1, alpha = dispersal$alpha, beta = dispersal$beta,

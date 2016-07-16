@@ -50,7 +50,7 @@ habitat <- as.habitat(list(coordinates = data.frame(x=runif( 100, min=-20, max=2
 params <- list(alpha=1,beta=1,disp_fun="H")
 adult.dispersal <- dispersal(params) 
 mp <- metapopulation(nrep=10, time=100, habitat=habitat, dispersal=adult.dispersal,
-                  x1 = 0.42, e1 = 0.061, y1 = 1.2)
+                  x1 = 200, e1 = 0.00061, y1 = 200)
                   
 library(raster)
 set.seed(42)
@@ -68,11 +68,11 @@ proj4string(r2) <- '+init=epsg:4283'
 habitat <- as.habitat(list(r2,population = as.population(t(rmultinom(1, 
                                size = 100, prob = c(0.8,0.2,0.1))))))
 mp1 <- metapopulation(nrep=10, time=100, habitat=habitat, dispersal=adult.dispersal,
-                  x1 = 0.42, e1 = 0.061, y1 = .2)
+                  x1 = 0.42, e1 = 2.61, y1 = 2.2)
                   
 habitat <- as.habitat(list(r2))
 mp2 <- metapopulation(nrep=10, time=100, habitat=habitat, dispersal=adult.dispersal,
-                  x1 = 0.42, e1 = 0.0061, y1 = .2)
+                   x1 = 200, e1 = 0.00061, y1 = 200)
 n <- 50
 meta_data <- data.frame(x1=runif( n, min=-10, max=10), x2=runif( n, min=-10, max=10),
 area=exp(-seq(.1,10,length.out = n))*10,presence=rbinom(n,1,.8))
