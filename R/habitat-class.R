@@ -141,7 +141,7 @@ print.habitat <- function(x, ...) {
 
 area <- function (habitat) {
   stopifnot(is.habitat(habitat))
-  ans <- habitat[, attr(habitat, 'area'), drop = FALSE]
+  ans <- habitat$habitat[, attr(habitat, 'area'), drop = FALSE]
   ans <- squashhabitat(ans)
   return (ans)
 }
@@ -234,7 +234,7 @@ pop_patch_name <- function (population)
 
 features <- function (habitat) {
   stopifnot(is.habitat(habitat))
-  ans <- habitat[, attr(habitat, 'features'), drop = FALSE]
+  ans <- habitat$habitat[, attr(habitat, 'features'), drop = FALSE]
   ans <- squashhabitat(ans)
   return (ans)
 }
@@ -247,8 +247,8 @@ features <- function (habitat) {
 #'
 spatial <- function (habitat) {
   stopifnot(is.habitat(habitat))
-  ans <- habitat[, attr(habitat, 'spatial'), drop = FALSE]
-  ans <- squashhabitat(ans)
+  ans <- habitat$raster_patches
+  # ans <- squashhabitat(ans)
   return (ans)
 }
 
@@ -261,7 +261,7 @@ spatial <- function (habitat) {
 #'
 coordinates <- function (habitat) {
   stopifnot(is.habitat(habitat))
-  ans <- habitat[, attr(habitat, 'coordinates'), drop = FALSE]
+  ans <- habitat$habitat[, attr(habitat, 'coordinates'), drop = FALSE]
   ans <- squashhabitat(ans)
   return (ans)
 }
@@ -274,7 +274,7 @@ coordinates <- function (habitat) {
 #'
 distance <- function (habitat) {
   stopifnot(is.habitat(habitat))
-  ans <- attr(habitat, 'distance')
+  ans <- habitat$distance
   return (ans)
 }
 
@@ -329,14 +329,14 @@ distanceCheck <- function (distance, habitat) {
   stopifnot(all(diag(distance) == 0))
 }
 #' 
-#' #' @rdname habitat
-#' #' @name K
-#' #' @param x a raster of species habitit suitability (occupancy)
-#' #' @param a parameter for carrying capacity model
-#' #' @param b parameter for carrying capacity model
-#' #' @param c parameter for carrying capacity model
-#' #' @param type model form for converting occurrence to carrying capacity.
-#' #' @author Skipton Woolley
+#' @rdname habitat
+#' @name K
+#' @param x a raster of species habitit suitability (occupancy)
+#' @param a parameter for carrying capacity model
+#' @param b parameter for carrying capacity model
+#' @param c parameter for carrying capacity model
+#' @param type model form for converting occurrence to carrying capacity.
+#' @author Skipton Woolley
 K<-function(x,a=1,b=.2,c=0.5,type=c('exp','logit','linear')){
   type <- match.arg(type)
   switch(type,
@@ -345,14 +345,14 @@ K<-function(x,a=1,b=.2,c=0.5,type=c('exp','logit','linear')){
          logit = a+(1/(1+exp(-b*x+c))))
 }
 
-raster2habitat <- function(list){ # will add in other options here later, but first lets get it working.
+raster2habitat <- function(input){ # will add in other options here later, but first lets get it working.
   # r[] <- scales::rescale(r[])
-  r_id <- which(sapply(list,function(x)inherits(x,"RasterLayer")))
-  r <- list[[r_id]]
+  r_id <- which(sapply(input,function(x)inherits(x,"RasterLayer")))
+  r <- input[[r_id]]
   rthr <- r > stats::quantile(r[], .6) # default to .6 atm.
   patches <- dlmpr::patches(rthr, distance=1000, crs(rthr))  # default 1000m atm.
   
-  if(!any(which(sapply(list,function(x)inherits(x,"population"))))){
+  if(!any(which(sapply(input,function(x)inherits(x,"population"))))){
   # lets calculated carrying capacity from occurrence.
   k <- K(r,type='exp') # will make this customisable one day.
   k_mask <- raster::mask(k,patches$patchrast)
@@ -369,83 +369,84 @@ raster2habitat <- function(list){ # will add in other options here later, but fi
   # estimate population size based on starting K. # will need to replace this with stable states.
   population <- as.population(t(sapply(intN, function(x)rmultinom(1,size=x,prob=c(0.8,0.2,0.01))))) #replace these with stable states.
   } else {
-  p_id <-  which(sapply(list,function(x)inherits(x,"population")))
-  population <- as.data.frame(list[[p_id]])
+  p_id <-  which(sapply(input,function(x)inherits(x,"population")))
+  population <- as.data.frame(input[[p_id]])
   }
     # populations <- as.population(t(sapply(intN, function(x)rmultinom(1,size=x,prob=c(0.8,0.2,0.01)))))
   area <- patches$patchstats$area
   coordinates <- patches$coords[,-1]
   # populations <- data.frame(rep(population,nrow(coordinates)),nrow(coordinates),length(population))
-  suppressWarnings(habitat <- data.frame(coordinates,
-                                         area = area,
-                                         populations=population))
-  rownames(habitat) <- 1:nrow(habitat)
+  suppressWarnings(habitat <- list(habitat=   data.frame(coordinates,
+                                              area = area,
+                                              populations=population)))
+  rownames(habitat$habitat) <- 1:nrow(habitat$habitat)
   
   # work out column numbers
   ncoord <- ncol(coordinates)
   narea <- 1
   npop <- ncol(population)
   
-  attr(habitat, 'coordinates') <- seq_len(ncoord)
-  attr(habitat, 'area') <- narea + ncoord
-  attr(habitat, 'population') <- seq_len(npop) + narea + ncoord
-  
-  # set class
-  class(habitat) <- c('habitat', class(habitat))
+  attr(habitat$habitat, 'coordinates') <- seq_len(ncoord)
+  attr(habitat$habitat, 'area') <- narea + ncoord
+  attr(habitat$habitat, 'population') <- seq_len(npop) + narea + ncoord
   
   # add distance matrix
-  distance <- as.matrix(dist(coordinates))
-  attr(habitat, 'distance') <- distance
-  attr(habitat, 'spatial') <- patches$patchrast
+  habitat$distance <- as.matrix(dist(coordinates))
+  attr(habitat$distance, 'distance') <- distance
+  habitat$raster_patches <- patches$patchrast
+  attr(habitat$raster_patches, 'spatial') <- raster_patches
+
+  # set class
+  class(habitat) <- c('habitat', class(habitat))
   
   # set class & return
   return (habitat)
 }
 
-list2habitat <- function (list) {
+list2habitat <- function (input) {
   
   # need to include the capacity to identify rasters (HSM)
   
   # check the elements
-  if(any(sapply(list,function(x)inherits(x,"RasterLayer")))){
-    habitat <- raster2habitat(list)
+  if(any(sapply(input,function(x)inherits(x,"RasterLayer")))){
+    habitat <- raster2habitat(input)
   } else {
          
-  if(length(list)<4)stop()
+  if(length(input)<4)stop()
     
-  stopifnot(length(list) == 4)
-  stopifnot(sort(names(list)) == c('area', 'coordinates', 'features', 'population'))
-  stopifnot(all(sapply(list, is.data.frame)))
+  stopifnot(length(input) == 4)
+  stopifnot(sort(names(input)) == c('area', 'coordinates', 'features', 'population'))
+  stopifnot(all(sapply(input, is.data.frame)))
   
   # check components
-  areaCheck(list$area)
-  populationCheck(list$population)
+  areaCheck(input$area)
+  populationCheck(input$population)
   
   # reset order and tidy up row names
-  suppressWarnings(habitat <- data.frame(list$coordinates,
-                                           area = list$area,
-                                           list$population,
-                                           list$features))
-  rownames(habitat) <- 1:nrow(habitat)
+  suppressWarnings(habitat <-  list(habitat=data.frame(input$coordinates,
+                                           area = input$area,
+                                           input$population,
+                                           input$features)))
+  rownames(habitat$habitat) <- 1:nrow(habitat$habitat)
   
   # work out column numbers
-  ncoord <- ncol(list$coordinates)
+  ncoord <- ncol(input$coordinates)
   narea <- 1
-  npop <- ncol(list$population)
-  nfeat <- ncol(list$features)
+  npop <- ncol(input$population)
+  nfeat <- ncol(input$features)
   
-  attr(habitat, 'coordinates') <- seq_len(ncoord)
-  attr(habitat, 'area') <- narea + ncoord
-  attr(habitat, 'population') <- seq_len(npop) + narea + ncoord
-  attr(habitat, 'features') <- seq_len(nfeat) + npop + narea + ncoord
+  attr(habitat$habitat, 'coordinates') <- seq_len(ncoord)
+  attr(habitat$habitat, 'area') <- narea + ncoord
+  attr(habitat$habitat, 'population') <- seq_len(npop) + narea + ncoord
+  attr(habitat$habitat, 'features') <- seq_len(nfeat) + npop + narea + ncoord
   
   # set class
   class(habitat) <- c('habitat', class(habitat))
   
   # add distance matrix
   coord <- coordinates(habitat)
-  distance <- as.matrix(dist(coord))
-  attr(habitat, 'distance') <- distance
+  habitat$distance <- as.matrix(dist(coord))
+  attr(habitat$distance, 'distance') <- distance
   }
   # set class & return
   return (habitat)
