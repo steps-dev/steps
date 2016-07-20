@@ -13,7 +13,7 @@ Because we are interested in matrix population models (or stage based models) we
 
 ``` r
 library(dlmpr)
-tmat <- as.transition_matrix(matrix(c(0.53,0.00,0.42,
+tmat <- as.transition(matrix(c(0.53,0.00,0.42,
                                       0.10,0.77,0.00,
                                       0.00,0.12,0.90),nrow = 3,ncol = 3,byrow = TRUE))
 ```
@@ -45,7 +45,7 @@ summary(tmat)
     ## stage.2 0.04352628 0.17533196 0.00000000
     ## stage.3 0.00000000 0.04352628 0.64058402
     ## attr(,"class")
-    ## [1] "transition_matrix" "matrix"           
+    ## [1] "transition" "matrix"    
     ## 
     ## $name.mat
     ## [1] "tmat"
@@ -54,20 +54,21 @@ summary(tmat)
     ## [1] "stage.1" "stage.2" "stage.3"
     ## 
     ## attr(,"class")
-    ## [1] "summary.transition_matrix" "list"
+    ## [1] "summary.transition" "list"
 
 We can also plot the population dynamics based on our population matrix.
 
 ``` r
+par(mar=c(1,1,1,1))
 plot(tmat)
 ```
 
-![](readme_files/figure-markdown_github/single_pop_plot-1.png)<!-- -->
+![](readme_files/figure-markdown_github/single_pop_plot-1.png)
 
-Having assessed the matrix population model for this population we can look at how a population will shift over time.
+Having assessed the matrix population model for this population we can look at how a-spatial projection of this population will shift over time.
 
 ``` r
-tmat <- as.transition_matrix(matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE))
+tmat <- as.transition(matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE))
 v0 <-   as.population(c(80,40,10))
 dm1 <- demographic(v0=v0,tmat=tmat,time=100,nrep=100)
 ```
@@ -75,10 +76,15 @@ dm1 <- demographic(v0=v0,tmat=tmat,time=100,nrep=100)
 We can now look at how this single population changes through time.
 
 ``` r
-plot(dm1)
+dev.off()
 ```
 
-![](readme_files/figure-markdown_github/plot_all1-1.png)<!-- -->
+    ## null device 
+    ##           1
+
+``` r
+plot(dm1)
+```
 
 We can all see the different stages in the population structure change through time.
 
@@ -86,12 +92,12 @@ We can all see the different stages in the population structure change through t
 plot(dm1,mean_pop = FALSE)
 ```
 
-![](readme_files/figure-markdown_github/plot_all_stages1-1.png)<!-- -->
+![](readme_files/figure-markdown_github/plot_all_stages1-1.png)
 
 Have assessed how the population changes over time, we can include stochasticity to our projections of population change through time. Here we include demographic uncertainty to each step in the stage based model by including `matsd` in to the demographic model run, we do this by adding a simple stochastic element by creating a the same sized matrix filled with he `runif` call values.
 
 ``` r
-tmat <- as.transition_matrix(matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE))
+tmat <- as.transition(matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE))
 matsd <- matrix(runif(dim(tmat)[1]*dim(tmat)[1]), dim(tmat)[1],dim(tmat)[2])
 v0 <- as.population(c(80,40,10))
 dm2 <- demographic(v0=v0,tmat=tmat,matsd = matsd, estdem = TRUE,time=100,nrep=100)
@@ -103,7 +109,7 @@ We can now look at how this single population changes over time with demographic
 plot(dm2)
 ```
 
-![](readme_files/figure-markdown_github/plot_all2-1.png)<!-- -->
+![](readme_files/figure-markdown_github/plot_all2-1.png)
 
 We can all see the different stages in the population structure change through time with demographic uncertainty.
 
@@ -111,4 +117,4 @@ We can all see the different stages in the population structure change through t
 plot(dm2,mean_pop = FALSE)
 ```
 
-![](readme_files/figure-markdown_github/plot_all_stages2-1.png)<!-- -->
+![](readme_files/figure-markdown_github/plot_all_stages2-1.png)

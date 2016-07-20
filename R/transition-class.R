@@ -69,7 +69,7 @@ plot.transition <- function (x, ...) {
   # plot a dynamic using igraph
   
   # extract the transition matrix & create an igraph graph x
-  par(mar=c(4,4,4,4))
+  # par(mar=c(4,4,4,4))
   transitionCheck(x)
   textmat <- base::t(x)
   textmat[textmat>0]<-base::paste0('p(',base::as.character(textmat[textmat>0]),')')

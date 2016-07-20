@@ -45,12 +45,12 @@ demographic_mod object a list of demographic projections
 do some demographic modelling in R
 }
 \examples{
-tmat <- as.transition_matrix(matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),
+tmat <- as.transition(matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),
 nrow = 3,ncol = 3,byrow = TRUE))
 matsd <- tmat/10
 v0 <- c(80,20,0)
 sim_t10_rep100 <- demographic(v0=v0,tmat=tmat,matsd=matsd,estdem=TRUE,time=10,nrep=100) 
-tmat <- as.transition_matrix(matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),
+tmat <- as.transition(matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),
 nrow = 3,ncol = 3,byrow = TRUE))
 matsd <- tmat/10
 v0 <- c(80,20,0)

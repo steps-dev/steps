@@ -21,7 +21,7 @@ NULL
 #' @description do some demographic modelling in R
 #' 
 #' @examples 
-#' tmat <- as.transition_matrix(matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),
+#' tmat <- as.transition(matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),
 #' nrow = 3,ncol = 3,byrow = TRUE))
 #' matsd <- tmat/10
 #' v0 <- c(80,20,0)
@@ -33,7 +33,7 @@ setGeneric("demographic",
             estamb = FALSE, estdem = FALSE, 
             equalsign = TRUE, tmat_fecundity = FALSE, nrep = 10, 
             time = 10) {
-  if(!is.transition_matrix(tmat)) stop("The transition matrix is not of transition_matrix class")  
+  if(!is.transition(tmat)) stop("The transition matrix is not of transition class")  
   vn <- NULL
   for (i in 1:nrep) {
     vn[[i]] <- base::cbind(v0, v0)
@@ -68,7 +68,7 @@ setGeneric("demographic",
 #' @param ... other plot arguments
 #' @author Skipton Woolley
 #' @examples 
-#' tmat <- as.transition_matrix(matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),
+#' tmat <- as.transition(matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),
 #' nrow = 3,ncol = 3,byrow = TRUE))
 #' matsd <- tmat/10
 #' v0 <- c(80,20,0)
