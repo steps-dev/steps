@@ -2,11 +2,14 @@
 % Please edit documentation in R/dispersal-class.R
 \name{dispersal}
 \alias{as.dispersal}
+\alias{d}
 \alias{dispersal}
 \alias{is.dispersal}
 \title{dispersal class for metapoplation}
 \usage{
 dispersal(params)
+
+d(params)
 
 is.dispersal(x)
 
@@ -26,6 +29,8 @@ params <- list(alpha=1,beta=1,disp_fun="H")
 dispersal(params)
 
 dispersal(NULL)
+d(NULL)
+
 is.dispersal(disp)
 }
 

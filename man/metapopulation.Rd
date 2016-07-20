@@ -43,7 +43,7 @@ do some metapopulation modelling in R
 \examples{
 habitat <- as.habitat(list(coordinates = data.frame(x=runif( 100, min=-20, max=20),
                                                     y=runif( 100, min=-20, max=20)),
-                               area = as.data.frame(exp(-seq(.1,10,length.out = 100))*10),
+                               area = as.data.frame(exp(-seq(.1,10,length.out = 10000))*10),
                                population = as.population(t(rmultinom(100, 
                                size = 100, prob = c(0.8,0.2,0.01)))),
                                features = data.frame(temperature = 10)))
