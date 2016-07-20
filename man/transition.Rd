@@ -7,7 +7,7 @@
 \alias{summary.transition}
 \title{transition matrix objects}
 \usage{
-as.transition(x, names.st = NULL, ...)
+as.transition(x, ...)
 
 \method{summary}{transition}(x, ...)
 
@@ -17,8 +17,6 @@ is.transition(x)
 }
 \arguments{
 \item{x}{For as.transition, x is a square matrix, that has transition states between population stages.}
-
-\item{names.st}{string of names for each stage}
 
 \item{...}{other function calls.}
 
@@ -32,6 +30,7 @@ prints the main parameters of the transition matrix: the finite rate of increase
 }
 \examples{
 mat <- matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
+rownames(mat) <- colnames(mat) <- c('larval','juvenile','adult')
 tmat <- as.transition(mat)
 mat <- matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
 tmat <- as.transition(mat)

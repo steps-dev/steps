@@ -122,8 +122,8 @@ is.habitat <- function (x) inherits(x, 'habitat')
 #' print(habitat)
 #'
 print.habitat <- function(x, ...) {
-  text <- sprintf('habitat with %s patches\n',
-                  nrow(x))
+  if (is.null(nrow(x$distance))) text <- sprintf('an a-spatial habitat with %s patch\n',1)
+  else text <- sprintf('a spatial habitat with %s patches\n',nrow(x$distance))
   cat(text)
 }
 
@@ -428,7 +428,7 @@ list2habitat <- function (input) {
                                            input$population,
                                            input$features)))
   rownames(habitat$habitat) <- 1:nrow(habitat$habitat)
-  
+  colnames(habitat$habitat) <- c("x","y","area",names(input$population),names(input$features))
   # work out column numbers
   ncoord <- ncol(input$coordinates)
   narea <- 1
@@ -444,9 +444,7 @@ list2habitat <- function (input) {
   class(habitat) <- c('habitat', class(habitat))
   
   # add distance matrix
-  coord <- coordinates(habitat)
-  habitat$distance <- as.matrix(dist(coord))
-  attr(habitat$distance, 'distance') <- distance
+  habitat$distance <- as.matrix(dist(input$coordinates))
   }
   # set class & return
   return (habitat)

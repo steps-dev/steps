@@ -21,11 +21,12 @@
 #' @examples 
 #' habitat <- as.habitat(list(coordinates = data.frame(x=runif( 100, min=-20, max=20),
 #'                                                     y=runif( 100, min=-20, max=20)),
-#'                                area = as.data.frame(exp(-seq(.1,10,length.out = 10000))*10),
-#'                                population = as.population(t(rmultinom(100, 
+#'                                area = data.frame(exp(-seq(.1,10,length.out = 100))*10),
+#'                                population = as.population(t(rmultinom(1, 
 #'                                size = 100, prob = c(0.8,0.2,0.01)))),
 #'                                features = data.frame(temperature = 10)))
-#' params <- list(alpha=1,beta=1,disp_fun="H")
+#'                                
+#' params <- list(alpha=list('stage3'=3),probability=list('stage3'=0.6))  
 #' adult.dispersal <- dispersal(params) 
 #' mp <- metapopulation(nrep=10, time=100, habitat=habitat, dispersal=adult.dispersal,
 #'                   x1 = 200, e1 = 0.00061, y1 = 200)

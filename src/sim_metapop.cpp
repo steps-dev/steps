@@ -1,23 +1,6 @@
 #include "RcppArmadillo.h"
 using namespace Rcpp;
 
-//'C++ connectivity function
-//' @param dist Distances between patches (symetrical matrix)
-//' @param alpha Exponential decay rate of patch connectivity (dispersion parameter)
-//' @param beta double parameter that represents the shape of the dispersal kernel.
-//' @param disp_fun char if 'H' uses hanski(1994), if 'S' uses shaw(1995).
-//' @export
-// [[Rcpp::depends(RcppArmadillo)]]
-// [[Rcpp::export]]
-NumericMatrix meta_dispersal_fun(NumericMatrix dist, double alpha, 
-                                 double  beta=1, char disp_fun = 'H') {
-  arma::mat dist1 = as<arma::mat>(dist);
-  arma::mat disp_mat(dist1.n_rows,dist1.n_cols);
-  if(disp_fun == 'H') disp_mat = exp(-alpha * dist1);
-  if(disp_fun == 'S') disp_mat = 1/(1+(alpha * arma::pow(dist1,beta)));
-  return(wrap(disp_mat));
-}
-
 //'C++ colonisation function
 //' @param s NumericVector that represents connectivity
 //' @param y double colonisation parameter
@@ -35,7 +18,6 @@ NumericVector meta_colonisation_fun(NumericVector s, double y, double c=1, char 
 }
 
 // C++ Extinction function
-
 //'C++ metapopulation function for a single timestep.
 //' @param presence NumericVector Initial occupancy of each patch
 //' @param dist_mat Exponential decay rate of patch connectivity (dispersion parameter)
@@ -72,24 +54,21 @@ NumericVector metapop(NumericVector presence, NumericMatrix dist_mat, NumericVec
 //'Simulate a metapopulation system in C++
 //'this function is not complete.
 //' @param time Number of time steps
-//' @param dist Distances between patches (symetrical matrix)
+//' @param dist dispersal matrix //Distances between patches (symetrical matrix)
 //' @param area Area of patches - This needs to be calculated somehow - using occupancy models?
 //' @param presence Initial occupancies of patches. Must be presence 1 or absence 0.
 //' @param y incidence function parameters
 //' @param x incidence function parameters
 //' @param e Minimum area of patches
-//' @param alpha Exponential decay rate of patch connectivity (dispersion parameter)
-//' @param beta double parameter that represents the shape of the dispersal kernel.
-//' @param disp_fun char if 'H' uses hanski(1994), if 'S' uses shaw(1995).
 //' @param locations NULL or NumericMatrix Longitudes and latitudes of coordinates of the patches
 //' @param c double colonisation scale parameter see Ovaskainen 2002.
 //' @param coln_fun char which method to use? 'H' = Hanski 1994, 'M'= Moilanen 2004, 'O'= Ovaskainen 2002. See decription for details.
 //' @export
 // [[Rcpp::export]]
 NumericMatrix metapop_n(int time, NumericMatrix dist, NumericVector area, NumericVector presence, 
-                 double y = 1, double x = 1, double e=1, double alpha = 1, double beta = 1, char disp_fun = 'H',
-                 Rcpp::Nullable<Rcpp::NumericMatrix> locations = R_NilValue, double c = 1, char coln_fun='H'){
- arma::mat dist_mat = as<arma::mat>(meta_dispersal_fun(dist,alpha,beta,disp_fun));
+                 double y = 1, double x = 1, double e=1, Rcpp::Nullable<Rcpp::NumericMatrix> locations = R_NilValue,
+                 double c = 1, char coln_fun='H'){
+ arma::mat dist_mat = as<arma::mat>(dist);
  dist_mat.diag().zeros();
  int ps = presence.size();
  arma::mat dist_mat2;
@@ -115,28 +94,23 @@ NumericMatrix metapop_n(int time, NumericMatrix dist, NumericVector area, Numeri
 //'this function is not complete.
 //' @param nrep Number of simulations.
 //' @param time Number of time steps
-//' @param dist Distances between patches (symetrical matrix)
+//' @param dist dispersal matrix //Distances between patches (symetrical matrix)
 //' @param area Area of patches - This needs to be calculated somehow - using occupancy models?
 //' @param presence Initial occupancies of patches. Must be presence 1 or absence 0.
 //' @param y incidence function parameters
 //' @param x incidence function parameters
 //' @param e Minimum area of patches
-//' @param alpha Exponential decay rate of patch connectivity (dispersion parameter)
-//' @param beta double parameter that represents the shape of the dispersal kernel.
-//' @param disp_fun char if 'H' uses hanski(1994), if 'S' uses shaw(1995).
 //' @param locations NULL or NumericMatrix Longitudes and latitudes of coordinates of the patches
 //' @param c double colonisation scale parameter see Ovaskainen 2002.
 //' @param coln_fun char which method to use? 'H' = Hanski 1994, 'M'= Moilanen 2004, 'O'= Ovaskainen 2002. See decription for details.
 //' @export
 // [[Rcpp::export]]
 List metapop_n_cpp(int nrep, int time, NumericMatrix dist, NumericVector area, NumericVector presence,
-                   double y = 1, double x = 1, double e=1, double alpha = 1, double beta = 1, char disp_fun = 'H',
-                   Rcpp::Nullable<Rcpp::NumericMatrix> locations = R_NilValue, double c = 1, char coln_fun='H'){
+                   double y = 1, double x = 1, double e=1, Rcpp::Nullable<Rcpp::NumericMatrix> locations = R_NilValue, double c = 1, char coln_fun='H'){
   List TempList(nrep);
    for (int ii=0;ii<nrep;ii++) {
       TempList[ii] = metapop_n(time = time, dist = dist, area = area, presence = presence,
-                               y = y, x = x, e=e, alpha = alpha, beta = beta, 
-                               disp_fun = disp_fun, locations = locations, c=c,coln_fun=coln_fun);
+                               y = y, x = x, e=e, locations = locations, c=c,coln_fun=coln_fun);
     }
     return(TempList);
 }

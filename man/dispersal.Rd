@@ -5,32 +5,51 @@
 \alias{d}
 \alias{dispersal}
 \alias{is.dispersal}
+\alias{print.dispersal}
 \title{dispersal class for metapoplation}
 \usage{
-dispersal(params)
+dispersal(params, ...)
 
-d(params)
+d(params, ...)
 
 is.dispersal(x)
 
 as.dispersal(x)
+
+\method{print}{dispersal}(x, ...)
 }
 \arguments{
-\item{params}{list which containts alpha the exponential decay rate of patch connectivity 
-(dispersion parameter), beta double parameter that represents the shape of the dispersal kernel.
-and disp_fun a characture 'H' uses hanski(1994), if 'S' uses shaw(1995).}
+\item{params}{named list w}
 
 \item{x}{an object to be tested as a dispersal transfun object}
 
 \item{x}{an object to be tested as a dispersal transfun object}
+
+\item{x}{an object to print or test as a transition object}
+
+\item{\dots}{further arguments passed to or from other methods.}
+}
+\description{
+creates a function that governs dispersal capacity of stages in a population. The input is a list which contains 
+ the first list is a dispersal kernal \code{alpha}  value for each stage, the second named list \code{probability} 
+is the proportion of that stage will disperse. For example a probability of 0.2 for stage larvae
+means a random 20% of larve will a try and disperse to patches, the distance they can disperse is governed 
+by the dispersal kernal (alpha). If params = NULL, a dispersal kernal of 1 is given to all stages, 
+and all stages will attempt to undertake dispersal.
 }
 \examples{
-params <- list(alpha=1,beta=1,disp_fun="H")
+params <- list(alpha=list('larval'=2,'juvenile'=0,'adult'=3),
+               probability=list('larval'=0.2,'juvenile'=0,'adult'=0.6))  
+               
 dispersal(params)
 
 dispersal(NULL)
 d(NULL)
 
 is.dispersal(disp)
+# print method
+dispersal(params)
+print(d(NULL))
+
 }
 

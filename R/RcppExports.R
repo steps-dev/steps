@@ -46,10 +46,6 @@ demo_proj_n_cpp <- function(vn, tmat, matsd = NULL, stmat = NULL, estamb = FALSE
     .Call('dlmpr_demo_proj_n_cpp', PACKAGE = 'dlmpr', vn, tmat, matsd, stmat, estamb, estdem, equalsign, tmat_fecundity, nrep, time)
 }
 
-meta_dispersal_fun <- function(dist, alpha, beta = 1, disp_fun = 'H') {
-    .Call('dlmpr_meta_dispersal_fun', PACKAGE = 'dlmpr', dist, alpha, beta, disp_fun)
-}
-
 meta_colonisation_fun <- function(s, y, c = 1, coln_fun = 'H') {
     .Call('dlmpr_meta_colonisation_fun', PACKAGE = 'dlmpr', s, y, c, coln_fun)
 }
@@ -69,41 +65,35 @@ metapop <- function(presence, dist_mat, Ei, y, c = 1, coln_fun = 'H') {
 #'Simulate a metapopulation system in C++
 #'this function is not complete.
 #' @param time Number of time steps
-#' @param dist Distances between patches (symetrical matrix)
+#' @param dist dispersal matrix //Distances between patches (symetrical matrix)
 #' @param area Area of patches - This needs to be calculated somehow - using occupancy models?
 #' @param presence Initial occupancies of patches. Must be presence 1 or absence 0.
 #' @param y incidence function parameters
 #' @param x incidence function parameters
 #' @param e Minimum area of patches
-#' @param alpha Exponential decay rate of patch connectivity (dispersion parameter)
-#' @param beta double parameter that represents the shape of the dispersal kernel.
-#' @param disp_fun char if 'H' uses hanski(1994), if 'S' uses shaw(1995).
 #' @param locations NULL or NumericMatrix Longitudes and latitudes of coordinates of the patches
 #' @param c double colonisation scale parameter see Ovaskainen 2002.
 #' @param coln_fun char which method to use? 'H' = Hanski 1994, 'M'= Moilanen 2004, 'O'= Ovaskainen 2002. See decription for details.
 #' @export
-metapop_n <- function(time, dist, area, presence, y = 1, x = 1, e = 1, alpha = 1, beta = 1, disp_fun = 'H', locations = NULL, c = 1, coln_fun = 'H') {
-    .Call('dlmpr_metapop_n', PACKAGE = 'dlmpr', time, dist, area, presence, y, x, e, alpha, beta, disp_fun, locations, c, coln_fun)
+metapop_n <- function(time, dist, area, presence, y = 1, x = 1, e = 1, locations = NULL, c = 1, coln_fun = 'H') {
+    .Call('dlmpr_metapop_n', PACKAGE = 'dlmpr', time, dist, area, presence, y, x, e, locations, c, coln_fun)
 }
 
 #'Simulate a metapopulation system in C++
 #'this function is not complete.
 #' @param nrep Number of simulations.
 #' @param time Number of time steps
-#' @param dist Distances between patches (symetrical matrix)
+#' @param dist dispersal matrix //Distances between patches (symetrical matrix)
 #' @param area Area of patches - This needs to be calculated somehow - using occupancy models?
 #' @param presence Initial occupancies of patches. Must be presence 1 or absence 0.
 #' @param y incidence function parameters
 #' @param x incidence function parameters
 #' @param e Minimum area of patches
-#' @param alpha Exponential decay rate of patch connectivity (dispersion parameter)
-#' @param beta double parameter that represents the shape of the dispersal kernel.
-#' @param disp_fun char if 'H' uses hanski(1994), if 'S' uses shaw(1995).
 #' @param locations NULL or NumericMatrix Longitudes and latitudes of coordinates of the patches
 #' @param c double colonisation scale parameter see Ovaskainen 2002.
 #' @param coln_fun char which method to use? 'H' = Hanski 1994, 'M'= Moilanen 2004, 'O'= Ovaskainen 2002. See decription for details.
 #' @export
-metapop_n_cpp <- function(nrep, time, dist, area, presence, y = 1, x = 1, e = 1, alpha = 1, beta = 1, disp_fun = 'H', locations = NULL, c = 1, coln_fun = 'H') {
-    .Call('dlmpr_metapop_n_cpp', PACKAGE = 'dlmpr', nrep, time, dist, area, presence, y, x, e, alpha, beta, disp_fun, locations, c, coln_fun)
+metapop_n_cpp <- function(nrep, time, dist, area, presence, y = 1, x = 1, e = 1, locations = NULL, c = 1, coln_fun = 'H') {
+    .Call('dlmpr_metapop_n_cpp', PACKAGE = 'dlmpr', nrep, time, dist, area, presence, y, x, e, locations, c, coln_fun)
 }
 

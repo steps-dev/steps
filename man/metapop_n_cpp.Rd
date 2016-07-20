@@ -6,15 +6,14 @@
 this function is not complete.}
 \usage{
 metapop_n_cpp(nrep, time, dist, area, presence, y = 1, x = 1, e = 1,
-  alpha = 1, beta = 1, disp_fun = "H", locations = NULL, c = 1,
-  coln_fun = "H")
+  locations = NULL, c = 1, coln_fun = "H")
 }
 \arguments{
 \item{nrep}{Number of simulations.}
 
 \item{time}{Number of time steps}
 
-\item{dist}{Distances between patches (symetrical matrix)}
+\item{dist}{dispersal matrix //Distances between patches (symetrical matrix)}
 
 \item{area}{Area of patches - This needs to be calculated somehow - using occupancy models?}
 
@@ -25,12 +24,6 @@ metapop_n_cpp(nrep, time, dist, area, presence, y = 1, x = 1, e = 1,
 \item{x}{incidence function parameters}
 
 \item{e}{Minimum area of patches}
-
-\item{alpha}{Exponential decay rate of patch connectivity (dispersion parameter)}
-
-\item{beta}{double parameter that represents the shape of the dispersal kernel.}
-
-\item{disp_fun}{char if 'H' uses hanski(1994), if 'S' uses shaw(1995).}
 
 \item{locations}{NULL or NumericMatrix Longitudes and latitudes of coordinates of the patches}
 

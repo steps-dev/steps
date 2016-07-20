@@ -2,27 +2,28 @@
 #' @name as.transition
 #' @rdname transition
 #' @param x For as.transition, x is a square matrix, that has transition states between population stages.
-#' @param names.st string of names for each stage
 #' @param ... other function calls.
 #' @return An object of class tmatrix, i.e, resulting from as.transition.
 #' @author Skipton Woolley
 #' @export
 #' @examples 
 #' mat <- matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
+#' rownames(mat) <- colnames(mat) <- c('larval','juvenile','adult')
 #' tmat <- as.transition(mat)
 
-as.transition <- function(x, names.st=NULL,...){
-    x <- base::as.matrix(x,...)
+as.transition <- function(x, ...){
+    x <- base::as.matrix(x)
     if(base::diff(base::dim(x)) !=0) stop("Needs to be a square matrix with transition probabilities between each stage.")
-    transitionCheck(x)
+    stage_matrixCheck(x) 
     di <- base::dim(x)[[1]]
     m.names <- base::dimnames(x)[[1]]
-    if(base::is.null(m.names)) m.names <- names.st
     if(base::is.null(m.names)) m.names <- base::paste0("stage.",1:di)
     base::dimnames(x) <- base::list(m.names, m.names)
-    # attr(x,'pop_matrix')
-    base::class(x)<-c("transition", class(x))
-    return(x)
+    transition <- structure(list(stage_matrix=x),class='transition')
+    if (!is.transition(transition)) {
+      class(transition) <- c('transition', class(transition))
+    }
+    return(transition)
 }
 
 #' @rdname transition
@@ -36,6 +37,7 @@ as.transition <- function(x, names.st=NULL,...){
 summary.transition <-
   function(x,...){
     transitionCheck(x)
+    x <- x$stage_matrix
     name.mat<-deparse(substitute(x))
     x <- x
     di <- base::dim(x)[1]
@@ -51,7 +53,6 @@ summary.transition <-
     result<- list(lambda=lambda, stable.stage.distribution = ssd,
                   reproductive.value =vr, sensitivity = sensitivity,
                   elasticity=elasticity,name.mat=name.mat,m.names= m.names)
-    class(result)=c("summary.transition", class(result))
     return (result)
   }
 
@@ -71,6 +72,7 @@ plot.transition <- function (x, ...) {
   # extract the transition matrix & create an igraph graph x
   # par(mar=c(4,4,4,4))
   transitionCheck(x)
+  x <- x$stage_matrix
   textmat <- base::t(x)
   textmat[textmat>0]<-base::paste0('p(',base::as.character(textmat[textmat>0]),')')
   textmat[textmat=='0'] <-''
@@ -110,12 +112,16 @@ plot.transition <- function (x, ...) {
 #' tmat <- as.transition(mat)
 #' is.transition(tmat)
 is.transition <- function (x) {
-  transitionCheck(x)
   inherits(x, 'transition')
 }
 
-transitionCheck <- function (x) {
+stage_matrixCheck <- function (x) {
   stopifnot(ncol(x) == nrow(x))
   stopifnot(is.matrix(x))
   stopifnot(all(is.finite(x)))
+}
+
+transitionCheck <- function (x) {
+  stopifnot(inherits(x,'transition'))
+  stopifnot(is.list(x))
 }
