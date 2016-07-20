@@ -1,6 +1,7 @@
 .Rproj.user
 .Rhistory
 .RData
+custom-modules/
 developing_functions/
 old_function/
 data/
