@@ -17,6 +17,14 @@ dispersal <- function(params){
          list = dispersal_core(params))
 }
 
+#' @rdname dispersal
+#' @name d
+#' @export
+#' @examples 
+#' d(NULL)
+#' 
+d <- dispersal
+
 dispersal_core <- function(params)
   {
   
@@ -48,8 +56,11 @@ is.dispersal <- function (x) inherits(x, 'dispersal')
 #' @param x an object to be tested as a dispersal transfun object
 #' @export
 as.dispersal <- function (x) {
-  if (!is.dispersal(x)) {
-    class(x) <- c('dispersal', class(x))
-  }
-  return (x)
+  if (!is.transition(x)) {
+      class(x) <- c('transition', class(x))
+    }
+    if (!is.dispersal(x)) {
+      class(x) <- c('dispersal', class(x))
+    }
+    return (x)
 }
