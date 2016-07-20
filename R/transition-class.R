@@ -1,17 +1,17 @@
 #' @title transition matrix objects 
-#' @name as.transition_matrix
-#' @rdname transition_matrix
-#' @param x For as.transition_matrix, x is a square matrix, that has transition states between population stages.
+#' @name as.transition
+#' @rdname transition
+#' @param x For as.transition, x is a square matrix, that has transition states between population stages.
 #' @param names.st string of names for each stage
 #' @param ... other function calls.
-#' @return An object of class tmatrix, i.e, resulting from as.transition_matrix.
+#' @return An object of class tmatrix, i.e, resulting from as.transition.
 #' @author Skipton Woolley
 #' @export
 #' @examples 
 #' mat <- matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
-#' tmat <- as.transition_matrix(mat)
+#' tmat <- as.transition(mat)
 
-as.transition_matrix <- function(x, names.st=NULL,...){
+as.transition <- function(x, names.st=NULL,...){
     x <- base::as.matrix(x,...)
     if(base::diff(base::dim(x)) !=0) stop("Needs to be a square matrix with transition probabilities between each stage.")
     transitionCheck(x)
@@ -20,19 +20,20 @@ as.transition_matrix <- function(x, names.st=NULL,...){
     if(base::is.null(m.names)) m.names <- names.st
     if(base::is.null(m.names)) m.names <- base::paste0("stage.",1:di)
     base::dimnames(x) <- base::list(m.names, m.names)
-    base::class(x)<-c("transition_matrix", class(x))
+    # attr(x,'pop_matrix')
+    base::class(x)<-c("transition", class(x))
     return(x)
 }
 
-#' @rdname transition_matrix
-#' @param object an object of \code{transition_matrix} class
+#' @rdname transition
+#' @param object an object of \code{transition} class
 #' @export
 #' @description prints the main parameters of the transition matrix: the finite rate of increase ("lambda"), the stable stage distribution, the reproductive value and the sensitivities and elasticities matrices.
 #' @examples
 #' mat <- matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
-#' tmat <- as.transition_matrix(mat)
+#' tmat <- as.transition(mat)
 #' summary(tmat)
-summary.transition_matrix <-
+summary.transition <-
   function(x,...){
     transitionCheck(x)
     name.mat<-deparse(substitute(x))
@@ -50,21 +51,21 @@ summary.transition_matrix <-
     result<- list(lambda=lambda, stable.stage.distribution = ssd,
                   reproductive.value =vr, sensitivity = sensitivity,
                   elasticity=elasticity,name.mat=name.mat,m.names= m.names)
-    class(result)=c("summary.transition_matrix", class(result))
+    class(result)=c("summary.transition", class(result))
     return (result)
   }
 
 
-#' @rdname transition_matrix
+#' @rdname transition
 #' @importFrom igraph graph.adjacency
 #' @export
 #' @author Nick Golding
 #' @examples 
 #' mat <- matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
-#' tmat <- as.transition_matrix(mat)
+#' tmat <- as.transition(mat)
 #' plot(tmat)
 
-plot.transition_matrix <- function (x, ...) {
+plot.transition <- function (x, ...) {
   # plot a dynamic using igraph
   
   # extract the transition matrix & create an igraph graph x
@@ -101,16 +102,16 @@ plot.transition_matrix <- function (x, ...) {
   
 }
 
-#' @rdname transition_matrix
-#' @name is.transition_matrix
+#' @rdname transition
+#' @name is.transition
 #' @export
 #' @examples
 #' mat <- matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
-#' tmat <- as.transition_matrix(mat)
-#' is.transition_matrix(tmat)
-is.transition_matrix <- function (x) {
+#' tmat <- as.transition(mat)
+#' is.transition(tmat)
+is.transition <- function (x) {
   transitionCheck(x)
-  inherits(x, 'transition_matrix')
+  inherits(x, 'transition')
 }
 
 transitionCheck <- function (x) {
