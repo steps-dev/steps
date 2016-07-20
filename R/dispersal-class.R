@@ -102,7 +102,6 @@ probdisp <- function (disp, habitat) {
   # giving probability of moving to each other patch, w/ all rows summing to 1.
   # probability is probability of leaving (1-probability of staying).
 
-  # work out which way round
   disps <- disp$disp(habitat)
   probs <- disp$probability
 
