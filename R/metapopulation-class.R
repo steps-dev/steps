@@ -21,7 +21,7 @@
 #' @examples 
 #' habitat <- as.habitat(list(coordinates = data.frame(x=runif( 100, min=-20, max=20),
 #'                                                     y=runif( 100, min=-20, max=20)),
-#'                                area = as.data.frame(exp(-seq(.1,10,length.out = 100))*10),
+#'                                area = as.data.frame(exp(-seq(.1,10,length.out = 10000))*10),
 #'                                population = as.population(t(rmultinom(100, 
 #'                                size = 100, prob = c(0.8,0.2,0.01)))),
 #'                                features = data.frame(temperature = 10)))
@@ -62,9 +62,9 @@ setGeneric("metapopulation",
              pop <- dlmpr::population(habitat)# need to integrate demographic and presence correctly.
              presence <- as.vector(ifelse(pop[,ncol(pop)]>0,1,0))
              dist <- dispersal$dist(habitat)
-             if(nrow(dist) > 1) {
-                 dist <- sweep(dist, 1, rowSums(dist), '/')
-               }
+             # if(nrow(dist) > 1) {
+             #     dist <- sweep(dist, 1, rowSums(dist), '/')
+             #   }
              # call c++ function that does this loop.
              mp <- dlmpr::metapop_n_cpp(nrep=nrep, time=time, dist=dist, area=area, presence=presence,
                                         y = y1, x = x1, e = e1, alpha = dispersal$alpha, beta = dispersal$beta,
