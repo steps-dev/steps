@@ -43,13 +43,13 @@ dm1 <- demographic(v0=v0,tmat=tmat,time=100,nrep=100)
 ```
 
 We can now look at how this single population changes through time.
-```{r plot_all1,fig.width = 4, fig.height = 4, dpi = 300}
+```{r plot_all1,fig.width = 4, fig.height = 4}
 dev.off()
 plot(dm1)
 ```
 
 We can all see the different stages in the population structure change through time.
-```{r plot_all_stages1,fig.width = 9, fig.height = 4, dpi = 300, set_xpd = TRUE}
+```{r plot_all_stages1,fig.width = 9, fig.height = 4}
 plot(dm1,mean_pop = FALSE)
 ```
 
@@ -62,12 +62,12 @@ dm2 <- demographic(v0=v0,tmat=tmat,matsd = matsd, estdem = TRUE,time=100,nrep=10
 ```
 
 We can now look at how this single population changes over time with demographic uncertainty.
-```{r plot_all2,fig.width = 4, fig.height = 4, dpi = 300, set_xpd = TRUE}
+```{r plot_all2,fig.width = 4, fig.height = 4}
 plot(dm2)
 ```
 
 We can all see the different stages in the population structure change through time with demographic uncertainty.
-```{r plot_all_stages2,fig.width = 9, fig.height = 4, dpi = 300, set_xpd = TRUE}
+```{r plot_all_stages2,fig.width = 9, fig.height = 4}
 plot(dm2,mean_pop = FALSE)
 ```
 
