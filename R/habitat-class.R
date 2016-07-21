@@ -1,7 +1,7 @@
 #' @title habitat objects
-#' @name patches
-#' @rdname habitat
 #' @description Underlying habitat for dlmpr.
+#' @rdname habitat
+#' @name patches
 #' @param x a binary Raster layer (0 or NA for background, and 1 for areas to be clumped)
 #' @param distance the neighbourhood distance. Patches that occur within this distance of
 #'  one another will be clumped. This should be in the units of the CRS given
@@ -141,9 +141,18 @@ print.habitat <- function(x, ...) {
 
 area <- function (habitat) {
   stopifnot(is.habitat(habitat))
-  ans <- habitat$habitat[, attr(habitat, 'area'), drop = FALSE]
+  ans <- habitat$habitat[, attr(habitat$habitat, 'area'), drop = FALSE]
   ans <- squashhabitat(ans)
   return (ans)
+}
+
+#' @rdname habitat
+#' @export
+`area<-` <- function (habitat, value) {
+  areaCheck(value)
+  stopifnot(is.habitat(habitat))
+  habitat$habitat[, attr(habitat$habitat, 'area')] <- value
+  habitat
 }
 
 #' @rdname habitat
@@ -194,7 +203,7 @@ is.population <- function (x) {
 #'
 population <- function (habitat) {
   stopifnot(is.habitat(habitat))
-  ans <- habitat[, attr(habitat, 'population'), drop = FALSE]
+  ans <- habitat$habitat[, attr(habitat$habitat, 'population'), drop = FALSE]
   ans <- squashhabitat(ans)
   return (ans)
 }
@@ -205,9 +214,10 @@ population <- function (habitat) {
   stopifnot(is.habitat(habitat))
   populationCheck(value)
   stopifnot(all.equal(names(population(habitat)), names(value)))
-  habitat[, attr(habitat, 'population')] <- value
+  habitat$habitat[, attr(habitat$habitat, 'population')] <- value
   habitat
 }
+
 
 #' @rdname habitat
 #' @name pop_patch_name
@@ -234,9 +244,34 @@ pop_patch_name <- function (population)
 
 features <- function (habitat) {
   stopifnot(is.habitat(habitat))
-  ans <- habitat$habitat[, attr(habitat, 'features'), drop = FALSE]
+  ans <- habitat$habitat[, attr(habitat$habitat, 'features'), drop = FALSE]
   ans <- squashhabitat(ans)
   return (ans)
+}
+
+#' @rdname habitat
+#' @export
+`features<-` <- function (habitat, value) {
+  stopifnot(is.habitat(habitat))
+  stopifnot(is.data.frame(value))
+  
+  # for features, just overwrite whatever's there - including column numbers
+  feature_cols <- attr(habitat$habitat, 'features')
+  
+  if (is.null(feature_cols) | length(feature_cols) == 0) {
+    # if null (currently no features), add them
+    attr(habitat$habitat, 'features') <- ncol(habitat) + 1:ncol(value)
+  } else {
+    # if not null (currently some features), overwrite them
+    attrib <- attributes(habitat$habitat)
+    attrib$names <- attrib$names[-feature_cols]
+    # attrib$names
+    habitat <- habitat$habitat[, -feature_cols]
+    attributes(habitat) <- attrib
+    attr(habitat, 'features') <- ncol(habitat) + seq_len(ncol(value))
+  }
+  habitat$habitat[, attr(habitat$habitat, 'features')] <- value
+  habitat
 }
 
 #' @rdname habitat
@@ -248,7 +283,6 @@ features <- function (habitat) {
 spatial <- function (habitat) {
   stopifnot(is.habitat(habitat))
   ans <- habitat$raster_patches
-  # ans <- squashhabitat(ans)
   return (ans)
 }
 
@@ -261,9 +295,19 @@ spatial <- function (habitat) {
 #'
 coordinates <- function (habitat) {
   stopifnot(is.habitat(habitat))
-  ans <- habitat$habitat[, attr(habitat, 'coordinates'), drop = FALSE]
+  ans <- habitat$habitat[, attr(habitat$habitat, 'coordinates'), drop = FALSE]
   ans <- squashhabitat(ans)
   return (ans)
+}
+
+#' @rdname habitat
+#' @export
+`coordinates<-` <- function (habitat, value) {
+  stopifnot(is.habitat(habitat))
+  coordinatesCheck(value)
+  stopifnot(all.equal(names(coordinates(habitat)), names(value)))
+  habitat$habitat[, attr(habitat$habitat, 'coordinates')] <- value
+  habitat
 }
 
 #' @rdname habitat
@@ -308,26 +352,6 @@ is.distance <- function (x) {
   return (x)
 }
 
-areaCheck <- function (area) {
-  stopifnot(ncol(area) == 1)
-  stopifnot(is.numeric(area[, 1]))
-  stopifnot(all(is.finite(area[, 1])))
-  stopifnot(all(area[, 1] > 0))
-}
-
-populationCheck <- function (population) {
-  stopifnot(all(sapply(population, is.finite)))
-  stopifnot(all(sapply(population, function(x) all(x >= 0))))
-}
-
-distanceCheck <- function (distance, habitat) {
-  stopifnot(is.matrix(distance))
-  stopifnot(nrow(distance) == ncol(distance))
-  stopifnot(nrow(distance) == nrow(habitat))
-  stopifnot(all(is.finite(distance)))
-  stopifnot(all(distance >= 0))
-  stopifnot(all(diag(distance) == 0))
-}
 #' 
 #' @rdname habitat
 #' @name K
@@ -420,6 +444,7 @@ list2habitat <- function (input) {
   
   # check components
   areaCheck(input$area)
+  if(names(input$area)!='area')names(input$area)<-'area'
   populationCheck(input$population)
   
   # reset order and tidy up row names
@@ -428,7 +453,6 @@ list2habitat <- function (input) {
                                            input$population,
                                            input$features)))
   rownames(habitat$habitat) <- 1:nrow(habitat$habitat)
-  colnames(habitat$habitat) <- c("x","y","area",names(input$population),names(input$features))
   # work out column numbers
   ncoord <- ncol(input$coordinates)
   narea <- 1
@@ -470,4 +494,32 @@ squashhabitat <- function (x) {
     class(x) <- classes
   }
   return (x)
+}
+
+#internal function checks.
+coordinateCheck <- function (coordinates) {2
+  stopifnot(ncol(coordinates) == 2)
+  stopifnot(is.numeric(coordinates[, 1]))
+  stopifnot(all(is.finite(coordinates[, 1])))
+}
+
+areaCheck <- function (area) {
+  stopifnot(ncol(area) == 1)
+  stopifnot(is.numeric(area[, 1]))
+  stopifnot(all(is.finite(area[, 1])))
+  stopifnot(all(area[, 1] > 0))
+}
+
+populationCheck <- function (population) {
+  stopifnot(all(sapply(population, is.finite)))
+  stopifnot(all(sapply(population, function(x) all(x >= 0))))
+}
+
+distanceCheck <- function (distance, habitat) {
+  stopifnot(is.matrix(distance))
+  stopifnot(nrow(distance) == ncol(distance))
+  stopifnot(nrow(distance) == nrow(habitat))
+  stopifnot(all(is.finite(distance)))
+  stopifnot(all(distance >= 0))
+  stopifnot(all(diag(distance) == 0))
 }

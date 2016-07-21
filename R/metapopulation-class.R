@@ -62,11 +62,7 @@ setGeneric("metapopulation",
              locations <- as.matrix(dlmpr::coordinates(habitat))
              pop <- dlmpr::population(habitat)# need to integrate demographic and presence correctly.
              presence <- as.vector(ifelse(pop[,ncol(pop)]>0,1,0))
-             dist <- dispersal$dist(habitat)
-             # if(nrow(dist) > 1) {
-             #     dist <- sweep(dist, 1, rowSums(dist), '/')
-             #   }
-             # call c++ function that does this loop.
+             dist <- dispersal$disp(habitat)
              mp <- dlmpr::metapop_n_cpp(nrep=nrep, time=time, dist=dist, area=area, presence=presence,
                                         y = y1, x = x1, e = e1, alpha = dispersal$alpha, beta = dispersal$beta,
                                         disp_fun = dispersal$disp_fun,locations = locations,

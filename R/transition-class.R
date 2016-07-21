@@ -1,4 +1,4 @@
-#' @title transition matrix objects 
+#' @title transition objects 
 #' @name as.transition
 #' @rdname transition
 #' @param x For as.transition, x is a square matrix, that has transition states between population stages.
@@ -104,6 +104,7 @@ plot.transition <- function (x, ...) {
   
 }
 
+
 #' @rdname transition
 #' @name is.transition
 #' @export
@@ -124,4 +125,12 @@ stage_matrixCheck <- function (x) {
 transitionCheck <- function (x) {
   stopifnot(inherits(x,'transition'))
   stopifnot(is.list(x))
+}
+
+subTransition <- function (x, i) {
+  attrib <- attributes(x)
+  attrib$names <- attrib$names[i]
+  x <- x[i]
+  attributes(x) <- attrib
+  return (x)
 }

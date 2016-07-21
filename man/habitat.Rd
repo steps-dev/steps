@@ -4,11 +4,14 @@
 \alias{K}
 \alias{[[.habitat}
 \alias{area}
+\alias{area<-}
 \alias{as.habitat}
 \alias{as.population}
 \alias{coordinates}
+\alias{coordinates<-}
 \alias{distance}
 \alias{features}
+\alias{features<-}
 \alias{is.distance}
 \alias{is.habitat}
 \alias{is.patches}
@@ -33,6 +36,8 @@ is.habitat(x)
 
 area(habitat)
 
+area(habitat) <- value
+
 as.population(x, ...)
 
 is.population(x)
@@ -45,9 +50,13 @@ pop_patch_name(population)
 
 features(habitat)
 
+features(habitat) <- value
+
 spatial(habitat)
 
 coordinates(habitat)
+
+coordinates(habitat) <- value
 
 distance(habitat)
 

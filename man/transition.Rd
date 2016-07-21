@@ -5,7 +5,7 @@
 \alias{is.transition}
 \alias{plot.transition}
 \alias{summary.transition}
-\title{transition matrix objects}
+\title{transition objects}
 \usage{
 as.transition(x, ...)
 

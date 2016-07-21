@@ -5,7 +5,7 @@ NULL
 #' @title demographic objects
 #' @name demographic
 #' @rdname demographic
-#' @param v0 vector Starting abundances at each timestep.
+#' @param pop vector Starting abundances at each timestep.
 #' @param tmat matrix. Transition matrix
 #' @param matsd matrix. Matrix with the standard deviation of the probabilities in tmat. 
 #' @param stmat martix. Matrix indicating for each transition probability in mat which part (i.e. which proportion) should be considered resulting from fecundity.
@@ -23,21 +23,22 @@ NULL
 #' @examples 
 #' tmat <- as.transition(matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),
 #' nrow = 3,ncol = 3,byrow = TRUE))
-#' matsd <- tmat/10
-#' v0 <- c(80,20,0)
-#' sim_t10_rep100 <- demographic(v0=v0,tmat=tmat,matsd=matsd,estdem=TRUE,time=10,nrep=100) 
+#' matsd <- tmat$stage_matrix/10
+#' pop <- as.population(c(80,20,0))
+#' proj <- demographic(pop=pop,tmat=tmat,matsd=matsd,estdem=TRUE,time=100,nrep=100) 
 #' @export
 #' 
 setGeneric("demographic",
-  function (v0, tmat, matsd = NULL, stmat = NULL,
+  function (pop, tmat, matsd = NULL, stmat = NULL,
             estamb = FALSE, estdem = FALSE, 
             equalsign = TRUE, tmat_fecundity = FALSE, nrep = 10, 
             time = 10) {
-  if(!is.transition(tmat)) stop("The transition matrix is not of transition class")  
-  vn <- NULL
-  for (i in 1:nrep) {
-    vn[[i]] <- base::cbind(v0, v0)
-  }
+  if(!is.transition(tmat)) stop("The transition matrix is not of transition class")
+    tmat <- tmat$stage_matrix
+    vn <- NULL
+      for (i in 1:nrep) {
+          vn[[i]] <- base::cbind(pop, pop)
+      }
   # call c++ function that does this loop.
   v <- dlmpr::demo_proj_n_cpp(vn, tmat, matsd = matsd, estamb = estamb, estdem = estdem, 
                        equalsign = equalsign, stmat = stmat, tmat_fecundity = tmat_fecundity,
@@ -70,11 +71,11 @@ setGeneric("demographic",
 #' @examples 
 #' tmat <- as.transition(matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),
 #' nrow = 3,ncol = 3,byrow = TRUE))
-#' matsd <- tmat/10
-#' v0 <- c(80,20,0)
-#' sim_t20_rep100 <- demographic(v0=v0,tmat=tmat,matsd=matsd,estdem=TRUE,time=20,nrep=100) 
-#' plot(sim_t20_rep100,mean_pop=TRUE)
-#' plot(sim_t20_rep100,mean_pop=FALSE)
+#' matsd <- tmat$stage_matrix/10
+#' pop <- as.population(c(80,20,0))
+#' proj <- demographic(pop=pop,tmat=tmat,matsd=matsd,estdem=TRUE,time=20,nrep=100) 
+#' plot(proj,mean_pop=TRUE)
+#' plot(proj,mean_pop=FALSE)
 #' @export
 plot.demographic <- function(x,mean_pop=TRUE,...){
   x <- x$vn
