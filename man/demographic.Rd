@@ -49,7 +49,7 @@ tmat <- as.transition(matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),
 nrow = 3,ncol = 3,byrow = TRUE))
 matsd <- tmat$stage_matrix/10
 pop <- as.population(c(80,20,0))
-proj <- demographic(pop=pop,tmat=tmat,matsd=matsd,estdem=TRUE,time=100,nrep=100) 
+proj <- demographic(pop=pop,tmat=tmat,matsd=matsd,estdem=TRUE,estamb=F,time=100,nrep=100) 
 tmat <- as.transition(matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),
 nrow = 3,ncol = 3,byrow = TRUE))
 matsd <- tmat$stage_matrix/10

@@ -10,7 +10,10 @@ using namespace Rcpp;
 //' @export
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
-NumericVector demographic_stochast(NumericVector v, NumericMatrix tmat)//,  Rcpp::Nullable<Rcpp::NumericMatrix> stmat = R_NilValue,  bool tmat_fecundity = true) 
+NumericVector demographic_stochast(NumericVector v, 
+                                   NumericMatrix tmat,
+                                   Rcpp::Nullable<Rcpp::NumericMatrix> stmat = R_NilValue,
+                                   bool tmat_fecundity = true) 
 {
   int tmncols = tmat.ncol();
   NumericMatrix sij(tmncols-1,tmncols);
@@ -42,22 +45,23 @@ NumericVector demographic_stochast(NumericVector v, NumericMatrix tmat)//,  Rcpp
   for(int k = 0; k<tmncols-1;k++){
     result[k+1] = sum(sij(k,_));
   }
+  // }
   return(result);
 }
 
 
 //'environmental stochastic function in C++
 //' @param tmat NumericMatrix. Vector with the initial abundance of each stage.
-//' @param sdmat NumericMatrix. Transition matrix.
+//' @param matsd NumericMatrix. Transition matrix.
 //' @param equalsign bool. Should the environmental deviations have all the same sign and magnitude? TRUE or FALSE
 //' @export
 // [[Rcpp::export]]
-NumericMatrix envir_stochast(NumericMatrix tmat, NumericMatrix sdmat, bool equalsign = true)
+NumericMatrix envir_stochast(NumericMatrix tmat, NumericMatrix matsd, bool equalsign = true)
 { 
   arma::mat tmat1 = as<arma::mat>(tmat);
-  arma::mat sdmat1 = as<arma::mat>(sdmat);
+  arma::mat matsd1 = as<arma::mat>(matsd);
   arma::vec tmat_v = arma::vectorise(tmat1);
-  arma::vec sdmat_v = arma::vectorise(sdmat1);
+  arma::vec matsd_v = arma::vectorise(matsd1);
   int nvals = tmat_v.size(); 
   arma::vec mat_v = tmat_v.zeros();
   arma::vec deriv_v = tmat_v.zeros();
@@ -66,7 +70,7 @@ NumericMatrix envir_stochast(NumericMatrix tmat, NumericMatrix sdmat, bool equal
   arma::mat mat1; 
   if (equalsign == false) {
     for(int i = 0; i<nvals; i++){
-      mat_v[i] = R::rnorm(tmat_v[i], sdmat_v[i]);
+      mat_v[i] = R::rnorm(tmat_v[i], matsd_v[i]);
     }
     mat1.insert_cols(0, mat_v);
     mat1.reshape(nr, nc);
@@ -80,7 +84,7 @@ NumericMatrix envir_stochast(NumericMatrix tmat, NumericMatrix sdmat, bool equal
       } else {
         draw = -1;
       }
-      deriv_v[i] = R::rnorm(0, sdmat_v[i])*draw;
+      deriv_v[i] = R::rnorm(0, matsd_v[i])*draw;
     }                     
     deriv_v = abs(deriv_v);
     mat1.insert_cols(0, deriv_v);
@@ -102,13 +106,19 @@ NumericMatrix envir_stochast(NumericMatrix tmat, NumericMatrix sdmat, bool equal
 //' @param tmat_fecundity bool. Should the first row of tmat as fecundities? TRUE or FALSE
 //' @export
 // [[Rcpp::export]]
-NumericVector demo_proj(NumericVector v0, NumericMatrix tmat, Rcpp::Nullable<Rcpp::NumericMatrix> matsd= R_NilValue, 
+NumericVector demo_proj(NumericVector v0, 
+                        NumericMatrix tmat, 
+                        Rcpp::Nullable<Rcpp::NumericMatrix> matsd= R_NilValue, 
                         Rcpp::Nullable<Rcpp::NumericMatrix> stmat = R_NilValue,
-                        bool estamb=false, bool estdem=false, bool equalsign=true,  bool tmat_fecundity=false) 
+                        bool estamb=false,
+                        bool estdem=false,
+                        bool equalsign=true,
+                        bool tmat_fecundity=false) 
   {
     NumericVector v1 = v0;
     arma::vec av = as<arma::vec>(v0);
     arma::mat m1;
+    arma::mat em;
     m1.insert_cols(0, av);
     arma::mat tmat1 = as<arma::mat>(tmat);
     if (estamb == false && estdem == false)
@@ -116,15 +126,30 @@ NumericVector demo_proj(NumericVector v0, NumericMatrix tmat, Rcpp::Nullable<Rcp
       wrap(v1);
       if (estamb == false && estdem == true && stmat.isNull() && tmat_fecundity == true) 
         v1 = demographic_stochast(v0, tmat);
-        if (estamb == false && estdem == true && stmat.isNull() && tmat_fecundity == false)
-          v1 =  demographic_stochast(v0, tmat);//, tmat_fecundity = false);
-          if (estamb == false && estdem == true && stmat.isNotNull()) 
-            v1 =  demographic_stochast(v0, tmat);//, stmat = stmat);
-            if (estamb == true && estdem == false) {
-              if (matsd.isNull()) 
-                stop("there is not SD matrix provided\n (argument matsd=NULL)");
-                
-            }
+        // if (estamb == false && estdem == true && stmat.isNull() && tmat_fecundity == false)
+          // v1 =  demographic_stochast(v0, tmat, tmat_fecundity = false);
+          // if (estamb == false && estdem == true && stmat.isNotNull()) 
+          //   v1 =  demographic_stochast(v0, tmat, stmat = stmat);
+            // if (estamb == true && estdem == false) {
+            //   if (matsd.isNull()) 
+            //     stop("there is not SD matrix provided\n (argument matsd=NULL)");
+            //     em =  envir_stochast(tmat, matsd, equalsign = equalsign);
+            //     v1 = v1 * m1;
+            //     wrap(v1);
+            // }
+            // if (estamb == true & estdem == true) {
+            //   if (matsd.isNull()) 
+            //     stop("there is not SD matrix provided\n (argument matsd=NULL)");
+            //     if (stmat.isNull() && tmat_fecundity == true)
+            //       em = envir_stochast(tmat, matsd, equalsign = equalsign);
+            //       v1 = demographic_stochast(v0, tmat = em);
+            //       if (stmat.isNull() && tmat_fecundity == false)
+            //         em = as<arma::mat>(envir_stochast(tmat, matsd, equalsign = equalsign));
+            //         v1 = demographic_stochast(v0, tmat = wrap(em), tmat_fecundity = false);
+            //         if (stmat.isNotNull()) 
+            //           arma::mat em = as<arma::mat>(envir_stochast(tmat, matsd, equalsign = equalsign));
+            //           v1 = demographic_stochast(v0, tmat = wrap(em), stmat = stmat);
+            // }    
             return(v1);
 }
 

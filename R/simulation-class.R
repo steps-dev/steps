@@ -2,24 +2,27 @@
 #' @rdname simulation
 #' @name simulation
 #' @description The over-arching function in dlmpr for simulating a-spatial or spatial demographic population projections through time.
-#' @param transition a transition object, See \link[dlmpr]{as.transition}.
-#' @param population a population object, see \link[dlmpr]{as.population}
-#' @param habitat a habitat object, see \link[dlmpr]{as.habitat}.
-#' @param dispersal a dispersal object, see \link[dlmpr]{as.dispersal}. 
-#' @param module a module object, see \link[dlmpr]{as.module}.
-NULL
+#' @param dots that can contain:
+#'  transition a transition object, See \link[dlmpr]{as.transition}.
+#'  population a population object, see \link[dlmpr]{as.population}
+#'  habitat a habitat object, see \link[dlmpr]{as.habitat}.
+#'  dispersal a dispersal object, see \link[dlmpr]{as.dispersal}. 
+#'  module a module object, see \link[dlmpr]{as.module}.
+#' @export
 
-# simulation <- function(transition,population,habitat,dispersal,module){
-  
+simulation <- function(...){ #transition,population,habitat,dispersal,module){
   #introduce transtion, do checks.
   
   #introduce population, do checks.
   
   #introduce habitat, do checks.
-
+  
   #introduce dispersal, do checks.
-
+  
   #introduce module(s), do checks.
+  
+  # capture dhmpr objects
+  object <- captureDots(...)
   
   #demographic growth across a-spatial or spatial population(s).
   
@@ -31,5 +34,58 @@ NULL
   #population management after dispersal.
   
   #summarise simulation (per replication, time-step and overall)
+  return(object)
+}
 
-# }
+#' @rdname simulation
+#' @export
+is.simulation <- function (x) inherits(x, 'simulation')
+
+captureDots <- function (...) {
+  # capture arguments passed as dots, and grab their names even if not directly
+  # named
+  ans <- list(...)
+  dots <- substitute(list(...))[-1]
+  names(ans) <- sapply(dots, deparse)
+  ans
+}
+
+unpacksimulation <- function (object) {
+  # given a named list of (hopefully) transition and simulation objects, expand out
+  # all the component transitions of the simulation, in order, into a named list
+  # of simulation. This is harder than it should be, but is the tidiest way I
+  # found to keep the transition names without prepending the simulation name to it
+  
+  # look for simulation
+  simulation <- sapply(object, is.simulation)
+  
+  # if it's just one simulation, return it as is
+  if (length(simulation) == 1 && simulation) {
+    
+    object <- object[[1]]
+    
+  } else if (any(simulation)) {
+    
+    # grab the first one
+    elem <- which(simulation)[1]
+    
+    if (elem == 1) {
+      # if it's the first element (can't be only element)
+      object <- c(object[[elem]], object[-elem])
+    } else if (elem == length(object)) {
+      # if it's the last element (can't be only element)
+      object <- c(object[-elem], object[[elem]])
+    } else {
+      # it must be in the middle
+      object <- c(object[1:(elem - 1)], object[[elem]], object[(elem + 1):length(object)])
+    }
+    
+    # one down, now recursively look for more
+    object <- unpacksimulation(object)
+    
+  }
+  
+  # return
+  return (object)
+  
+}

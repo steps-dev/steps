@@ -4,12 +4,12 @@
 \alias{envir_stochast}
 \title{environmental stochastic function in C++}
 \usage{
-envir_stochast(tmat, sdmat, equalsign = TRUE)
+envir_stochast(tmat, matsd, equalsign = TRUE)
 }
 \arguments{
 \item{tmat}{NumericMatrix. Vector with the initial abundance of each stage.}
 
-\item{sdmat}{NumericMatrix. Transition matrix.}
+\item{matsd}{NumericMatrix. Transition matrix.}
 
 \item{equalsign}{bool. Should the environmental deviations have all the same sign and magnitude? TRUE or FALSE}
 }

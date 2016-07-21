@@ -7,27 +7,29 @@
 using namespace Rcpp;
 
 // demographic_stochast
-NumericVector demographic_stochast(NumericVector v, NumericMatrix tmat);
-RcppExport SEXP dhmpr_demographic_stochast(SEXP vSEXP, SEXP tmatSEXP) {
+NumericVector demographic_stochast(NumericVector v, NumericMatrix tmat, Rcpp::Nullable<Rcpp::NumericMatrix> stmat, bool tmat_fecundity);
+RcppExport SEXP dhmpr_demographic_stochast(SEXP vSEXP, SEXP tmatSEXP, SEXP stmatSEXP, SEXP tmat_fecunditySEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< NumericVector >::type v(vSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type tmat(tmatSEXP);
-    __result = Rcpp::wrap(demographic_stochast(v, tmat));
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericMatrix> >::type stmat(stmatSEXP);
+    Rcpp::traits::input_parameter< bool >::type tmat_fecundity(tmat_fecunditySEXP);
+    __result = Rcpp::wrap(demographic_stochast(v, tmat, stmat, tmat_fecundity));
     return __result;
 END_RCPP
 }
 // envir_stochast
-NumericMatrix envir_stochast(NumericMatrix tmat, NumericMatrix sdmat, bool equalsign);
-RcppExport SEXP dhmpr_envir_stochast(SEXP tmatSEXP, SEXP sdmatSEXP, SEXP equalsignSEXP) {
+NumericMatrix envir_stochast(NumericMatrix tmat, NumericMatrix matsd, bool equalsign);
+RcppExport SEXP dhmpr_envir_stochast(SEXP tmatSEXP, SEXP matsdSEXP, SEXP equalsignSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< NumericMatrix >::type tmat(tmatSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type sdmat(sdmatSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type matsd(matsdSEXP);
     Rcpp::traits::input_parameter< bool >::type equalsign(equalsignSEXP);
-    __result = Rcpp::wrap(envir_stochast(tmat, sdmat, equalsign));
+    __result = Rcpp::wrap(envir_stochast(tmat, matsd, equalsign));
     return __result;
 END_RCPP
 }

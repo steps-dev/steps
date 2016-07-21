@@ -12,6 +12,8 @@
 \alias{distance}
 \alias{features}
 \alias{features<-}
+\alias{habitat}
+\alias{habitat<-}
 \alias{is.distance}
 \alias{is.habitat}
 \alias{is.patches}
@@ -21,7 +23,10 @@
 \alias{population}
 \alias{population<-}
 \alias{print.habitat}
-\alias{spatial}
+\alias{spatial_patches}
+\alias{spatial_patches<-}
+\alias{suitability}
+\alias{suitability<-}
 \title{habitat objects}
 \usage{
 patches(x, distance, p4s, givedist = TRUE)
@@ -29,6 +34,10 @@ patches(x, distance, p4s, givedist = TRUE)
 is.patches(x)
 
 as.habitat(patches)
+
+habitat(transition)
+
+habitat(transition) <- value
 
 is.habitat(x)
 
@@ -46,13 +55,19 @@ population(habitat)
 
 population(habitat) <- value
 
-pop_patch_name(population)
+pop_patch_name(habitat)
 
 features(habitat)
 
 features(habitat) <- value
 
-spatial(habitat)
+spatial_patches(habitat)
+
+spatial_patches(habitat, newpatch) <- value
+
+suitability(habitat)
+
+suitability(habitat, newpatch) <- value
 
 coordinates(habitat)
 
@@ -85,9 +100,14 @@ units of p4s, and are shortest cartesian distances between patches.}
 this can either be a \link[raster]{raster}, a list or \code{NULL} (see \code{details}),
 though more approaches will be added in the future}
 
-\item{habitat}{an object of class \code{habitat}}
+\item{transition}{an object of class \code{tranistion}}
 
-\item{population}{matrix of states as cols and patches as rows.}
+\item{value}{an object of class \code{habitat} (for
+\code{habitat(tranistion) <- value}) or the value to assign to the
+\code{distance}, \code{area}, \code{population}, or \code{features}
+elements of a \code{habitat} object}
+
+\item{habitat}{an object of class \code{habitat}}
 
 \item{i}{index specifying the patches to include in the subset
 \code{habitat} object}
@@ -172,7 +192,10 @@ population(habitat)
 # get and set the features
 features(habitat)
 # get and set the features
-spatial(habitat)
+spatial_patches(habitat)
+
+# get and set the features
+suitability(habitat)
 
 # get and set the features
 coordinates(habitat)

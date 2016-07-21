@@ -15,15 +15,9 @@
 #' @author John Baumgartner
 #' @export
 
-#' @importFrom raster raster
-#' @importFrom sp CRS
 #' @importFrom methods is
-#' @importFrom sp spDists
-#' @importFrom raster xyFromCell
-#' @importFrom raster clump
-#' @importFrom raster getValues
-#' @importFrom raster ncell
-#' @importFrom raster freq
+#' @importFrom sp spDists CRS
+#' @importFrom raster raster xyFromCell clump getValues ncell freq
 #' @importFrom SDMTools PatchStat
 #' @importClassesFrom raster Raster
 #' @importClassesFrom sp CRS
@@ -62,7 +56,7 @@ patches <- function(x, distance, p4s, givedist=TRUE) {
     d <-  sp::spDists(sp::coordinates(patch_coords[,2:3]),longlat=TRUE)
     out <- base::c(out, base::list(distance=d))
   } 
-  base::class(out) <- "habitat"
+  base::class(out) <- "patches"
   return(out)
 }  
 
@@ -109,6 +103,26 @@ as.habitat <- function (patches) {
          list = list2habitat(patches))
 }
 
+#' @param transition an object of class \code{tranistion}
+#' @param value an object of class \code{habitat} (for
+#'   \code{habitat(tranistion) <- value}) or the value to assign to the
+#'   \code{distance}, \code{area}, \code{population}, or \code{features}
+#'   elements of a \code{habitat} object
+#' @export
+habitat <- function (transition) {
+  stopifnot(is.transition(transition))
+  value <- attr(transition, 'habitat')
+  return (value)
+}
+
+#' @rdname habitat
+#' @export
+`habitat<-` <- function (transition, value) {
+  stopifnot(is.transition(transition))
+  stopifnot(is.habitat(value))
+  attr(transition, 'habitat') <- value
+  return (transition)
+}
 #' @rdname habitat
 #' @export
 is.habitat <- function (x) inherits(x, 'habitat')
@@ -221,11 +235,11 @@ population <- function (habitat) {
 
 #' @rdname habitat
 #' @name pop_patch_name
-#' @param population matrix of states as cols and patches as rows.
-pop_patch_name <- function (population) 
+#' @param habitat
+pop_patch_name <- function (habitat) 
 {
-  states <- colnames(population)
-  patches <- as.character(seq_len(nrow(population)))
+  states <- gsub('populations.','',colnames(population(habitat)))
+  patches <- as.character(seq_len(nrow(population(habitat))))
   if (length(patches) == 1) {
     names <- states
   }
@@ -278,12 +292,43 @@ features <- function (habitat) {
 #' @export
 #' @examples
 #'# get and set the features
-#' spatial(habitat)
+#' spatial_patches(habitat)
 #'
-spatial <- function (habitat) {
+spatial_patches <- function (habitat) {
   stopifnot(is.habitat(habitat))
   ans <- habitat$raster_patches
   return (ans)
+}
+
+#' @rdname habitat
+#' @export
+`spatial_patches<-` <- function (habitat, newpatch) {
+  stopifnot(is.habitat(habitat))
+  patchCheck(newpatch)
+  habitat$raster_patches <- value
+  habitat
+}
+
+
+#' @rdname habitat
+#' @export
+#' @examples
+#'# get and set the features
+#' suitability(habitat)
+#'
+suitability <- function (habitat) {
+  stopifnot(is.habitat(habitat))
+  ans <- habitat$starting_raster
+  return (ans)
+}
+
+#' @rdname habitat
+#' @export
+`suitability<-` <- function (habitat, newpatch) {
+  stopifnot(is.habitat(habitat))
+  suitabilityCheck(newpatch)
+  habitat$starting_raster <- value
+  habitat
 }
 
 
@@ -418,7 +463,9 @@ raster2habitat <- function(input){ # will add in other options here later, but f
   habitat$distance <- as.matrix(dist(coordinates))
   attr(habitat$distance, 'distance') <- distance
   habitat$raster_patches <- patches$patchrast
-  attr(habitat$raster_patches, 'spatial') <- raster_patches
+  habitat$starting_raster <- r
+  attr(habitat$raster_patches, 'patches') <- habitat$raster_patches
+  attr(habitat$starting_raster, 'habitat_suitability') <- habitat$starting_raster
 
   # set class
   class(habitat) <- c('habitat', class(habitat))
@@ -522,4 +569,12 @@ distanceCheck <- function (distance, habitat) {
   stopifnot(all(is.finite(distance)))
   stopifnot(all(distance >= 0))
   stopifnot(all(diag(distance) == 0))
+}
+
+patchCheck <- function(spatial_patches){
+  stopifnot(class(spatial_patches)=="RasterLayer")
+}
+
+suitabilityCheck <- function(suitability){
+  stopifnot(class(suitability)=="RasterLayer")
 }
