@@ -2,7 +2,7 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 demographic_stochast <- function(v, tmat) {
-    .Call('dlmpr_demographic_stochast', PACKAGE = 'dlmpr', v, tmat)
+    .Call('dhmpr_demographic_stochast', PACKAGE = 'dhmpr', v, tmat)
 }
 
 #'environmental stochastic function in C++
@@ -11,7 +11,7 @@ demographic_stochast <- function(v, tmat) {
 #' @param equalsign bool. Should the environmental deviations have all the same sign and magnitude? TRUE or FALSE
 #' @export
 envir_stochast <- function(tmat, sdmat, equalsign = TRUE) {
-    .Call('dlmpr_envir_stochast', PACKAGE = 'dlmpr', tmat, sdmat, equalsign)
+    .Call('dhmpr_envir_stochast', PACKAGE = 'dhmpr', tmat, sdmat, equalsign)
 }
 
 #' Single time step demographic projection function in C++
@@ -26,7 +26,7 @@ envir_stochast <- function(tmat, sdmat, equalsign = TRUE) {
 #' @param tmat_fecundity bool. Should the first row of tmat as fecundities? TRUE or FALSE
 #' @export
 demo_proj <- function(v0, tmat, matsd = NULL, stmat = NULL, estamb = FALSE, estdem = FALSE, equalsign = TRUE, tmat_fecundity = FALSE) {
-    .Call('dlmpr_demo_proj', PACKAGE = 'dlmpr', v0, tmat, matsd, stmat, estamb, estdem, equalsign, tmat_fecundity)
+    .Call('dhmpr_demo_proj', PACKAGE = 'dhmpr', v0, tmat, matsd, stmat, estamb, estdem, equalsign, tmat_fecundity)
 }
 
 #' Multiple time step and repetition demographic projection function in C++
@@ -43,11 +43,11 @@ demo_proj <- function(v0, tmat, matsd = NULL, stmat = NULL, estamb = FALSE, estd
 #' @param time int number of time-steps.
 #' @export
 demo_proj_n_cpp <- function(vn, tmat, matsd = NULL, stmat = NULL, estamb = FALSE, estdem = FALSE, equalsign = TRUE, tmat_fecundity = FALSE, nrep = 1L, time = 10L) {
-    .Call('dlmpr_demo_proj_n_cpp', PACKAGE = 'dlmpr', vn, tmat, matsd, stmat, estamb, estdem, equalsign, tmat_fecundity, nrep, time)
+    .Call('dhmpr_demo_proj_n_cpp', PACKAGE = 'dhmpr', vn, tmat, matsd, stmat, estamb, estdem, equalsign, tmat_fecundity, nrep, time)
 }
 
 meta_colonisation_fun <- function(s, y, c = 1, coln_fun = 'H') {
-    .Call('dlmpr_meta_colonisation_fun', PACKAGE = 'dlmpr', s, y, c, coln_fun)
+    .Call('dhmpr_meta_colonisation_fun', PACKAGE = 'dhmpr', s, y, c, coln_fun)
 }
 
 #'C++ metapopulation function for a single timestep.
@@ -59,7 +59,7 @@ meta_colonisation_fun <- function(s, y, c = 1, coln_fun = 'H') {
 #' @param coln_fun char which method to use? 'H' = Hanski 1994, 'M'= Moilanen 2004, 'O'= Ovaskainen 2002. See decription for details.
 #' @export
 metapop <- function(presence, dist_mat, Ei, y, c = 1, coln_fun = 'H') {
-    .Call('dlmpr_metapop', PACKAGE = 'dlmpr', presence, dist_mat, Ei, y, c, coln_fun)
+    .Call('dhmpr_metapop', PACKAGE = 'dhmpr', presence, dist_mat, Ei, y, c, coln_fun)
 }
 
 #'Simulate a metapopulation system in C++
@@ -76,7 +76,7 @@ metapop <- function(presence, dist_mat, Ei, y, c = 1, coln_fun = 'H') {
 #' @param coln_fun char which method to use? 'H' = Hanski 1994, 'M'= Moilanen 2004, 'O'= Ovaskainen 2002. See decription for details.
 #' @export
 metapop_n <- function(time, dist, area, presence, y = 1, x = 1, e = 1, locations = NULL, c = 1, coln_fun = 'H') {
-    .Call('dlmpr_metapop_n', PACKAGE = 'dlmpr', time, dist, area, presence, y, x, e, locations, c, coln_fun)
+    .Call('dhmpr_metapop_n', PACKAGE = 'dhmpr', time, dist, area, presence, y, x, e, locations, c, coln_fun)
 }
 
 #'Simulate a metapopulation system in C++
@@ -94,6 +94,6 @@ metapop_n <- function(time, dist, area, presence, y = 1, x = 1, e = 1, locations
 #' @param coln_fun char which method to use? 'H' = Hanski 1994, 'M'= Moilanen 2004, 'O'= Ovaskainen 2002. See decription for details.
 #' @export
 metapop_n_cpp <- function(nrep, time, dist, area, presence, y = 1, x = 1, e = 1, locations = NULL, c = 1, coln_fun = 'H') {
-    .Call('dlmpr_metapop_n_cpp', PACKAGE = 'dlmpr', nrep, time, dist, area, presence, y, x, e, locations, c, coln_fun)
+    .Call('dhmpr_metapop_n_cpp', PACKAGE = 'dhmpr', nrep, time, dist, area, presence, y, x, e, locations, c, coln_fun)
 }
 

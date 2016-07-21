@@ -4,6 +4,7 @@
 \alias{module}
 \title{module objects}
 \description{
-Include a module that drives changes in a dynamic landscape.
+Module for altering the habitat, they maybe fire spread, management, ect. 
+Module sets up internal or custom functions to work with \code{habitat} and \code{simulation} objects.
 }
 

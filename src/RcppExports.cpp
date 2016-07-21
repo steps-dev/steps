@@ -8,7 +8,7 @@ using namespace Rcpp;
 
 // demographic_stochast
 NumericVector demographic_stochast(NumericVector v, NumericMatrix tmat);
-RcppExport SEXP dlmpr_demographic_stochast(SEXP vSEXP, SEXP tmatSEXP) {
+RcppExport SEXP dhmpr_demographic_stochast(SEXP vSEXP, SEXP tmatSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -20,7 +20,7 @@ END_RCPP
 }
 // envir_stochast
 NumericMatrix envir_stochast(NumericMatrix tmat, NumericMatrix sdmat, bool equalsign);
-RcppExport SEXP dlmpr_envir_stochast(SEXP tmatSEXP, SEXP sdmatSEXP, SEXP equalsignSEXP) {
+RcppExport SEXP dhmpr_envir_stochast(SEXP tmatSEXP, SEXP sdmatSEXP, SEXP equalsignSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -33,7 +33,7 @@ END_RCPP
 }
 // demo_proj
 NumericVector demo_proj(NumericVector v0, NumericMatrix tmat, Rcpp::Nullable<Rcpp::NumericMatrix> matsd, Rcpp::Nullable<Rcpp::NumericMatrix> stmat, bool estamb, bool estdem, bool equalsign, bool tmat_fecundity);
-RcppExport SEXP dlmpr_demo_proj(SEXP v0SEXP, SEXP tmatSEXP, SEXP matsdSEXP, SEXP stmatSEXP, SEXP estambSEXP, SEXP estdemSEXP, SEXP equalsignSEXP, SEXP tmat_fecunditySEXP) {
+RcppExport SEXP dhmpr_demo_proj(SEXP v0SEXP, SEXP tmatSEXP, SEXP matsdSEXP, SEXP stmatSEXP, SEXP estambSEXP, SEXP estdemSEXP, SEXP equalsignSEXP, SEXP tmat_fecunditySEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -51,7 +51,7 @@ END_RCPP
 }
 // demo_proj_n_cpp
 List demo_proj_n_cpp(List vn, NumericMatrix tmat, Rcpp::Nullable<Rcpp::NumericMatrix> matsd, Rcpp::Nullable<Rcpp::NumericMatrix> stmat, bool estamb, bool estdem, bool equalsign, bool tmat_fecundity, int nrep, int time);
-RcppExport SEXP dlmpr_demo_proj_n_cpp(SEXP vnSEXP, SEXP tmatSEXP, SEXP matsdSEXP, SEXP stmatSEXP, SEXP estambSEXP, SEXP estdemSEXP, SEXP equalsignSEXP, SEXP tmat_fecunditySEXP, SEXP nrepSEXP, SEXP timeSEXP) {
+RcppExport SEXP dhmpr_demo_proj_n_cpp(SEXP vnSEXP, SEXP tmatSEXP, SEXP matsdSEXP, SEXP stmatSEXP, SEXP estambSEXP, SEXP estdemSEXP, SEXP equalsignSEXP, SEXP tmat_fecunditySEXP, SEXP nrepSEXP, SEXP timeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -71,7 +71,7 @@ END_RCPP
 }
 // meta_colonisation_fun
 NumericVector meta_colonisation_fun(NumericVector s, double y, double c, char coln_fun);
-RcppExport SEXP dlmpr_meta_colonisation_fun(SEXP sSEXP, SEXP ySEXP, SEXP cSEXP, SEXP coln_funSEXP) {
+RcppExport SEXP dhmpr_meta_colonisation_fun(SEXP sSEXP, SEXP ySEXP, SEXP cSEXP, SEXP coln_funSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -85,7 +85,7 @@ END_RCPP
 }
 // metapop
 NumericVector metapop(NumericVector presence, NumericMatrix dist_mat, NumericVector Ei, double y, double c, char coln_fun);
-RcppExport SEXP dlmpr_metapop(SEXP presenceSEXP, SEXP dist_matSEXP, SEXP EiSEXP, SEXP ySEXP, SEXP cSEXP, SEXP coln_funSEXP) {
+RcppExport SEXP dhmpr_metapop(SEXP presenceSEXP, SEXP dist_matSEXP, SEXP EiSEXP, SEXP ySEXP, SEXP cSEXP, SEXP coln_funSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -101,7 +101,7 @@ END_RCPP
 }
 // metapop_n
 NumericMatrix metapop_n(int time, NumericMatrix dist, NumericVector area, NumericVector presence, double y, double x, double e, Rcpp::Nullable<Rcpp::NumericMatrix> locations, double c, char coln_fun);
-RcppExport SEXP dlmpr_metapop_n(SEXP timeSEXP, SEXP distSEXP, SEXP areaSEXP, SEXP presenceSEXP, SEXP ySEXP, SEXP xSEXP, SEXP eSEXP, SEXP locationsSEXP, SEXP cSEXP, SEXP coln_funSEXP) {
+RcppExport SEXP dhmpr_metapop_n(SEXP timeSEXP, SEXP distSEXP, SEXP areaSEXP, SEXP presenceSEXP, SEXP ySEXP, SEXP xSEXP, SEXP eSEXP, SEXP locationsSEXP, SEXP cSEXP, SEXP coln_funSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -121,7 +121,7 @@ END_RCPP
 }
 // metapop_n_cpp
 List metapop_n_cpp(int nrep, int time, NumericMatrix dist, NumericVector area, NumericVector presence, double y, double x, double e, Rcpp::Nullable<Rcpp::NumericMatrix> locations, double c, char coln_fun);
-RcppExport SEXP dlmpr_metapop_n_cpp(SEXP nrepSEXP, SEXP timeSEXP, SEXP distSEXP, SEXP areaSEXP, SEXP presenceSEXP, SEXP ySEXP, SEXP xSEXP, SEXP eSEXP, SEXP locationsSEXP, SEXP cSEXP, SEXP coln_funSEXP) {
+RcppExport SEXP dhmpr_metapop_n_cpp(SEXP nrepSEXP, SEXP timeSEXP, SEXP distSEXP, SEXP areaSEXP, SEXP presenceSEXP, SEXP ySEXP, SEXP xSEXP, SEXP eSEXP, SEXP locationsSEXP, SEXP cSEXP, SEXP coln_funSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
