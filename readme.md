@@ -1,12 +1,12 @@
-[![Travis-CI Build Status](https://travis-ci.org/skiptoniam/dlmpr.svg?branch=master)](https://travis-ci.org/skiptoniam/dlmpr)
+[![Travis-CI Build Status](https://travis-ci.org/skiptoniam/dhmpr.svg?branch=master)](https://travis-ci.org/skiptoniam/dlmpr)
 
-dlmpr is an r package for simulating dynamic landscape meta-population models.
-------------------------------------------------------------------------------
+dlmpr is an r package for simulating dynamic habitat meta-population models.
+----------------------------------------------------------------------------
 
-The package aims to run dynamic landscape meta-population models in R using a modular framework.
+The package aims to run dynamic habitat meta-population models in R using a modular framework.
 
 ``` r
-devtools::install_github('skiptoniam/dlmpr')
+devtools::install_github('skiptoniam/dhmpr')
 ```
 
 Because we are interested in matrix population models (or stage based models) we have develop a matrix population model for a single population. Here I have generated a simple example of matrix population with three stages.
@@ -60,7 +60,7 @@ par(mar=c(1,1,1,1))
 plot(transition_matrix)
 ```
 
-![](readme_files/figure-markdown_github/single_pop_plot-1.png)
+![](readme_files/figure-markdown_github/single_pop_plot-1.png)<!-- -->
 
 Having assessed the matrix population model for this population we can look at how a-spatial projection of this population will shift over time.
 
@@ -89,7 +89,7 @@ We can all see the different stages in the population structure change through t
 plot(dm1,mean_pop = FALSE)
 ```
 
-![](readme_files/figure-markdown_github/plot_all_stages1-1.png)
+![](readme_files/figure-markdown_github/plot_all_stages1-1.png)<!-- -->
 
 Have assessed how the population changes over time, we can include stochasticity to our projections of population change through time. Here we include demographic uncertainty to each step in the stage based model by including `matsd` in to the demographic model run, we do this by adding a simple stochastic element by creating a the same sized matrix filled with he `runif` call values.
 
@@ -106,7 +106,7 @@ We can now look at how this single population changes over time with demographic
 plot(dm2)
 ```
 
-![](readme_files/figure-markdown_github/plot_all2-1.png)
+![](readme_files/figure-markdown_github/plot_all2-1.png)<!-- -->
 
 We can all see the different stages in the population structure change through time with demographic uncertainty.
 
@@ -114,4 +114,4 @@ We can all see the different stages in the population structure change through t
 plot(dm2,mean_pop = FALSE)
 ```
 
-![](readme_files/figure-markdown_github/plot_all_stages2-1.png)
+![](readme_files/figure-markdown_github/plot_all_stages2-1.png)<!-- -->

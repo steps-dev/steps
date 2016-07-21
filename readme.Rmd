@@ -4,15 +4,15 @@ output:
     variant: markdown_github
 ---
 
-[![Travis-CI Build Status](https://travis-ci.org/skiptoniam/dlmpr.svg?branch=master)](https://travis-ci.org/skiptoniam/dlmpr)
+[![Travis-CI Build Status](https://travis-ci.org/skiptoniam/dhmpr.svg?branch=master)](https://travis-ci.org/skiptoniam/dlmpr)
 
 
-## dlmpr is an r package for simulating dynamic landscape meta-population models.
+## dlmpr is an r package for simulating dynamic habitat meta-population models.
 
-The package aims to run dynamic landscape meta-population models in R using a modular framework. 
+The package aims to run dynamic habitat meta-population models in R using a modular framework. 
 
 ```{r install, eval=FALSE}
-devtools::install_github('skiptoniam/dlmpr')
+devtools::install_github('skiptoniam/dhmpr')
 ```
 
 Because we are interested in matrix population models (or stage based models) we have develop a matrix population model for a single population. Here I have generated a simple example of matrix population with three stages.
