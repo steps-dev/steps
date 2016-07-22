@@ -123,7 +123,6 @@ plot.transition <- function (x, ...) {
   
 }
 
-
 #' @rdname transition
 #' @name is.transition
 #' @export
@@ -133,6 +132,7 @@ plot.transition <- function (x, ...) {
 is.transition <- function (x) {
   inherits(x, 'transition')
 }
+
 
 stage_matrixCheck <- function (x) {
   stopifnot(ncol(x) == nrow(x))
