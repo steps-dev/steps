@@ -386,14 +386,16 @@ is.distance <- function (x) {
 #' habitat[[1:2]]
 #'
 `[[.habitat` <- function (x, i) {
-  attrib <- attributes(x)
-  attrib$row.names <- attrib$row.names[i]
-  d <- attrib$distance[i, i, drop = FALSE]
+  dist <- x$distance
+  hab <- x$habitat
+  attrib_habitat <- attributes(hab)
+  attrib_habitat$row.names <- attrib_habitat$row.names[i]
+  d <- dist[i, i, drop = FALSE]
   rownames(d) <- colnames(d) <- seq_along(i)
-  attrib$distance <- d
-  x <- squashhabitat(x)
-  x <- x[i, ]
-  attributes(x) <- attrib
+  x$distance <- d
+  x$habitat <- squashhabitat(x$habitat)
+  x$habitat <- x$habitat[i, ]
+  attributes(x$habitat) <- attrib_habitat
   return (x)
 }
 

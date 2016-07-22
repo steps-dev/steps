@@ -7,7 +7,7 @@ output:
 [![Travis-CI Build Status](https://travis-ci.org/skiptoniam/dhmpr.svg?branch=master)](https://travis-ci.org/skiptoniam/dlmpr)
 
 
-## dlmpr is an r package for simulating dynamic habitat meta-population models.
+## dhmpr is an r package for simulating dynamic habitat meta-population models.
 
 The package aims to run dynamic habitat meta-population models in R using a modular framework. 
 
@@ -70,4 +70,5 @@ We can all see the different stages in the population structure change through t
 ```{r plot_all_stages2,fig.width = 9, fig.height = 4}
 plot(dm2,mean_pop = FALSE)
 ```
+
 
