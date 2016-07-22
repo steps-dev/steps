@@ -19,8 +19,6 @@ as.dispersal(x)
 \method{print}{dispersal}(x, ...)
 }
 \arguments{
-\item{params}{named list w}
-
 \item{x}{an object to be tested as a dispersal transfun object}
 
 \item{x}{an object to be tested as a dispersal transfun object}

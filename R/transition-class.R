@@ -1,17 +1,35 @@
 #' @title transition objects 
 #' @name as.transition
 #' @rdname transition
+#' @description transition is one of the main functions for dhmpr, it helps you construct and process stage based matricies.
+#' Once a transition object is created \code{summary} will return:
+#'  The finite rate of increase ("lambda"),
+#'  the stable stage distribution,
+#'  the reproductive value,
+#'  and the sensitivities and elasticities matrices.
+#'  \code{plot} will return a graph object that plots the transitions between and amoungest each stage of the population matrix.
 #' @param x For as.transition, x is a square matrix, that has transition states between population stages.
 #' @param ... other function calls.
-#' @return An object of class tmatrix, i.e, resulting from as.transition.
+#' @return An object of class transition, i.e, resulting from as.transition.
 #' @author Skipton Woolley
 #' @export
 #' @examples 
 #' mat <- matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
-#' rownames(mat) <- colnames(mat) <- c('larval','juvenile','adult')
-#' tmat <- as.transition(mat)
+#' colnames(mat) <- rownames(mat) <- c('larvae','juvenile','adult') 
+#' trans <- as.transition(mat)
+#' 
+#' # Add an dispersal object to transition
+#' params <- list(alpha=list('larvae'=2,'juvenile'=0,'adult'=3),
+#'                probability=list('larvae'=0.2,'juvenile'=0,'adult'=0.6))  
+#' all.disperse.different <-  dispersal(params)
+#' trans <- as.transition(mat,all.disperse.different)
+#' 
 
 as.transition <- function(x, ...){
+    object <- list(...)
+    if(length(object)==0)object <- list(1)
+    if(sapply(object, is.dispersal)) d <- TRUE
+    else d <- FALSE
     x <- base::as.matrix(x)
     if(base::diff(base::dim(x)) !=0) stop("Needs to be a square matrix with transition probabilities between each stage.")
     stage_matrixCheck(x) 
@@ -19,7 +37,11 @@ as.transition <- function(x, ...){
     m.names <- base::dimnames(x)[[1]]
     if(base::is.null(m.names)) m.names <- base::paste0("stage.",1:di)
     base::dimnames(x) <- base::list(m.names, m.names)
-    transition <- structure(list(stage_matrix=x),class='transition')
+    if (d) {
+      check_trans_disp(x,object)
+      transition <- structure(list(stage_matrix=x,dispersal=object[[1]]),class='transition')
+    }
+    else transition <- structure(list(stage_matrix=x),class='transition')
     if (!is.transition(transition)) {
       class(transition) <- c('transition', class(transition))
     }
@@ -29,11 +51,9 @@ as.transition <- function(x, ...){
 #' @rdname transition
 #' @param object an object of \code{transition} class
 #' @export
-#' @description prints the main parameters of the transition matrix: the finite rate of increase ("lambda"), the stable stage distribution, the reproductive value and the sensitivities and elasticities matrices.
 #' @examples
-#' mat <- matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
-#' tmat <- as.transition(mat)
 #' summary(tmat)
+#' 
 summary.transition <-
   function(x,...){
     transitionCheck(x)
@@ -62,9 +82,8 @@ summary.transition <-
 #' @export
 #' @author Nick Golding
 #' @examples 
-#' mat <- matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
-#' tmat <- as.transition(mat)
 #' plot(tmat)
+#' 
 
 plot.transition <- function (x, ...) {
   # plot a dynamic using igraph
@@ -109,9 +128,8 @@ plot.transition <- function (x, ...) {
 #' @name is.transition
 #' @export
 #' @examples
-#' mat <- matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
-#' tmat <- as.transition(mat)
 #' is.transition(tmat)
+#' 
 is.transition <- function (x) {
   inherits(x, 'transition')
 }
@@ -133,4 +151,16 @@ subTransition <- function (x, i) {
   x <- x[i]
   attributes(x) <- attrib
   return (x)
+}
+
+check_trans_disp <- function(x,object){
+  mat_names <- colnames(x)
+  disp_names <- names(object[[1]]$alpha)
+  if(all(mat_names %in% disp_names))
+  if(!any(mat_names %in% disp_names)) stop('dispersal and matrix stage names do not match')
+  stopifnot(any(mat_names %in% disp_names))
+}
+
+dots <- function(...) {
+  eval(substitute(alist(...)))
 }

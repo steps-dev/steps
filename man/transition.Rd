@@ -23,24 +23,34 @@ is.transition(x)
 \item{object}{an object of \code{transition} class}
 }
 \value{
-An object of class tmatrix, i.e, resulting from as.transition.
+An object of class transition, i.e, resulting from as.transition.
 }
 \description{
-prints the main parameters of the transition matrix: the finite rate of increase ("lambda"), the stable stage distribution, the reproductive value and the sensitivities and elasticities matrices.
+transition is one of the main functions for dhmpr, it helps you construct and process stage based matricies.
+Once a transition object is created \code{summary} will return:
+ The finite rate of increase ("lambda"),
+ the stable stage distribution,
+ the reproductive value,
+ and the sensitivities and elasticities matrices.
+ \code{plot} will return a graph object that plots the transitions between and amoungest each stage of the population matrix.
 }
 \examples{
 mat <- matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
-rownames(mat) <- colnames(mat) <- c('larval','juvenile','adult')
-tmat <- as.transition(mat)
-mat <- matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
-tmat <- as.transition(mat)
+colnames(mat) <- rownames(mat) <- c('larvae','juvenile','adult') 
+trans <- as.transition(mat)
+
+# Add an dispersal object to transition
+params <- list(alpha=list('larvae'=2,'juvenile'=0,'adult'=3),
+               probability=list('larvae'=0.2,'juvenile'=0,'adult'=0.6))  
+all.disperse.different <-  dispersal(params)
+trans <- as.transition(mat,all.disperse.different)
+
 summary(tmat)
-mat <- matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
-tmat <- as.transition(mat)
+
 plot(tmat)
-mat <- matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
-tmat <- as.transition(mat)
+
 is.transition(tmat)
+
 }
 \author{
 Skipton Woolley

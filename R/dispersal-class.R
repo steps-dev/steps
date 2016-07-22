@@ -7,8 +7,6 @@
 #' means a random 20% of larve will a try and disperse to patches, the distance they can disperse is governed 
 #' by the dispersal kernal (alpha). If params = NULL, a dispersal kernal of 1 is given to all stages, 
 #' and all stages will attempt to undertake dispersal.
-#' @param params named list w
-## and disp_fun a characture 'H' uses hanski(1994), if 'S' uses shaw(1995).
 #' @export
 #' @examples 
 #' params <- list(alpha=list('larval'=2,'juvenile'=0,'adult'=3),
