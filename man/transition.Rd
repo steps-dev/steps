@@ -4,12 +4,15 @@
 \alias{as.transition}
 \alias{is.transition}
 \alias{plot.transition}
+\alias{states}
 \alias{summary.transition}
 \title{transition objects}
 \usage{
 as.transition(x, ...)
 
 \method{summary}{transition}(x, ...)
+
+states(transition)
 
 \method{plot}{transition}(x, ...)
 
@@ -47,6 +50,8 @@ trans <- as.transition(mat,all.disperse.different)
 
 summary(tmat)
 
+# get component states
+states(trans)
 plot(tmat)
 
 is.transition(tmat)

@@ -36,8 +36,8 @@ by the dispersal kernal (alpha). If params = NULL, a dispersal kernal of 1 is gi
 and all stages will attempt to undertake dispersal.
 }
 \examples{
-params <- list(alpha=list('larval'=2,'juvenile'=0,'adult'=3),
-               probability=list('larval'=0.2,'juvenile'=0,'adult'=0.6))  
+params <- list(alpha=list('larvae'=2,'juvenile'=0,'adult'=3),
+               probability=list('larvae'=0.2,'juvenile'=0,'adult'=0.6))  
                
 dispersal(params)
 

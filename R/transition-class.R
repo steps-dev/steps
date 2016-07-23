@@ -76,6 +76,18 @@ summary.transition <-
     return (result)
   }
 
+#' @rdname transition
+#' @name states
+#' @export
+#' @examples
+#' # get component states
+#' states(trans)
+
+states <- function (transition) {
+  # given a list of transitions, extract all of the mentioned states
+  states <- colnames(transition$stage_matrix)
+  return (states)
+}
 
 #' @rdname transition
 #' @importFrom igraph graph.adjacency
