@@ -1,9 +1,9 @@
 #' @title habitat objects
 #' @description Underlying habitat for dlmpr.
 #' @rdname habitat
-#' @name patches
+#' @name patchify
 #' @param x a binary Raster layer (0 or NA for background, and 1 for areas to be clumped)
-#' @param distance the neighbourhood distance. Patches that occur within this distance of
+#' @param distance the neighbourhood distance. patchify that occur within this distance of
 #'  one another will be clumped. This should be in the units of the CRS given
 #'  in p4s. If this is zero, the function will identify patches defined by 
 #'  8-connectivity (i.e. queen's case).
@@ -36,9 +36,9 @@
 #' res(r2) <- 0.01
 #' r2 <- resample(r, r2)
 #' proj4string(r2) <- '+init=epsg:4283'
-#' foo <- patches(r2,distance=1000,p4s='+init=epsg:4283')
+#' foo <- patchify(r2,distance=1000,p4s='+init=epsg:4283')
 
-patches <- function(x, distance, p4s, givedist=TRUE) {
+patchify <- function(x, distance, p4s, givedist=TRUE) {
   if(!is(x, 'Raster')) x <- raster::raster(x)
   if(!is(p4s, 'CRS')) p4s <- sp::CRS(p4s)
   if(base::is.na(sp::proj4string(x))) stop(base::substitute(x), ' lacks a CRS.')
@@ -421,7 +421,7 @@ raster2habitat <- function(input){ # will add in other options here later, but f
   r_id <- which(sapply(input,function(x)inherits(x,"RasterLayer")))
   r <- input[[r_id]]
   rthr <- r > stats::quantile(r[], .6) # default to .6 atm.
-  patches <- dlmpr::patches(rthr, distance=1000, crs(rthr))  # default 1000m atm.
+  patches <- dlmpr::patchify(rthr, distance=1000, crs(rthr))  # default 1000m atm.
   
   if(!any(which(sapply(input,function(x)inherits(x,"population"))))){
   # lets calculated carrying capacity from occurrence.
