@@ -9,8 +9,8 @@
 #' and all stages will attempt to undertake dispersal.
 #' @export
 #' @examples 
-#' params <- list(alpha=list('larval'=2,'juvenile'=0,'adult'=3),
-#'                probability=list('larval'=0.2,'juvenile'=0,'adult'=0.6))  
+#' params <- list(alpha=list('larvae'=2,'juvenile'=0,'adult'=3),
+#'                probability=list('larvae'=0.2,'juvenile'=0,'adult'=0.6))  
 #'                
 #' dispersal(params)
 #' 
