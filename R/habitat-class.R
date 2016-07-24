@@ -421,7 +421,7 @@ raster2habitat <- function(input){ # will add in other options here later, but f
   r_id <- which(sapply(input,function(x)inherits(x,"RasterLayer")))
   r <- input[[r_id]]
   rthr <- r > stats::quantile(r[], .6) # default to .6 atm.
-  patches <- dlmpr::patchify(rthr, distance=1000, crs(rthr))  # default 1000m atm.
+  patches <- dhmpr::patchify(rthr, distance=1000, crs(rthr))  # default 1000m atm.
   
   if(!any(which(sapply(input,function(x)inherits(x,"population"))))){
   # lets calculated carrying capacity from occurrence.
