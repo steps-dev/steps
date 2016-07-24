@@ -29,10 +29,9 @@ as.module <- function(fun, params, ...){
   }
   
   attr(fun, 'user-defined-module') <- TRUE
+  fun_params <- structure(list(fun,params),class='module')
+  # structure(fun_params,
   
-  # test it runs.
-  # do.call(fun,params) 
-  
-  return(list(fun,params))
+  return(fun_params)
   
 }
