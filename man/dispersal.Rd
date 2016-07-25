@@ -4,16 +4,21 @@
 \alias{as.dispersal}
 \alias{d}
 \alias{is.dispersal}
-\title{dispersal class for metapoplation}
+\alias{print.dispersal}
+\title{dispersal class for metapoplations}
 \usage{
 as.dispersal(params, ...)
 
 d(params, ...)
 
 is.dispersal(x)
+
+\method{print}{dispersal}(x, ...)
 }
 \arguments{
 \item{x}{an object to be tested as a dispersal transfun object}
+
+\item{\dots}{further arguments passed to or from other methods.}
 }
 \description{
 creates a function that governs dispersal capacity of stages in a population. The input is a list which contains 
@@ -33,5 +38,8 @@ dp <-as.dispersal(NULL)
 d(NULL)
 
 is.dispersal(disp)
+# print method
+print(dp)
+
 }
 

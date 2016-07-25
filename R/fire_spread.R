@@ -7,7 +7,7 @@
 #' Which will have an effect on the metapopulation models.
 #' @export
 #' 
-#' @importFrom SpaDES adj
+#' @importFrom raster adjacent
 #'
 fire_spread <- function(habitat,
                         fire_start_location = NA_real_,
@@ -98,10 +98,10 @@ fire_spread <- function(habitat,
       
       # identify neighbours
       if (id | return_table) {
-          potentials <- SpaDES::adj(habitat, fire_start_location, directions, pairs = TRUE)
+          potentials <- adjacent(habitat, fire_start_location, directions, pairs = TRUE)
         } else {
           # must pad the first column of potentials
-          potentials <- cbind(NA, SpaDES::adj(habitat, fire_start_location, directions, pairs = FALSE))
+          potentials <- cbind(NA, adjacent(habitat, fire_start_location, directions, pairs = FALSE))
       }
       
       

@@ -2,6 +2,7 @@
 % Please edit documentation in R/dynamic-class.R
 \name{dynamic}
 \alias{as.matrix.dynamic}
+\alias{dispersal}
 \alias{dispersal<-}
 \alias{dynamic}
 \alias{habitat}
@@ -26,7 +27,7 @@ transition(dynamic)
 
 transition(dynamic) <- value
 
-transition(dynamic)
+dispersal(dynamic)
 
 dispersal(dynamic) <- value
 
@@ -35,19 +36,20 @@ dispersal(dynamic) <- value
 \arguments{
 \item{x}{an object to print or test as a habitat object}
 
-\item{dynamic}{an object of class \code{tranistion}}
+\item{dynamic}{an object of class \code{dynamic}}
 
 \item{value}{an object of class \code{habitat} (for
-\code{habitat(tranistion) <- value}) or the value to assign to the
+\code{habitat(dynamic) <- value}) or the value to assign to the
 \code{distance}, \code{area}, \code{population}, or \code{features}
 elements of a \code{habitat} object}
 
 \item{dots}{that can contain:
-transition a transition object, See \link[dlmpr]{as.transition}.
-population a population object, see \link[dlmpr]{as.population}
-habitat a habitat object, see \link[dlmpr]{as.habitat}.
-dispersal a dispersal object, see \link[dlmpr]{as.dispersal}. 
-module a module object, see \link[dlmpr]{as.module}.}
+transition a transition object, See \link[dhmpr]{as.transition}.
+population a population object, see \link[dhmpr]{as.population}
+habitat a habitat object, see \link[dhmpr]{as.habitat}.
+dispersal a dispersal object, see \link[dhmpr]{as.dispersal}. 
+module a module object, see \link[dhmpr]{as.module}.
+custom a function to manipulate transition, population, habitat, or dispersal see 'custom function'. \code{as.customfun}.}
 
 \item{\dots}{further arguments passed to or from other methods.}
 }

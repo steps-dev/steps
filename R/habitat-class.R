@@ -1,5 +1,5 @@
 #' @title habitat objects
-#' @description Underlying habitat for dlmpr.
+#' @description Underlying habitat for dhmpr.
 #' @rdname habitat
 #' @name patchify
 #' @param x a binary Raster layer (0 or NA for background, and 1 for areas to be clumped)
@@ -81,23 +81,22 @@ is.patches <- function(x) {
 #' @examples
 #' 
 #' #'# create a habitat from a list containing a raster that represents a habitat suitability model / species distribution model.
-#' habitat <- as.habitat(list(r2,population = as.population(t(rmultinom(1, 
+#' habs <- as.habitat(list(r2,population = as.population(t(rmultinom(1, 
 #'                                size = 100, prob = c(0.8,0.2,0.01))))))
 #'                                
 #' #create a habitat from a list containing just a species distribution model will estimate populations per-patch.
-#' habitat <- as.habitat(list(r2))
+#' habs <- as.habitat(list(r2))
 #' 
 #' # create a default habitat
-#' habitat <- as.habitat(NULL)
+#' habs <- as.habitat(NULL)
 #'
 #' # create a multipatch habitat
 #' patches <- list(coordinates = data.frame(x=runif( 10, min=-10, max=10),
 #'                                                     y=runif( 10, min=-10, max=10)),
 #'                                area = as.data.frame(exp(-seq(.1,10,length.out = 10))*10),
-#'                                population = as.population(t(rmultinom(1, 
-#'                                size = 100, prob = c(0.8,0.2,0.01)))),
+#'                                population = as.population(data.frame('larvae'=80,'juvenile'=29,'adult'=5)),
 #'                                features = data.frame(temperature = 10))
-#' habitat <- as.habitat(patches)
+#' habs <- as.habitat(patches)
 #'                                
 
 as.habitat <- function (patches) {

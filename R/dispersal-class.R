@@ -1,4 +1,4 @@
-#' @title dispersal class for metapoplation
+#' @title dispersal class for metapoplations
 #' @rdname dispersal 
 #' @name as.dispersal
 #' @description creates a function that governs dispersal capacity of stages in a population. The input is a list which contains 
@@ -53,34 +53,33 @@ dispersalDefault <- function (...) {
 }
 
 #' @rdname dispersal
-#' @param x an object to be tested as a dispersal transfun object
 #' @export
 #' @examples
 #' is.dispersal(disp)
 is.dispersal <- function (x) inherits(x, 'dispersal')
 
-#' #' @rdname dispersal
-#' #' @param x an object to print or test as a transition object
-#' #' @param \dots further arguments passed to or from other methods.
-#' #' @export
-#' #' @examples
-#' #' # print method
-#' #' print(dp)
-#' #'
-#' print.dispersal <- function(x,...){
-#'   disp_info <- list()
-#'   for (i in base::seq_along(x)[-length(x)]) {
-#'   disp_info[[i]]  <- base::paste(
-#'       base::names(x[[i]]),
-#'       base::format(x[[i]], scientific = FALSE),
-#'       sep = " = ",
-#'       collapse = "\n "
-#'     ) 
-#'   };
-#'   if(length(disp_info)==2) text <- sprintf('dispersal function with disperal kernal of:\n %s\n and probability of dispersal of:\n %s\n for stages.',disp_info[[1]],disp_info[[2]])
-#'   else text <- sprintf('dispersal function with disperal kernal of:\n %s\n for stages.',disp_info[[1]])
-#'   cat(text)
-#' }
+#' @rdname dispersal
+#' @param x an object to be tested as a dispersal transfun object
+#' @param \dots further arguments passed to or from other methods.
+#' @export
+#' @examples
+#' # print method
+#' print(dp)
+#'
+print.dispersal <- function(x,...){
+  disp_info <- list()
+  for (i in base::seq_along(x)[-length(x)]) {
+  disp_info[[i]]  <- base::paste(
+      base::names(x[[i]]),
+      base::format(x[[i]], scientific = FALSE),
+      sep = " = ",
+      collapse = "\n "
+    )
+  };
+  if(length(disp_info)==2) text <- sprintf('dispersal function with disperal kernal of:\n %s\n and probability of dispersal of:\n %s\n for stages.',disp_info[[1]],disp_info[[2]])
+  else text <- sprintf('dispersal function with disperal kernal of:\n %s\n for stages.',disp_info[[1]])
+  cat(text)
+}
 
 probdisp <- function (disp, habitat) {
   # get expected dispersal fraction from a probability and a dispersal transfun.
@@ -97,4 +96,13 @@ probdisp <- function (disp, habitat) {
   # add fraction not attempting dispersal back onto diagonal
   for(i in seq_along(disps))diag(disps[[i]]) <- diag(disps[[i]]) + 1 - probs[[i]]
   return (disps)
+}
+
+stoch_disp <- function (expectation, N) {
+  # random multinomial draws on a square matrix
+  disp <- N * 0
+  for (i in seq_along(N)) {
+    disp <- disp + rmultinom(1, N[i], expectation[i, ])
+  }
+  return (disp[, 1])
 }

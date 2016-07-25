@@ -5,11 +5,12 @@
 #' transitions, population(s), habitat, dispersal and module objects for use in \link[dhmpr]{simulation} function.
 #' The main difference between \link[pop]{dynamic} and \code{dynamic} is that dhmpr requires the input of set objects to run.
 #' @param dots that can contain:
-#'  transition a transition object, See \link[dlmpr]{as.transition}.
-#'  population a population object, see \link[dlmpr]{as.population}
-#'  habitat a habitat object, see \link[dlmpr]{as.habitat}.
-#'  dispersal a dispersal object, see \link[dlmpr]{as.dispersal}. 
-#'  module a module object, see \link[dlmpr]{as.module}.
+#'  transition a transition object, See \link[dhmpr]{as.transition}.
+#'  population a population object, see \link[dhmpr]{as.population}
+#'  habitat a habitat object, see \link[dhmpr]{as.habitat}.
+#'  dispersal a dispersal object, see \link[dhmpr]{as.dispersal}. 
+#'  module a module object, see \link[dhmpr]{as.module}.
+#'  custom a function to manipulate transition, population, habitat, or dispersal see 'custom function'. \code{as.customfun}.
 #' @export
 #' @examples
 #'
@@ -130,11 +131,7 @@ print.dynamic <- function(x, ...) {
 
 
 #' @rdname dynamic
-#' @param dynamic an object of class \code{tranistion}
-#' @param value an object of class \code{habitat} (for
-#'   \code{habitat(tranistion) <- value}) or the value to assign to the
-#'   \code{distance}, \code{area}, \code{population}, or \code{features}
-#'   elements of a \code{habitat} object
+#' @param dynamic an object of class \code{dynamic}
 #' @export
 habitat <- function (dynamic) {
   stopifnot(is.dynamic(dynamic))
@@ -143,6 +140,11 @@ habitat <- function (dynamic) {
 }
 
 #' @rdname dynamic
+#' @param value an object of class \code{habitat} (for
+#'   \code{habitat(dynamic) <- value}) or the value to assign to the
+#'   \code{distance}, \code{area}, \code{population}, or \code{features}
+#'   elements of a \code{habitat} object
+
 #' @export
 `habitat<-` <- function (dynamic, value) {
   stopifnot(is.dynamic(dynamic))
@@ -170,9 +172,10 @@ transition <- function (dynamic) {
 
 #' @rdname dynamic
 #' @export
-transition <- function (dynamic) {
+dispersal <- function (dynamic) {
   stopifnot(is.dynamic(dynamic))
-  value <- dynamic[['transition']]
+  stopifnot(any(sapply(dynamic,is.dispersal)))
+  value <- dynamic[['dispersal']]
   return (value)
 }
 
