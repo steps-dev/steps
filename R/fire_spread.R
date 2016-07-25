@@ -6,6 +6,8 @@
 #' the probability of occurrence within the \code{habitat} object and thus re-shape or change patch suitability. 
 #' Which will have an effect on the metapopulation models.
 #' @export
+#' 
+#' @importFrom SpaDES adj
 #'
 fire_spread <- function(habitat,
                         fire_start_location = NA_real_,
@@ -96,10 +98,10 @@ fire_spread <- function(habitat,
       
       # identify neighbours
       if (id | return_table) {
-          potentials <- adj(habitat, fire_start_location, directions, pairs = TRUE)
+          potentials <- SpaDES::adj(habitat, fire_start_location, directions, pairs = TRUE)
         } else {
           # must pad the first column of potentials
-          potentials <- cbind(NA, adj(habitat, fire_start_location, directions, pairs = FALSE))
+          potentials <- cbind(NA, SpaDES::adj(habitat, fire_start_location, directions, pairs = FALSE))
       }
       
       

@@ -7,13 +7,11 @@
 \alias{area<-}
 \alias{as.habitat}
 \alias{as.population}
-\alias{coordinates}
-\alias{coordinates<-}
+\alias{coords}
+\alias{coords<-}
 \alias{distance}
 \alias{features}
 \alias{features<-}
-\alias{habitat}
-\alias{habitat<-}
 \alias{is.distance}
 \alias{is.habitat}
 \alias{is.patches}
@@ -34,10 +32,6 @@ patchify(x, distance, p4s, givedist = TRUE)
 is.patches(x)
 
 as.habitat(patches)
-
-habitat(transition)
-
-habitat(transition) <- value
 
 is.habitat(x)
 
@@ -69,9 +63,9 @@ suitability(habitat)
 
 suitability(habitat, newpatch) <- value
 
-coordinates(habitat)
+coords(habitat)
 
-coordinates(habitat) <- value
+coords(habitat) <- value
 
 distance(habitat)
 
@@ -99,13 +93,6 @@ units of p4s, and are shortest cartesian distances between patches.}
 \item{patches}{an object to turn into a \code{habitat} object. Currently
 this can either be a \link[raster]{raster}, a list or \code{NULL} (see \code{details}),
 though more approaches will be added in the future}
-
-\item{transition}{an object of class \code{tranistion}}
-
-\item{value}{an object of class \code{habitat} (for
-\code{habitat(tranistion) <- value}) or the value to assign to the
-\code{distance}, \code{area}, \code{population}, or \code{features}
-elements of a \code{habitat} object}
 
 \item{habitat}{an object of class \code{habitat}}
 
@@ -160,6 +147,9 @@ foo <- patchify(r2,distance=1000,p4s='+init=epsg:4283')
 #'# create a habitat from a list containing a raster that represents a habitat suitability model / species distribution model.
 habitat <- as.habitat(list(r2,population = as.population(t(rmultinom(1, 
                                size = 100, prob = c(0.8,0.2,0.01))))))
+                               
+#create a habitat from a list containing just a species distribution model will estimate populations per-patch.
+habitat <- as.habitat(list(r2))
 
 # create a default habitat
 habitat <- as.habitat(NULL)

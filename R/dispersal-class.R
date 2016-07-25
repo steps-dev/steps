@@ -1,6 +1,6 @@
 #' @title dispersal class for metapoplation
 #' @rdname dispersal 
-#' @name dispersal
+#' @name as.dispersal
 #' @description creates a function that governs dispersal capacity of stages in a population. The input is a list which contains 
 #'  the first list is a dispersal kernal \code{alpha}  value for each stage, the second named list \code{probability} 
 #' is the proportion of that stage will disperse. For example a probability of 0.2 for stage larvae
@@ -12,11 +12,11 @@
 #' params <- list(alpha=list('larvae'=2,'juvenile'=0,'adult'=3),
 #'                probability=list('larvae'=0.2,'juvenile'=0,'adult'=0.6))  
 #'                
-#' dispersal(params)
+#' dp <- as.dispersal(params)
 #' 
-#' dispersal(NULL)
+#' dp <-as.dispersal(NULL)
 
-dispersal <- function(params,...){
+as.dispersal <- function(params,...){
   switch(class(params[1]),
          NULL = dispersalDefault(...),
          list = dispersal_core(params,...))
@@ -28,7 +28,7 @@ dispersal <- function(params,...){
 #' @examples 
 #' d(NULL)
 #' 
-d <- dispersal
+d <- as.dispersal
 
 dispersal_core <- function(params,...)
   {
@@ -39,8 +39,10 @@ dispersal_core <- function(params,...)
           disp
   }
   params$disp <- ds
-  ds <- as.dispersal(params)
-  return(ds)
+  if (!is.dispersal(params)) {
+    class(params) <- c('dispersal', class(params))
+  }
+  return(params)
 }
 
 
@@ -57,42 +59,28 @@ dispersalDefault <- function (...) {
 #' is.dispersal(disp)
 is.dispersal <- function (x) inherits(x, 'dispersal')
 
-#' @rdname dispersal
-#' @param x an object to be tested as a dispersal transfun object
-#' @export
-as.dispersal <- function (x) {
-  if (!is.transition(x)) {
-      class(x) <- c('transition', class(x))
-    }
-    if (!is.dispersal(x)) {
-      class(x) <- c('dispersal', class(x))
-    }
-    return (x)
-}
-
-#' @rdname dispersal
-#' @param x an object to print or test as a transition object
-#' @param \dots further arguments passed to or from other methods.
-#' @export
-#' @examples
-#' # print method
-#' dispersal(params)
-#' print(d(NULL))
-#'
-print.dispersal <- function(x,...){
-  disp_info <- list()
-  for (i in base::seq_along(x)[-length(x)]) {
-  disp_info[[i]]  <- base::paste(
-      base::names(x[[i]]),
-      base::format(x[[i]], scientific = FALSE),
-      sep = " = ",
-      collapse = "\n "
-    ) 
-  };
-  if(length(disp_info)==2) text <- sprintf('dispersal function with disperal kernal of:\n %s\n and probability of dispersal of:\n %s\n for stages.',disp_info[[1]],disp_info[[2]])
-  else text <- sprintf('dispersal function with disperal kernal of:\n %s\n for stages.',disp_info[[1]])
-  cat(text)
-}
+#' #' @rdname dispersal
+#' #' @param x an object to print or test as a transition object
+#' #' @param \dots further arguments passed to or from other methods.
+#' #' @export
+#' #' @examples
+#' #' # print method
+#' #' print(dp)
+#' #'
+#' print.dispersal <- function(x,...){
+#'   disp_info <- list()
+#'   for (i in base::seq_along(x)[-length(x)]) {
+#'   disp_info[[i]]  <- base::paste(
+#'       base::names(x[[i]]),
+#'       base::format(x[[i]], scientific = FALSE),
+#'       sep = " = ",
+#'       collapse = "\n "
+#'     ) 
+#'   };
+#'   if(length(disp_info)==2) text <- sprintf('dispersal function with disperal kernal of:\n %s\n and probability of dispersal of:\n %s\n for stages.',disp_info[[1]],disp_info[[2]])
+#'   else text <- sprintf('dispersal function with disperal kernal of:\n %s\n for stages.',disp_info[[1]])
+#'   cat(text)
+#' }
 
 probdisp <- function (disp, habitat) {
   # get expected dispersal fraction from a probability and a dispersal transfun.

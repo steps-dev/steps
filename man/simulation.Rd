@@ -5,17 +5,9 @@
 \alias{simulation}
 \title{simulation}
 \usage{
-simulation(...)
+simulation(x, reps, times, ...)
 
 is.simulation(x)
-}
-\arguments{
-\item{dots}{that can contain:
-transition a transition object, See \link[dlmpr]{as.transition}.
-population a population object, see \link[dlmpr]{as.population}
-habitat a habitat object, see \link[dlmpr]{as.habitat}.
-dispersal a dispersal object, see \link[dlmpr]{as.dispersal}. 
-module a module object, see \link[dlmpr]{as.module}.}
 }
 \description{
 The over-arching function in dlmpr for simulating a-spatial or spatial demographic population projections through time.

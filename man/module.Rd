@@ -2,10 +2,13 @@
 % Please edit documentation in R/module-class.R
 \name{module}
 \alias{as.module}
+\alias{is.module}
 \alias{module}
 \title{module objects}
 \usage{
-as.module(fun, params, ...)
+as.module(fun, params, check = FALSE, ...)
+
+is.module(x)
 }
 \description{
 Module for altering the habitat, they maybe fire spread, management, ect. 
@@ -14,13 +17,40 @@ Module sets up internal or custom functions to work with \code{habitat} and \cod
 Module needs to be a function, that gets imported into the simulaion function.
 }
 \examples{
+## Create population
+pop <- as.population(data.frame('larvae'=80,'juvenile'=29,'adult'=5) )
 
-params = list(habitat=habitat,
-              fire_start_location = sample(ncell(r2),10),
-              prob = 0.24,
-              continue_to_burn_prob = 0.01,
-              id=TRUE)
+##Set up habitat.
+library(raster)
+set.seed(42)
+xy <- expand.grid(x=seq(145, 150, 0.1), y=seq(-40, -35, 0.1))
+Dd <- as.matrix(dist(xy))
+w <- exp(-1/nrow(xy) * Dd)
+Ww <- chol(w)
+xy$z <- t(Ww) \%*\% rnorm(nrow(xy), 0, 0.1)
+coordinates(xy) <- ~x+y
+r <- rasterize(xy, raster(points2grid(xy)), 'z')
+hab <- raster(r)
+res(hab) <- 0.01
+hab <- resample(r, hab)
+proj4string(hab) <- '+init=epsg:4283'
+habs <- as.habitat(list(hab,population = pop))
+
+##Define a function for manipulating habitat.
+This can be a custom function for manipulating rasters or existing functions. 
+fun <- fire_spread
+
+##Create a named list with corresponding parameters and values
+params = list(habitat=habs,
+             fire_start_location = sample(ncell(suitability(habs)),10),
+             prob = 0.24,
+             continue_to_burn_prob = 0.01)
               
-fun <- fire_spread                
+## check module produces expected output
+fire_module <- as.module(fun,params,check=TRUE)                             
+
+## If it does? create the module (yay!).
+fire_module <- as.module(fun,params) 
+
 }
 

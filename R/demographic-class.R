@@ -1,4 +1,4 @@
-#' @useDynLib dlmpr
+#' @useDynLib dhmpr
 #' @importFrom Rcpp sourceCpp
 NULL
 
@@ -40,7 +40,7 @@ setGeneric("demographic",
           vn[[i]] <- base::cbind(pop, pop)
       }
   # call c++ function that does this loop.
-  v <- dlmpr::demo_proj_n_cpp(vn, tmat, matsd = matsd, estamb = estamb, estdem = estdem, 
+  v <- dhmpr::demo_proj_n_cpp(vn, tmat, matsd = matsd, estamb = estamb, estdem = estdem, 
                        equalsign = equalsign, stmat = stmat, tmat_fecundity = tmat_fecundity,
                        nrep = nrep, time = time)
   vn <- base::lapply(v, function(x) x[,-1])

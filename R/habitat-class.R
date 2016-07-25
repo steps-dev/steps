@@ -83,6 +83,9 @@ is.patches <- function(x) {
 #' #'# create a habitat from a list containing a raster that represents a habitat suitability model / species distribution model.
 #' habitat <- as.habitat(list(r2,population = as.population(t(rmultinom(1, 
 #'                                size = 100, prob = c(0.8,0.2,0.01))))))
+#'                                
+#' #create a habitat from a list containing just a species distribution model will estimate populations per-patch.
+#' habitat <- as.habitat(list(r2))
 #' 
 #' # create a default habitat
 #' habitat <- as.habitat(NULL)
@@ -103,26 +106,6 @@ as.habitat <- function (patches) {
          list = list2habitat(patches))
 }
 
-#' @param transition an object of class \code{tranistion}
-#' @param value an object of class \code{habitat} (for
-#'   \code{habitat(tranistion) <- value}) or the value to assign to the
-#'   \code{distance}, \code{area}, \code{population}, or \code{features}
-#'   elements of a \code{habitat} object
-#' @export
-habitat <- function (transition) {
-  stopifnot(is.transition(transition))
-  value <- attr(transition, 'habitat')
-  return (value)
-}
-
-#' @rdname habitat
-#' @export
-`habitat<-` <- function (transition, value) {
-  stopifnot(is.transition(transition))
-  stopifnot(is.habitat(value))
-  attr(transition, 'habitat') <- value
-  return (transition)
-}
 #' @rdname habitat
 #' @export
 is.habitat <- function (x) inherits(x, 'habitat')
@@ -185,11 +168,11 @@ as.population <- function(x,...){
     x <- base::as.data.frame(x,...)
     ns <- base::dim(x)[[2]]
     np <- base::dim(x)[[1]]
-    # s.names <- base::dimnames(x)[[2]]
-    # p.names <- base::dimnames(x)[[1]]
-    # if(base::is.null(s.names)) 
+    s.names <- base::dimnames(x)[[2]]
+    p.names <- base::dimnames(x)[[1]]
+    if(base::is.null(s.names))
       s.names <- base::paste0("stage",1:ns)
-    # if(base::is.null(p.names)) 
+    if(base::is.null(p.names))
       p.names <- base::paste0("patch",1:np)
     base::dimnames(x) <- base::list(p.names, s.names)
   }
@@ -338,7 +321,7 @@ suitability <- function (habitat) {
 #'# get and set the features
 #' coordinates(habitat)
 #'
-coordinates <- function (habitat) {
+coords <- function (habitat) {
   stopifnot(is.habitat(habitat))
   ans <- habitat$habitat[, attr(habitat$habitat, 'coordinates'), drop = FALSE]
   ans <- squashhabitat(ans)
@@ -347,7 +330,7 @@ coordinates <- function (habitat) {
 
 #' @rdname habitat
 #' @export
-`coordinates<-` <- function (habitat, value) {
+`coords<-` <- function (habitat, value) {
   stopifnot(is.habitat(habitat))
   coordinatesCheck(value)
   stopifnot(all.equal(names(coordinates(habitat)), names(value)))
