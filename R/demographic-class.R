@@ -25,7 +25,7 @@ NULL
 #' nrow = 3,ncol = 3,byrow = TRUE))
 #' matsd <- tmat$stage_matrix/10
 #' pop <- as.population(c(80,20,0))
-#' proj <- demographic(pop=pop,tmat=tmat,matsd=matsd,estdem=TRUE,estamb=F,time=100,nrep=100) 
+#' proj <- demographic(pop=pop,tmat=tmat,matsd=matsd,time=100) 
 #' @export
 #' 
 setGeneric("demographic",

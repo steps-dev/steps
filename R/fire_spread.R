@@ -5,10 +5,24 @@
 #' This function uses cellular automata to spread fire across the habitat. These burnt cells can be used to reduce (or increase)
 #' the probability of occurrence within the \code{habitat} object and thus re-shape or change patch suitability. 
 #' Which will have an effect on the metapopulation models.
+#' @param habitat object
+#' @param fire_start_location locations of startung fires (cell numbers)
+#' @param prob  probability of spread
+#' @param continue_to_burn_prob probability fire continues to burn
+#' @param max_cells number of cells to burn
+#' @param directions direction of fires, 8 = Queen's case, 4 = Rook's.
+#' @param iterations number of iterations
+#' @param return_table returns a data.table, else returns a raster.
+#' @param id give fires an id?
+#' @param spread_prob_after_ignition different probability of spread after ignition?
+#' @param fire_history a data.table with previous fire history (ids), you need id and return_table to generate these.
 #' @export
 #' 
 #' @importFrom raster adjacent
-#'
+#' @importFrom data.table data.table rbindlist
+#' @examples 
+#' 
+
 fire_spread <- function(habitat,
                         fire_start_location = NA_real_,
                         prob = 0.23, # could replace this with cell probabilities.
