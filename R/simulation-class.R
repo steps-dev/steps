@@ -1,26 +1,11 @@
 #' @title simulation
 #' @rdname simulation
 #' @name simulation
-#' @description The over-arching function in dhmpr for simulating a-spatial or spatial demographic population projections through time.
+#' @description The over-arching function in dlmpr for simulating a-spatial or spatial demographic population projections through time.
+#' @param x a dynamic object see \link[dhmpr]{dynamic}
+#' @param reps int number of repetitions
+#' @param times int number of time steps.
 #' @export
-#' 
-#' @examples 
-#' ## Here is an example with an a-spatial single population
-#' ## Create transition matrix
-#' mat <- matrix(c(.53,0,.52,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
-#' colnames(mat) <- rownames(mat) <- c('larvae','juvenile','adult')
-#' trans <- as.transition(mat)
-#'
-#' ## Create population
-#' pop <- as.population(data.frame('larvae'=800,'juvenile'=209,'adult'=50) )
-#' 
-#' ## simple transition matrix and population as a dynamic object
-#' population_dynamics <- dynamic(trans,pop)
-#' 
-#' # here we undertake a detemanistic projection
-#' projs <- simulation(population_dynamics,reps=100,times=100)
-#' plot(projs)
-#' plot(projs,mean_pop=FALSE)
 
 simulation <- function(x, reps, times, ...){ 
   
@@ -31,14 +16,11 @@ simulation <- function(x, reps, times, ...){
   proj_mat <- as.matrix(x)
   
   if(nrow(coords(hab))==1){
-    cat('returning determistic simulation\n')
   results <- demographic(as.population(pops),as.transition(proj_mat),nrep = reps,
               time = times)
   class(results) <- "demographic"
   return(results)
   }  
-  
-  
   # ideally we can do this with C++ - to make it fast.
   #
   # - We'll need an input of A = the projection matrix

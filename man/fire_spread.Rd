@@ -9,10 +9,36 @@ fire_spread(habitat, fire_start_location = NA_real_, prob = 0.23,
   iterations = 1000000L, return_table = FALSE, id = FALSE,
   spread_prob_after_ignition = NA_real_, fire_history = NA)
 }
+\arguments{
+\item{habitat}{object}
+
+\item{fire_start_location}{locations of startung fires (cell numbers)}
+
+\item{prob}{probability of spread}
+
+\item{continue_to_burn_prob}{probability fire continues to burn}
+
+\item{max_cells}{number of cells to burn}
+
+\item{directions}{direction of fires, 8 = Queen's case, 4 = Rook's.}
+
+\item{iterations}{number of iterations}
+
+\item{return_table}{returns a data.table, else returns a raster.}
+
+\item{id}{give fires an id?}
+
+\item{spread_prob_after_ignition}{different probability of spread after ignition?}
+
+\item{fire_history}{a data.table with previous fire history (ids), you need id and return_table to generate these.}
+}
 \description{
 This is an example function which we can import as a module to manipulate the habitat. 
 This function uses cellular automata to spread fire across the habitat. These burnt cells can be used to reduce (or increase)
 the probability of occurrence within the \code{habitat} object and thus re-shape or change patch suitability. 
 Which will have an effect on the metapopulation models.
+}
+\examples{
+
 }
 

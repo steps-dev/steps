@@ -23,6 +23,8 @@ is.transition(x)
 
 \item{...}{other function calls.}
 
+\item{transition}{a transition object}
+
 \item{object}{an object of \code{transition} class}
 }
 \value{

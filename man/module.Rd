@@ -37,7 +37,7 @@ proj4string(hab) <- '+init=epsg:4283'
 habs <- as.habitat(list(hab,population = pop))
 
 ##Define a function for manipulating habitat.
-This can be a custom function for manipulating rasters or existing functions. 
+##This can be a custom function for manipulating rasters or existing functions. 
 fun <- fire_spread
 
 ##Create a named list with corresponding parameters and values

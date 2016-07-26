@@ -16,8 +16,4 @@ test_that('transition classes work', {
   # check is.transition works on transitions
   expect_true(is.transition(tmat))
   
-  # check is.transition works on non-transitions
-  expect_error(is.transition(list()))
-  expect_error(is.transition(NA))
-  expect_error(is.transition(NULL))
 })

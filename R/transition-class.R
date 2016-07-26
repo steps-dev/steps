@@ -78,6 +78,7 @@ summary.transition <-
 
 #' @rdname transition
 #' @name states
+#' @param transition a transition object
 #' @export
 #' @examples
 #' # get component states

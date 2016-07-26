@@ -9,25 +9,14 @@ simulation(x, reps, times, ...)
 
 is.simulation(x)
 }
-\description{
-The over-arching function in dhmpr for simulating a-spatial or spatial demographic population projections through time.
+\arguments{
+\item{x}{a dynamic object see \link[dhmpr]{dynamic}}
+
+\item{reps}{int number of repetitions}
+
+\item{times}{int number of time steps.}
 }
-\examples{
-## Here is an example with an a-spatial single population
-## Create transition matrix
-mat <- matrix(c(.53,0,.52,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
-colnames(mat) <- rownames(mat) <- c('larvae','juvenile','adult')
-trans <- as.transition(mat)
-
-## Create population
-pop <- as.population(data.frame('larvae'=800,'juvenile'=209,'adult'=50) )
-
-## simple transition matrix and population as a dynamic object
-population_dynamics <- dynamic(trans,pop)
-
-# here we undertake a detemanistic projection
-projs <- simulation(population_dynamics,reps=100,times=100)
-plot(projs)
-plot(projs,mean_pop=FALSE)
+\description{
+The over-arching function in dlmpr for simulating a-spatial or spatial demographic population projections through time.
 }
 

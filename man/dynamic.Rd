@@ -54,7 +54,7 @@ custom a function to manipulate transition, population, habitat, or dispersal se
 \item{\dots}{further arguments passed to or from other methods.}
 }
 \description{
-Very similar to \link[pop]{dynamic}, \code{dynamic} is an object which stores all the relevent 
+code{dynamic} is an object which stores all the relevent 
 transitions, population(s), habitat, dispersal and module objects for use in \link[dhmpr]{simulation} function.
 The main difference between \link[pop]{dynamic} and \code{dynamic} is that dhmpr requires the input of set objects to run.
 }
