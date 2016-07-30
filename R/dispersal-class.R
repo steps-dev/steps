@@ -106,3 +106,4 @@ stoch_disp <- function (expectation, N) {
   }
   return (disp[, 1])
 }
+

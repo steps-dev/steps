@@ -21,7 +21,7 @@ NULL
 #' @description do some demographic modelling in R
 #' 
 #' @examples 
-#' tmat <- as.transition(matrix(c(.53,0,.42,0.1,0.77,0,0,0.12,0.9),
+#' tmat <- as.transition(matrix(c(.53,0,.42,.1,0.77,0,0,0.12,0.9),
 #' nrow = 3,ncol = 3,byrow = TRUE))
 #' matsd <- tmat$stage_matrix/10
 #' pop <- as.population(c(80,20,0))
