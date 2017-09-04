@@ -3,9 +3,13 @@
 #' @name simulation
 #' @description The over-arching function in dlmpr for simulating a-spatial or spatial demographic population projections through time.
 #' @param x a dynamic object see \link[dhmpr]{dynamic}
-#' @param reps int number of repetitions
-#' @param times int number of time steps.
+#' @param reps int number of simulations to run. repetitions
+#' @param time_steps e.g. years. int number of time steps.
 #' @export
+#' 
+#'@examples
+#'
+#'
 
 simulation <- function(x, reps, times, ...){ 
   
@@ -27,10 +31,11 @@ simulation <- function(x, reps, times, ...){
   # - population
   # - keep record of patches
   # - module manipualted habitat 
-  # - are there new patches created? 
+  # - are there new patches created? _ implenet fire model across habitat/ land scape distrubance/ management.  
   # - are old patches destroyed?
   #
   #  dispersal after manipulation (maybe make it density dependent or based on catastrophy (eg., patch burnt by fire))
+  # - run FFT here. Recalulate populations. 
   # - re-assess patches 
   # - capture results of patches
   
