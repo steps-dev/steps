@@ -1,74 +1,6 @@
 #' @title habitat objects
 #' @description Underlying habitat for dhmpr.
 #' @rdname habitat
-#' @name patchify
-#' @param x a binary Raster layer (0 or NA for background, and 1 for areas to be clumped)
-#' @param distance the neighbourhood distance. patchify that occur within this distance of
-#'  one another will be clumped. This should be in the units of the CRS given
-#'  in p4s. If this is zero, the function will identify patches defined by 
-#'  8-connectivity (i.e. queen's case).
-#' @param p4s an equal-area projection appropriate for the region. This will be used when 
-#'      calculating inter-patch distances. The returned objects will be in the 
-#'      original coordinate system.
-#' @param givedist should the distance matrix be returned? (logical). Distances are in the 
-#'           units of p4s, and are shortest cartesian distances between patches.
-#' @author John Baumgartner
-#' @export
-
-#' @importFrom methods is
-#' @importFrom sp spDists CRS
-#' @importFrom raster raster xyFromCell clump getValues ncell freq
-#' @importFrom SDMTools PatchStat
-#' @importClassesFrom raster Raster
-#' @importClassesFrom sp CRS
-
-#' @examples
-#' library(raster)
-#' set.seed(42)
-#' xy <- expand.grid(x=seq(145, 150, 0.1), y=seq(-40, -35, 0.1))
-#' Dd <- as.matrix(dist(xy))
-#' w <- exp(-1/nrow(xy) * Dd)
-#' Ww <- chol(w)
-#' xy$z <- t(Ww) %*% rnorm(nrow(xy), 0, 0.1)
-#' coordinates(xy) <- ~x+y
-#' r <- rasterize(xy, raster(points2grid(xy)), 'z')
-#' r2 <- raster(r)
-#' res(r2) <- 0.01
-#' r2 <- resample(r, r2)
-#' proj4string(r2) <- '+init=epsg:4283'
-#' foo <- patchify(r2,distance=1000,p4s='+init=epsg:4283')
-
-patchify <- function(x, distance, p4s, givedist=TRUE) {
-  if(!is(x, 'Raster')) x <- raster::raster(x)
-  if(!is(p4s, 'CRS')) p4s <- sp::CRS(p4s)
-  if(base::is.na(sp::proj4string(x))) stop(base::substitute(x), ' lacks a CRS.')
-  mask <- x
-  mask[mask == 0] <- NA
-  ## create a buffer around original patch
-  buff <- overlay(gridDistance(mask,origin=c(1),omit=NULL) <= distance, x, fun=function(a,b) ifelse(b > 0, b, a*2))
-  rc <- raster::clump(buff,directions = 4)
-  clump_id <- raster::getValues(rc)    
-  xy <- raster::xyFromCell(rc,1:raster::ncell(rc))
-  df <- base::data.frame(xy, clump_id, is_clump = rc[] %in% raster::freq(rc, useNA = 'no')[,1])
-  patch_coords <- plyr::ddply(df[df$is_clump == TRUE, ], plyr::.(clump_id), plyr::summarise, xm = base::mean(x), ym = base::mean(y))
-  out <- base::list(patchrast=rc, coords=patch_coords, patchstats = SDMTools::PatchStat(rc))
-  if(base::isTRUE(givedist)) {
-    d <-  sp::spDists(sp::coordinates(patch_coords[,2:3]),longlat=TRUE)
-    out <- base::c(out, base::list(distance=d))
-  } 
-  base::class(out) <- "patches"
-  return(out)
-}  
-
-#' @rdname habitat
-#' @export
-is.patches <- function(x) {
-  inherits(x, "patches")
-}
-
-
-## set up habitat with 
-#' @rdname habitat
 #' @name as.habitat
 #' @param patches an object to turn into a \code{habitat} object. Currently
 #'   this can either be a \link[raster]{raster}, a list or \code{NULL} (see \code{details}),
@@ -79,9 +11,21 @@ is.patches <- function(x) {
 #' @author Nick Golding
 #' @export
 #' @examples
+#' @examples
+#' library(raster)
+#' library(dhmpr)
+#' set.seed(42)
+#' xy <- expand.grid(x=seq(145, 150, 0.1), y=seq(-40, -35, 0.1))
+#' Dd <- as.matrix(dist(xy))
+#' w <- exp(-1/nrow(xy) * Dd)
+#' Ww <- chol(w)
+#' xy$z <- t(Ww) %*% rnorm(nrow(xy), 0, 0.1)
+#' coordinates(xy) <- ~x+y
+#' r <- rasterize(xy, raster(points2grid(xy)), 'z')
+#' proj4string(r) <- '+init=epsg:4283'
 #' 
 #' #'# create a habitat from a list containing a raster that represents a habitat suitability model / species distribution model.
-#' habs <- as.habitat(list(r2,population = as.population(t(rmultinom(1, 
+#' habs <- as.habitat(list(r,population = as.population(t(rmultinom(1, 
 #'                                size = 100, prob = c(0.8,0.2,0.01))))))
 #'                                
 #' #create a habitat from a list containing just a species distribution model will estimate populations per-patch.
@@ -383,41 +327,30 @@ is.distance <- function (x) {
 
 #' 
 #' @rdname habitat
-#' @name K
-#' @param x a raster of species habitit suitability (occupancy)
-#' @param a parameter for carrying capacity model
-#' @param b parameter for carrying capacity model
-#' @param c parameter for carrying capacity model
+#' @name carrying_capacity
+#' @param x a raster of species habitit suitability (occupancy).
 #' @param type model form for converting occurrence to carrying capacity.
+#' @param list parameters used to convert a habitat suitability map to carrying capacity. 
 #' @author Skipton Woolley
-K<-function(x,a=1,b=.2,c=0.5,type=c('exp','logit','linear')){
+carrying_capacity <- function(x,type=c('exp','logit','linear','custom'),...){
+  print(as.list(match.call(params)))
   type <- match.arg(type)
   switch(type,
          exp = exp((a*x)-b),
          linear = a*(x)-b,
-         logit = a+(1/(1+exp(-b*x+c))))
+         logit = a+(1/(1+exp(-b*x+c))),
+         custom = custom_fun)
 }
 
 raster2habitat <- function(input){ # will add in other options here later, but first lets get it working.
-  # r[] <- scales::rescale(r[])
   r_id <- which(sapply(input,function(x)inherits(x,"RasterLayer")))
-  r <- input[[r_id]]
-  rthr <- r > stats::quantile(r[], .6) # default to .6 atm.
-  patches <- dhmpr::patchify(rthr, distance=1000, crs(rthr))  # default 1000m atm.
-  
+  habitat_suitability <- input[[r_id]]
+
   if(!any(which(sapply(input,function(x)inherits(x,"population"))))){
-  # lets calculated carrying capacity from occurrence.
-  k <- K(r,type='exp') # will make this customisable one day.
-  k_mask <- raster::mask(k,patches$patchrast)
-  
-  # calculate carrying capacity
-  clump_id <- raster::getValues(patches$patchrast)    
-  df <- base::data.frame(k=getValues(k_mask), clump_id, is_clump = patches$patchrast[] %in% raster::freq(patches$patchrast, useNA = 'no')[,1])
-  intN <- plyr::ddply(df[df$is_clump == TRUE, ], plyr::.(clump_id), plyr::summarise, intN = base::sum(k))
-  
-  # calculate intial abundance per patch.
-  intN <- intN[,2]*1.2 - (.1*patches$patchstats$perimeter)
-  intN <- base::ifelse(intN<0,0,intN)
+  # lets calculated carrying capacity from habitat suitability.
+  initial_k <- carrying_capacity(habitat_suitability, 
+                                 type=input$carrying_capacity_model,
+                                 input$carrying_capacity_params)
   
   # estimate population size based on starting K. # will need to replace this with stable states.
   population <- as.population(t(sapply(intN, function(x)rmultinom(1,size=x,prob=c(0.8,0.2,0.01))))) #replace these with stable states.
