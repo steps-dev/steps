@@ -5,10 +5,3 @@ custom-modules/
 developing_functions/
 old_function/
 data/
-ramasr.Rproj
-src/*.o
-src/*.so
-src/*.dll
-src-i386/*.o
-src-i386/*.so
-src-i386/*.dll

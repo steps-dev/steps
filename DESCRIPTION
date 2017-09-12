@@ -3,7 +3,7 @@ Type: Package
 Title: Dynamic Habitat Meta-Population Models in R
 Version: 0.01
 Date: 2015-12-16
-Authors@R: person("Skipton", "Woolley", email = "swoolley@museum.vic.gov.au",
+Authors@R: person("Skipton", "Woolley", email = "skip.woolley@csiro.au",
   role = c("aut", "cre"))
   person("John", "Baumgartner", email = "john.baumgartner@mq.edu.au",
   role = c("aut", "cre"))
@@ -14,7 +14,19 @@ Description: Dynamic Habitat Meta-Population Models in R
 Depends:
     R (>= 3.2.2),
 License: GPL (>= 2)
-Imports: Rcpp, magrittr, RColorBrewer, plyr, raster, sp, methods, igraph, SDMTools, data.table
-LinkingTo: Rcpp, RcppArmadillo, plyr, testthat  
-RoxygenNote: 5.0.1
+Imports: magrittr, RColorBrewer, plyr, raster, sp, methods, igraph, SDMTools, data.table
+LinkingTo: plyr, testthat  
+RoxygenNote: 6.0.1
 Suggests: testthat, knitr
+Collate: 
+    'customfun-class.R'
+    'dispersal-class.R'
+    'dispersal_funs.R'
+    'dynamic-class.R'
+    'event-class.R'
+    'fire_spread.R'
+    'habitat-class.R'
+    'module-class.R'
+    'simulation-class.R'
+    'transition-class.R'
+    'utils.R'
