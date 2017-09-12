@@ -13,8 +13,7 @@
 #'                probability=list('larvae'=0.2,'juvenile'=0,'adult'=0.6))  
 #'                
 #' dp <- as.dispersal(params)
-#' 
-#' dp <-as.dispersal(NULL)
+#' dp <- as.dispersal(NULL)
 
 as.dispersal <- function(params,...){
   switch(class(params[1]),

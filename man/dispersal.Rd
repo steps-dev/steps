@@ -16,9 +16,9 @@ is.dispersal(x)
 \method{print}{dispersal}(x, ...)
 }
 \arguments{
-\item{x}{an object to be tested as a dispersal transfun object}
-
 \item{\dots}{further arguments passed to or from other methods.}
+
+\item{x}{an object to be tested as a dispersal transfun object}
 }
 \description{
 creates a function that governs dispersal capacity of stages in a population. The input is a list which contains 
@@ -33,8 +33,7 @@ params <- list(alpha=list('larvae'=2,'juvenile'=0,'adult'=3),
                probability=list('larvae'=0.2,'juvenile'=0,'adult'=0.6))  
                
 dp <- as.dispersal(params)
-
-dp <-as.dispersal(NULL)
+dp <- as.dispersal(NULL)
 d(NULL)
 
 is.dispersal(disp)
@@ -42,4 +41,3 @@ is.dispersal(disp)
 print(dp)
 
 }
-

@@ -1,6 +1,6 @@
 #' @title dynamic object
 #' @rdname dynamic 
-#' @name 
+#' @name dynamic
 #' @description code{dynamic} is an object which stores all the relevent 
 #' transitions, population(s), habitat, dispersal and module objects for use in \link[dhmpr]{simulation} function.
 #' The main difference between \link[pop]{dynamic} and \code{dynamic} is that dhmpr requires the input of set objects to run.

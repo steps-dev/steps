@@ -159,3 +159,11 @@ dispersalFFT <- function (popmat, fs) {
   pop_new <- pop_torus_new[fs$yidx, fs$xidx]
   pop_new
 }
+
+#' @rdname disp_funs
+#' @export
+seq_range <- function (range, by = 1) seq(range[1], range[2], by = by)
+
+#' @rdname disp_funs
+#' @export
+ifft <- function (z) fft(z, inverse = TRUE)

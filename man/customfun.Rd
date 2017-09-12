@@ -6,4 +6,3 @@
 \description{
 Include a custom function that can be used to manipulate the projection matrix (A).
 }
-

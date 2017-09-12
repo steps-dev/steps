@@ -353,7 +353,7 @@ raster2habitat <- function(input){ # will add in other options here later, but f
                                  input$carrying_capacity_params)
   
   # estimate population size based on starting K. # will need to replace this with stable states.
-  population <- as.population(t(sapply(intN, function(x)rmultinom(1,size=x,prob=c(0.8,0.2,0.01))))) #replace these with stable states.
+  population <- as.population(t(sapply(initial_k, function(x)rmultinom(1,size=x,prob=c(0.8,0.2,0.01))))) #replace these with stable states.
   } else {
   p_id <-  which(sapply(input,function(x)inherits(x,"population")))
   population <- as.data.frame(input[[p_id]])
