@@ -108,7 +108,7 @@ NumericMatrix a_dispersal_function(NumericMatrix current_population_state, Numer
 			  //sink cell = existing population + rbinom(1, population @ source cell, p=prob_of_dispersal)
 			  //source cell = source cell population - rbinom realisation. 
 	          
-		      /* Only if the 2 conditions are fullfilled the cell's status is set to colonised. */
+		      /* Only if the 2 conditions are fullfilled the cell's is there dispersal to this cell and the population size is changed. */
 		      int source_x = cell_is_dispersal_distance[0];
 		      int source_y = cell_is_dispersal_distance[1];
 		      source_pop = cps(source_x,source_y);
