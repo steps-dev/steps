@@ -332,85 +332,78 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatix b
     */
     barrier_found = false;
     for (i = 1; i <= distMax; i++){
-      int pxlX = round(snkX + (1.0 * i / distMax * dstX));
-      int pxlY = round(snkY + (1.0 * i / distMax * dstY));
+      pxlX = round(snkX + (1.0 * i / distMax * dstX));
+      pxlY = round(snkY + (1.0 * i / distMax * dstY));
       if (barriers[pxlX][pxlY] == 1) {
 		  barrier_found = true;
 		  break;
       }
     }
     if (!barrier_found){
-      goto End_of_Routine;
+      return(barrier_found);
     }
     /*
     ** BARRIER TOP_LEFT
     */
     barrier_found = false;
     for (i = 1; i <= distMax; i++){
-      pxlX = (int)round (snkX - 0.49 + (1.0 * i / distMax * dstX));
-      pxlY = (int)round (snkY - 0.49 + (1.0 * i / distMax * dstY));
+      pxlX = round(snkX - 0.49 + (1.0 * i / distMax * dstX));
+      pxlY = round(snkY - 0.49 + (1.0 * i / distMax * dstY));
       if (barriers[pxlX][pxlY] == 1){
 		barrier_found = true;
 		break;
       }
     }
     if (!barrier_found){
-      goto End_of_Routine;
+      return(barrier_found);
     }
     /*
     ** BARRIER TOP_RIGHT
     */
     barrier_found = false;
-    for (i = 1; i <= distMax; i++)
-    {
-      pxlX = (int)round (snkX + 0.49 + (1.0 * i / distMax * dstX));
-      pxlY = (int)round (snkY - 0.49 + (1.0 * i / distMax * dstY));
-      if (barriers[pxlX][pxlY] == 1)
-      {
+    for (i = 1; i <= distMax; i++){
+      pxlX = round(snkX + 0.49 + (1.0 * i / distMax * dstX));
+      pxlY = round(snkY - 0.49 + (1.0 * i / distMax * dstY));
+      if (barriers[pxlX][pxlY] == 1){
 	barrier_found = true;
 	break;
       }
     }
     if (!barrier_found)
     {
-      goto End_of_Routine;
+     return(barrier_found);
     }
     /*
     ** Barrier DOWN_LEFT
     */
     barrier_found = false;
-    for (i = 1; i <= distMax; i++)
-    {
-      pxlX = (int)round (snkX - 0.49 + (1.0 * i / distMax * dstX));
-      pxlY = (int)round (snkY + 0.49 + (1.0 * i / distMax * dstY));
-      if (barriers[pxlX][pxlY] == 1)
-      {
+    for (i = 1; i <= distMax; i++){
+      pxlX = round(snkX - 0.49 + (1.0 * i / distMax * dstX));
+      pxlY = round(snkY + 0.49 + (1.0 * i / distMax * dstY));
+      if (barriers[pxlX][pxlY] == 1){
 	barrier_found = true;
 	break;
       }
     }
     if (!barrier_found)
     {
-      goto End_of_Routine;
+     return(barrier_found);
     }
     /*
     ** Barrier DOWN_RIGHT
     */
     barrier_found = false;
-    for (i = 1; i <= distMax; i++)
-    {
-      pxlX = (int)round (snkX + 0.49 + (1.0 * i / distMax * dstX));
-      pxlY = (int)round (snkY + 0.49 + (1.0 * i / distMax * dstY));
-      if (barriers[pxlX][pxlY] == 1)
-      {
+    for (i = 1; i <= distMax; i++){
+      pxlX = round(snkX + 0.49 + (1.0 * i / distMax * dstX));
+      pxlY = round(snkY + 0.49 + (1.0 * i / distMax * dstY));
+      if (barriers[pxlX][pxlY] == 1){
 	barrier_found = true;
 	break;
       }
     }
-    if (!barrier_found)
-    {
-      goto End_of_Routine;
-    }
+    if (!barrier_found){
+     return(barrier_found);
+         }
   }
   else if (barrierType == 1){
     /*
@@ -422,12 +415,10 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatix b
     /*
     ** BARRIER MIDDLE
     */
-    for (i = 1; i <= distMax; i++)
-    {
-      pxlX = (int)round (snkX + (1.0 * i / distMax * dstX));
-      pxlY = (int)round (snkY + (1.0 * i / distMax * dstY));
-      if (barriers[pxlX][pxlY] == 1)
-      {
+    for (i = 1; i <= distMax; i++){
+      pxlX = round(snkX + (1.0 * i / distMax * dstX));
+      pxlY = round(snkY + (1.0 * i / distMax * dstY));
+      if (barriers[pxlX][pxlY] == 1){
 	barCounter++;
 	break;
       }
@@ -435,90 +426,72 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatix b
     /*
     ** BARRIER TOP_LEFT
     */
-    for (i = 1; i <= distMax; i++)
-    {
-      pxlX = (int)round (snkX - 0.49 + (((i-1.0) / distMax * dstX) +
+    for (i = 1; i <= distMax; i++){
+	  pxlX = round(snkX - 0.49 + (((i-1.0) / distMax * dstX) +
 					((1.0 / distMax * dstX) / 2.0)));
-      pxlY = (int)round (snkY - 0.49 + (((i-1.0) / distMax * dstY) +
+      pxlY = round(snkY - 0.49 + (((i-1.0) / distMax * dstY) +
 					((1.0 / distMax * dstY) / 2.0)));
-      if (barriers[pxlX][pxlY] == 1)
-      {
+      if (barriers[pxlX][pxlY] == 1){
 	barCounter++;
 	break;
       }
     }
-    if (barCounter > 1)
-    {
+    if (barCounter > 1){
       barrier_found = true;
-      goto End_of_Routine;
+      return(barrier_found);
     }
     /*    
     ** BARRIER TOP_RIGHT
     */
-    for (i = 1; i <= distMax; i++)
-    {
-      pxlX = (int)round (snkX + 0.49 + (((i-1.0) / distMax * dstX) +
+    for (i = 1; i <= distMax; i++){
+      pxlX = round (snkX + 0.49 + (((i-1.0) / distMax * dstX) +
 					((1.0 / distMax * dstX) / 2.0)));
-      pxlY = (int)round (snkY - 0.49 + (((i-1.0) / distMax * dstY) +
+      pxlY = round (snkY - 0.49 + (((i-1.0) / distMax * dstY) +
 					((1.0 / distMax * dstY) / 2.0)));
-      if (barriers[pxlX][pxlY] == 1)
-      {
+      if (barriers[pxlX][pxlY] == 1){
 	barCounter++;
 	break;
       }
     }
-    if (barCounter > 1)
-    {
+    if (barCounter > 1){
       barrier_found = true;
-      goto End_of_Routine;
+     return(barrier_found);
     }
     /*
     ** BARRIER DOWN_LEFT
     */
-    for (i = 1; i <= distMax; i++)
-    {
-      pxlX = (int)round (snkX - 0.49 + (((i-1.0) / distMax * dstX) +
+    for (i = 1; i <= distMax; i++){
+      pxlX = round (snkX - 0.49 + (((i-1.0) / distMax * dstX) +
 					((1.0 / distMax * dstX) / 2.0)));
-      pxlY = (int)round (snkY + 0.49 + (((i-1.0) / distMax * dstY) +
+      pxlY = round (snkY + 0.49 + (((i-1.0) / distMax * dstY) +
 					((1.0 / distMax * dstY) / 2.0)));
-      if (barriers[pxlX][pxlY] == 1)
-      {
-	barCounter++;
-	break;
+      if (barriers[pxlX][pxlY] == 1){
+		barCounter++;
+		break;
       }
     }
-    if (barCounter > 1)
-    {
+    if (barCounter > 1){
       barrier_found = true;
-      goto End_of_Routine;
+     return(barrier_found);
     }
     /*
     ** BARRIER DOWN_RIGHT
     */
-    for (i = 1; i <= distMax; i++)
-    {
-      pxlX = (int)round (snkX + 0.49 + (((i-1.0) / distMax * dstX) +
+    for (i = 1; i <= distMax; i++){
+      pxlX = round (snkX + 0.49 + (((i-1.0) / distMax * dstX) +
 					((1.0 / distMax * dstX) / 2.0)));
-      pxlY = (int)round (snkY + 0.49 + (((i-1.0) / distMax * dstY) +
+      pxlY = round (snkY + 0.49 + (((i-1.0) / distMax * dstY) +
 					((1.0 / distMax * dstY) / 2.0)));
-      if (barriers[pxlX][pxlY] == 1)
-      {
+      if (barriers[pxlX][pxlY] == 1){
 	barCounter++;
 	break;
       }
     }
-    if (barCounter > 1)
-    {
+    if (barCounter > 1){
       barrier_found = true;
-      goto End_of_Routine;
+      return(barrier_found);
     }
   }        
-
- End_of_Routine:
-  /*
-  ** Return the result.
-  */
-  return (barrier_found);
 }
 
 
