@@ -1,5 +1,8 @@
-#include "RcppArmadillo.h"
-using namespace Rcpp;
+#include <RcppArmadillo.h>
+
+// [[Rcpp::depends(RcppArmadillo)]]
+
+// [[Rcpp::export]]]]
 
 //' dispersal function for dynamic metapopulation models
 //' @param current_distribution raster of current population distribution.
@@ -12,7 +15,6 @@ using namespace Rcpp;
 //' @param dispersal_kernal a numeric vector of probabilites of dispersing from one to n cells, where n is the dispersal distance.
 //' @param dispersal_proportion the proportion of species that will disperse from source cell, needs to between 0 and 1. 
 //' @export
-// [[Rcpp::export]]
 
 NumericMatrix a_dispersal_function(NumericMatrix current_population_state, //raster
 						NumericMatrix potiential_carrying_capacity,
@@ -57,33 +59,10 @@ NumericMatrix a_dispersal_function(NumericMatrix current_population_state, //ras
       ** that would be colonized if dispersal was unlimited or null. This is simply the sum of all
       ** potentially suitable habitats */
       n_dispersal_cells = total_dispersal_cells(cca_cleaned);
-      update_no_dispersal_matrix(habitat_suitability, no_dispersal, &n_dispersal_cells);
-
+ 
       /* Reset number of decolonized cells within current dispersal step pixel counter */
 	  nr_step_decolonized = 0;
 	    
-      ///* Update for temporarily resilient pixels. */
-      //for(i = 0; i < nrows; i++){
-	    //for(j = 0; j < ncols; j++){
-	      
-	      ///* Update non-suitable pixels. If a pixel turned unsuitable, we update its status to "Temporarily Resilient". */
-	      //if(hsr(i,j) == 0) && (cca_cleaned(i,j) > 0)){
-	        
-	        ///* If the user selected TemporaryResilience==T, then the pixel is set to "Temporary Resilient" status. */
-	        //if(tempResilience == true){
-	          //current_state[i][j] = 29900;
-	        //}
-	        //else{
-	          ///* If not temporary resilience was specified, then the pixel is set to "decolonized" status. */
-	          //current_state[i][j] = -1 - loopID;
-	        //}
-	        ///* The number of decolonized cells within current step is increased by one */
-	        //nr_step_decolonized++;
-	      //}
-	    //}
-      //}
-
-      
       /* *************************************** */
       /* Dispersal event step loop starts here.  */
       /* *************************************** */
@@ -267,13 +246,13 @@ IntegerVector can_source_cell_disperse(int i,
 // This function cleans up the habitat martix before dispersal.
 
 NumericMatrix clean_matrix(NumericMatrix in_matrix,
-						   NumericMatrix barrier_matrix,
+						   NumericMatrix barrier_map,
 						   bool filter_no_data = true,
 						   bool filter_barriers = true,
 						   bool insert_no_data = true){
 	int i, j;
 	arma::mat inmat = as<arma::mat>(in_matrix);
-	arma::mat barriers = as<arma::mat>(barrier_matrix);
+	arma::mat barriers = as<arma::mat>(barrier_map);
 	int ncols = inmat.n_cols;
 	int nrows = inmat.n_rows;
 	  // set any value < 0 to 0, removes nan data and data where carrying  capacity is */
@@ -308,10 +287,11 @@ NumericMatrix clean_matrix(NumericMatrix in_matrix,
 
 //' is there a barrier to dispersal?
 
-bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatix barrier_map, int barrier_type){
+bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatix barriers_map, int barrier_type){
   int  dstX, dstY, i, pxlX, pxlY, distMax, barCounter;
   bool barrier_found;
   barrier_found = false;
+  arma::mat barriers = as<arma::mat>(barrier_map);
   
   /*
   ** Calculate the distance in both dimensions between the source and sink
@@ -339,7 +319,7 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatix b
     for (i = 1; i <= distMax; i++){
       pxlX = round(snkX + (1.0 * i / distMax * dstX));
       pxlY = round(snkY + (1.0 * i / distMax * dstY));
-      if (barriers[pxlX][pxlY] == 1) {
+      if (barriers(pxlX,pxlY) == 1) {
 		  barrier_found = true;
 		  break;
       }
@@ -354,7 +334,7 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatix b
     for (i = 1; i <= distMax; i++){
       pxlX = round(snkX - 0.49 + (1.0 * i / distMax * dstX));
       pxlY = round(snkY - 0.49 + (1.0 * i / distMax * dstY));
-      if (barriers[pxlX][pxlY] == 1){
+      if (barriers(pxlX,pxlY) == 1){
 		barrier_found = true;
 		break;
       }
@@ -369,7 +349,7 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatix b
     for (i = 1; i <= distMax; i++){
       pxlX = round(snkX + 0.49 + (1.0 * i / distMax * dstX));
       pxlY = round(snkY - 0.49 + (1.0 * i / distMax * dstY));
-      if (barriers[pxlX][pxlY] == 1){
+      if (barriers(pxlX,pxlY) == 1){
 	barrier_found = true;
 	break;
       }
@@ -385,7 +365,7 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatix b
     for (i = 1; i <= distMax; i++){
       pxlX = round(snkX - 0.49 + (1.0 * i / distMax * dstX));
       pxlY = round(snkY + 0.49 + (1.0 * i / distMax * dstY));
-      if (barriers[pxlX][pxlY] == 1){
+      if (barriers(pxlX,pxlY) == 1){
 	barrier_found = true;
 	break;
       }
@@ -401,7 +381,7 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatix b
     for (i = 1; i <= distMax; i++){
       pxlX = round(snkX + 0.49 + (1.0 * i / distMax * dstX));
       pxlY = round(snkY + 0.49 + (1.0 * i / distMax * dstY));
-      if (barriers[pxlX][pxlY] == 1){
+      if (barriers(pxlX,pxlY) == 1){
 	barrier_found = true;
 	break;
       }
@@ -423,7 +403,7 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatix b
     for (i = 1; i <= distMax; i++){
       pxlX = round(snkX + (1.0 * i / distMax * dstX));
       pxlY = round(snkY + (1.0 * i / distMax * dstY));
-      if (barriers[pxlX][pxlY] == 1){
+      if (barriers(pxlX,pxlY) == 1){
 	barCounter++;
 	break;
       }
@@ -436,7 +416,7 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatix b
 					((1.0 / distMax * dstX) / 2.0)));
       pxlY = round(snkY - 0.49 + (((i-1.0) / distMax * dstY) +
 					((1.0 / distMax * dstY) / 2.0)));
-      if (barriers[pxlX][pxlY] == 1){
+      if (barriers(pxlX,pxlY) == 1){
 	barCounter++;
 	break;
       }
@@ -453,7 +433,7 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatix b
 					((1.0 / distMax * dstX) / 2.0)));
       pxlY = round (snkY - 0.49 + (((i-1.0) / distMax * dstY) +
 					((1.0 / distMax * dstY) / 2.0)));
-      if (barriers[pxlX][pxlY] == 1){
+      if (barriers(pxlX,pxlY) == 1){
 	barCounter++;
 	break;
       }
@@ -470,7 +450,7 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatix b
 					((1.0 / distMax * dstX) / 2.0)));
       pxlY = round (snkY + 0.49 + (((i-1.0) / distMax * dstY) +
 					((1.0 / distMax * dstY) / 2.0)));
-      if (barriers[pxlX][pxlY] == 1){
+      if (barriers(pxlX,pxlY) == 1){
 		barCounter++;
 		break;
       }
@@ -487,7 +467,7 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatix b
 					((1.0 / distMax * dstX) / 2.0)));
       pxlY = round (snkY + 0.49 + (((i-1.0) / distMax * dstY) +
 					((1.0 / distMax * dstY) / 2.0)));
-      if (barriers[pxlX][pxlY] == 1){
+      if (barriers(pxlX,pxlY) == 1){
 	barCounter++;
 	break;
       }
