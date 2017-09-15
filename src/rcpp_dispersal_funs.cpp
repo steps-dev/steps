@@ -303,10 +303,9 @@ NumericMatrix clean_matrix(NumericMatrix in_matrix,
 
 //' is there a barrier to dispersal?
 
-bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, int & barrier_map){
+bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatix barrier_map, int barrier_type){
   int  dstX, dstY, i, pxlX, pxlY, distMax, barCounter;
   bool barrier_found;
-
   barrier_found = false;
   
   /*
@@ -315,57 +314,47 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, int & barrier_
   */
   dstX = srcX - snkX;
   dstY = srcY - snkY;
-  if (abs (dstX) >= abs (dstY))
-  {
-    distMax = abs (dstX);
-  }
-  else
-  {
-    distMax = abs (dstY);
+  if (abs (dstX) >= abs (dstY)){
+    distMax = abs(dstX);
+  } else {
+    distMax = abs(dstY);
   }
 
   /*
   ** Check the possible paths from source to sink and see if there is a path
   ** without barriers.
   */
-  if (barrier_type == WEAK_BARRIER)
-  {
+  if (barrier_type == 0){
     /*
     ** Weak barrier: If there is at least one free path we're good.
     **
     ** BARRIER MIDDLE
     */
     barrier_found = false;
-    for (i = 1; i <= distMax; i++)
-    {
-      pxlX = (int)round (snkX + (1.0 * i / distMax * dstX));
-      pxlY = (int)round (snkY + (1.0 * i / distMax * dstY));
-      if (barriers[pxlX][pxlY] == 1)
-      {
-	barrier_found = true;
-	break;
+    for (i = 1; i <= distMax; i++){
+      int pxlX = round(snkX + (1.0 * i / distMax * dstX));
+      int pxlY = round(snkY + (1.0 * i / distMax * dstY));
+      if (barriers[pxlX][pxlY] == 1) {
+		  barrier_found = true;
+		  break;
       }
     }
-    if (!barrier_found)
-    {
+    if (!barrier_found){
       goto End_of_Routine;
     }
     /*
     ** BARRIER TOP_LEFT
     */
     barrier_found = false;
-    for (i = 1; i <= distMax; i++)
-    {
+    for (i = 1; i <= distMax; i++){
       pxlX = (int)round (snkX - 0.49 + (1.0 * i / distMax * dstX));
       pxlY = (int)round (snkY - 0.49 + (1.0 * i / distMax * dstY));
-      if (barriers[pxlX][pxlY] == 1)
-      {
-	barrier_found = true;
-	break;
+      if (barriers[pxlX][pxlY] == 1){
+		barrier_found = true;
+		break;
       }
     }
-    if (!barrier_found)
-    {
+    if (!barrier_found){
       goto End_of_Routine;
     }
     /*
@@ -423,8 +412,7 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, int & barrier_
       goto End_of_Routine;
     }
   }
-  else if (barrierType == STRONG_BARRIER)
-  {
+  else if (barrierType == 1){
     /*
     ** Strong barrier: If more than one way is blocked by a barrier then
     **                 colonization fails.
