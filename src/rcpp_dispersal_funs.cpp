@@ -1,4 +1,5 @@
-#include <RcppArmadillo.h>
+#include "RcppArmadillo.h"
+using namespace Rcpp;
 
 // [[Rcpp::depends(RcppArmadillo)]]
 
@@ -16,16 +17,9 @@
 //' @param dispersal_proportion the proportion of species that will disperse from source cell, needs to between 0 and 1. 
 //' @export
 
-NumericMatrix a_dispersal_function(NumericMatrix current_population_state, //raster
-						NumericMatrix potiential_carrying_capacity,
-						NumericMatrix habitat_suitability_map, //raster
-						NumericMatrix barriers_map, //raster
-						int barrier_type,
-						bool use_barriers = true,
-						int dispersal_steps,
-						int dispersal_distance,
-						NumericVector dispersal_kernal,
-						double dispersal_proportion){
+NumericMatrix a_dispersal_function(NumericMatrix current_population_state, NumericMatrix potiential_carrying_capacity, NumericMatrix habitat_suitability_map, //raster
+						NumericMatrix barriers_map, int barrier_type, bool use_barriers = true, int dispersal_steps,
+						int dispersal_distance, NumericVector dispersal_kernal, double dispersal_proportion){
 
 	arma::mat cps = as<arma::mat>(current_population_state);
 	arma::mat pcc = as<arma::mat>(potiential_carrying_capacity);	
@@ -162,7 +156,7 @@ IntegerVector can_source_cell_disperse(int i,
 							  NumericMatrix habitat_suitability_map,
 							  NumericMatrix barriers_map
 							  bool use_barrier=true,
-							  int dispersal_loop_ID //which dispersal loop are we in.
+							  int loopID //which dispersal loop are we in.
 							  int dispersal_distance,
 							  NumericVector dispersal_kernal,
 							  double dispersal_proportion){
@@ -171,8 +165,8 @@ IntegerVector can_source_cell_disperse(int i,
   	arma::mat cps = as<arma::mat>(current_population_state); // the current population (during population step)
   	arma::mat hsm = as<arma::mat>(habitat_suitability_map); // the habitat suitability
 	arma::mat barriers = as<arma::mat>(barrier_map);
-	int ncol = cps.n_cols;
-    int nrow = cps.n_rows;								  
+	int ncols = cps.n_cols;
+    int nrows = cps.n_rows;								  
 	int    k, l, real_distance;
 	double prob_colonisation, rnd;
 	IntegerVector source_found(2);
@@ -197,7 +191,7 @@ IntegerVector can_source_cell_disperse(int i,
       **    - The pixel must be colonized, but not during the current loop.
       ** 	- The pixel must have avaliable carrying capacity to allow recruitment.
       */
-      if ((k >= 0) && (k < nrRows) && (l >= 0) && (l < nrCols)){
+      if ((k >= 0) && (k < nrows) && (l >= 0) && (l < ncols)){
 		  if ((cps(k,l) > 0) && (cps(k,l) != loopID)){
 			  if (cca(k,l) > 0){
 	    /*
@@ -287,7 +281,7 @@ NumericMatrix clean_matrix(NumericMatrix in_matrix,
 
 //' is there a barrier to dispersal?
 
-bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatix barriers_map, int barrier_type){
+bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatix barrier_map, int barrier_type){
   int  dstX, dstY, i, pxlX, pxlY, distMax, barCounter;
   bool barrier_found;
   barrier_found = false;
@@ -390,7 +384,7 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatix b
      return(barrier_found);
          }
   }
-  else if (barrierType == 1){
+  else if (barrier_type == 1){
     /*
     ** Strong barrier: If more than one way is blocked by a barrier then
     **                 colonization fails.
@@ -480,12 +474,11 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatix b
 }
 
 
-int total_dispersal_cells(NumericMatrix habitat_suitability_map){
-  
+int total_dispersal_cells(NumericMatrix habitat_suitability_map){  
 	int i, j, count;
 	arma::mat hsm = as<arma::mat>(habitat_suitability_map);
-	int ncols = hs.n_cols;
-	int nrows = hs.n_rows;
+	int ncols = hsm.n_cols;
+	int nrows = hsm.n_rows;
 
    // Count the number of dispersable pixels.
 	  count = 0;
