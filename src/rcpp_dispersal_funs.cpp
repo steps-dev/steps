@@ -219,6 +219,7 @@ bool can_source_cell_disperse(int i,
 							  NumericMatrix initial_population,
 							  NumericMatrix habitat_suitability_map,
 							  NumericMatrix barriers_map
+							  bool use_barrier=true,
 							  int dispersal_loop_ID //which dispersal loop are we in.
 							  int dispersal_distance,
 							  NumericVector dispersal_kernal,
@@ -226,7 +227,7 @@ bool can_source_cell_disperse(int i,
 							  
 							  ){
 								  
-  	arma::mat ips = as<arma::mat>(initial_population); //the population distribution at the start of the dispersal step
+  	arma::mat cca = as<arma::mat>(carrying_capacity_avaliable); //A matrix of avaliable carrying capacity.
   	arma::mat cps = as<arma::mat>(current_population_state); // the current population (during population step)
   	arma::mat hsm = as<arma::mat>(habitat_suitability_map); // the habitat suitability
 	arma::mat barriers = as<arma::mat>(barrier_map);
@@ -240,8 +241,7 @@ bool can_source_cell_disperse(int i,
   ** For now let's set these paramters to fixed values. Later we can implement
   ** them as variables.
   */
-  pxlSizeFactor = 1;
-  sourceFound = false;
+  source_found = false;
         
   /*
   ** Search for a potential source cell. i and j are the coordinates of the
@@ -254,16 +254,11 @@ bool can_source_cell_disperse(int i,
       **    source cell:
       **    - The pixel must be within the limits of the matrix's extent.
       **    - The pixel must be colonized, but not during the current loop.
-      **    - The pixel must have reached its age of "initial maturity"
-      **      (otherwise it cannot produce seeds).
+      ** 	- The pixel must have avaliable carrying capacity to allow recruitment.
       */
-      if ((k >= 0) && (k < nrRows) && (l >= 0) && (l < nrCols))
-      {
-	if ((current_state(k,l) > 0) &&
-	    (current_state(k,l) != loopID))
-	{
-	  if (pxl_population(k,l) >= iniMatAge)
-	  {
+      if ((k >= 0) && (k < nrRows) && (l >= 0) && (l < nrCols)){
+		  if ((cps(k,l) > 0) && (cps(k,l) != loopID)){
+			  if (cca(k,l) > 0){
 	    /*
 	    ** 2. Compute the distance between sink and (potential) source pixel
 	    **    and check if it is <= maximum dispersal distance. The distance
@@ -278,36 +273,26 @@ bool can_source_cell_disperse(int i,
 	      **    - Disance between source and sink cells.
 	      **    - "Invasability" of the sink cell.
 	      */
-		  prob_colonisation = disp_kernel[realDist-1] * avaliable_carrying_capacity * (habitat_suitability_map/1000.0);
+		  prob_colonisation = disp_kernel[real_distance-1] * (hsm(k,l)/1000.0);
 	      
-	      else
-	      {
-		probCol = dispKernel[realDist-1] * pxlSizeFactor *
-			    propaguleProd[pxlAge[k][l] - iniMatAge] *
-			    (habSuit / 1000.0);
-	      }
-
-	      rnd = UNIF01;
-	      if (rnd < probCol || probCol == 1.0)
-	      {
-		/*
+	      rnd = runif(1);
+	      if (rnd < prob_colonisation || prob_colonisation == 1.0){
+			  	/*
 		** When we reach this stage, the last thing we need to check for
 		** is whether there is a "barrier" obstacle between the source
 		** and sink pixel. We check this last as it requires significant
 		** computing time.
 		*/
-		if (useBarrier)
-		{
-		  if (!mcIntersectsBarrier (i, j, k, l, barriers))
-		  {
-		    sourceFound = true;
-		    goto End_of_Routine;
+		if (use_barrier){
+		  if (!barrier_to_dispersal(i, j, k, l, barriers)){
+		    source_found = true;
+		    return(source_found);
 		  }
 		}
 		else
 		{
-		  sourceFound = true;
-		  goto End_of_Routine;
+		  source_found = true;
+		  return(source_found);
 		}
 	      }
 	    }
@@ -316,12 +301,6 @@ bool can_source_cell_disperse(int i,
       }
     }
   }
-    
- End_of_Routine:
-  /*
-  ** Return the result.
-  */
-  return (sourceFound);
 }
 
 
