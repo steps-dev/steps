@@ -18,17 +18,17 @@ using namespace Rcpp;
 //' @export
 
 NumericMatrix a_dispersal_function(NumericMatrix current_population_state, NumericMatrix potiential_carrying_capacity, NumericMatrix habitat_suitability_map, //raster
-						NumericMatrix barriers_map, int barrier_type, bool use_barriers = true, int dispersal_steps,
+						NumericMatrix barriers_map, int barrier_type, bool use_barrier = true, int dispersal_steps,
 						int dispersal_distance, NumericVector dispersal_kernal, double dispersal_proportion){
 
 	arma::mat cps = as<arma::mat>(current_population_state);
 	arma::mat pcc = as<arma::mat>(potiential_carrying_capacity);	
 	arma::mat hsm = as<arma::mat>(habitat_suitability_map);
 	arma::mat barriers = as<arma::mat>(barriers_map);
-	int ncol = cps.n_cols;
-    int nrow = cps.n_rows;
-    arma::mat cca(nrow,ncol); // carrying capacity avaliable
-    arma::mat fps(nrow,ncol);
+	int ncols = cps.n_cols;
+    int nrows = cps.n_rows;
+    arma::mat cca(nrows,ncols); // carrying capacity avaliable
+    arma::mat fps(nrows,ncols);
     cca.fill(NA_REAL);
     int loopID;
 
@@ -46,13 +46,10 @@ NumericMatrix a_dispersal_function(NumericMatrix current_population_state, Numer
       **  -> set habitat suitability to 0 where barrier = 1.
       **  -> set habitat suitability values to NoData where barrier = NoData. 
       ** and also  */
-      cca_cleaned = clean_matrix(cca, barriers, true, true, true);
+      arma::mat cca_cleaned = clean_matrix(cca, barriers, true, true, true);
       
       
-      /* "Unlimited" and "no dispersal" scenario pixel count. Here we compute the number of pixels
-      ** that would be colonized if dispersal was unlimited or null. This is simply the sum of all
-      ** potentially suitable habitats */
-      n_dispersal_cells = total_dispersal_cells(cca_cleaned);
+      n_dispersal_cells = total_dispersal_cells(wrap(cca_cleaned));
  
       /* Reset number of decolonized cells within current dispersal step pixel counter */
 	  nr_step_decolonized = 0;
@@ -130,23 +127,6 @@ NumericMatrix a_dispersal_function(NumericMatrix current_population_state, Numer
 ** can_source_cell_disperse: This function will search, for a given input location, for a
 **            suitable "source" pixel that can lead to the colonization of
 **            the input location (sink pixel).
-**
-** Parameters:
-**   - i:        The row number of the sink pixel.
-**   - j:        The column number of the sink pixel.
-**   - current_population_state: The matrix that contains the current state of the cellular
-**               automaton.
-**   - initial_population_state:   A matrix giving the "age" of each colonized pixel.
-** 	 - habitat_suitability 	
-**   - loopID:   Indicates in which "loop" the simulation currently is. The
-**               'loopID' enables to retrieve the 'environmental change' loop
-**               and the 'dispersal' loop that the simulation is currently in.
-**   - habSuit:  The habitat suitability of the current pixel.
-**   - barriers: A pointer to the barriers matrix.
-**
-** Returns:
-**   If a suitable source cell was found: true.
-**   Otherwise:                           false.
 */
 
 IntegerVector can_source_cell_disperse(int i, 
@@ -156,6 +136,7 @@ IntegerVector can_source_cell_disperse(int i,
 							  NumericMatrix habitat_suitability_map,
 							  NumericMatrix barriers_map
 							  bool use_barrier=true,
+							  int barrier_type,
 							  int loopID //which dispersal loop are we in.
 							  int dispersal_distance,
 							  NumericVector dispersal_kernal,
@@ -217,7 +198,7 @@ IntegerVector can_source_cell_disperse(int i,
 				** computing time.
 				*/
 				if (use_barrier){
-				  if (!barrier_to_dispersal(i, j, k, l, barriers)){
+				  if (!barrier_to_dispersal(i, j, k, l, barriers, barrier_type)){
 					source_found[0] = k;
 					source_found[1] = l;
 					return(source_found);
@@ -269,8 +250,8 @@ NumericMatrix clean_matrix(NumericMatrix in_matrix,
 	  
 	  /* turn NA in barrier_matrix into NA . */
 	  if(insert_no_data){
-		for (i = 0; i < nrRows; i++){
-			for (j = 0; j < nrCols; j++){
+		for (i = 0; i < nrows; i++){
+			for (j = 0; j < ncols; j++){
 				if (barriers(i,j) == NA_REAL) inmat(i,j) = NA_REAL;
 			}
 		 }
@@ -281,7 +262,7 @@ NumericMatrix clean_matrix(NumericMatrix in_matrix,
 
 //' is there a barrier to dispersal?
 
-bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatix barrier_map, int barrier_type){
+bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatrix barrier_map, int barrier_type){
   int  dstX, dstY, i, pxlX, pxlY, distMax, barCounter;
   bool barrier_found;
   barrier_found = false;
