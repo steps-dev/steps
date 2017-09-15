@@ -8,9 +8,10 @@ using namespace Rcpp;
 //' @export
 // [[Rcpp::export]]
 
-NumericMatrix dispersal(NumericMatrix current_distribution, //raster
-						NumericMatrix habitat_suitability, //raster
-						NumericMatrix barrier_map, //raster
+NumericMatrix a_dispersal_function(NumericMatrix current_population_state, //raster
+						NumericMatrix potiential_carrying_capacity,
+						NumericMatrix habitat_suitability_map, //raster
+						NumericMatrix barriers_map, //raster
 						int dispersal_steps,
 						int dispersal_distance,
 						int barrier_type,
@@ -18,22 +19,23 @@ NumericMatrix dispersal(NumericMatrix current_distribution, //raster
 						double dispersal_kernal,
 						double dispersal_probability){
 
-	arma::mat cdr = as<arma::mat>(current_distribution);	
-	arma::mat hsr = as<arma::mat>(habitat_suitability);
-	arma::mat barriers = as<arma::mat>(barrier_map);
+	arma::mat cps = as<arma::mat>(current_population_state);
+	arma::mat pcc = as<arma::mat>(potiential_carrying_capacity);	
+	arma::mat hsm = as<arma::mat>(habitat_suitability_map);
+	arma::mat barriers = as<arma::mat>(barriers_map);
 	int ncol = cdr.n_cols;
     int nrow = cdr.n_rows;
-    arma::mat fdr(nrow,ncol); // future distribution raster
     arma::mat cca(nrow,ncol); // carrying capacity avaliable
-    fdr.fill(NA_REAL);
+    arma::mat fps(nrow,ncol);
     cca.fill(NA_REAL);
-    int nr_step_colonized, nr_step_decolonized,
+    int nr_step_colonized, nr_step_decolonized, loopID;
 
 	// check how much carrying capacity is free per-cell - this will enable dispersal to these cells if needed.
      for(int i = 0; i < nrows; i++){
          for(int j = 0; j < ncols; j++){
 			 if(arma::is_finite(cdr(i,j))){ 
-	            cca(i,j) = hsr(i,j) - cdr(i,j);
+	            cca(i,j) = pcc(i,j) - cps(i,j); // carrying capacity avaliable = potiential carrying capacity - current population state.
+				//fps(i,j) = cps(i,j);
 	     }
 	   }
      }
@@ -49,7 +51,7 @@ NumericMatrix dispersal(NumericMatrix current_distribution, //raster
       /* "Unlimited" and "no dispersal" scenario pixel count. Here we compute the number of pixels
       ** that would be colonized if dispersal was unlimited or null. This is simply the sum of all
       ** potentially suitable habitats */
-      n_dispersal_cells = total_dispersal_cells(habitat_suitability);
+      n_dispersal_cells = total_dispersal_cells(cca_cleaned);
       update_no_dispersal_matrix(habitat_suitability, no_dispersal, &n_dispersal_cells);
 
       /* Reset number of decolonized cells within current dispersal step pixel counter */
@@ -59,7 +61,7 @@ NumericMatrix dispersal(NumericMatrix current_distribution, //raster
       for(i = 0; i < nrows; i++){
 	    for(j = 0; j < ncols; j++){
 	      
-	      /* Udate non-suitable pixels. If a pixel turned unsuitable, we update its status to "Temporarily Resilient". */
+	      /* Update non-suitable pixels. If a pixel turned unsuitable, we update its status to "Temporarily Resilient". */
 	      if(hsr(i,j) == 0) && (cca_cleaned(i,j) > 0)){
 	        
 	        /* If the user selected TemporaryResilience==T, then the pixel is set to "Temporary Resilient" status. */
@@ -80,6 +82,7 @@ NumericMatrix dispersal(NumericMatrix current_distribution, //raster
       /* *************************************** */
       /* Dispersal event step loop starts here.  */
       /* *************************************** */
+      loopID = 0;
       for(dispersal_step = 1; dispersal_step <= dispersal_steps; dispersal_step++){
 	    
 	    /* Set the value of "loopID" for the current iteration of the dispersal loop. */
@@ -109,7 +112,7 @@ NumericMatrix dispersal(NumericMatrix current_distribution, //raster
 	        /* 1. Test whether the pixel is a suitable sink (i.e., its habitat
 	        **    is suitable, it's unoccupied and is not on a barrier or filter
 	        **    pixel). */
-	        if((hsr(i,j) > 0) && (cca[i][j] <= 0)) habitat_is_suitable = true;
+	        if((hsm(i,j) > 0) && (cca_cleaned(i,j) > 0)) habitat_is_suitable = true;
 
 	        /* 2. Test whether there is a source cell within the dispersal
 	        **    distance. To be more time efficient, this code runs only if
@@ -121,74 +124,38 @@ NumericMatrix dispersal(NumericMatrix current_distribution, //raster
 	        **    function). */
 	        if(habitat_is_suitable){
 		      /* Now we search if there is a suitable source cell to colonize the sink cell. */
-	          if (can_source_cell_disperse (i, j, current_state, pixelAge, loopID, habitat_suitability[i][j], barriers)) cell_in_dispersal_distance = true;
+	          cell_in_dispersal_distance = can_source_cell_disperse(i, j, current_state, hsm, barriers));
 	        }
 	        
 	        /* Update sink cell status. */
-	        if(habitat_is_suitable && cell_in_dispersal_distance){
+	        if(habitat_is_suitable &&  Rcpp::all(!Rcpp::is_na(cell_in_dispersal_distance))){
 				
 			  //sink cell = existing population + rbinom(1, population @ source cell, p=prob_of_dispersal)
 			  //source cell = source cell population - rbinom realisation. 
 	          
 		      /* Only if the 2 conditions are fullfilled the cell's status is set to colonised. */
-	          current_state[i][j] = loopID;
+		      int source_x = cell_is_dispersal_distance[0];
+		      int source_y = cell_is_dispersal_distance[1];
+		      source_pop = cps(source_x,source_y);
+		      source_pop_dispersed = rbinom(1,source_pop,dispersal_proportion);
+	          fps(i,j) = cps(i,j) + source_pop_dispersed;
+	          fps(sink_x,sink_y) = cps(source_x,source_y) - source_pop_dispersed;
 	          nr_step_colonized++;
-	          
-	          /* If the pixel was in seed bank resilience state, then we
-	          ** update the corresponding counter. Currently not used.
-	          ** if (pixelAge[i][j] == 255) nrStepSeedBank--; */
-	          
-	          /* Update "age" value. We do this only now because we needed the old "age" value just before 
-	          ** to determine whether a pixel was in "Decolonized" or "SeedBank resilience" status. */
-	          pixelAge[i][j] = 0;
 	        }
 	      }
 	    }
         
-        
-        // replace pixel age with carrying capacity.
-        // This way I can can populate cells if carrying capacity is not met.
-        
-	    /* Update pixel age: At the end of a dispersal loop we want to
-	    ** increase the "age" of each colonized pixel.
-	    **
-	    ** Reminder: pixel "age" structure is as follows:
-	    **   0 = Pixel is either "Absent", "Decolonized" or has just been
-	    **       "Colonized" during this dispersal step.
-	    **   1 to 250 = Pixel is in "Colonized" or "Temporarily Resilient"
-	    **       status. The value indicates the number of "dispersal events
-	    **       (usually years) since when the pixel was colonized.
-	    **   255 = Pixel is in "SeedBank Resilience" state. */
-	    for(i = 0; i < nrows; i++){
-	      for(j = 0; j < ncols; j++){
-	        
-		    /* If the pixel is in "Colonized" or "Temporarily Resilient" state, update it's age value. */
-	        if(current_state[i][j] > 0) pixelAge[i][j] += 1;
 
-	        /* If a pixel is in "Temporarily Resilient" state, we also increase its "current_state" value by 1
-	        ** so that the pixels gains 1 year of "Temporarily Resilience" age. */
-	        if (current_state[i][j] >= 29900) current_state[i][j] += 1;
-
-	      }
-	    }
-        
 	    /* Update pixel counters. */
 	    nrColonized = nrColonized + nrStepColonized - nrStepDecolonized;
 	    nrAbsent = nrAbsent - nrStepColonized + nrStepDecolonized;
 	    nrTotColonized += nrStepColonized;
 	    nrTotDecolonized += nrStepDecolonized;
 	    nrTotLDDSuccess += nrStepLDDSuccess;
-	    /* Currently unused variables:
-	    ** nrTotVegResRecover += nrStepVegResRecover;
-	    ** nrTotSeedBankRecover += nrStepSeedBankRecover; */
-          
-	    /* Write current iteration data to the statistics file. */
-	    fprintf(fp, "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", envChgStep, dispersal_step, loopID, n_dispersal_cells,
-	    	    nrNoDispersal, nrColonized, nrAbsent, nrStepColonized, nrStepDecolonized, nrStepLDDSuccess);
 	    	 
 	    /* If the user has requested full output, also write the current state matrix to file. */
 	    }
-   return(wrap(fdr));    /* end of dispersal */
+   return(wrap(fds));    /* end of dispersal */
 }
 
 /*
@@ -199,9 +166,10 @@ NumericMatrix dispersal(NumericMatrix current_distribution, //raster
 ** Parameters:
 **   - i:        The row number of the sink pixel.
 **   - j:        The column number of the sink pixel.
-**   - curState: The matrix that contains the current state of the cellular
+**   - current_population_state: The matrix that contains the current state of the cellular
 **               automaton.
-**   - pxlAge:   A matrix giving the "age" of each colonized pixel.
+**   - initial_population_state:   A matrix giving the "age" of each colonized pixel.
+** 	 - habitat_suitability 	
 **   - loopID:   Indicates in which "loop" the simulation currently is. The
 **               'loopID' enables to retrieve the 'environmental change' loop
 **               and the 'dispersal' loop that the simulation is currently in.
@@ -231,7 +199,7 @@ IntegerVector can_source_cell_disperse(int i,
 	arma::mat barriers = as<arma::mat>(barrier_map);
 	int ncol = cps.n_cols;
     int nrow = cps.n_rows;								  
-	int    k, l, real_distance, pxlSizeFactor;
+	int    k, l, real_distance;
 	double prob_colonisation, rnd;
 	IntegerVector source_found(2);
 	source_found.fill(NA_REAL);
@@ -262,7 +230,7 @@ IntegerVector can_source_cell_disperse(int i,
 	    ** 2. Compute the distance between sink and (potential) source pixel
 	    **    and check if it is <= maximum dispersal distance. The distance
 	    **    is computed in pixel units.
-	    ** realDist = Fix(Sqr((K - I) ^ 2 + (L - J) ^ 2) + 0.5)
+	    **    real_distance = round(Sqr((K - I) ^ 2 + (L - J) ^ 2) + 0.5)
 	    */
 	    real_distance = round(sqrt((k-i)*(k-i) + (l-j)*(l-j)));
 	    if ((real_distance > 0) && (real_distance <= dispersal_distance)){
@@ -270,33 +238,31 @@ IntegerVector can_source_cell_disperse(int i,
 	      ** 3. Compute the probability of colonization of the sink pixel.
 	      **    This probability depends on several factors:
 	      **    - Disance between source and sink cells.
-	      **    - "Invasability" of the sink cell.
 	      */
 		  prob_colonisation = disp_kernel[real_distance-1] * (hsm(k,l)/1000.0);
-	      
 	      rnd = runif(1);
 	      if (rnd < prob_colonisation || prob_colonisation == 1.0){
-			  	/*
-		** When we reach this stage, the last thing we need to check for
-		** is whether there is a "barrier" obstacle between the source
-		** and sink pixel. We check this last as it requires significant
-		** computing time.
-		*/
-		if (use_barrier){
-		  if (!barrier_to_dispersal(i, j, k, l, barriers)){
-		    source_found[0] = k;
-		    source_found[1] = l;
-		    return(source_found);
+				/*
+				** When we reach this stage, the last thing we need to check for
+				** is whether there is a "barrier" obstacle between the source
+				** and sink pixel. We check this last as it requires significant
+				** computing time.
+				*/
+				if (use_barrier){
+				  if (!barrier_to_dispersal(i, j, k, l, barriers)){
+					source_found[0] = k;
+					source_found[1] = l;
+					return(source_found);
+				  }
+				} else {
+					source_found[0] = k;
+					source_found[1] = l;
+				  return(source_found);
+				}
+			  }
+			}
 		  }
-		} else {
-		    source_found[0] = k;
-		    source_found[1] = l;
-		  return(source_found);
 		}
-	      }
-	    }
-	  }
-	}
       }
     }
   }
@@ -304,8 +270,6 @@ IntegerVector can_source_cell_disperse(int i,
 
 
 // This function cleans up the habitat martix before dispersal.
-
-
 
 NumericMatrix clean_matrix(NumericMatrix in_matrix,
 						   NumericMatrix barrier_matrix,
