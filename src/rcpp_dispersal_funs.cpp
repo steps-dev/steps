@@ -144,17 +144,7 @@ NumericMatrix a_dispersal_function(NumericMatrix current_population_state, //ras
 	        }
 	      }
 	    }
-        
-
-	    /* Update pixel counters. */
-	    nrColonized = nrColonized + nrStepColonized - nrStepDecolonized;
-	    nrAbsent = nrAbsent - nrStepColonized + nrStepDecolonized;
-	    nrTotColonized += nrStepColonized;
-	    nrTotDecolonized += nrStepDecolonized;
-	    nrTotLDDSuccess += nrStepLDDSuccess;
-	    	 
-	    /* If the user has requested full output, also write the current state matrix to file. */
-	    }
+	}
    return(wrap(fds));    /* end of dispersal */
 }
 
@@ -547,7 +537,7 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, int & barrier_
 int total_dispersal_cells(NumericMatrix habitat_suitability_map){
   
 	int i, j, count;
-	arma::mat hs = as<arma::mat>(habitat_suitability_map);
+	arma::mat hsm = as<arma::mat>(habitat_suitability_map);
 	int ncols = hs.n_cols;
 	int nrows = hs.n_rows;
 
@@ -555,40 +545,9 @@ int total_dispersal_cells(NumericMatrix habitat_suitability_map){
 	  count = 0;
 	  for (i = 0; i < nrows; i++){
 		for (j = 0; j < ncols; j++){
-		  if (hs(i,j) > 0) count++;
+		  if (hsm(i,j) > 0) count++;
 		}
 	  }
   return (count);
-}
-
-
-
-
-/*
-** updateNoDispMat: This function updates the "NoDispersal_Matrix" with the
-**                  habitat suitability values that are contained in the
-**                  current "HS_Matrix".
-**
-** Parameters:
-**   - hsMat:       A pointer to the habitat suitability matrix.
-**   - niDispMat:   A pointer to the no-dispersal matrix.
-**   - noDispCount: A pointer to the no-dispersal count variable (its value
-**                  will be updated!).
-*/
-
-void update_no_dispersal_matrix(int **hsMat, int **noDispMat, int *noDispCount)
-{                   
-  int i, j;
-
-  if (*noDispCount > 0){
-    for(i = 0; i < nrRows; i++){
-      for(j = 0; j < nrCols; j++){
-	    if((noDispMat[i][j] == 1) && (hsMat[i][j] == 0)){
-	      noDispMat[i][j] = 0;
-	      (*noDispCount)--;
-	    }
-      }
-    }
-  }
 }
 
