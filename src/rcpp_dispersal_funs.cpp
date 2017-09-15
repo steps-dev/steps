@@ -213,7 +213,7 @@ NumericMatrix dispersal(NumericMatrix current_distribution, //raster
 **   Otherwise:                           false.
 */
 
-bool can_source_cell_disperse(int i, 
+IntegerVector can_source_cell_disperse(int i, 
 							  int j,
 							  NumericMatrix current_population_state,
 							  NumericMatrix initial_population,
@@ -223,9 +223,7 @@ bool can_source_cell_disperse(int i,
 							  int dispersal_loop_ID //which dispersal loop are we in.
 							  int dispersal_distance,
 							  NumericVector dispersal_kernal,
-							  double dispersal_proportion,
-							  
-							  ){
+							  double dispersal_proportion){
 								  
   	arma::mat cca = as<arma::mat>(carrying_capacity_avaliable); //A matrix of avaliable carrying capacity.
   	arma::mat cps = as<arma::mat>(current_population_state); // the current population (during population step)
@@ -235,13 +233,14 @@ bool can_source_cell_disperse(int i,
     int nrow = cps.n_rows;								  
 	int    k, l, real_distance, pxlSizeFactor;
 	double prob_colonisation, rnd;
-	bool   source_found;
+	IntegerVector source_found(2);
+	source_found.fill(NA_REAL);
 
   /*
   ** For now let's set these paramters to fixed values. Later we can implement
   ** them as variables.
   */
-  source_found = false;
+  //source_found = false;
         
   /*
   ** Search for a potential source cell. i and j are the coordinates of the
@@ -285,13 +284,13 @@ bool can_source_cell_disperse(int i,
 		*/
 		if (use_barrier){
 		  if (!barrier_to_dispersal(i, j, k, l, barriers)){
-		    source_found = true;
+		    source_found[0] = k;
+		    source_found[1] = l;
 		    return(source_found);
 		  }
-		}
-		else
-		{
-		  source_found = true;
+		} else {
+		    source_found[0] = k;
+		    source_found[1] = l;
 		  return(source_found);
 		}
 	      }
