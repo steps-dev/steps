@@ -5,6 +5,12 @@ using namespace Rcpp;
 //' @param current_distribution raster of current population distribution.
 //' @param habitat_suitability raster of habitat suitability that has been converted to carrying capacity
 //' @param barrier_map raster of barriers to the dispersal, 1=barrier, 0=no barrier.
+//' @param barrier_type if 0 weak barrier, if 1 strong barriers.
+//' @param use_barriers if true use barriers in dispersal analysis.
+//' @param dispersal_steps The number of dispersal iterations per C++ call.
+//' @param dispersal_distance The maximum number of cells the species can disperse.
+//' @param dispersal_kernal a numeric vector of probabilites of dispersing from one to n cells, where n is the dispersal distance.
+//' @param dispersal_proportion the proportion of species that will disperse from source cell, needs to between 0 and 1. 
 //' @export
 // [[Rcpp::export]]
 
@@ -12,30 +18,29 @@ NumericMatrix a_dispersal_function(NumericMatrix current_population_state, //ras
 						NumericMatrix potiential_carrying_capacity,
 						NumericMatrix habitat_suitability_map, //raster
 						NumericMatrix barriers_map, //raster
-						int dispersal_steps,
-						int dispersal_distance,
 						int barrier_type,
 						bool use_barriers = true,
-						double dispersal_kernal,
-						double dispersal_probability){
+						int dispersal_steps,
+						int dispersal_distance,
+						NumericVector dispersal_kernal,
+						double dispersal_proportion){
 
 	arma::mat cps = as<arma::mat>(current_population_state);
 	arma::mat pcc = as<arma::mat>(potiential_carrying_capacity);	
 	arma::mat hsm = as<arma::mat>(habitat_suitability_map);
 	arma::mat barriers = as<arma::mat>(barriers_map);
-	int ncol = cdr.n_cols;
-    int nrow = cdr.n_rows;
+	int ncol = cps.n_cols;
+    int nrow = cps.n_rows;
     arma::mat cca(nrow,ncol); // carrying capacity avaliable
     arma::mat fps(nrow,ncol);
     cca.fill(NA_REAL);
-    int nr_step_colonized, nr_step_decolonized, loopID;
+    int loopID;
 
 	// check how much carrying capacity is free per-cell - this will enable dispersal to these cells if needed.
      for(int i = 0; i < nrows; i++){
          for(int j = 0; j < ncols; j++){
-			 if(arma::is_finite(cdr(i,j))){ 
+			 if(arma::is_finite(cps(i,j))){ 
 	            cca(i,j) = pcc(i,j) - cps(i,j); // carrying capacity avaliable = potiential carrying capacity - current population state.
-				//fps(i,j) = cps(i,j);
 	     }
 	   }
      }
@@ -57,26 +62,26 @@ NumericMatrix a_dispersal_function(NumericMatrix current_population_state, //ras
       /* Reset number of decolonized cells within current dispersal step pixel counter */
 	  nr_step_decolonized = 0;
 	    
-      /* Update for temporarily resilient pixels. */
-      for(i = 0; i < nrows; i++){
-	    for(j = 0; j < ncols; j++){
+      ///* Update for temporarily resilient pixels. */
+      //for(i = 0; i < nrows; i++){
+	    //for(j = 0; j < ncols; j++){
 	      
-	      /* Update non-suitable pixels. If a pixel turned unsuitable, we update its status to "Temporarily Resilient". */
-	      if(hsr(i,j) == 0) && (cca_cleaned(i,j) > 0)){
+	      ///* Update non-suitable pixels. If a pixel turned unsuitable, we update its status to "Temporarily Resilient". */
+	      //if(hsr(i,j) == 0) && (cca_cleaned(i,j) > 0)){
 	        
-	        /* If the user selected TemporaryResilience==T, then the pixel is set to "Temporary Resilient" status. */
-	        if(tempResilience == true){
-	          current_state[i][j] = 29900;
-	        }
-	        else{
-	          /* If not temporary resilience was specified, then the pixel is set to "decolonized" status. */
-	          current_state[i][j] = -1 - loopID;
-	        }
-	        /* The number of decolonized cells within current step is increased by one */
-	        nr_step_decolonized++;
-	      }
-	    }
-      }
+	        ///* If the user selected TemporaryResilience==T, then the pixel is set to "Temporary Resilient" status. */
+	        //if(tempResilience == true){
+	          //current_state[i][j] = 29900;
+	        //}
+	        //else{
+	          ///* If not temporary resilience was specified, then the pixel is set to "decolonized" status. */
+	          //current_state[i][j] = -1 - loopID;
+	        //}
+	        ///* The number of decolonized cells within current step is increased by one */
+	        //nr_step_decolonized++;
+	      //}
+	    //}
+      //}
 
       
       /* *************************************** */
@@ -141,9 +146,9 @@ NumericMatrix a_dispersal_function(NumericMatrix current_population_state, //ras
 	          fps(i,j) = cps(i,j) + source_pop_dispersed;
 	          fps(sink_x,sink_y) = cps(source_x,source_y) - source_pop_dispersed;
 	          nr_step_colonized++;
-	        }
+	         }
 	      }
-	    }
+	   }
 	}
    return(wrap(fds));    /* end of dispersal */
 }
@@ -293,7 +298,7 @@ NumericMatrix clean_matrix(NumericMatrix in_matrix,
 	  if(insert_no_data){
 		for (i = 0; i < nrRows; i++){
 			for (j = 0; j < nrCols; j++){
-				if (barriers(i,j) == -9999) inmat(i,j) = -9999;
+				if (barriers(i,j) == NA_REAL) inmat(i,j) = NA_REAL;
 			}
 		 }
 	  }
