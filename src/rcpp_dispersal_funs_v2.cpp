@@ -339,6 +339,13 @@ double proportion_of_population_to_disperse(int source_x, int source_y, NumericM
   return(source_pop_dispersed);
 }
 
+// [[Rcpp::export]]
+NumericMatrix na_matrix(int nr, int nc){
+  NumericMatrix m(nr,nc) ;
+  std::fill( m.begin(), m.end(), NumericVector::get_na() ) ;
+  return m ;
+}
+
 // //' dispersal function for dynamic metapopulation models
 // //' @param current_distribution raster of current population distribution.
 // //' @param habitat_suitability raster of habitat suitability that has been converted to carrying capacity
@@ -358,9 +365,9 @@ NumericMatrix a_dispersal_function(NumericMatrix starting_population_state, Nume
 
 	  int ncols = starting_population_state.ncol();
     int nrows = starting_population_state.nrow();
-    NumericMatrix carrying_capacity_avaliable(nrows,ncols,NA_REAL); // carrying capacity avaliable.
-    NumericMatrix tracking_population_state(nrows,ncols,NA_REAL); // tracking population state.
-    NumericMatrix future_population_state(nrows,ncols,NA_REAL); // future population size (after dispersal).
+    NumericMatrix carrying_capacity_avaliable(nrows,ncols); // carrying capacity avaliable.
+    NumericMatrix tracking_population_state(nrows,ncols); // tracking population state.
+    NumericMatrix future_population_state(nrows,ncols); // future population size (after dispersal).
     int loopID, dispersal_step, i, j;
     bool habitat_is_suitable, cell_in_dispersal_distance;
 
@@ -420,9 +427,9 @@ NumericMatrix a_dispersal_function(NumericMatrix starting_population_state, Nume
 	        **/
 	        if(habitat_is_suitable){
 		      /* Now we search if there is a suitable source cell to colonize the sink cell. */
-	          NumericVector cell_in_dispersal_distance = can_source_cell_disperse(i, j, starting_population_state, tracking_population_state_cleaned,
+	            NumericVector cell_in_dispersal_distance = can_source_cell_disperse(i, j, starting_population_state, tracking_population_state_cleaned,
 	            habitat_suitability_map, barriers_map, use_barrier, barrier_type, loopID, dispersal_distance, dispersal_kernel);
-	          // Rcpp::Rcout << cell_in_dispersal_distance << std::endl;
+	            Rcpp::Rcout << cell_in_dispersal_distance << std::endl;
 	        }
 
 	        /* Update sink cell status. */
