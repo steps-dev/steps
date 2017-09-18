@@ -240,7 +240,7 @@ IntegerVector can_source_cell_disperse(int i, int j, NumericMatrix carrying_capa
       **    source cell:
       **    - The pixel must be within the limits of the matrix's extent.
       **    - The pixel must be colonized, but not during the current loop, and is not NA.
-      ** 	- The pixel must have avaliable carrying capacity to allow recruitment.
+      ** 	  - The pixel must have avaliable carrying capacity to allow recruitment.
       */
       if ((k >= 0) && (k < nrows) && (l >= 0) && (l < ncols)){
 		    if (carrying_capacity_avaliable(k,l) > 0){
@@ -261,27 +261,27 @@ IntegerVector can_source_cell_disperse(int i, int j, NumericMatrix carrying_capa
           		  prob_colonisation = dispersal_kernel[real_distance-1] * (habitat_suitability_map(k,l));
         	      rnd = as<double>(Rcpp::runif(1));
 	              if (rnd < prob_colonisation || prob_colonisation == 1.0){
-        				/*
-        				** When we reach this stage, the last thing we need to check for
-        				** is whether there is a "barrier" obstacle between the source
-        				** and sink pixel. We check this last as it requires significant
-        				** computing time.
-        				*/
-        				if (use_barrier){
-        				  if (!barrier_to_dispersal(i, j, k, l, barriers_map, barrier_type)){
-        					source_found[0] = k;
-        					source_found[1] = l;
-        				  }
-        				}
-        				else {
-        				source_found[0] = k;
-        				source_found[1] = l;
-        								}
-	                    }
-	                  }
-		              }
-		            }
-							}
+              				/*
+              				** When we reach this stage, the last thing we need to check for
+              				** is whether there is a "barrier" obstacle between the source
+              				** and sink pixel. We check this last as it requires significant
+              				** computing time.
+              				*/
+              				if (use_barrier){
+              				  if (!barrier_to_dispersal(i, j, k, l, barriers_map, barrier_type)){
+              					source_found[0] = k;
+              					source_found[1] = l;
+              				  }
+              				}
+              				else {
+              				source_found[0] = k;
+              				source_found[1] = l;
+          					}
+	                }
+	              }
+		          }
+		        }
+					}
   			}
       }
 		}
@@ -363,7 +363,7 @@ NumericMatrix na_matrix(int nr, int nc){
 // //' @param dispersal_proportion the proportion of species that will disperse from source cell, needs to be between 0 and 1. e.g 0.2 means that 20% of the cell's population disperses. 
 //' @export
 // [[Rcpp::export]]
-NumericVector a_dispersal_function(NumericMatrix starting_population_state, NumericMatrix potiential_carrying_capacity,
+List a_dispersal_function(NumericMatrix starting_population_state, NumericMatrix potiential_carrying_capacity,
   NumericMatrix habitat_suitability_map,NumericMatrix barriers_map, int barrier_type, bool use_barrier, int dispersal_steps,
   int dispersal_distance, NumericVector dispersal_kernel, double dispersal_proportion){
 
@@ -406,7 +406,7 @@ NumericVector a_dispersal_function(NumericMatrix starting_population_state, Nume
       for(dispersal_step = 1; dispersal_step <= dispersal_steps; dispersal_step++){
 
 	    /* Set the value of "loopID" for the current iteration of the dispersal loop. */
-	    loopID = loopID + 100000;
+	    // loopID = loopID + 100000;
 
 	    /* Source cell search: Can the sink pixel be colonized? There are four
 	    ** conditions to be met for a sink pixel to become colonized:
@@ -451,7 +451,7 @@ NumericVector a_dispersal_function(NumericMatrix starting_population_state, Nume
     	          future_population_state(source_x,source_y) = starting_population_state(source_x,source_y) - source_pop_dispersed;//*habitat_suitability_map(i,j);
     	          // Rcpp::Rcout << future_population_state(i,j) << ' ' << future_population_state(source_x,source_y) << std::endl;
     	          tracking_population_state_cleaned(i,j) = loopID;
-    	          tracking_population_state_cleaned(source_x,source_y) = loopID;
+    	          // tracking_population_state_cleaned(source_x,source_y) = loopID;
     	        }
 	         }
 	      }
@@ -464,5 +464,6 @@ NumericVector a_dispersal_function(NumericMatrix starting_population_state, Nume
 	    }
 	  }
 	}
-  return(future_population_state);    /* end of dispersal */
+  return(List::create(Named("dispersed_population") = future_population_state,
+                      Named("tracked_population") = tracking_population_state_cleaned));    /* end of dispersal */
 }
