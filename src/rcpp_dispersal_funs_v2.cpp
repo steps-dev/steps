@@ -456,13 +456,13 @@ NumericVector a_dispersal_function(NumericMatrix starting_population_state, Nume
 	         }
 	      }
 	   }
-	// for(i = 0; i < nrows; i++){
-	//     for(j = 0; j < ncols; j++){
-	//         if(R_IsNA(future_population_state(i,j))){
-	//           future_population_state(i,j)=starting_population_state(i,j);
-	//       }
-	//     }
-	//   }
+	for(i = 0; i < nrows; i++){
+	    for(j = 0; j < ncols; j++){
+	        if(R_IsNA(future_population_state(i,j))){
+	          future_population_state(i,j)=starting_population_state(i,j);
+	      }
+	    }
+	  }
 	}
   return(future_population_state);    /* end of dispersal */
 }
