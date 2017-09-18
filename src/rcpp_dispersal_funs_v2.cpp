@@ -215,8 +215,9 @@ int total_dispersal_cells(NumericMatrix habitat_suitability_map){
   return (count);
 }
 
+//' @export
 // [[Rcpp::export]]
-NumericVector can_source_cell_disperse(int i, int j, NumericMatrix carrying_capacity_avaliable, 
+IntegerVector can_source_cell_disperse(int i, int j, NumericMatrix carrying_capacity_avaliable, 
                                        NumericMatrix tracking_population_state, NumericMatrix habitat_suitability_map,
                                        NumericMatrix barriers_map, bool use_barrier, int barrier_type, int loopID, 
                                        int dispersal_distance, NumericVector dispersal_kernel){
@@ -225,7 +226,7 @@ NumericVector can_source_cell_disperse(int i, int j, NumericMatrix carrying_capa
   int nrows = carrying_capacity_avaliable.nrow();
 	int    k, l, real_distance;
 	double prob_colonisation, rnd;
-	NumericVector source_found = NumericVector::create(-9999.0,-9999.0);
+	IntegerVector source_found(2,-9999);
 
   /*
   ** Search for a potential source cell. i and j are the coordinates of the
@@ -233,6 +234,7 @@ NumericVector can_source_cell_disperse(int i, int j, NumericMatrix carrying_capa
   */
   for (k = i - dispersal_distance; k <= i + dispersal_distance; k++){
     for (l = j - dispersal_distance; l <= j + dispersal_distance; l++){
+
       /*
       ** 1. Test of basic conditions to see if a pixel could be a potential
       **    source cell:
@@ -270,7 +272,7 @@ NumericVector can_source_cell_disperse(int i, int j, NumericMatrix carrying_capa
         					source_found[0] = k;
         					source_found[1] = l;
         				  }
-        				} 
+        				}
         				else {
         				source_found[0] = k;
         				source_found[1] = l;
@@ -325,15 +327,17 @@ NumericMatrix clean_matrix(NumericMatrix in_matrix,
      return(in_matrix);
 }
 
+//' @export
 // [[Rcpp::export]]
-double proportion_of_population_to_disperse(int source_x, int source_y, NumericMatrix starting_population_state,
+int proportion_of_population_to_disperse(int source_x, int source_y, NumericMatrix starting_population_state,
                                          NumericMatrix current_carrying_capacity, double dispersal_proportion){
   	        double source_pop, source_pop_dispersed;
-            source_pop = starting_population_state(source_x,source_y);
-            source_pop_dispersed = as<double>(rbinom(1,source_pop,dispersal_proportion));
+            source_pop = round(starting_population_state(source_x,source_y));
+            source_pop_dispersed = R::rbinom(source_pop,dispersal_proportion);
+            Rcpp::Rcout << source_pop_dispersed << ' ' << source_pop << std::endl;
             if (current_carrying_capacity(source_x,source_y) < source_pop_dispersed){
                 dispersal_proportion = dispersal_proportion - 0.01;
-                source_pop_dispersed = as<double>(rbinom(1,source_pop,dispersal_proportion));
+                source_pop_dispersed = R::rbinom(source_pop,dispersal_proportion);
                 if(dispersal_proportion <= 0) source_pop_dispersed = 0;
             }
   return(source_pop_dispersed);
@@ -426,25 +430,25 @@ NumericVector a_dispersal_function(NumericMatrix starting_population_state, Nume
 	        **/
 	        if(habitat_is_suitable){
 		      /* Now we search if there is a suitable source cell to colonize the sink cell. */
-	            NumericVector cell_in_dispersal_distance = can_source_cell_disperse(i, j, starting_population_state, tracking_population_state_cleaned,
+	            IntegerVector cell_in_dispersal_distance = can_source_cell_disperse(i, j, starting_population_state, tracking_population_state_cleaned,
 	            habitat_suitability_map, barriers_map, use_barrier, barrier_type, loopID, dispersal_distance, dispersal_kernel);
 	            Rcpp::Rcout << cell_in_dispersal_distance << std::endl;
-	        }
-
-	        /* Update sink cell status. */
-	//         if(habitat_is_suitable && (cell_in_dispersal_distance>0) ){
-	// 	        /* Only if the 2 conditions are fullfilled the cell's is there dispersal to this cell and the population size is changed. */
-	// 	        double source_x = cell_in_dispersal_distance[cell_in_dispersal_distance.size()-1];
-	// 	        double source_y = cell_in_dispersal_distance[cell_in_dispersal_distance.size()-2];
-	// 	        double source_pop_dispersed = proportion_of_population_to_disperse(source_x, source_y, starting_population_state,
-	// 	                                                                           carrying_capacity_avaliable_cleaned, dispersal_proportion);
-	//           future_population_state(i,j) = starting_population_state(i,j) + source_pop_dispersed;
-	//           future_population_state(source_x,source_y) = starting_population_state(source_x,source_y) - source_pop_dispersed;
-	//           tracking_population_state_cleaned(i,j) = loopID;
-	//           tracking_population_state_cleaned(source_x,source_y) = loopID;
-	//          }
+	 	        /* Update sink cell status. */
+	        if(cell_in_dispersal_distance[0] >= 0){
+		        /* Only if the 2 conditions are fullfilled the cell's is there dispersal to this cell and the population size is changed. */
+		        int source_x = cell_in_dispersal_distance[0];
+		        int source_y = cell_in_dispersal_distance[1];
+		        // Rcpp::Rcout << source_x << std::endl;
+		        int source_pop_dispersed = proportion_of_population_to_disperse(source_x, source_y, starting_population_state,
+		                                                                           carrying_capacity_avaliable_cleaned, dispersal_proportion);
+	          future_population_state(i,j) = starting_population_state(i,j) + source_pop_dispersed;
+	          future_population_state(source_x,source_y) = starting_population_state(source_x,source_y) - source_pop_dispersed;
+	          tracking_population_state_cleaned(i,j) = loopID;
+	          tracking_population_state_cleaned(source_x,source_y) = loopID;
+	            }
+	         }
 	      }
 	   }
 	}
-  return(cell_in_dispersal_distance);    /* end of dispersal */
+  return(future_population_state);    /* end of dispersal */
 }
