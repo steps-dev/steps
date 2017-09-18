@@ -226,7 +226,6 @@ NumericVector can_source_cell_disperse(int i, int j, NumericMatrix carrying_capa
 	int    k, l, real_distance;
 	double prob_colonisation, rnd;
 	NumericVector source_found(2,NA_REAL);
-	//source_found.fill(NA_REAL);
 
   /*
   ** Search for a potential source cell. i and j are the coordinates of the
