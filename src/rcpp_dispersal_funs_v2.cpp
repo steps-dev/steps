@@ -225,7 +225,7 @@ NumericVector can_source_cell_disperse(int i, int j, NumericMatrix carrying_capa
   int nrows = carrying_capacity_avaliable.nrow();
 	int    k, l, real_distance;
 	double prob_colonisation, rnd;
-	NumericVector source_found(2,NA_REAL);
+	NumericVector source_found = NumericVector::create(-9999.0,-9999.0);
 
   /*
   ** Search for a potential source cell. i and j are the coordinates of the
@@ -280,9 +280,9 @@ NumericVector can_source_cell_disperse(int i, int j, NumericMatrix carrying_capa
 		              }
 		            }
 							}
-						}
-					}
-				}
+  			}
+      }
+		}
   return(source_found);
 }
 
@@ -356,10 +356,9 @@ NumericMatrix na_matrix(int nr, int nc){
 // //' @param dispersal_distance The maximum number of cells the species can disperse.
 // //' @param dispersal_kernal a numeric vector of probabilites of dispersing from one to n cells, where n is the dispersal distance.
 // //' @param dispersal_proportion the proportion of species that will disperse from source cell, needs to be between 0 and 1. e.g 0.2 means that 20% of the cell's population disperses. 
-// //' @export
-// 
+//' @export
 // [[Rcpp::export]]
-NumericMatrix a_dispersal_function(NumericMatrix starting_population_state, NumericMatrix potiential_carrying_capacity,
+NumericVector a_dispersal_function(NumericMatrix starting_population_state, NumericMatrix potiential_carrying_capacity,
   NumericMatrix habitat_suitability_map,NumericMatrix barriers_map, int barrier_type, bool use_barrier, int dispersal_steps,
   int dispersal_distance, NumericVector dispersal_kernel, double dispersal_proportion){
 
@@ -433,19 +432,19 @@ NumericMatrix a_dispersal_function(NumericMatrix starting_population_state, Nume
 	        }
 
 	        /* Update sink cell status. */
-	        // if(habitat_is_suitable && !R_IsNA(cell_in_dispersal_distance)){
-		        /* Only if the 2 conditions are fullfilled the cell's is there dispersal to this cell and the population size is changed. */
-		        // int source_x = as<int>(cell_in_dispersal_distance[0]);
-		        // int source_y = as<int>(cell_in_dispersal_distance[1]);
-		        // double source_pop_dispersed = proportion_of_population_to_disperse(source_x, source_y, starting_population_state, 
-		                                                                           // carrying_capacity_avaliable_cleaned, dispersal_proportion);
-	          // future_population_state(i,j) = starting_population_state(i,j) + source_pop_dispersed;
-	          // future_population_state(source_x,source_y) = starting_population_state(source_x,source_y) - source_pop_dispersed;
-	          // tracking_population_state_cleaned(i,j) = loopID;
-	          // tracking_population_state_cleaned(source_x,source_y) = loopID;
-	         // }
+	//         if(habitat_is_suitable && (cell_in_dispersal_distance>0) ){
+	// 	        /* Only if the 2 conditions are fullfilled the cell's is there dispersal to this cell and the population size is changed. */
+	// 	        double source_x = cell_in_dispersal_distance[cell_in_dispersal_distance.size()-1];
+	// 	        double source_y = cell_in_dispersal_distance[cell_in_dispersal_distance.size()-2];
+	// 	        double source_pop_dispersed = proportion_of_population_to_disperse(source_x, source_y, starting_population_state,
+	// 	                                                                           carrying_capacity_avaliable_cleaned, dispersal_proportion);
+	//           future_population_state(i,j) = starting_population_state(i,j) + source_pop_dispersed;
+	//           future_population_state(source_x,source_y) = starting_population_state(source_x,source_y) - source_pop_dispersed;
+	//           tracking_population_state_cleaned(i,j) = loopID;
+	//           tracking_population_state_cleaned(source_x,source_y) = loopID;
+	//          }
 	      }
 	   }
 	}
-   return(cell_in_dispersal_distance);    /* end of dispersal */
+  return(cell_in_dispersal_distance);    /* end of dispersal */
 }
