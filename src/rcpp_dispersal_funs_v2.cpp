@@ -126,34 +126,24 @@ NumericMatrix a_dispersal_function(NumericMatrix current_population_state, Numer
 
 IntegerVector can_source_cell_disperse(int i, 
 							  int j,
-							  NumericMatrix current_population_state,
-							  NumericMatrix initial_population,
-							  NumericMatrix habitat_suitability_map,
+							  NumericMatrix current_population_state, // population state in the dispersal step - update as we go.
+							  NumericMatrix initial_population_state, // population state at the very start of dispersal
+							  NumericMatrix habitat_suitability_map, // habitat suitability which helps determine the propbabtility of di
 							  NumericMatrix barriers_map
 							  bool use_barrier=true,
 							  int barrier_type,
-							  int loopID //which dispersal loop are we in.
+							  int loopID, //which dispersal loop are we in.
 							  int dispersal_distance,
 							  NumericVector dispersal_kernal,
 							  double dispersal_proportion){
 								  
-  	arma::mat cca = as<arma::mat>(carrying_capacity_avaliable); //A matrix of avaliable carrying capacity.
-  	arma::mat cps = as<arma::mat>(current_population_state); // the current population (during population step)
-  	arma::mat hsm = as<arma::mat>(habitat_suitability_map); // the habitat suitability
-	arma::mat barriers = as<arma::mat>(barrier_map);
-	int ncols = current_population_state.n_cols;
-    int nrows = current_population_state.n_rows;								  
+ 	int ncols = current_population_state.ncol();
+    int nrows = current_population_state.nrow();								  
 	int    k, l, real_distance;
 	double prob_colonisation, rnd;
-	IntegerVector source_found(2);
-	source_found.fill(NA_REAL);
+	IntegerVector source_found(2,NA);
+	//source_found.fill(NA_REAL);
 
-  /*
-  ** For now let's set these paramters to fixed values. Later we can implement
-  ** them as variables.
-  */
-  //source_found = false;
-        
   /*
   ** Search for a potential source cell. i and j are the coordinates of the
   ** sink cell. k and l are the coordinates of the potential source cell.
@@ -164,17 +154,16 @@ IntegerVector can_source_cell_disperse(int i,
       ** 1. Test of basic conditions to see if a pixel could be a potential
       **    source cell:
       **    - The pixel must be within the limits of the matrix's extent.
-      **    - The pixel must be colonized, but not during the current loop.
+      **    - The pixel must be colonized, but not during the current loop, and is not NA. 
       ** 	- The pixel must have avaliable carrying capacity to allow recruitment.
       */
       if ((k >= 0) && (k < nrows) && (l >= 0) && (l < ncols)){
-		  if ((current_population_state(k,l) > 0) && (current_population_state(k,l) != loopID)){
-			  if (cca(k,l) > 0){
+		  if ((initial_population_state(k,l) > 0) && (current_population_state(k,l) != loopID && !Rcpp::is_na(current_population_state(k,l)))){
+			  if (current_population_state(k,l)>0){
 	    /*
 	    ** 2. Compute the distance between sink and (potential) source pixel
 	    **    and check if it is <= maximum dispersal distance. The distance
 	    **    is computed in pixel units.
-	    **    real_distance = round(Sqr((K - I) ^ 2 + (L - J) ^ 2) + 0.5)
 	    */
 	    real_distance = round(sqrt((k-i)*(k-i) + (l-j)*(l-j)));
 	    if ((real_distance > 0) && (real_distance <= dispersal_distance)){
@@ -183,8 +172,8 @@ IntegerVector can_source_cell_disperse(int i,
 	      **    This probability depends on several factors:
 	      **    - Disance between source and sink cells.
 	      */
-		  prob_colonisation = disp_kernel[real_distance-1] * (habitat_suitability_map(k,l)/1000.0);
-	      rnd = runif(1);
+		  prob_colonisation = disp_kernel[real_distance-1] * (habitat_suitability_map(k,l));
+	      rnd = Rcpp::runif(1);
 	      if (rnd < prob_colonisation || prob_colonisation == 1.0){
 				/*
 				** When we reach this stage, the last thing we need to check for
