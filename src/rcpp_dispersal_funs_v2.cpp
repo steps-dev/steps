@@ -333,8 +333,9 @@ int proportion_of_population_to_disperse(int source_x, int source_y, NumericMatr
                                          NumericMatrix current_carrying_capacity, double dispersal_proportion){
   	        double source_pop, source_pop_dispersed;
             source_pop = round(starting_population_state(source_x,source_y));
+            if(source_pop<1)source_pop=0;
             source_pop_dispersed = R::rbinom(source_pop,dispersal_proportion);
-            Rcpp::Rcout << source_pop_dispersed << ' ' << source_pop << std::endl;
+            // Rcpp::Rcout << source_pop_dispersed << ' ' << source_pop << std::endl;
             if (current_carrying_capacity(source_x,source_y) < source_pop_dispersed){
                 dispersal_proportion = dispersal_proportion - 0.01;
                 source_pop_dispersed = R::rbinom(source_pop,dispersal_proportion);
@@ -389,7 +390,12 @@ NumericVector a_dispersal_function(NumericMatrix starting_population_state, Nume
       **  2. set habitat suitability to 0 where barrier = 1.
       **  3. set habitat suitability values to NoData where barrier = NoData.
       ** and also  */
+      // if(use_barrier){ 
       NumericMatrix carrying_capacity_avaliable_cleaned = clean_matrix(carrying_capacity_avaliable, barriers_map, true, true, true);
+      // }
+      // else {
+        // NumericMatrix carrying_capacity_avaliable_cleaned = clean_matrix(carrying_capacity_avaliable, barriers_map, true, false, false);
+      // }
       NumericMatrix tracking_population_state_cleaned = clean_matrix(tracking_population_state, barriers_map, true, true, true);
       // int n_dispersal_cells = total_dispersal_cells(carrying_capacity_avaliable_cleaned);
 
@@ -432,20 +438,20 @@ NumericVector a_dispersal_function(NumericMatrix starting_population_state, Nume
 		      /* Now we search if there is a suitable source cell to colonize the sink cell. */
 	            IntegerVector cell_in_dispersal_distance = can_source_cell_disperse(i, j, starting_population_state, tracking_population_state_cleaned,
 	            habitat_suitability_map, barriers_map, use_barrier, barrier_type, loopID, dispersal_distance, dispersal_kernel);
-	            Rcpp::Rcout << cell_in_dispersal_distance << std::endl;
+	            // Rcpp::Rcout << cell_in_dispersal_distance << std::endl;
 	 	        /* Update sink cell status. */
-	        if(cell_in_dispersal_distance[0] >= 0){
-		        /* Only if the 2 conditions are fullfilled the cell's is there dispersal to this cell and the population size is changed. */
-		        int source_x = cell_in_dispersal_distance[0];
-		        int source_y = cell_in_dispersal_distance[1];
-		        // Rcpp::Rcout << source_x << std::endl;
-		        int source_pop_dispersed = proportion_of_population_to_disperse(source_x, source_y, starting_population_state,
-		                                                                           carrying_capacity_avaliable_cleaned, dispersal_proportion);
-	          future_population_state(i,j) = starting_population_state(i,j) + source_pop_dispersed;
-	          future_population_state(source_x,source_y) = starting_population_state(source_x,source_y) - source_pop_dispersed;
-	          tracking_population_state_cleaned(i,j) = loopID;
-	          tracking_population_state_cleaned(source_x,source_y) = loopID;
-	            }
+    	        if(cell_in_dispersal_distance[0] >= 0){
+    		        /* Only if the 2 conditions are fullfilled the cell's is there dispersal to this cell and the population size is changed. */
+    		        int source_x = cell_in_dispersal_distance[0];
+    		        int source_y = cell_in_dispersal_distance[1];
+    		        // Rcpp::Rcout << source_x << std::endl;
+    		        int source_pop_dispersed = proportion_of_population_to_disperse(source_x, source_y, starting_population_state,
+    		                                                                        carrying_capacity_avaliable_cleaned, dispersal_proportion);
+    	          future_population_state(i,j) = starting_population_state(i,j) + source_pop_dispersed;
+    	          future_population_state(source_x,source_y) = starting_population_state(source_x,source_y) - source_pop_dispersed;
+    	          tracking_population_state_cleaned(i,j) = loopID;
+    	          tracking_population_state_cleaned(source_x,source_y) = loopID;
+    	        }
 	         }
 	      }
 	   }
