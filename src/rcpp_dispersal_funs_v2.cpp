@@ -219,7 +219,7 @@ int total_dispersal_cells(NumericMatrix habitat_suitability_map){
 NumericVector can_source_cell_disperse(int i, int j, NumericMatrix carrying_capacity_avaliable, 
                                        NumericMatrix tracking_population_state, NumericMatrix habitat_suitability_map,
                                        NumericMatrix barriers_map, bool use_barrier, int barrier_type, int loopID, 
-                                       int dispersal_distance, NumericVector dispersal_kernel, double dispersal_proportion){
+                                       int dispersal_distance, NumericVector dispersal_kernel){
 
  	int ncols = carrying_capacity_avaliable.ncol();
   int nrows = carrying_capacity_avaliable.nrow();
@@ -325,6 +325,20 @@ NumericMatrix clean_matrix(NumericMatrix in_matrix,
      return(in_matrix);
 }
 
+// [[Rcpp::export]]
+double proportion_of_population_to_disperse(int source_x, int source_y, NumericMatrix starting_population_state,
+                                         NumericMatrix current_carrying_capacity, double dispersal_proportion){
+  	        double source_pop, source_pop_dispersed;
+            source_pop = starting_population_state(source_x,source_y);
+            source_pop_dispersed = as<double>(rbinom(1,source_pop,dispersal_proportion));
+            if (current_carrying_capacity(source_x,source_y) < source_pop_dispersed){
+                dispersal_proportion = dispersal_proportion - 0.01;
+                source_pop_dispersed = as<double>(rbinom(1,source_pop,dispersal_proportion));
+                if(dispersal_proportion <= 0) source_pop_dispersed = 0;
+            }
+  return(source_pop_dispersed);
+}
+
 // //' dispersal function for dynamic metapopulation models
 // //' @param current_distribution raster of current population distribution.
 // //' @param habitat_suitability raster of habitat suitability that has been converted to carrying capacity
@@ -340,7 +354,7 @@ NumericMatrix clean_matrix(NumericMatrix in_matrix,
 // [[Rcpp::export]]
 NumericMatrix a_dispersal_function(NumericMatrix starting_population_state, NumericMatrix potiential_carrying_capacity,
   NumericMatrix habitat_suitability_map,NumericMatrix barriers_map, int barrier_type, bool use_barrier, int dispersal_steps,
-  int dispersal_distance, NumericVector dispersal_kernal, double dispersal_proportion){
+  int dispersal_distance, NumericVector dispersal_kernel, double dispersal_proportion){
 
 	  int ncols = starting_population_state.ncol();
     int nrows = starting_population_state.nrow();
@@ -348,6 +362,7 @@ NumericMatrix a_dispersal_function(NumericMatrix starting_population_state, Nume
     NumericMatrix tracking_population_state(nrows,ncols,NA_REAL); // tracking population state.
     NumericMatrix future_population_state(nrows,ncols,NA_REAL); // future population size (after dispersal).
     int loopID, dispersal_step, i, j;
+    bool habitat_is_suitable, cell_in_dispersal_distance;
 
 	// check how much carrying capacity is free per-cell - this will enable dispersal to these cells if needed.
      for(i = 0; i < nrows; i++){
@@ -364,8 +379,8 @@ NumericMatrix a_dispersal_function(NumericMatrix starting_population_state, Nume
       **  2. set habitat suitability to 0 where barrier = 1.
       **  3. set habitat suitability values to NoData where barrier = NoData.
       ** and also  */
-      NumericMatrix carrying_capacity_avaliable_cleaned = clean_matrix(carrying_capacity_avaliable, barriers, true, true, true);
-      NumericMatrix tracking_population_state_cleaned = clean_matrix(tracking_population_state, barriers, true, true, true);
+      NumericMatrix carrying_capacity_avaliable_cleaned = clean_matrix(carrying_capacity_avaliable, barriers_map, true, true, true);
+      NumericMatrix tracking_population_state_cleaned = clean_matrix(tracking_population_state, barriers_map, true, true, true);
       // int n_dispersal_cells = total_dispersal_cells(carrying_capacity_avaliable_cleaned);
 
       /* *********************** */
@@ -405,26 +420,23 @@ NumericMatrix a_dispersal_function(NumericMatrix starting_population_state, Nume
 	        **/
 	        if(habitat_is_suitable){
 		      /* Now we search if there is a suitable source cell to colonize the sink cell. */
-	          cell_in_dispersal_distance = can_source_cell_disperse(int i, int j, NumericMatrix starting_population_state, 
-                                       NumericMatrix tracking_population_state, NumericMatrix habitat_suitability_map,
-                                       NumericMatrix barriers_map, bool use_barrier, int barrier_type, int loopID, 
-                                       int dispersal_distance, NumericVector dispersal_kernel, double dispersal_proportion));
+	          NumericVector cell_in_dispersal_distance = can_source_cell_disperse(i, j, starting_population_state, tracking_population_state_cleaned, habitat_suitability_map, barriers_map, use_barrier, barrier_type, loopID, dispersal_distance, dispersal_kernel, dispersal_proportion);
 	        }
 
 	        /* Update sink cell status. */
-	        if(habitat_is_suitable && Rcpp::all(!R_IsNA(cell_in_dispersal_distance))){
+	        if(habitat_is_suitable && !R_IsNA(cell_in_dispersal_distance)){
 		        /* Only if the 2 conditions are fullfilled the cell's is there dispersal to this cell and the population size is changed. */
-		        int source_x = cell_is_dispersal_distance[0];
-		        int source_y = cell_is_dispersal_distance[1];
-		        double source_pop = starting_population_state(source_x,source_y);
-		        double source_pop_dispersed = as<double>(rbinom(1,source_pop,dispersal_proportion));
+		        int source_x = cell_in_dispersal_distance[0];
+		        int source_y = cell_in_dispersal_distance[1];
+		        double source_pop_dispersed = proportion_of_population_to_disperse(source_x, source_y, starting_population_state, 
+		                                                                           carrying_capacity_avaliable_cleaned, dispersal_proportion);
 	          future_population_state(i,j) = starting_population_state(i,j) + source_pop_dispersed;
-	          future_population_state(sink_x,sink_y) = starting_population_state(source_x,source_y) - source_pop_dispersed;
+	          future_population_state(source_x,source_y) = starting_population_state(source_x,source_y) - source_pop_dispersed;
 	          tracking_population_state_cleaned(i,j) = loopID;
-	          tracking_population_state_cleaned(sink_x,sink_y) = loopID;
+	          tracking_population_state_cleaned(source_x,source_y) = loopID;
 	         }
 	      }
 	   }
 	}
-   return(wrap(fds));    /* end of dispersal */
+   return(future_population_state);    /* end of dispersal */
 }
