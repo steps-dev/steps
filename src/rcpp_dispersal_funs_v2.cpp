@@ -365,9 +365,9 @@ NumericMatrix a_dispersal_function(NumericMatrix starting_population_state, Nume
 
 	  int ncols = starting_population_state.ncol();
     int nrows = starting_population_state.nrow();
-    NumericMatrix carrying_capacity_avaliable(nrows,ncols); // carrying capacity avaliable.
-    NumericMatrix tracking_population_state(nrows,ncols); // tracking population state.
-    NumericMatrix future_population_state(nrows,ncols); // future population size (after dispersal).
+    NumericMatrix carrying_capacity_avaliable = na_matrix(nrows,ncols); // carrying capacity avaliable.
+    NumericMatrix tracking_population_state = na_matrix(nrows,ncols); // tracking population state.
+    NumericMatrix future_population_state = na_matrix(nrows,ncols); // future population size (after dispersal).
     int loopID, dispersal_step, i, j;
     bool habitat_is_suitable, cell_in_dispersal_distance;
 
