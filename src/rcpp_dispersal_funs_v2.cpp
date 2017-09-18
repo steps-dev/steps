@@ -158,7 +158,7 @@ IntegerVector can_source_cell_disperse(int i,
       ** 	- The pixel must have avaliable carrying capacity to allow recruitment.
       */
       if ((k >= 0) && (k < nrows) && (l >= 0) && (l < ncols)){
-		  if ((initial_population_state(k,l) > 0) && (current_population_state(k,l) != loopID && !Rcpp::is_na(current_population_state(k,l)))){
+		  if ((initial_population_state(k,l) > 0) && (current_population_state(k,l) != loopID) && (!Rcpp::is_na(current_population_state(k,l)))){
 			  if (current_population_state(k,l)>0){
 	    /*
 	    ** 2. Compute the distance between sink and (potential) source pixel
@@ -185,20 +185,19 @@ IntegerVector can_source_cell_disperse(int i,
 				  if (!barrier_to_dispersal(i, j, k, l, barriers_map, barrier_type)){
 					source_found[0] = k;
 					source_found[1] = l;
-					return(source_found);
 				  }
 				} else {
 					source_found[0] = k;
 					source_found[1] = l;
-				  return(source_found);
+								}
+							}
+						}
+					}
 				}
-			  }
 			}
-		  }
 		}
-      }
-    }
-  }
+	}
+  return(source_found);
 }
 
 
@@ -210,8 +209,6 @@ NumericMatrix clean_matrix(NumericMatrix in_matrix,
 						   bool filter_barriers = true,
 						   bool insert_na_data = true){
 	int i, j;
-	//arma::mat inmat = as<arma::mat>(in_matrix);
-	//arma::mat barriers = as<arma::mat>(barrier_map);
 	int ncols = in_matrix.ncol();
 	int nrows = in_matrix.nrow();
 	  // set any value < 0 to 0, removes nan data and data where carrying  capacity is */
@@ -441,9 +438,9 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatrix 
 
 int total_dispersal_cells(NumericMatrix habitat_suitability_map){  
 	int i, j, count;
-	arma::mat hsm = as<arma::mat>(habitat_suitability_map);
-	int ncols = habitat_suitability_map.n_cols;
-	int nrows = habitat_suitability_map.n_rows;
+	//arma::mat hsm = as<arma::mat>(habitat_suitability_map);
+	int ncols = habitat_suitability_map.ncol();
+	int nrows = habitat_suitability_map.nrow();
 
    // Count the number of dispersable pixels.
 	  count = 0;
