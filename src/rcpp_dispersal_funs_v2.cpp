@@ -402,11 +402,11 @@ List a_dispersal_function(NumericMatrix starting_population_state, NumericMatrix
       /* *********************** */
       /* Dispersal starts here.  */
       /* *********************** */
-      loopID = 1000000;
+      loopID = 0;
       for(dispersal_step = 1; dispersal_step <= dispersal_steps; dispersal_step++){
 
 	    /* Set the value of "loopID" for the current iteration of the dispersal loop. */
-	    // loopID = loopID + 100000;
+	    loopID = loopID + 1;
 
 	    /* Source cell search: Can the sink pixel be colonized? There are four
 	    ** conditions to be met for a sink pixel to become colonized:
