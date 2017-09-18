@@ -447,14 +447,22 @@ NumericVector a_dispersal_function(NumericMatrix starting_population_state, Nume
     		        // Rcpp::Rcout << source_x << std::endl;
     		        int source_pop_dispersed = proportion_of_population_to_disperse(source_x, source_y, starting_population_state,
     		                                                                        carrying_capacity_avaliable_cleaned, dispersal_proportion);
-    	          future_population_state(i,j) = starting_population_state(i,j) + source_pop_dispersed;
-    	          future_population_state(source_x,source_y) = starting_population_state(source_x,source_y) - source_pop_dispersed;
+    		        future_population_state(i,j) = starting_population_state(i,j) + source_pop_dispersed;//*habitat_suitability_map(i,j);
+    	          future_population_state(source_x,source_y) = starting_population_state(source_x,source_y) - source_pop_dispersed;//*habitat_suitability_map(i,j);
+    	          // Rcpp::Rcout << future_population_state(i,j) << ' ' << future_population_state(source_x,source_y) << std::endl;
     	          tracking_population_state_cleaned(i,j) = loopID;
     	          tracking_population_state_cleaned(source_x,source_y) = loopID;
     	        }
 	         }
 	      }
 	   }
+	// for(i = 0; i < nrows; i++){
+	//     for(j = 0; j < ncols; j++){
+	//         if(R_IsNA(future_population_state(i,j))){
+	//           future_population_state(i,j)=starting_population_state(i,j);
+	//       }
+	//     }
+	//   }
 	}
   return(future_population_state);    /* end of dispersal */
 }
