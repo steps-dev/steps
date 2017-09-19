@@ -1,16 +1,21 @@
+#' @useDynLib dhmpr
+#' @importFrom Rcpp sourceCpp
+NULL
+
 #' @title dispersal class for metapoplations
 #' @rdname dispersal 
 #' @name as.dispersal
-#' @description creates a function that governs dispersal capacity of stages in a population. The input is a list which contains 
-#'  the first list is a dispersal kernal \code{alpha}  value for each stage, the second named list \code{probability} 
-#' is the proportion of that stage will disperse. For example a probability of 0.2 for stage larvae
-#' means a random 20% of larve will a try and disperse to patches, the distance they can disperse is governed 
-#' by the dispersal kernal (alpha). If params = NULL, a dispersal kernal of 1 is given to all stages, 
-#' and all stages will attempt to undertake dispersal.
+#' @description creates a function that governs dispersal capacity of stages in a population. The input is a list which contains the first list is a dispersal kernal \code{dispersal} value for life-history stage, the second named list \code{} is the proportion of that stage will disperse. For example a probability of 0.2 for stage larvae means a random 20% of larve will a try and disperse to patches, the distance they can disperse is governed by the dispersal kernal (alpha). If params = NULL, a dispersal kernal of 1 is given to all stages, and all stages will attempt to undertake dispersal.
+#' @param dispersal_distance NamedList The number of cells that each life-history can disperse.
+#' @param dispersal_kernal NamedList The dispersal kernel for each life history stage. Needs to be a numeric vector that matches the length of
+#' dispersal_distance. If a single value n is provided, a the species will have a dispersal kernel of n*dispersal distance.
+#' @param dispersal_proportion NamedList The proportion of the population in each cell that will disperse. e.g 0.6 = 60%.  
+#' 
 #' @export
 #' @examples 
-#' params <- list(alpha=list('larvae'=2,'juvenile'=0,'adult'=3),
-#'                probability=list('larvae'=0.2,'juvenile'=0,'adult'=0.6))  
+#' params <- list(dispersal_distance=list('larvae'=3,'juvenile'=0,'adult'=10),
+#'                dispersal_kernal=list('larvae'=exp(-c(0:4)),'juvenile'=0,'adult'=exp(-c(0:9)*.2)),
+#'                dispersal_proportion=list('larvae'=0.6,'juvenile'=0,'adult'=0.2))  
 #'                
 #' dp <- as.dispersal(params)
 #' dp <- as.dispersal(NULL)
