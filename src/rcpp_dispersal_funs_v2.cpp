@@ -363,7 +363,7 @@ NumericMatrix na_matrix(int nr, int nc){
 // //' @param dispersal_proportion the proportion of species that will disperse from source cell, needs to be between 0 and 1. e.g 0.2 means that 20% of the cell's population disperses. 
 //' @export
 // [[Rcpp::export]]
-List a_dispersal_function(NumericMatrix starting_population_state, NumericMatrix potiential_carrying_capacity,
+List rcpp_dispersal(NumericMatrix starting_population_state, NumericMatrix potiential_carrying_capacity,
   NumericMatrix habitat_suitability_map,NumericMatrix barriers_map, int barrier_type, bool use_barrier, int dispersal_steps,
   int dispersal_distance, NumericVector dispersal_kernel, double dispersal_proportion){
 
