@@ -373,7 +373,7 @@ List a_dispersal_function(NumericMatrix starting_population_state, NumericMatrix
     NumericMatrix tracking_population_state = na_matrix(nrows,ncols); // tracking population state.
     NumericMatrix future_population_state = na_matrix(nrows,ncols); // future population size (after dispersal).
     int loopID, dispersal_step, i, j;
-    bool habitat_is_suitable, cell_in_dispersal_distance;
+    bool habitat_is_suitable;//, cell_in_dispersal_distance;
 
 	// check how much carrying capacity is free per-cell - this will enable dispersal to these cells if needed.
      for(i = 0; i < nrows; i++){
@@ -423,7 +423,7 @@ List a_dispersal_function(NumericMatrix starting_population_state, NumericMatrix
 
 		    //The are boolian calls which indicate if habitat is suitable and if cell can disperse
 	        habitat_is_suitable = false;
-	        cell_in_dispersal_distance = false;
+	        // cell_in_dispersal_distance = false;
 
 	        /* 1. Test whether the pixel is a suitable sink (i.e., its habitat
 	        **    is suitable, it has avaliable carrying capacity, it's not NA and is not on a barrier). */
@@ -465,5 +465,5 @@ List a_dispersal_function(NumericMatrix starting_population_state, NumericMatrix
 	  }
 	}
   return(List::create(Named("dispersed_population") = future_population_state,
-                      Named("tracked_population") = tracking_population_state_cleaned));    /* end of dispersal */
+                      Named("tracked_population") = tracking_population_state_cleaned));/* end of dispersal */
 }

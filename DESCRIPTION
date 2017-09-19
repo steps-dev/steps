@@ -16,11 +16,23 @@ Description: Dynamic Habitat Meta-Population Models in R
 Depends:
     R (>= 3.2.2),
 License: GPL (>= 2)
-Imports: Rcpp, RcppArmadillo, magrittr, RColorBrewer, plyr, raster, sp, methods, igraph, SDMTools, data.table
-LinkingTo: Rcpp, RcppArmadillo, plyr, testthat  
-RoxygenNote: 6.0.1
-Suggests: testthat, knitr
-Collate: 
+Imports:
+    Rcpp,
+    magrittr,
+    RColorBrewer,
+    plyr,
+    raster,
+    sp,
+    methods,
+    igraph,
+    SDMTools,
+    data.table
+LinkingTo: Rcpp, plyr, testthat
+RoxygenNote: 5.0.1
+Suggests:
+    testthat,
+    knitr
+Collate:
     'RcppExports.R'
     'customfun-class.R'
     'dispersal-class.R'
@@ -31,7 +43,5 @@ Collate:
     'habitat-class.R'
     'module-class.R'
     'simulation-class.R'
-    'simList-class.R'
-    'times-class.R'
     'transition-class.R'
     'utils.R'
