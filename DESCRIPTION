@@ -9,7 +9,7 @@ Authors@R: person("Skipton", "Woolley", email = "skip.woolley@csiro.au",
   role = c("aut", "cre"))
   person("Nick", "Golding", email = "nick.golding.research@gmail.com",
   role = c("aut", "cre"))
-  person("Casey","Visintin",email="casey.visintin@unimelb.edu.au",
+  person("Casey","Visintin",email = "casey.visintin@unimelb.edu.au",
   role=c("aut", "cre"))
 Maintainer: Skipton Woolley <skip.woolley@csiro.au>
 Description: Dynamic Habitat Meta-Population Models in R
@@ -28,20 +28,7 @@ Imports:
     SDMTools,
     data.table
 LinkingTo: Rcpp, plyr, testthat
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
 Suggests:
     testthat,
     knitr
-Collate:
-    'RcppExports.R'
-    'customfun-class.R'
-    'dispersal-class.R'
-    'dispersal_funs.R'
-    'dynamic-class.R'
-    'event-class.R'
-    'fire_spread.R'
-    'habitat-class.R'
-    'module-class.R'
-    'simulation-class.R'
-    'transition-class.R'
-    'utils.R'
