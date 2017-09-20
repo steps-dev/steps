@@ -215,7 +215,6 @@ int total_dispersal_cells(NumericMatrix habitat_suitability_map){
   return (count);
 }
 
-//' @export
 // [[Rcpp::export]]
 IntegerVector can_source_cell_disperse(int i, int j, NumericMatrix carrying_capacity_avaliable, 
                                        NumericMatrix tracking_population_state, NumericMatrix habitat_suitability_map,
@@ -327,19 +326,20 @@ NumericMatrix clean_matrix(NumericMatrix in_matrix,
      return(in_matrix);
 }
 
-//' @export
 // [[Rcpp::export]]
-int proportion_of_population_to_disperse(int source_x, int source_y, NumericMatrix starting_population_state,
+int proportion_of_population_to_disperse(int source_x, int source_y, int sink_x, int sink_y, NumericMatrix starting_population_state,
                                          NumericMatrix current_carrying_capacity, double dispersal_proportion){
   	        double source_pop, source_pop_dispersed;
             source_pop = round(starting_population_state(source_x,source_y));
             if(source_pop<1)source_pop=0;
             source_pop_dispersed = R::rbinom(source_pop,dispersal_proportion);
             // Rcpp::Rcout << source_pop_dispersed << ' ' << source_pop << std::endl;
-            if (current_carrying_capacity(source_x,source_y) < source_pop_dispersed){
-                dispersal_proportion = dispersal_proportion - 0.01;
-                source_pop_dispersed = R::rbinom(source_pop,dispersal_proportion);
-                if(dispersal_proportion <= 0) source_pop_dispersed = 0;
+            if (current_carrying_capacity(sink_x,sink_y) < source_pop_dispersed){
+                // could include this function to allow a smaller proportion of the population to disperse.
+                // dispersal_proportion = dispersal_proportion - 0.01;
+                // source_pop_dispersed = R::rbinom(source_pop,dispersal_proportion);
+                // if(dispersal_proportion <= 0) 
+                source_pop_dispersed = 0;
             }
   return(source_pop_dispersed);
 }
@@ -445,10 +445,11 @@ List rcpp_dispersal(NumericMatrix starting_population_state, NumericMatrix potie
     		        int source_x = cell_in_dispersal_distance[0];
     		        int source_y = cell_in_dispersal_distance[1];
     		        // Rcpp::Rcout << source_x << std::endl;
-    		        int source_pop_dispersed = proportion_of_population_to_disperse(source_x, source_y, starting_population_state,
+    		        int source_pop_dispersed = proportion_of_population_to_disperse(source_x, source_y, i, j, starting_population_state,
     		                                                                        carrying_capacity_avaliable_cleaned, dispersal_proportion);
     		        future_population_state(i,j) = starting_population_state(i,j) + source_pop_dispersed;//*habitat_suitability_map(i,j);
-    	          future_population_state(source_x,source_y) = starting_population_state(source_x,source_y) - source_pop_dispersed;//*habitat_suitability_map(i,j);
+    		        starting_population_state(source_x,source_y) = starting_population_state(source_x,source_y) - source_pop_dispersed;
+    	          // future_population_state(source_x,source_y) = starting_population_state(source_x,source_y) - source_pop_dispersed;//*habitat_suitability_map(i,j);
     	          // Rcpp::Rcout << future_population_state(i,j) << ' ' << future_population_state(source_x,source_y) << std::endl;
     	          tracking_population_state_cleaned(i,j) = loopID;
     	          // tracking_population_state_cleaned(source_x,source_y) = loopID;
