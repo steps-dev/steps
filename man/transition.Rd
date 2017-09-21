@@ -2,10 +2,10 @@
 % Please edit documentation in R/transition-class.R
 \name{as.transition}
 \alias{as.transition}
-\alias{summary.transition}
-\alias{states}
-\alias{plot.transition}
 \alias{is.transition}
+\alias{plot.transition}
+\alias{states}
+\alias{summary.transition}
 \title{transition objects}
 \usage{
 as.transition(x, ...)
@@ -64,3 +64,4 @@ Skipton Woolley
 
 Nick Golding
 }
+

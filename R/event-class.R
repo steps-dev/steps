@@ -1,11 +1,10 @@
 #' @title event class for dynamic metapopulation class models.
 #' @rdname event 
 #' @description This class is a way to order, schedule and run events which will have
-#' an effect on the dynamic metapopulation models. Events can be temporally or spatially
-#' assigned. But need to be ordered with respect to metapopulation steps.
+#' an effect on the dynamic metapopulation models. Events can be temporally assigned. 
+#' But need to be ordered with respect to metapopulation steps.
 #' Events can have different temporal requirements. For example, management and demographic events
-#'  might be on a yearly scale, were fire might be weekly. If we give events a temporal signiture, 
-#'  then we can schedule x events until the next action. 
+#' might be on a yearly scale, were fire might be weekly.
 
 #' @export
 #' @rdname event 

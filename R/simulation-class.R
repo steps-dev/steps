@@ -1,17 +1,13 @@
 #' @title simulation
 #' @rdname simulation
 #' @name simulation
-#' @description The over-arching function in dlmpr for simulating a-spatial or spatial demographic population projections through time.
-#' @param x a dynamic object see \link[dhmpr]{dynamic}
-#' @param reps int number of simulations to run. repetitions
-#' @param time_steps e.g. years. int number of time steps.
+#' @description The over-arching function in dhmpr for simulating cell-based spatial demographic meta-population projections through time in a dynamic landscape (or seascape).
+#' @param x an dynamic habitat metapopulation experiment object see \link[dhmpr]{experiment}
+#' @param reps int number of simulations to run.
+#' @param times int The number of time steps of the least frequent discrete event. e.g. yearly population growth/management.
 #' @export
-#' 
-#'@examples
-#'
-#'
 
-simulation <- function(x, reps, times, ...){ 
+simulation <- function(x, reps, ...){ 
   
   # I have created a dynamics object which will contain all the relevant info
   # capture dhmpr objects
@@ -47,37 +43,3 @@ simulation <- function(x, reps, times, ...){
 #' @rdname simulation
 #' @export
 is.simulation <- function (x) inherits(x, 'simulation')
-
-# functions to flatten and unflatten population
-pop2vec <- function (population) {
-  # convert a population dataframe into a vector for deterministic analysis
-  ans <- as.vector(t(as.matrix(population)))
-  return (ans)
-}
-
-vec2pop <- function (vector, population) {
-  n_state <- ncol(population)
-  n_patch <- nrow(population)
-  population[] <- matrix(vector,
-                         nrow = n_patch,
-                         ncol = n_state,
-                         byrow = TRUE)
-  return (population)
-}
-
-popvecNames <- function (population) {
-  # get appropriate names for flattened version of population dataframe
-  states <- colnames(population)
-  patches <- as.character(seq_len(nrow(population)))
-  if (length(patches) == 1) {
-    # if only one patch, don't pollute the names
-    names <- states
-  } else {
-    names <- apply(expand.grid(states, patches),
-                   1,
-                   paste,
-                   sep = '',
-                   collapse = '_patch_')
-  }
-  return (names)
-}
