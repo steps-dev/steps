@@ -1,14 +1,16 @@
 #' @title habitat objects
-#' @description Underlying habitat for dhmpr.
+#' @description Habitat is an object that contains the spatial distribution of the populations, habitat suitability and carrying capacity for the landscape or seascape. Habitat requires either predefined rasters of population size for each life-history, habitat suitability map (e.g. a species distribution model) and carrying capacity. However, habitat suitability map is the only mandatory raster, population and carrying capacity can be provided as numeric values or functions which manipulate the habitat suitability map rasters to generate population per-cell and/or carrying capacity per-cell.
 #' @rdname habitat
 #' @name as.habitat
-#' @param patches an object to turn into a \code{habitat} object. Currently
-#'   this can either be a \link[raster]{raster}, a list or \code{NULL} (see \code{details}),
-#'   though more approaches will be added in the future
-#' @return an object of class \code{habitat}, essentially a dataframe
-#'   containing the coordinates, area, population and features (as columns) for
-#'   each patch (rows)
-#' @author Nick Golding
+#' @param features A named list of landscapes (or seascape) features and parameters used for setting up the habitat for dynamic metapopulation models.
+#' @details parameter details for habitat function.
+#' \itemize{
+#' \item{habitat_suitability_map}{ List a named list that contains a \link[raster]{raster} that represents habitat suitability for the species. This need to be probabilitic (between zero and one). Functions that manipulate the landscape will alter this throughout the dynamic metapopulation simulations.}
+#' \item{populations}{ List starting populations for each life-history stage. Either a \link[sp]{SpatialPointsDataFrame} which has the population size for each life history linked to a coordinate within the extent of the habitat_suitability_map. A raster of population per-cell for each life-history stage, or finally a single integer of population size for each life-histroy stage.}
+#' \item{carrying_capacity}{ List either a raster that represent the carrying capacity of adult populations for each cell; a function which manipulates the habitat_suitability_map and converts it to carrying capacity; or finally an integer which presents a maximum carrying capacity for all cells.}
+#' }
+#' @return an object of class \code{habitat}.
+#' @author Nick Golding & Skip Woolley
 #' @export
 #' @examples
 #' @examples
@@ -23,30 +25,29 @@
 #' coordinates(xy) <- ~x+y
 #' r <- rasterize(xy, raster(points2grid(xy)), 'z')
 #' proj4string(r) <- '+init=epsg:4283'
+#' r[] <- scales::rescale(r[],to=c(0,1))
 #' 
-#' #'# create a habitat from a list containing a raster that represents a habitat suitability model / species distribution model.
-#' habs <- as.habitat(list(r,population = as.population(t(rmultinom(1, 
-#'                                size = 100, prob = c(0.8,0.2,0.01))))))
+#' ## create a habitat from a list containing a habitat suitability raster and numeric values for population and carrying capacity.
+#' features <- list('habitat_suitability_map'=r,
+#'                        'population'=c(80,20,10),
+#'                        'carrying_capacity'=100)
+#' habs <- as.habitat(features)
+#'                        
+#' ## create a habitat from a list containing a habitat suitability raster, a SpatialPointsDataFrame for population and numeric values carrying capacity.
+#' random_populations <- sampleRandom(r, size=50, na.rm=TRUE, sp=TRUE) 
+#' random_populations@data <- as.data.frame(t(rmultinom(50, size = 100, prob = c(0.8,0.2,0.1))))
+#' features <- list('habitat_suitability_map'=r,
+#'                        'population'=random_populations,
+#'                        'carrying_capacity'=100)
+#'                                                 
+#' habs <- as.habitat(features)
 #'                                
 #' #create a habitat from a list containing just a species distribution model will estimate populations per-patch.
-#' habs <- as.habitat(list(r2))
-#' 
-#' # create a default habitat
-#' habs <- as.habitat(NULL)
-#'
-#' # create a multipatch habitat
-#' patches <- list(coordinates = data.frame(x=runif( 10, min=-10, max=10),
-#'                                                     y=runif( 10, min=-10, max=10)),
-#'                                area = as.data.frame(exp(-seq(.1,10,length.out = 10))*10),
-#'                                population = as.population(data.frame('larvae'=80,'juvenile'=29,'adult'=5)),
-#'                                features = data.frame(temperature = 10))
-#' habs <- as.habitat(patches)
-#'                                
+#' habs <- as.habitat(list(r))
 
-as.habitat <- function (patches) {
-  switch(class(patches)[1],
-         NULL = habitatDefault(),
-         list = list2habitat(patches))
+as.habitat <- function (features,...) {
+           stopifnot(is.list(features))  
+           if(is.list(features))list2habitat(features,...)
 }
 
 #' @rdname habitat
@@ -62,42 +63,13 @@ is.habitat <- function (x) inherits(x, 'habitat')
 #' print(habitat)
 #'
 print.habitat <- function(x, ...) {
-  if (is.null(nrow(x$distance))) text <- sprintf('an a-spatial habitat with %s patch\n',1)
-  else text <- sprintf('a spatial habitat with %s patches\n',nrow(x$distance))
+  text <- sprintf('a spatial habitat with %s cells (patches if you prefer)\n',length(x$habitat_suitability_map[!is.na(x$habitat_suitability_map[])]))
   cat(text)
-}
-
-
-#' @rdname habitat
-#' @export
-#' @param habitat an object of class \code{habitat}
-#' @details the accessor functions \code{distance}, \code{area},
-#'   \code{population} and \code{features} either return or set corresponding
-#'   sub-dataframes of the \code{habitat} object
-#' @examples
-#' # get and set the area
-#' area(habitat)
-#'
-
-area <- function (habitat) {
-  stopifnot(is.habitat(habitat))
-  ans <- habitat$habitat[, attr(habitat$habitat, 'area'), drop = FALSE]
-  ans <- squashhabitat(ans)
-  return (ans)
-}
-
-#' @rdname habitat
-#' @export
-`area<-` <- function (habitat, value) {
-  areaCheck(value)
-  stopifnot(is.habitat(habitat))
-  habitat$habitat[, attr(habitat$habitat, 'area')] <- value
-  habitat
 }
 
 #' @rdname habitat
 #' @name as.population
-#' @param x a vector, data.frame or matrix of population(s) numbers for each stage(s) and each patch(s)
+#' @param x a vector, data.frame, matrix or raster of population(s) numbers for each stage(s) and each patch(s)
 #' @export
 #' @examples 
 #' # starting population numbers for each step in the demographic function
@@ -158,12 +130,10 @@ population <- function (habitat) {
   habitat
 }
 
-
 #' @rdname habitat
 #' @name pop_patch_name
 #' @param habitat
-pop_patch_name <- function (habitat) 
-{
+pop_patch_name <- function (habitat){
   states <- gsub('populations.','',colnames(population(habitat)))
   patches <- as.character(seq_len(nrow(population(habitat))))
   if (length(patches) == 1) {
@@ -179,7 +149,7 @@ pop_patch_name <- function (habitat)
 #' @rdname habitat
 #' @export
 #' @examples
-#'# get and set the features
+#' get and set the features
 #' features(habitat)
 
 features <- function (habitat) {
@@ -239,65 +209,22 @@ spatial_patches <- function (habitat) {
 #' @rdname habitat
 #' @export
 #' @examples
-#'# get and set the features
+#' # get and set the features
 #' suitability(habitat)
 #'
 suitability <- function (habitat) {
   stopifnot(is.habitat(habitat))
-  ans <- habitat$starting_raster
+  ans <- habitat$habitat_suitability_map
   return (ans)
 }
 
 #' @rdname habitat
 #' @export
-`suitability<-` <- function (habitat, newpatch) {
+`suitability<-` <- function (habitat, updated_habitat_suitability_map) {
   stopifnot(is.habitat(habitat))
-  suitabilityCheck(newpatch)
-  habitat$starting_raster <- value
+  suitabilityCheck(updated_habitat_suitability_map)
+  habitat$habitat_suitability_map <- updated_habitat_suitability_map
   habitat
-}
-
-
-#' @rdname habitat
-#' @export
-#' @examples
-#'# get and set the features
-#' coordinates(habitat)
-#'
-coords <- function (habitat) {
-  stopifnot(is.habitat(habitat))
-  ans <- habitat$habitat[, attr(habitat$habitat, 'coordinates'), drop = FALSE]
-  ans <- squashhabitat(ans)
-  return (ans)
-}
-
-#' @rdname habitat
-#' @export
-`coords<-` <- function (habitat, value) {
-  stopifnot(is.habitat(habitat))
-  coordinatesCheck(value)
-  stopifnot(all.equal(names(coordinates(habitat)), names(value)))
-  habitat$habitat[, attr(habitat$habitat, 'coordinates')] <- value
-  habitat
-}
-
-#' @rdname habitat
-#' @export
-#' @examples
-#'# get and set the distance matrix
-#' distance(habitat)
-#'
-distance <- function (habitat) {
-  stopifnot(is.habitat(habitat))
-  ans <- habitat$distance
-  return (ans)
-}
-
-#' @rdname habitat
-#' @name is.distance
-#' @export
-is.distance <- function (x) {
-  inherits(x, 'distance')
 }
 
 #' @rdname habitat
@@ -318,7 +245,6 @@ is.distance <- function (x) {
   attrib_habitat$row.names <- attrib_habitat$row.names[i]
   d <- dist[i, i, drop = FALSE]
   rownames(d) <- colnames(d) <- seq_along(i)
-  x$distance <- d
   x$habitat <- squashhabitat(x$habitat)
   x$habitat <- x$habitat[i, ]
   attributes(x$habitat) <- attrib_habitat
@@ -327,13 +253,13 @@ is.distance <- function (x) {
 
 #' 
 #' @rdname habitat
-#' @name carrying_capacity
+#' @name  carrying_capacity_function
 #' @param x a raster of species habitit suitability (occupancy).
 #' @param type model form for converting occurrence to carrying capacity.
 #' @param list parameters used to convert a habitat suitability map to carrying capacity. 
 #' @author Skipton Woolley
-carrying_capacity <- function(x,type=c('exp','logit','linear','custom'),...){
-  print(as.list(match.call(params)))
+carrying_capacity_function <- function(x,type=c('exp','logit','linear','custom'),...){
+  print(as.list(match.call(x)))
   type <- match.arg(type)
   switch(type,
          exp = exp((a*x)-b),
@@ -341,6 +267,81 @@ carrying_capacity <- function(x,type=c('exp','logit','linear','custom'),...){
          logit = a+(1/(1+exp(-b*x+c))),
          custom = custom_fun)
 }
+
+
+list2habitat <- function (input) {
+
+  # need to include the capacity to identify rasters (HSM)
+  # check the elements
+  which_inputs_are_rasters <- which(sapply(input,function(x)inherits(x,"RasterLayer")))
+  which_inputs_are_not_rasters <- which(sapply(input,function(x)!inherits(x,"RasterLayer")))
+
+  
+  
+  
+    habitat <- raster2habitat(input)
+  } else {
+    
+    if(length(input)<4)stop()
+    
+    stopifnot(length(input) == 4)
+    stopifnot(sort(names(input)) == c('area', 'coordinates', 'features', 'population'))
+    stopifnot(all(sapply(input, is.data.frame)))
+    
+    # check components
+    areaCheck(input$area)
+    if(names(input$area)!='area')names(input$area)<-'area'
+    populationCheck(input$population)
+    
+    # reset order and tidy up row names
+    suppressWarnings(habitat <-  list(habitat=data.frame(input$coordinates,
+      area = input$area,
+      input$population,
+      input$features)))
+    rownames(habitat$habitat) <- 1:nrow(habitat$habitat)
+    # work out column numbers
+    ncoord <- ncol(input$coordinates)
+    narea <- 1
+    npop <- ncol(input$population)
+    nfeat <- ncol(input$features)
+    
+    attr(habitat$habitat, 'coordinates') <- seq_len(ncoord)
+    attr(habitat$habitat, 'area') <- narea + ncoord
+    attr(habitat$habitat, 'population') <- seq_len(npop) + narea + ncoord
+    attr(habitat$habitat, 'features') <- seq_len(nfeat) + npop + narea + ncoord
+    
+    # set class
+    class(habitat) <- c('habitat', class(habitat))
+    
+    # add distance matrix
+    habitat$distance <- as.matrix(dist(input$coordinates))
+  }
+  # set class & return
+  return (habitat)
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 raster2habitat <- function(input){ # will add in other options here later, but first lets get it working.
   r_id <- which(sapply(input,function(x)inherits(x,"RasterLayer")))
