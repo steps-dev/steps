@@ -69,17 +69,19 @@ BEGIN_RCPP
 END_RCPP
 }
 // proportion_of_population_to_disperse
-int proportion_of_population_to_disperse(int source_x, int source_y, NumericMatrix starting_population_state, NumericMatrix current_carrying_capacity, double dispersal_proportion);
-RcppExport SEXP _dhmpr_proportion_of_population_to_disperse(SEXP source_xSEXP, SEXP source_ySEXP, SEXP starting_population_stateSEXP, SEXP current_carrying_capacitySEXP, SEXP dispersal_proportionSEXP) {
+int proportion_of_population_to_disperse(int source_x, int source_y, int sink_x, int sink_y, NumericMatrix starting_population_state, NumericMatrix current_carrying_capacity, double dispersal_proportion);
+RcppExport SEXP _dhmpr_proportion_of_population_to_disperse(SEXP source_xSEXP, SEXP source_ySEXP, SEXP sink_xSEXP, SEXP sink_ySEXP, SEXP starting_population_stateSEXP, SEXP current_carrying_capacitySEXP, SEXP dispersal_proportionSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type source_x(source_xSEXP);
     Rcpp::traits::input_parameter< int >::type source_y(source_ySEXP);
+    Rcpp::traits::input_parameter< int >::type sink_x(sink_xSEXP);
+    Rcpp::traits::input_parameter< int >::type sink_y(sink_ySEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type starting_population_state(starting_population_stateSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type current_carrying_capacity(current_carrying_capacitySEXP);
     Rcpp::traits::input_parameter< double >::type dispersal_proportion(dispersal_proportionSEXP);
-    rcpp_result_gen = Rcpp::wrap(proportion_of_population_to_disperse(source_x, source_y, starting_population_state, current_carrying_capacity, dispersal_proportion));
+    rcpp_result_gen = Rcpp::wrap(proportion_of_population_to_disperse(source_x, source_y, sink_x, sink_y, starting_population_state, current_carrying_capacity, dispersal_proportion));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -121,7 +123,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dhmpr_total_dispersal_cells", (DL_FUNC) &_dhmpr_total_dispersal_cells, 1},
     {"_dhmpr_can_source_cell_disperse", (DL_FUNC) &_dhmpr_can_source_cell_disperse, 11},
     {"_dhmpr_clean_matrix", (DL_FUNC) &_dhmpr_clean_matrix, 5},
-    {"_dhmpr_proportion_of_population_to_disperse", (DL_FUNC) &_dhmpr_proportion_of_population_to_disperse, 5},
+    {"_dhmpr_proportion_of_population_to_disperse", (DL_FUNC) &_dhmpr_proportion_of_population_to_disperse, 7},
     {"_dhmpr_na_matrix", (DL_FUNC) &_dhmpr_na_matrix, 2},
     {"_dhmpr_rcpp_dispersal", (DL_FUNC) &_dhmpr_rcpp_dispersal, 10},
     {NULL, NULL, 0}
