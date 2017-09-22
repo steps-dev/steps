@@ -2,10 +2,10 @@
 % Please edit documentation in R/transition-class.R
 \name{as.transition}
 \alias{as.transition}
-\alias{is.transition}
-\alias{plot.transition}
-\alias{states}
 \alias{summary.transition}
+\alias{states}
+\alias{plot.transition}
+\alias{is.transition}
 \title{transition objects}
 \usage{
 as.transition(x, ...)
@@ -43,13 +43,6 @@ Once a transition object is created \code{summary} will return:
 mat <- matrix(c(.53,0,.52,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
 colnames(mat) <- rownames(mat) <- c('larvae','juvenile','adult') 
 trans <- as.transition(mat)
-
-# Add an dispersal object to transition
-params <- list(alpha=list('larvae'=2,'juvenile'=0,'adult'=3),
-               probability=list('larvae'=0.2,'juvenile'=0,'adult'=0.6))  
-all.disperse.different <-  dispersal(params)
-trans <- as.transition(mat,all.disperse.different)
-
 summary(tmat)
 
 # get component states
@@ -64,4 +57,3 @@ Skipton Woolley
 
 Nick Golding
 }
-

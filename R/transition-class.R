@@ -17,13 +17,6 @@
 #' mat <- matrix(c(.53,0,.52,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
 #' colnames(mat) <- rownames(mat) <- c('larvae','juvenile','adult') 
 #' trans <- as.transition(mat)
-#' 
-#' # Add an dispersal object to transition
-#' params <- list(alpha=list('larvae'=2,'juvenile'=0,'adult'=3),
-#'                probability=list('larvae'=0.2,'juvenile'=0,'adult'=0.6))  
-#' all.disperse.different <-  dispersal(params)
-#' trans <- as.transition(mat,all.disperse.different)
-#' 
 
 as.transition <- function(x, ...){
     object <- list(...)
@@ -164,14 +157,6 @@ subTransition <- function (x, i) {
   x <- x[i]
   attributes(x) <- attrib
   return (x)
-}
-
-check_trans_disp <- function(x,object){
-  mat_names <- colnames(x)
-  disp_names <- names(object[[1]]$alpha)
-  if(all(mat_names %in% disp_names))
-  if(!any(mat_names %in% disp_names)) stop('dispersal and matrix stage names do not match')
-  stopifnot(any(mat_names %in% disp_names))
 }
 
 dots <- function(...) {

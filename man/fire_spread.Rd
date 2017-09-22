@@ -41,4 +41,3 @@ Which will have an effect on the metapopulation models.
 \examples{
 
 }
-

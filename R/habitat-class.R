@@ -5,7 +5,7 @@
 #' @param features A named list of landscapes (or seascape) features and parameters used for setting up the habitat for dynamic metapopulation models.
 #' @details parameter details for habitat function.
 #' \itemize{
-#' \item{habitat_suitability_map}{ List a named list that contains a \link[raster]{raster} that represents habitat suitability for the species. This need to be probabilitic (between zero and one). Functions that manipulate the landscape will alter this throughout the dynamic metapopulation simulations.}
+#' \item{habitat_suitability_map}{ List a named list that contains a \link[raster]{raster} that represents habitat suitability for the species. This need to be probabilitic (between zero and one). Functions that manipulate the landscape will alter this throughout the dynamic metapopulation simulations. This can also be a \link[raster]{stack} or \link[raster]{brick}, if a raster stack or brick is provided, then then each raster in the stack or brick represents a temporal change in habitat suitability. For example, 10 rasters could represent habitat suitability over a ten year period, one per year.  
 #' \item{populations}{ List starting populations for each life-history stage. Either a \link[sp]{SpatialPointsDataFrame} which has the population size for each life history linked to a coordinate within the extent of the habitat_suitability_map. A raster of population per-cell for each life-history stage, or finally a single integer of population size for each life-histroy stage.}
 #' \item{carrying_capacity}{ List either a raster that represent the carrying capacity of adult populations for each cell; a function which manipulates the habitat_suitability_map and converts it to carrying capacity; or finally an integer which presents a maximum carrying capacity for all cells.}
 #' }
@@ -269,76 +269,76 @@ carrying_capacity_function <- function(x,type=c('exp','logit','linear','custom')
 }
 
 
-list2habitat <- function (input) {
-
-  # need to include the capacity to identify rasters (HSM)
-  # check the elements
-  which_inputs_are_rasters <- which(sapply(input,function(x)inherits(x,"RasterLayer")))
-  which_inputs_are_not_rasters <- which(sapply(input,function(x)!inherits(x,"RasterLayer")))
-
-  
-  
-  
-    habitat <- raster2habitat(input)
-  } else {
-    
-    if(length(input)<4)stop()
-    
-    stopifnot(length(input) == 4)
-    stopifnot(sort(names(input)) == c('area', 'coordinates', 'features', 'population'))
-    stopifnot(all(sapply(input, is.data.frame)))
-    
-    # check components
-    areaCheck(input$area)
-    if(names(input$area)!='area')names(input$area)<-'area'
-    populationCheck(input$population)
-    
-    # reset order and tidy up row names
-    suppressWarnings(habitat <-  list(habitat=data.frame(input$coordinates,
-      area = input$area,
-      input$population,
-      input$features)))
-    rownames(habitat$habitat) <- 1:nrow(habitat$habitat)
-    # work out column numbers
-    ncoord <- ncol(input$coordinates)
-    narea <- 1
-    npop <- ncol(input$population)
-    nfeat <- ncol(input$features)
-    
-    attr(habitat$habitat, 'coordinates') <- seq_len(ncoord)
-    attr(habitat$habitat, 'area') <- narea + ncoord
-    attr(habitat$habitat, 'population') <- seq_len(npop) + narea + ncoord
-    attr(habitat$habitat, 'features') <- seq_len(nfeat) + npop + narea + ncoord
-    
-    # set class
-    class(habitat) <- c('habitat', class(habitat))
-    
-    # add distance matrix
-    habitat$distance <- as.matrix(dist(input$coordinates))
-  }
-  # set class & return
-  return (habitat)
-  
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# list2habitat <- function (input) {
+# 
+#   # need to include the capacity to identify rasters (HSM)
+#   # check the elements
+#   which_inputs_are_rasters <- which(sapply(input,function(x)inherits(x,"RasterLayer")))
+#   which_inputs_are_not_rasters <- which(sapply(input,function(x)!inherits(x,"RasterLayer")))
+# 
+#   
+#   
+#   
+#     habitat <- raster2habitat(input)
+#   } else {
+#     
+#     if(length(input)<4)stop()
+#     
+#     stopifnot(length(input) == 4)
+#     stopifnot(sort(names(input)) == c('area', 'coordinates', 'features', 'population'))
+#     stopifnot(all(sapply(input, is.data.frame)))
+#     
+#     # check components
+#     areaCheck(input$area)
+#     if(names(input$area)!='area')names(input$area)<-'area'
+#     populationCheck(input$population)
+#     
+#     # reset order and tidy up row names
+#     suppressWarnings(habitat <-  list(habitat=data.frame(input$coordinates,
+#       area = input$area,
+#       input$population,
+#       input$features)))
+#     rownames(habitat$habitat) <- 1:nrow(habitat$habitat)
+#     # work out column numbers
+#     ncoord <- ncol(input$coordinates)
+#     narea <- 1
+#     npop <- ncol(input$population)
+#     nfeat <- ncol(input$features)
+#     
+#     attr(habitat$habitat, 'coordinates') <- seq_len(ncoord)
+#     attr(habitat$habitat, 'area') <- narea + ncoord
+#     attr(habitat$habitat, 'population') <- seq_len(npop) + narea + ncoord
+#     attr(habitat$habitat, 'features') <- seq_len(nfeat) + npop + narea + ncoord
+#     
+#     # set class
+#     class(habitat) <- c('habitat', class(habitat))
+#     
+#     # add distance matrix
+#     habitat$distance <- as.matrix(dist(input$coordinates))
+#   }
+#   # set class & return
+#   return (habitat)
+#   
+# }
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
 
 
 
