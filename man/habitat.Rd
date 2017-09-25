@@ -13,7 +13,6 @@
 \alias{is.habitat_suitability}
 \alias{is.populations}
 \alias{patches}
-\alias{pop_patch_name}
 \alias{population}
 \alias{population<-}
 \alias{print.habitat}
@@ -40,8 +39,6 @@ is.populations(x)
 population(habitat)
 
 population(habitat) <- value
-
-pop_patch_name(habitat)
 
 patches(habitat, which_stages = NULL)
 
@@ -103,8 +100,8 @@ habs <- as.habitat(features)
 random_populations <- sampleRandom(r, size=50, na.rm=TRUE, sp=TRUE) 
 random_populations@data <- as.data.frame(t(rmultinom(50, size = 100, prob = c(0.8,0.2,0.1))))
 features <- list('habitat_suitability_map'=as.habitat_suitability(r),
-                       'population'=as.populations(random_populations),
-                       'carrying_capacity'=as.carrying_capacity(100))
+                 'population'=as.populations(random_populations),
+                 'carrying_capacity'=as.carrying_capacity(100))
                                                 
 habs <- as.habitat(features)
 # print method

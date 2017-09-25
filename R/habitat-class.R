@@ -41,8 +41,8 @@
 #' random_populations <- sampleRandom(r, size=50, na.rm=TRUE, sp=TRUE) 
 #' random_populations@data <- as.data.frame(t(rmultinom(50, size = 100, prob = c(0.8,0.2,0.1))))
 #' features <- list('habitat_suitability_map'=as.habitat_suitability(r),
-#'                        'population'=as.populations(random_populations),
-#'                        'carrying_capacity'=as.carrying_capacity(100))
+#'                  'population'=as.populations(random_populations),
+#'                  'carrying_capacity'=as.carrying_capacity(100))
 #'                                                 
 #' habs <- as.habitat(features)
 
@@ -56,9 +56,8 @@ as.habitat <- function (features,...) {
            if(!is.habitat_suitability(features[[1]]))stop('first object in list must be "habitat_suitability"')
            if(!is.populations(features[[2]]))stop('second object in list must be "populations"')
            if(!is.carrying_capacity(features[[3]]))stop('third object in list must be "carrying_capacity"')
-           features  
-           # transformed_habitat <- list2habitat(features}
-           # return(transformed_habitat)
+           transformed_habitat <- list2habitat(features)
+           return(transformed_habitat)
 }
 
 #' @rdname habitat
@@ -187,22 +186,6 @@ population <- function (habitat) {
 }
 
 #' @rdname habitat
-#' @name pop_patch_name
-#' @param habitat
-pop_patch_name <- function (habitat){
-  states <- gsub('populations.','',colnames(population(habitat)))
-  patches <- as.character(seq_len(nrow(population(habitat))))
-  if (length(patches) == 1) {
-    names <- states
-  }
-  else {
-    names <- apply(expand.grid(states, patches), 1, paste, 
-                   sep = "", collapse = "_patch_")
-  }
-  return(names)
-}
-
-#' @rdname habitat
 #' @export
 #' @examples
 #' get and set the features
@@ -223,7 +206,6 @@ patches <- function (habitat, which_stages=NULL) {
 #' @name as.carrying_capacity
 #' @export
 #' @examples 
-
 
 as.carrying_capacity <- function(x,...){
   stopifnot(inherits(x,c("RasterLayer","RasterBrick","RasterStack","numeric","function")))
@@ -289,13 +271,13 @@ list2habitat <- function (input) {
   # sort out the populations inputs.
   # if population is not a raster generate a raster from numeric or spatial points data frame.
   # update and make a brick.
-  if(!inherits(inputs[[2]],c("RasterLayer","RasterStack","RasterBrick"))){
+  if(!inherits(input[[2]],c("RasterLayer","RasterStack","RasterBrick"))){
     input[[2]] <- populations2rasterbrick(input[[2]],input[[1]])
   }
   
   if(inherits(input[[2]],c("RasterStack","RasterBrick"))){
     npops <- nlayers(input[[2]])
-    habitat_list <- sapply(1:npops,function(x){habitat_list[[x+nrasters]]<-input[[2]][[x]]})
+    habitat_list[c(nrasters+1):c(nrasters+npops)] <- sapply(1:npops,function(x){habitat_list[[x+nrasters]]<-input[[2]][[x]]})
   } else {
     stop('check your population inputs, something is going wrong.')
   }
@@ -313,16 +295,17 @@ list2habitat <- function (input) {
   habitat_list[[nrasters]] <- input[[3]] 
   
   # generate an area raster from habitat suitability.
+  nrasters <- nrasters + 1
   area <- area_of_region(input[[1]]) # previous checks means this is a raster of some kind. 
   area_check(area)
-  attr(area, "habitat") <- "area"
+  habitat_list[[nrasters]] <- area
   
-  ## need to declare attributes correctly? not sure how to do this...
-  # lapply(  attr(habitat_list, 'habitat_suitability') <- 'habitat_suitability'
-  # attr(habitat$habitat, 'area') <- narea + ncoord
-  # attr(habitat$habitat, 'population') <- seq_len(npop) + narea + ncoord
-  # attr(habitat$habitat, 'features') <- seq_len(nfeat) + npop + narea + ncoord
-
+  # ## need to declare attributes correctly? not sure how to do this...
+  habitat_list[1:nhsm] <- lapply(habitat_list[1:nhsm], `attr<-`, "habitat", "habitat_suitability")
+  habitat_list[c(1+nhsm):c(nhsm+npops)] <- lapply(habitat_list[c(1+nhsm):c(nhsm+npops)], `attr<-`, "habitat", "populations")
+  habitat_list[c(1+nhsm+npops)] <- lapply(habitat_list[c(1+nhsm+npops)], `attr<-`, "habitat", "carrying_capacity")
+  habitat_list[c(2+nhsm+npops)] <- lapply(habitat_list[c(2+nhsm+npops)], `attr<-`, "habitat", "area")
+  
   # set class
   class(habitat_list) <- c('habitat')
 
@@ -343,10 +326,10 @@ area_check <- function (area) {
   stopifnot(all(area[!is.na(area[])] > 0))
 }
 
-population_check <- function (population) {
-  stopifnot(all(sapply(population, is.finite)))
-  stopifnot(all(sapply(population, function(x) all(x >= 0))))
-}
+# population_check <- function (population) {
+#   stopifnot(all(sapply(population, is.finite)))
+#   stopifnot(all(sapply(population, function(x) all(x >= 0))))
+# }
 
 ## internal function for converting non-raster populations into rasters. 
 ## raster bricks are more efficent. 
