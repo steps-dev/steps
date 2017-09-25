@@ -28,7 +28,6 @@
 #' r[] <- scales::rescale(r[],to=c(0,1))
 #' 
 #' ## create a habitat from a list containing a habitat suitability raster and numeric values for population and carrying capacity.
-#' 
 #' hsm <- as.habitat_suitability(r)
 #' pops <- as.populations(c(80,20,10))
 #' cc <- as.carrying_capacity(100)
@@ -46,9 +45,6 @@
 #'                        'carrying_capacity'=as.carrying_capacity(100))
 #'                                                 
 #' habs <- as.habitat(features)
-#'                                
-#' #create a habitat from a list containing just a species distribution model will estimate populations per-patch.
-#' habs <- as.habitat(list(r))
 
 #########################
 ### habitat functions ###
@@ -60,9 +56,9 @@ as.habitat <- function (features,...) {
            if(!is.habitat_suitability(features[[1]]))stop('first object in list must be "habitat_suitability"')
            if(!is.populations(features[[2]]))stop('second object in list must be "populations"')
            if(!is.carrying_capacity(features[[3]]))stop('third object in list must be "carrying_capacity"')
-           # if(is.list(features))list2habitat(features,...)
-           # class(features)<-c('habitat')
-           features    
+           features  
+           # transformed_habitat <- list2habitat(features}
+           # return(transformed_habitat)
 }
 
 #' @rdname habitat
