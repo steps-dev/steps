@@ -2,18 +2,18 @@
 % Please edit documentation in R/dispersal-class.R
 \name{as.dispersal}
 \alias{as.dispersal}
-\alias{bcb}
 \alias{d}
-\alias{dispersalFFT}
-\alias{dispersal_core_ca}
-\alias{dispersal_core_fft}
-\alias{extend}
-\alias{extent}
-\alias{ifft}
 \alias{is.dispersal}
 \alias{print.dispersal}
-\alias{seq_range}
+\alias{extent}
+\alias{extend}
+\alias{bcb}
 \alias{setupFFT}
+\alias{dispersalFFT}
+\alias{seq_range}
+\alias{ifft}
+\alias{dispersal_core_ca}
+\alias{dispersal_core_fft}
 \title{dispersal class for metapoplations}
 \usage{
 as.dispersal(params, ...)
@@ -43,11 +43,11 @@ dispersal_core_fft(params, habitat, time, ...)
 \arguments{
 \item{params}{List a list of NamedLists which contain the parameters form dispersal behaviour - see details below for more information.}
 
+\item{\dots}{further arguments passed to or from other methods.}
+
 \item{x}{an object to be tested as a dispersal transfun object}
 
 \item{method}{Can be either fast fourier transformtion = 'fft'; or cellular automata = 'ca'.}
-
-\item{\dots}{further arguments passed to or from other methods.}
 }
 \description{
 creates a function that governs dispersal capacity of stages in a population. The input is a list which contains the first list is a dispersal kernel \code{dispersal} value for life-history stage, the second named list \code{} is the proportion of that stage will disperse. For example a probability of 0.2 for stage larvae means a random 20% of larve will a try and disperse to patches, the distance they can disperse is governed by the dispersal kernel (alpha). If params = NULL, a dispersal kernel of 1 is given to all stages, and all stages will attempt to undertake dispersal. If NULL is provided to the as.dispersal function, diffuse dispersal will be used based on the fast fourier transformation method ('fft').
@@ -105,4 +105,3 @@ fs <- setupFFT(x = x, y = y, f = f, factor = 1)
 # apply dispersal to the population (need to run this separately for each stage)
 pop_new <- dispersalFFT(popmat = pop, fs = fs)
 }
-

@@ -1,7 +1,6 @@
 #' @title habitat objects
 #' @description Habitat is an object that contains the spatial distribution of the populations, habitat suitability and carrying capacity for the landscape or seascape. Habitat requires either predefined rasters of population size for each life-history, habitat suitability map (e.g. a species distribution model) and carrying capacity. However, habitat suitability map is the only mandatory raster, population and carrying capacity can be provided as numeric values or functions which manipulate the habitat suitability map rasters to generate population per-cell and/or carrying capacity per-cell.
 #' @rdname habitat
-#' @name as.habitat
 #' @param features A named list of landscapes (or seascape) features and parameters used for setting up the habitat for dynamic metapopulation models.
 #' @details parameter details for habitat function.
 #' \itemize{
@@ -35,7 +34,7 @@
 #' features <- list('habitat_suitability_map'=hsm,
 #'                  'population'=pops,
 #'                  'carrying_capacity'=cc)
-#' habs <- as.habitat(features)
+#' habitat <- as.habitat(features)
 #'                        
 #' ## create a habitat from a list containing a habitat suitability raster, a SpatialPointsDataFrame for population and numeric values carrying capacity.
 #' random_populations <- sampleRandom(r, size=50, na.rm=TRUE, sp=TRUE) 
@@ -44,7 +43,7 @@
 #'                  'population'=as.populations(random_populations),
 #'                  'carrying_capacity'=as.carrying_capacity(100))
 #'                                                 
-#' habs <- as.habitat(features)
+#' habitat <- as.habitat(features)
 
 #########################
 ### habitat functions ###
@@ -73,7 +72,10 @@ is.habitat <- function (x) inherits(x, 'habitat')
 #' print(habitat)
 
 print.habitat <- function(x, ...) {
-  text <- sprintf('a spatial habitat with %s cells (patches if you prefer)\n',length(x$habitat_suitability_map[!is.na(x$habitat_suitability_map[])]))
+  hsms <- sum(lapply(x,attr,"habitat")=='habitat_suitability')
+  stages <- sum(lapply(x,attr,"habitat")=='populations')
+  ncells <- length(x[[1]][!is.na(x[[1]])])
+  text <- sprintf('%s habitat suitability layer with %s patches (cells) and \n%s population life-history stages.\n',hsms,ncells,stages)
   cat(text)
 }
 
@@ -85,15 +87,14 @@ print.habitat <- function(x, ...) {
 #' @name as.habitat_suitability
 #' @param x a raster, raster stack or raster brick of habitat suitability for the species.
 #' @export
-#' @examples 
+#' @examples
+#'  
 #' # Underlying habitat suitability map
 #' hsm <- as.habitat_suitability(r)
 
 as.habitat_suitability <- function(x,...){
   stopifnot(inherits(x,c("RasterLayer","RasterBrick","RasterStack")))
   attr(x, "habitat") <- "habitat_suitability"
-  # this causes conflicts with s4 classes.
-  # base::class(x)<-c("habitat_suitability", class(x))
   return(x)
 }
 
@@ -101,7 +102,7 @@ as.habitat_suitability <- function(x,...){
 #' @name is.habitat_suitability
 #' @export
 #' @examples
-#' hsm <- as.habitat_suitability(r)
+#' 
 #' is.habitat_suitability(hsm)
 
 is.habitat_suitability <- function (x) {
@@ -111,21 +112,21 @@ is.habitat_suitability <- function (x) {
 #' @rdname habitat
 #' @export
 #' @examples
-#' # get and set the features
+#' 
 #' habitat_suitability(habitat)
 
-habitat_suitability <- function (habitat) {
+habitat_suitability <- function (habitat,time_step=1) {
   stopifnot(is.habitat(habitat))
-  ans <- habitat$habitat_suitability_map
+  ans <- habitat[which(sapply(habitat,attr,"habitat")=='habitat_suitability')][[time_step]]
   return (ans)
 }
 
 #' @rdname habitat
 #' @export
-`habitat_suitability<-` <- function (habitat, updated_habitat_suitability_map) {
+`habitat_suitability<-` <- function (habitat, updated_habitat_suitability_map,time_step=1) {
   stopifnot(is.habitat(habitat))
-  suitabilityCheck(updated_habitat_suitability_map)
-  habitat$habitat_suitability_map <- updated_habitat_suitability_map
+  # check_habitat_suitability(updated_habitat_suitability_map)
+  habitat[which(sapply(habitat,attr,"habitat")=='habitat_suitability')][[time_step]] <- updated_habitat_suitability_map
   habitat
 }
 
@@ -135,18 +136,14 @@ habitat_suitability <- function (habitat) {
 
 #' @rdname habitat
 #' @name as.populations
-#' @param x Starting populations for each life-history stage. Either a \link[sp]{SpatialPointsDataFrame} which has the population size for each life history linked to a coordinate within the extent of the habitat_suitability_map. A raster of population per-cell for each life-history stage, or finally a single integer of population size for each life-histroy stage.
 #' @export
-#' @examples 
-#' # Underlying habitat suitability map
-#' random_populations <- sampleRandom(r, size=50, na.rm=TRUE, sp=TRUE) 
-#' random_populations@data <- as.data.frame(t(rmultinom(50, size = 100, prob = c(0.8,0.2,0.1))))
-#' population <- as.populations(random_populations)
+#' @examples
+#' 
+#' as.populations(c(80,60,20))
 
 as.populations <- function(x,...){
   stopifnot(inherits(x,c("RasterLayer","RasterBrick","RasterStack","SpatialPointsDataFrame","numeric")))
   attr(x, "habitat") <- "populations"
-  # base::class(x)<-c("populations", class(x))
   return(x)
 }
 
@@ -154,6 +151,7 @@ as.populations <- function(x,...){
 #' @name is.populations
 #' @export
 #' @examples
+#' 
 #' is.populations(pops)
 is.populations <- function (x) {
   attr(x, 'habitat')=="populations"
@@ -162,38 +160,39 @@ is.populations <- function (x) {
 #' @rdname habitat
 #' @export
 #' @examples
+#' 
 #' # get and set the population
-#' population(habitat)
-#' population(habitat) <- population(habitat) * 2
-#' population(habitat)
+#' populations(habitat)
+#' populations(habitat) <- populations(habitat) * 2
+#' populations(habitat)
 
-population <- function (habitat) {
+populations <- function (habitat) {
   stopifnot(is.habitat(habitat))
   # habitat[[which(sapply(habitat,attr,"habitat")=='populations')]]
-  pop <- habitat[[which(sapply(habitat,attr,"habitat")=='populations')]]
+  pop <- habitat[which(sapply(habitat,attr,"habitat")=='populations')]
   # ans <- squashhabitat(ans)
   return (pop)
 }
 
 #' @rdname habitat
 #' @export
-`population<-` <- function (habitat, value) {
+`populations<-` <- function (habitat, new_populations) {
   stopifnot(is.habitat(habitat))
-  populationCheck(value)
-  stopifnot(all.equal(names(population(habitat)), names(value)))
-  habitat$habitat[, attr(habitat$habitat, 'population')] <- value
+  # population_check(value)
+  habitat[which(sapply(habitat,attr,"habitat")=='populations')]<-new_populations
   habitat
 }
 
 #' @rdname habitat
 #' @export
 #' @examples
-#' get and set the features
+#' 
+#' # get population values at patches (cells)
 #' patches(habitat)
 patches <- function (habitat, which_stages=NULL) {
   stopifnot(is.habitat(habitat))
-  if(is.null(stage)) which_stages <- stages(habitat) 
-  pops <- population(habitat)[[which_stages]]
+  if(is.null(stage)) which_stages <- seq_len(sum(lapply(x,attr,"habitat")=='populations'))
+  pops <- brick(populations(habitat)[which_stages])
   ans <- data.frame(patch_id=cellFromXY(pops,rasterToPoints(pops)[,1:2]),population=rasterToPoints(pops)[,-1:-2])
   return (ans)
 }
@@ -218,7 +217,8 @@ as.carrying_capacity <- function(x,...){
 #' @name is.carrying_capacity
 #' @export
 #' @examples
-#' is.populations(pops)
+#' 
+#' is.carrying_capacity(cc)
 is.carrying_capacity <- function (x) {
   attr(x, 'habitat')=="carrying_capacity"
 }
@@ -228,7 +228,7 @@ is.carrying_capacity <- function (x) {
 #' @param x a raster of species habitit suitability (occupancy).
 #' @param type model form for converting occurrence to carrying capacity.
 #' @param list parameters used to convert a habitat suitability map to carrying capacity. 
-#' @author Skipton Woolley
+
 carrying_capacity_function <- function(x,type=c('exp','logit','linear','custom'),...){
   print(as.list(match.call(x)))
   type <- match.arg(type)
@@ -239,6 +239,57 @@ carrying_capacity_function <- function(x,type=c('exp','logit','linear','custom')
     custom = custom_fun)
 }
 
+#' @rdname habitat
+#' @export
+#' @examples
+#' 
+#' # get and set the carrying capacity
+#' carrying_capacity(habitat)
+#' carrying_capacity(habitat) <- carrying_capacity(habitat) * 2
+#' carrying_capacity(habitat)
+
+carrying_capacity <- function (habitat) {
+  stopifnot(is.habitat(habitat))
+  # habitat[[which(sapply(habitat,attr,"habitat")=='carrying_capacity')]]
+  cc <- habitat[which(sapply(habitat,attr,"habitat")=='carrying_capacity')]
+  return(cc)
+}
+
+#' @rdname habitat
+#' @export
+`carrying_capacity<-` <- function (habitat, new_carrying_capacity) {
+  stopifnot(is.habitat(habitat))
+  # population_check(value)
+  habitat[which(sapply(habitat,attr,"habitat")=='carrying_capacity')]<-new_carrying_capacity
+  habitat
+}
+
+######################
+### area functions ###
+######################
+#' @rdname habitat
+#' @export
+#' @examples
+#' 
+#' # get and set the cell area
+#' area(habitat)
+#' area(habitat) <- area(habitat) * 2
+#' area(habitat)
+
+area <- function (habitat) {
+  stopifnot(is.habitat(habitat))
+  ar <- habitat[which(sapply(habitat,attr,"habitat")=='area')]
+  return(ar)
+}
+
+#' @rdname habitat
+#' @export
+`area<-` <- function (habitat, new_area) {
+  stopifnot(is.habitat(habitat))
+  area_check(new_area)
+  habitat[which(sapply(habitat,attr,"habitat")=='area')]<-new_area
+  habitat
+}
 
 ##################################
 ### internal habitat functions ###
@@ -296,9 +347,9 @@ list2habitat <- function (input) {
   
   # generate an area raster from habitat suitability.
   nrasters <- nrasters + 1
-  area <- area_of_region(input[[1]]) # previous checks means this is a raster of some kind. 
-  area_check(area)
-  habitat_list[[nrasters]] <- area
+  areas <- area_of_region(input[[1]]) # previous checks means this is a raster of some kind. 
+  area_check(areas)
+  habitat_list[[nrasters]] <- areas
   
   # ## need to declare attributes correctly? not sure how to do this...
   habitat_list[1:nhsm] <- lapply(habitat_list[1:nhsm], `attr<-`, "habitat", "habitat_suitability")
@@ -418,7 +469,7 @@ area_at_site <- function(study_area, site_coords){
 area_of_region <- function(study_area){
   if(raster::isLonLat(study_area)){
     #calculate area based on area function convert kms to ms
-    area_rast <- area(study_area)*1000
+    area_rast <- raster::area(study_area)*1000
     area_study <- mask(area_rast,study_area)
 
   } else {
