@@ -1,8 +1,7 @@
 #' @title module objects
 #' @name module
 #' @rdname module
-#' @description Module for altering the habitat, they maybe fire spread, management, ect. 
-#' Module sets up internal or custom functions to work with \code{habitat} and \code{simulation} objects.
+#' @description Module for altering the habitat, a model could be fire spread, management act, the distribution of trawling. Module sets up internal or custom functions to work with \code{habitat} and \code{experiment} objects.
 #' 
 #' Module needs to be a function, that gets imported into the simulaion function. 
 
