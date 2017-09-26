@@ -271,7 +271,6 @@ ifft <- function (z) fft(z, inverse = TRUE)
 
 dispersal_core_ca <- function(params,habitat,time,...){
                               stopifnot(is.list(params))
-  
                               dhmpr::rcpp_dispersal(as.matrix(dispersal_list[[i]]), as.matrix(potiential_carrying_capacity), as.matrix(habitat_suitability_map), as.matrix(barriers_map), barrier_type, use_barrier, dispersal_steps, dispersal_distance, dispersal_kernel, dispersal_proportion)
   
 }
