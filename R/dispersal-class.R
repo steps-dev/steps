@@ -14,7 +14,7 @@ NULL
 #'  matches the length of dispersal_distance.}
 #'  \item{"dispersal_proportion"}{ list The proportion of the population in each cell that will disperse. e.g 0.6 = 60\%.}
 #'  \item{"dispersal_steps"} { int The number of cellular automata iterations to do in each stage. Note to self, this could be linked to time functions, ie, daily dispersal (7 dispersal steps) to match weekly fire model.}
-#'  \item{"barriers"}{ bool To use barriers in dispersal step, only applicable to cellular automata}
+#'  \item{"use_barriers"}{ bool To use barriers in dispersal step, only applicable to cellular automata}
 #'  \item{"barrier_type"}{ type Barriers can be "blocking" or "stopping". If a barriers is blocking it will stop dispersal to that cell, but allow dispersal to other nearby cells, if they meet all the conditions of dispersal. Stopping will stop dispersal if a cell a barrier is contacted.}
 #' }
 #' @param method Can be either fast fourier transformation = 'fft'; or cellular automata = 'ca'. 
@@ -23,49 +23,19 @@ NULL
 #' 
 #' @export
 #' @examples 
-#' dispersal_params <- list(dispersal_distance=list('larvae'=3,'juvenile'=0,'adult'=10),
-#'                dispersal_kernel=list('larvae'=exp(-c(0:4)),'juvenile'=0,'adult'=exp(-c(0:9)*.2)),
-#'                dispersal_proportion=list('larvae'=0.6,'juvenile'=0,'adult'=0.2),
-#'                barriers=FALSE)  
+#' dispersal_params <- as.dispersal(list(dispersal_distance=list('larvae'=3,'juvenile'=0,'adult'=10),
+#'                dispersal_kernel=list('larvae'=exp(-c(0:2)),'juvenile'=0,'adult'=exp(-c(0:9)*.2)),
+#'                dispersal_proportion=list('larvae'=0.1,'juvenile'=0,'adult'=0.3))  
 #'                
-#' dp <- as.dispersal(params,method='ca')
-#' dp <- as.dispersal(NULL)
+#' dp <- dispersal(dispersal_params,method='ca',habitat)
 
-as.dispersal <- function(params,...){
-         switch(class(params[1]),
-                NULL = dispersalDefault(...),
-                list = dispersal_core(params,method,...))
-}
 
-#' @rdname dispersal-class
-#' @name d
-#' @export
-#' @examples 
-#' d(NULL)
-#' 
-d <- as.dispersal
-
-dispersal_core <- function(params,...){
+as.dispersal <- function (params) {
   stopifnot(is.list(params))
-  ds <- function(habitat) {
-          disp <- lapply(params$alpha,function(x,dist)exp(-x*dist),dist=habitat$distance)
-          disp <- lapply(disp,function(x)sweep(x,1,rowSums(x),'/'))
-          disp
-  }
-  params$disp <- ds
-  if (!is.dispersal(params)) {
-    class(params) <- c('dispersal', class(params))
-  }
+  stopifnot(length(params)<3)
+  if(!exists(c('dispersal_distance','dispersal_kernel','dispersal_proportion'),params))stop('dispersal parameters must contain "dispersal_distance","dispersal_kernel" and "dispersal_proportion"')
+  class(params) <- 'dispersal'
   return(params)
-}
-
-
-dispersalDefault <- function (...) {
-  
-  ## if 
-  params_list <- list(alpha = list("alpha"=1))
-  d <- dispersal_core(params_list)
-  return (d)
 }
 
 #' @rdname dispersal-class
@@ -84,17 +54,20 @@ is.dispersal <- function (x) inherits(x, 'dispersal')
 #'
 print.dispersal <- function(x,...){
   
+  vals <- which(names(x)%in%c("dispersal_distance","dispersal_kernel","dispersal_proportion"))
+  x <- x[vals]
+  
   disp_info <- list()
-  for (i in base::seq_along(x)[-length(x)]) {
+  for (i in base::seq_along(x)) {
   disp_info[[i]]  <- base::paste(
       base::names(x[[i]]),
-      base::format(x[[i]], scientific = FALSE),
+      base::format(x[[i]], digits= 3,scientific = FALSE),
       sep = " = ",
       collapse = "\n "
     )
   };
-  if(length(disp_info)==2) text <- sprintf('dispersal function with disperal kernel of:\n %s\n and probability of dispersal of:\n %s\n for stages.',disp_info[[1]],disp_info[[2]])
-  else text <- sprintf('dispersal function with disperal kernel of:\n %s\n for stages.',disp_info[[1]])
+text <- sprintf('dispersal function with disperal distance of:\n %s \ncells;\n\ndispersal kernels of:\n %s;\n\nand a dispersal proportion of:\n %s\n for stages.',disp_info[[1]],disp_info[[2]],disp_info[[3]])
+  # else text <- sprintf('dispersal function with disperal kernel of:\n %s\n for stages.',disp_info[[1]])
   cat(text)
 }
 
@@ -274,32 +247,55 @@ ifft <- function (z) fft(z, inverse = TRUE)
 # we should be able to call habitat.
 # 
 
-#### up to here <----
-dispersal_core <- function(params,method,habitat,time,...){
+dispersal_core <- function(params,method,habitat,...){
+                          stopifnot(is.list(params))
+                          if(!any(method==c('ca','fft')))stop('method must be either "ca" (cellular automata) or\n "fft" (fast fourier transformation).')
+                          stopifnot(is.habitat(habitat))  
                           disperal_results <- switch(method,
-                                                     ca = dispersal_core_ca(params),
-                                                     fft = dispersal_core_fft(params))  
+                                                     ca = dispersal_core_ca(params,habitat,...),
+                                                     fft = stop('woops! this is not working yet'))#dispersal_core_fft(params,habitat))  
+                          return(dispersal_results)
 }
 
-dispersal_core_ca <- function(params){
-                              stopifnot(is.list(params))
-                              ca_dispersal <- dhmpr::rcpp_dispersal(as.matrix(dispersal_list[[i]]), as.matrix(potiential_carrying_capacity), as.matrix(habitat_suitability_map), as.matrix(barriers_map), barrier_type, use_barrier, dispersal_steps, dispersal_distance, dispersal_kernel, dispersal_proportion)
-                              return(ca_dispersal)
+dispersal_core_ca <- function(params,habitat){
+
+  #generate default parameters for dispersal parameters if they are missing from 'params'. 
+  if(!exists('barrier_type',params))params$barrier_type <- 0
+  if(!exists('dispersal_steps',params))params$dispersal_steps <- 1
+  if(!exists('use_barriers',params))params$use_barriers <- FALSE
   
+  #identify populations and workout which populations can disperse.
+  which_stages_disperse <- which(params$dispersal_proportion>0)
+  n_dispersing_stages <- length(which_stages_disperse)
+  
+  #extract habitat suitability, relevant populations and carrying capacity. 
+  pops <- populations(habitat,which_stages_disperse)
+  cc <- carrying_capacity(habitat)
+  hsm <- habitat_suitability(habitat)
+  
+  #if barriers is NULL create a barriers matrix all == 0.
+  if(!exists('barriers_map',params)){
+    bm <- raster::calc(hsm,function(x){x[!is.na(x)] <- 0; return(x)})
+    params$barriers_map <- bm
+  }
+  
+  ca_dispersal <- list()
+  # could do this in parallel if wanted. 
+  for (i in seq_len(n_dispersing_stages)){
+                              ca_dispersal[[i]] <- dhmpr::rcpp_dispersal(raster::as.matrix(pops[[i]]), raster::as.matrix(cc), raster::as.matrix(hsm),                                raster::as.matrix(params$barriers_map), as.integer(params$barrier_type), params$use_barrier, as.integer(params$dispersal_steps),                                as.integer(params$dispersal_distance[which_stages_disperse][i]), as.numeric(unlist(params$dispersal_kernel[which_stages_disperse][i])),                                as.numeric(params$dispersal_proportion[which_stages_disperse][i]))[[1]] # we only want the dispersal population matricies.
+  }
+  return(ca_dispersal)
 }
 
-
-#' @rdname dispersal-class
-dispersal_core_fft <- function(params,habitat,time,...){
-                
+#### up to here <----
+dispersal_core_fft <- function(params,habitat){
   
-                  
                   f <- function (d, cutoff = min(n)) {
                    ifelse (d > cutoff, 0, exp(-d))
                   }
+                  
                   # f <- function (d) exp(-d)
                   # setup for the fft approach (run this once, before the simulation)
-                  
                   fs <- setupFFT(x = x, y = y, f = f, factor = 1)
                   
   

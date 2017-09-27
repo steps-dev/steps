@@ -3,10 +3,8 @@
 \name{as.dispersal}
 \alias{as.dispersal}
 \alias{bcb}
-\alias{d}
 \alias{dispersalFFT}
-\alias{dispersal_core_ca}
-\alias{dispersal_core_fft}
+\alias{dispersal_core}
 \alias{extend}
 \alias{extent}
 \alias{ifft}
@@ -14,11 +12,9 @@
 \alias{print.dispersal}
 \alias{seq_range}
 \alias{setupFFT}
-\title{dispersal class for metapoplations}
+\title{dispersal class for meta-populations}
 \usage{
-as.dispersal(params, ...)
-
-d(params, ...)
+as.dispersal(params)
 
 is.dispersal(x)
 
@@ -36,44 +32,38 @@ seq_range(range, by = 1)
 
 ifft(z)
 
-dispersal_core_ca(params, habitat, time, ...)
-
-dispersal_core_fft(params, habitat, time, ...)
+dispersal_core(params, method, habitat, ...)
 }
 \arguments{
-\item{params}{List a list of NamedLists which contain the parameters form dispersal behaviour - see details below for more information.}
+\item{params}{A list of named lists which contain the parameters form dispersal behaviour and other parameters for dispersal modules - see details below for more information.}
 
 \item{x}{an object to be tested as a dispersal transfun object}
 
-\item{method}{Can be either fast fourier transformtion = 'fft'; or cellular automata = 'ca'.}
+\item{method}{Can be either fast fourier transformation = 'fft'; or cellular automata = 'ca'.}
 
 \item{\dots}{further arguments passed to or from other methods.}
 }
 \description{
-creates a function that governs dispersal capacity of stages in a population. The input is a list which contains the first list is a dispersal kernel \code{dispersal} value for life-history stage, the second named list \code{} is the proportion of that stage will disperse. For example a probability of 0.2 for stage larvae means a random 20% of larve will a try and disperse to patches, the distance they can disperse is governed by the dispersal kernel (alpha). If params = NULL, a dispersal kernel of 1 is given to all stages, and all stages will attempt to undertake dispersal. If NULL is provided to the as.dispersal function, diffuse dispersal will be used based on the fast fourier transformation method ('fft').
+creates a function that governs dispersal capacity of life-history stages of a species. The input is a list which contains the first list is a dispersal kernel \code{dispersal} value for life-history stage, the second named list \code{} is the proportion of that stage will disperse. For example a probability of 0.2 for stage larvae means a random 20% of larve will a try and disperse to patches, the distance they can disperse is governed by the dispersal kernel (alpha). If params = NULL, a dispersal kernel of 1 is given to all stages, and all stages will attempt to undertake dispersal. If NULL is provided to the as.dispersal function, diffuse dispersal will be used based on the fast fourier transformation method ('fft').
 }
 \details{
 text describing parameter inputs in more detail.
 \itemize{
- \item{"dispersal_distance"}{ NamedList The number of cells that each life-history can disperse.}
- \item{"dispersal_kernel"}{ NamedList The dispersal kernel for each life history stage. Needs to be a numeric vector that
+ \item{"dispersal_distance"}{ list The number of cells that each life-history can disperse.}
+ \item{"dispersal_kernel"}{ list The dispersal kernel for each life history stage. Needs to be a numeric vector that
  matches the length of dispersal_distance.}
- \item{"dispersal_proportion"}{ NamedList The proportion of the population in each cell that will disperse. e.g 0.6 = 60\%.}
- \item{"dispersal_step"} { int The number of cellular automata iterations to do in each stage. Note to self, this could be linked to time functions, ie, daily dispersal (7 dispersal steps) to match weekly fire model.}
- \item{"barriers"}{ bool use barriers in dispersal step, only applicable to cellular automata}
- \item{"barrier_type"}{ Barriers can be "blocking" or "stopping". If a barriers is blocking it will stop dispersal to that cell, but allow   dispersal to other nearby cells, if they meet all the conditions of dispersa. Stopping will stop dispersal if a cell a barrier is contacted.}
+ \item{"dispersal_proportion"}{ list The proportion of the population in each cell that will disperse. e.g 0.6 = 60\%.}
+ \item{"dispersal_steps"} { int The number of cellular automata iterations to do in each stage. Note to self, this could be linked to time functions, ie, daily dispersal (7 dispersal steps) to match weekly fire model.}
+ \item{"use_barriers"}{ bool To use barriers in dispersal step, only applicable to cellular automata}
+ \item{"barrier_type"}{ type Barriers can be "blocking" or "stopping". If a barriers is blocking it will stop dispersal to that cell, but allow dispersal to other nearby cells, if they meet all the conditions of dispersal. Stopping will stop dispersal if a cell a barrier is contacted.}
 }
 }
 \examples{
-params <- list(dispersal_distance=list('larvae'=3,'juvenile'=0,'adult'=10),
-               dispersal_kernel=list('larvae'=exp(-c(0:4)),'juvenile'=0,'adult'=exp(-c(0:9)*.2)),
-               dispersal_proportion=list('larvae'=0.6,'juvenile'=0,'adult'=0.2),
-               barriers=FALSE)  
+dispersal_params <- as.dispersal(list(dispersal_distance=list('larvae'=3,'juvenile'=0,'adult'=10),
+               dispersal_kernel=list('larvae'=exp(-c(0:2)),'juvenile'=0,'adult'=exp(-c(0:9)*.2)),
+               dispersal_proportion=list('larvae'=0.1,'juvenile'=0,'adult'=0.3))  
                
-dp <- as.dispersal(params,method='ca')
-dp <- as.dispersal(NULL)
-d(NULL)
-
+dp <- dispersal(dispersal_params,method='ca',habitat)
 is.dispersal(disp)
 # print method
 print(dp)

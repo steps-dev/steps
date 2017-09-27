@@ -30,7 +30,7 @@
 #' ## create a habitat from a list containing a habitat suitability raster and numeric values for population and carrying capacity.
 #' hsm <- as.habitat_suitability(r)
 #' pops <- as.populations(c(80,20,10))
-#' cc <- as.carrying_capacity(100)
+#' cc <- as.carrying_capacity(300)
 #' 
 #' features <- list(hsm,pops,cc)
 #' habitat <- as.habitat(features)
@@ -167,20 +167,22 @@ is.populations <- function (x) {
 #' populations(habitat) <- populations(habitat) * 2
 #' populations(habitat)
 
-populations <- function (habitat) {
+populations <- function (habitat, which_stages=NULL) {
   stopifnot(is.habitat(habitat))
+  if(is.null(which_stages)) which_stages <- seq_len(sum(lapply(habitat,attr,"habitat")=='populations'))
   # habitat[[which(sapply(habitat,attr,"habitat")=='populations')]]
-  pop <- habitat[which(sapply(habitat,attr,"habitat")=='populations')]
+  pop <- habitat[which(sapply(habitat,attr,"habitat")=='populations')][which_stages]
   # ans <- squashhabitat(ans)
   return (pop)
 }
 
 #' @rdname habitat
 #' @export
-`populations<-` <- function (habitat, new_populations) {
+`populations<-` <- function (habitat, which_stages=NULL, new_populations) {
   stopifnot(is.habitat(habitat))
-  # population_check(value)
-  habitat[which(sapply(habitat,attr,"habitat")=='populations')]<-new_populations
+  if(is.null(which_stages)) which_stages <- seq_len(sum(lapply(habitat,attr,"habitat")=='populations'))
+  # habitat[[which(sapply(habitat,attr,"habitat")=='populations')]]
+  pop <- habitat[which(sapply(habitat,attr,"habitat")=='populations')][which_stages] <- new_populations
   habitat
 }
 
@@ -254,7 +256,7 @@ is.carrying_capacity <- function (x) {
 carrying_capacity <- function (habitat) {
   stopifnot(is.habitat(habitat))
   # habitat[[which(sapply(habitat,attr,"habitat")=='carrying_capacity')]]
-  cc <- habitat[which(sapply(habitat,attr,"habitat")=='carrying_capacity')]
+  cc <- habitat[which(sapply(habitat,attr,"habitat")=='carrying_capacity')][[1]]
   return(cc)
 }
 
@@ -263,7 +265,7 @@ carrying_capacity <- function (habitat) {
 `carrying_capacity<-` <- function (habitat, new_carrying_capacity) {
   stopifnot(is.habitat(habitat))
   # population_check(value)
-  habitat[which(sapply(habitat,attr,"habitat")=='carrying_capacity')]<-new_carrying_capacity
+  habitat[which(sapply(habitat,attr,"habitat")=='carrying_capacity')][[1]]<-new_carrying_capacity
   habitat
 }
 

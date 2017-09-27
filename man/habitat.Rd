@@ -39,9 +39,9 @@ as.populations(x, ...)
 
 is.populations(x)
 
-populations(habitat)
+populations(habitat, which_stages = NULL)
 
-populations(habitat, new_populations) <- value
+populations(habitat, which_stages = NULL, new_populations) <- value
 
 patches(habitat, which_stages = NULL)
 
@@ -99,7 +99,7 @@ r[] <- scales::rescale(r[],to=c(0,1))
 ## create a habitat from a list containing a habitat suitability raster and numeric values for population and carrying capacity.
 hsm <- as.habitat_suitability(r)
 pops <- as.populations(c(80,20,10))
-cc <- as.carrying_capacity(100)
+cc <- as.carrying_capacity(300)
 
 features <- list(hsm,pops,cc)
 habitat <- as.habitat(features)
