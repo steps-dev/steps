@@ -3,8 +3,8 @@
 \name{as.dispersal}
 \alias{as.dispersal}
 \alias{bcb}
+\alias{dispersal}
 \alias{dispersalFFT}
-\alias{dispersal_core}
 \alias{extend}
 \alias{extent}
 \alias{ifft}
@@ -32,7 +32,7 @@ seq_range(range, by = 1)
 
 ifft(z)
 
-dispersal_core(params, method, habitat, ...)
+dispersal(params, habitat, method, ...)
 }
 \arguments{
 \item{params}{A list of named lists which contain the parameters form dispersal behaviour and other parameters for dispersal modules - see details below for more information.}
@@ -61,9 +61,9 @@ text describing parameter inputs in more detail.
 \examples{
 dispersal_params <- as.dispersal(list(dispersal_distance=list('larvae'=3,'juvenile'=0,'adult'=10),
                dispersal_kernel=list('larvae'=exp(-c(0:2)),'juvenile'=0,'adult'=exp(-c(0:9)*.2)),
-               dispersal_proportion=list('larvae'=0.1,'juvenile'=0,'adult'=0.3))  
+               dispersal_proportion=list('larvae'=0.1,'juvenile'=0,'adult'=0.3)))  
                
-dp <- dispersal(dispersal_params,method='ca',habitat)
+dp <- dispersal(dispersal_params, habitat, method='ca')
 is.dispersal(disp)
 # print method
 print(dp)

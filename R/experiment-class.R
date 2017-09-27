@@ -159,23 +159,23 @@ transition <- function (experiment) {
   return (experiment)
 }
 
-#' @rdname experiment-class
-#' @export
-dispersal <- function (experiment) {
-  stopifnot(is.experiment(experiment))
-  stopifnot(any(sapply(experiment,is.dispersal)))
-  value <- experiment[['dispersal']]
-  return (value)
-}
-
-#' @rdname experiment-class
-#' @export
-`dispersal<-` <- function (experiment, value) {
-  stopifnot(is.experiment(experiment))
-  stopifnot(any(sapply(experiment,is.dispersal)))
-  attr(experiment, 'dispersal') <- value
-  return (experiment)
-}
+#' #' @rdname experiment-class
+#' #' @export
+#' dispersal <- function (experiment) {
+#'   stopifnot(is.experiment(experiment))
+#'   stopifnot(any(sapply(experiment,is.dispersal)))
+#'   value <- experiment[['dispersal']]
+#'   return (value)
+#' }
+#' 
+#' #' @rdname experiment-class
+#' #' @export
+#' `dispersal<-` <- function (experiment, value) {
+#'   stopifnot(is.experiment(experiment))
+#'   stopifnot(any(sapply(experiment,is.dispersal)))
+#'   attr(experiment, 'dispersal') <- value
+#'   return (experiment)
+#' }
 
 #' @rdname experiment-class
 #' @export

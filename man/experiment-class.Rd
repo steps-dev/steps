@@ -2,8 +2,6 @@
 % Please edit documentation in R/experiment-class.R
 \name{experiment}
 \alias{as.matrix.experiment}
-\alias{dispersal}
-\alias{dispersal<-}
 \alias{experiment}
 \alias{habitat}
 \alias{habitat<-}
@@ -26,10 +24,6 @@ habitat(experiment) <- value
 transition(experiment)
 
 transition(experiment) <- value
-
-dispersal(experiment)
-
-dispersal(experiment) <- value
 
 \method{as.matrix}{experiment}(experiment, ...)
 }
@@ -55,6 +49,15 @@ module a module object, see \link[dhmpr]{as.module}, which is used to manipulate
 }
 \description{
 code{experiment} is an object which stores all the relevent population dynamics, population size(s), habitat feature, dispersal parameters and modules and sets up a spatially explicit dynamic metapopulation models for \link[dhmpr]{simulation}.
+
+#' @rdname experiment-class
+#' @export
+`dispersal<-` <- function (experiment, value) {
+  stopifnot(is.experiment(experiment))
+  stopifnot(any(sapply(experiment,is.dispersal)))
+  attr(experiment, 'dispersal') <- value
+  return (experiment)
+}
 }
 \examples{
 

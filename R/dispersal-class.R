@@ -25,14 +25,16 @@ NULL
 #' @examples 
 #' dispersal_params <- as.dispersal(list(dispersal_distance=list('larvae'=3,'juvenile'=0,'adult'=10),
 #'                dispersal_kernel=list('larvae'=exp(-c(0:2)),'juvenile'=0,'adult'=exp(-c(0:9)*.2)),
-#'                dispersal_proportion=list('larvae'=0.1,'juvenile'=0,'adult'=0.3))  
+#'                dispersal_proportion=list('larvae'=0.1,'juvenile'=0,'adult'=0.3)))  
 #'                
-#' dp <- dispersal(dispersal_params,method='ca',habitat)
+#' dp <- dispersal(dispersal_params, habitat, method='ca')
+
+
 
 
 as.dispersal <- function (params) {
   stopifnot(is.list(params))
-  stopifnot(length(params)<3)
+  stopifnot(length(params)>=3)
   if(!exists(c('dispersal_distance','dispersal_kernel','dispersal_proportion'),params))stop('dispersal parameters must contain "dispersal_distance","dispersal_kernel" and "dispersal_proportion"')
   class(params) <- 'dispersal'
   return(params)
@@ -66,8 +68,7 @@ print.dispersal <- function(x,...){
       collapse = "\n "
     )
   };
-text <- sprintf('dispersal function with disperal distance of:\n %s \ncells;\n\ndispersal kernels of:\n %s;\n\nand a dispersal proportion of:\n %s\n for stages.',disp_info[[1]],disp_info[[2]],disp_info[[3]])
-  # else text <- sprintf('dispersal function with disperal kernel of:\n %s\n for stages.',disp_info[[1]])
+  text <- sprintf('dispersal function with disperal distance of:\n %s \ncells;\n\ndispersal kernels of:\n %s;\n\nand a dispersal proportion of:\n %s\n for stages.',disp_info[[1]],disp_info[[2]],disp_info[[3]])
   cat(text)
 }
 
@@ -241,18 +242,15 @@ seq_range <- function (range, by = 1) seq(range[1], range[2], by = by)
 ifft <- function (z) fft(z, inverse = TRUE)
 
 #' @rdname dispersal-class
-#' @name dispersal_core 
+#' @name dispersal
+#' @export 
 
-# need to somehow call the habitat and time from environment?
-# we should be able to call habitat.
-# 
-
-dispersal_core <- function(params,method,habitat,...){
+dispersal <- function(params,habitat,method,...){
                           stopifnot(is.list(params))
                           if(!any(method==c('ca','fft')))stop('method must be either "ca" (cellular automata) or\n "fft" (fast fourier transformation).')
                           stopifnot(is.habitat(habitat))  
-                          disperal_results <- switch(method,
-                                                     ca = dispersal_core_ca(params,habitat,...),
+                          dispersal_results <- switch(method,
+                                                     ca = dispersal_core_ca(params,habitat),
                                                      fft = stop('woops! this is not working yet'))#dispersal_core_fft(params,habitat))  
                           return(dispersal_results)
 }
@@ -284,6 +282,8 @@ dispersal_core_ca <- function(params,habitat){
   for (i in seq_len(n_dispersing_stages)){
                               ca_dispersal[[i]] <- dhmpr::rcpp_dispersal(raster::as.matrix(pops[[i]]), raster::as.matrix(cc), raster::as.matrix(hsm),                                raster::as.matrix(params$barriers_map), as.integer(params$barrier_type), params$use_barrier, as.integer(params$dispersal_steps),                                as.integer(params$dispersal_distance[which_stages_disperse][i]), as.numeric(unlist(params$dispersal_kernel[which_stages_disperse][i])),                                as.numeric(params$dispersal_proportion[which_stages_disperse][i]))[[1]] # we only want the dispersal population matricies.
   }
+  
+  ca_dispersal <- lapply(ca_dispersal,function(x){hsm[]<-x;return(hsm)})
   return(ca_dispersal)
 }
 
