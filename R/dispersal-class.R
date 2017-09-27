@@ -26,8 +26,13 @@ NULL
 #' dispersal_params <- as.dispersal(list(dispersal_distance=list('larvae'=3,'juvenile'=0,'adult'=10),
 #'                dispersal_kernel=list('larvae'=exp(-c(0:2)),'juvenile'=0,'adult'=exp(-c(0:9)*.2)),
 #'                dispersal_proportion=list('larvae'=0.1,'juvenile'=0,'adult'=0.3)))  
-#'                
+#'
+#' ## dispersal using cellular automata.                                 
 #' dispersed_populations <- dispersal(dispersal_params, habitat, method='ca')
+#' populations(habitat) <- dispersed_populations
+#' 
+#' ## dispersal using fast fourier transforms (diffuse).
+#' dispersed_populations <- dispersal(dispersal_params, habitat, method='fft')
 #' populations(habitat) <- dispersed_populations
 
 
@@ -250,7 +255,7 @@ dispersal <- function(params,habitat,method,...){
                           stopifnot(is.habitat(habitat))  
                           dispersal_results <- switch(method,
                                                      ca = dispersal_core_ca(params,habitat),
-                                                     fft = stop('woops! this is not working yet'))#dispersal_core_fft(params,habitat))  
+                                                     fft = dispersal_core_fft(params,habitat))  
                           return(dispersal_results)
 }
 
@@ -291,14 +296,37 @@ dispersal_core_ca <- function(params,habitat){
 
 #### up to here <----
 dispersal_core_fft <- function(params,habitat){
+   
+  #identify populations and workout which populations can disperse.
+  which_stages_disperse <- which(params$dispersal_proportion>0)
+  n_dispersing_stages <- length(which_stages_disperse)
   
-                  f <- function (d, cutoff = min(n)) {
+  ## get the relevant 
+  pops <- populations(habitat)
+  disperse_pops <- pops[which_stages_disperse]
+  n <- dim(pops[[1]])[1:2]
+  y <- seq_len(n[1])
+  x <- seq_len(n[2])
+  
+  ## set up disperal function
+  f <- function (d, cutoff = min(n)) {
                    ifelse (d > cutoff, 0, exp(-d))
                   }
                   
-                  # f <- function (d) exp(-d)
-                  # setup for the fft approach (run this once, before the simulation)
-                  fs <- setupFFT(x = x, y = y, f = f, factor = 1)
+  # f <- function (d) exp(-d)
+  # setup for the fft approach (run this once, before the simulation)
+  fs <- setupFFT(x = x, y = y, f = f, factor = 1)
                   
+  #'# apply dispersal to the population (need to run this separately for each stage)
+  fft_dispersal <- list()
+  # could do this in parallel if wanted. 
+  for (i in seq_len(n_dispersing_stages)){
+    fft_dispersal[[i]] <- dispersalFFT(popmat = raster::as.matrix(pops[[i]]), fs = fs)
+  }
   
+  fft_dispersal <- lapply(fft_dispersal,function(x){pops[[1]][]<-x;return(pops[[1]])})
+  pops[which_stages_disperse] <- fft_dispersal
+  pops <- lapply(pops, `attr<-`, "habitat", "populations")
+  return(pops)
+
 }
