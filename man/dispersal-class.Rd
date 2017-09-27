@@ -63,7 +63,8 @@ dispersal_params <- as.dispersal(list(dispersal_distance=list('larvae'=3,'juveni
                dispersal_kernel=list('larvae'=exp(-c(0:2)),'juvenile'=0,'adult'=exp(-c(0:9)*.2)),
                dispersal_proportion=list('larvae'=0.1,'juvenile'=0,'adult'=0.3)))  
                
-dp <- dispersal(dispersal_params, habitat, method='ca')
+dispersed_populations <- dispersal(dispersal_params, habitat, method='ca')
+populations(habitat) <- dispersed_populations
 is.dispersal(disp)
 # print method
 print(dp)

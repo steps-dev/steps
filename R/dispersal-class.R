@@ -27,9 +27,8 @@ NULL
 #'                dispersal_kernel=list('larvae'=exp(-c(0:2)),'juvenile'=0,'adult'=exp(-c(0:9)*.2)),
 #'                dispersal_proportion=list('larvae'=0.1,'juvenile'=0,'adult'=0.3)))  
 #'                
-#' dp <- dispersal(dispersal_params, habitat, method='ca')
-
-
+#' dispersed_populations <- dispersal(dispersal_params, habitat, method='ca')
+#' populations(habitat) <- dispersed_populations
 
 
 as.dispersal <- function (params) {
@@ -267,7 +266,8 @@ dispersal_core_ca <- function(params,habitat){
   n_dispersing_stages <- length(which_stages_disperse)
   
   #extract habitat suitability, relevant populations and carrying capacity. 
-  pops <- populations(habitat,which_stages_disperse)
+  pops <- populations(habitat)
+  disperse_pops <- pops[which_stages_disperse]
   cc <- carrying_capacity(habitat)
   hsm <- habitat_suitability(habitat)
   
@@ -280,11 +280,13 @@ dispersal_core_ca <- function(params,habitat){
   ca_dispersal <- list()
   # could do this in parallel if wanted. 
   for (i in seq_len(n_dispersing_stages)){
-                              ca_dispersal[[i]] <- dhmpr::rcpp_dispersal(raster::as.matrix(pops[[i]]), raster::as.matrix(cc), raster::as.matrix(hsm),                                raster::as.matrix(params$barriers_map), as.integer(params$barrier_type), params$use_barrier, as.integer(params$dispersal_steps),                                as.integer(params$dispersal_distance[which_stages_disperse][i]), as.numeric(unlist(params$dispersal_kernel[which_stages_disperse][i])),                                as.numeric(params$dispersal_proportion[which_stages_disperse][i]))[[1]] # we only want the dispersal population matricies.
+                              ca_dispersal[[i]] <- dhmpr::rcpp_dispersal(raster::as.matrix(disperse_pops[[i]]), raster::as.matrix(cc), raster::as.matrix(hsm),raster::as.matrix(params$barriers_map), as.integer(params$barrier_type), params$use_barrier, as.integer(params$dispersal_steps), as.integer(params$dispersal_distance[which_stages_disperse][i]), as.numeric(unlist(params$dispersal_kernel[which_stages_disperse][i])), as.numeric(params$dispersal_proportion[which_stages_disperse][i]))[[1]] # we only want the dispersal population matricies.
   }
   
   ca_dispersal <- lapply(ca_dispersal,function(x){hsm[]<-x;return(hsm)})
-  return(ca_dispersal)
+  pops[which_stages_disperse] <- ca_dispersal
+  pops <- lapply(pops, `attr<-`, "habitat", "populations")
+  return(pops)
 }
 
 #### up to here <----

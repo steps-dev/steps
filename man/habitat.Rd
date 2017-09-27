@@ -39,9 +39,9 @@ as.populations(x, ...)
 
 is.populations(x)
 
-populations(habitat, which_stages = NULL)
+populations(habitat)
 
-populations(habitat, which_stages = NULL, new_populations) <- value
+populations(habitat, new_populations) <- value
 
 patches(habitat, which_stages = NULL)
 
