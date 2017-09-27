@@ -2,28 +2,28 @@
 #' @importFrom Rcpp sourceCpp
 NULL
 
-#' @title dispersal class for metapoplations
+#' @title dispersal class for meta-populations
 #' @rdname dispersal-class
 #' @name as.dispersal
-#' @description creates a function that governs dispersal capacity of stages in a population. The input is a list which contains the first list is a dispersal kernel \code{dispersal} value for life-history stage, the second named list \code{} is the proportion of that stage will disperse. For example a probability of 0.2 for stage larvae means a random 20% of larve will a try and disperse to patches, the distance they can disperse is governed by the dispersal kernel (alpha). If params = NULL, a dispersal kernel of 1 is given to all stages, and all stages will attempt to undertake dispersal. If NULL is provided to the as.dispersal function, diffuse dispersal will be used based on the fast fourier transformation method ('fft').  
-#' @param params List a list of NamedLists which contain the parameters form dispersal behaviour - see details below for more information.
+#' @description creates a function that governs dispersal capacity of life-history stages of a species. The input is a list which contains the first list is a dispersal kernel \code{dispersal} value for life-history stage, the second named list \code{} is the proportion of that stage will disperse. For example a probability of 0.2 for stage larvae means a random 20% of larve will a try and disperse to patches, the distance they can disperse is governed by the dispersal kernel (alpha). If params = NULL, a dispersal kernel of 1 is given to all stages, and all stages will attempt to undertake dispersal. If NULL is provided to the as.dispersal function, diffuse dispersal will be used based on the fast fourier transformation method ('fft').  
+#' @param params A list of named lists which contain the parameters form dispersal behaviour and other parameters for dispersal modules - see details below for more information.
 #' @details text describing parameter inputs in more detail.
 #' \itemize{
-#'  \item{"dispersal_distance"}{ NamedList The number of cells that each life-history can disperse.}
-#'  \item{"dispersal_kernel"}{ NamedList The dispersal kernel for each life history stage. Needs to be a numeric vector that
+#'  \item{"dispersal_distance"}{ list The number of cells that each life-history can disperse.}
+#'  \item{"dispersal_kernel"}{ list The dispersal kernel for each life history stage. Needs to be a numeric vector that
 #'  matches the length of dispersal_distance.}
-#'  \item{"dispersal_proportion"}{ NamedList The proportion of the population in each cell that will disperse. e.g 0.6 = 60\%.}
-#'  \item{"dispersal_step"} { int The number of cellular automata iterations to do in each stage. Note to self, this could be linked to time functions, ie, daily dispersal (7 dispersal steps) to match weekly fire model.}
-#'  \item{"barriers"}{ bool use barriers in dispersal step, only applicable to cellular automata}
-#'  \item{"barrier_type"}{ Barriers can be "blocking" or "stopping". If a barriers is blocking it will stop dispersal to that cell, but allow   dispersal to other nearby cells, if they meet all the conditions of dispersa. Stopping will stop dispersal if a cell a barrier is contacted.}
+#'  \item{"dispersal_proportion"}{ list The proportion of the population in each cell that will disperse. e.g 0.6 = 60\%.}
+#'  \item{"dispersal_steps"} { int The number of cellular automata iterations to do in each stage. Note to self, this could be linked to time functions, ie, daily dispersal (7 dispersal steps) to match weekly fire model.}
+#'  \item{"barriers"}{ bool To use barriers in dispersal step, only applicable to cellular automata}
+#'  \item{"barrier_type"}{ type Barriers can be "blocking" or "stopping". If a barriers is blocking it will stop dispersal to that cell, but allow dispersal to other nearby cells, if they meet all the conditions of dispersal. Stopping will stop dispersal if a cell a barrier is contacted.}
 #' }
-#' @param method Can be either fast fourier transformtion = 'fft'; or cellular automata = 'ca'. 
+#' @param method Can be either fast fourier transformation = 'fft'; or cellular automata = 'ca'. 
 #' 
 #' 
 #' 
 #' @export
 #' @examples 
-#' params <- list(dispersal_distance=list('larvae'=3,'juvenile'=0,'adult'=10),
+#' dispersal_params <- list(dispersal_distance=list('larvae'=3,'juvenile'=0,'adult'=10),
 #'                dispersal_kernel=list('larvae'=exp(-c(0:4)),'juvenile'=0,'adult'=exp(-c(0:9)*.2)),
 #'                dispersal_proportion=list('larvae'=0.6,'juvenile'=0,'adult'=0.2),
 #'                barriers=FALSE)  
@@ -32,9 +32,9 @@ NULL
 #' dp <- as.dispersal(NULL)
 
 as.dispersal <- function(params,...){
-  switch(class(params[1]),
-         NULL = dispersalDefault(...),
-         list = dispersal_core(params,method,...))
+         switch(class(params[1]),
+                NULL = dispersalDefault(...),
+                list = dispersal_core(params,method,...))
 }
 
 #' @rdname dispersal-class
@@ -268,10 +268,23 @@ seq_range <- function (range, by = 1) seq(range[1], range[2], by = by)
 ifft <- function (z) fft(z, inverse = TRUE)
 
 #' @rdname dispersal-class
+#' @name dispersal_core 
 
-dispersal_core_ca <- function(params,habitat,time,...){
+# need to somehow call the habitat and time from environment?
+# we should be able to call habitat.
+# 
+
+#### up to here <----
+dispersal_core <- function(params,method,habitat,time,...){
+                          disperal_results <- switch(method,
+                                                     ca = dispersal_core_ca(params),
+                                                     fft = dispersal_core_fft(params))  
+}
+
+dispersal_core_ca <- function(params){
                               stopifnot(is.list(params))
-                              dhmpr::rcpp_dispersal(as.matrix(dispersal_list[[i]]), as.matrix(potiential_carrying_capacity), as.matrix(habitat_suitability_map), as.matrix(barriers_map), barrier_type, use_barrier, dispersal_steps, dispersal_distance, dispersal_kernel, dispersal_proportion)
+                              ca_dispersal <- dhmpr::rcpp_dispersal(as.matrix(dispersal_list[[i]]), as.matrix(potiential_carrying_capacity), as.matrix(habitat_suitability_map), as.matrix(barriers_map), barrier_type, use_barrier, dispersal_steps, dispersal_distance, dispersal_kernel, dispersal_proportion)
+                              return(ca_dispersal)
   
 }
 
