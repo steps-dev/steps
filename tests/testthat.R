@@ -1,4 +1,4 @@
 library(testthat)
-library(dlmpr)
+library(dhmpr)
 
-test_check("dlmpr")
+test_check("dhmpr")
