@@ -23,8 +23,8 @@ NULL
 #' 
 #' @export
 #' @examples 
-#' dispersal_params <- as.dispersal(list(dispersal_distance=list('larvae'=3,'juvenile'=0,'adult'=10),
-#'                dispersal_kernel=list('larvae'=exp(-c(0:2)),'juvenile'=0,'adult'=exp(-c(0:9)*.2)),
+#' dispersal_params <- as.dispersal(list(dispersal_distance=list('larvae'=3,'juvenile'=0,'adult'=3),
+#'                dispersal_kernel=list('larvae'=exp(-c(0:2)),'juvenile'=0,'adult'=exp(-c(0:2)*.2)),
 #'                dispersal_proportion=list('larvae'=0.1,'juvenile'=0,'adult'=0.3)))  
 #'
 #' ## dispersal using cellular automata.                                 
@@ -315,7 +315,7 @@ dispersal_core_fft <- function(params,habitat){
                   
   # f <- function (d) exp(-d)
   # setup for the fft approach (run this once, before the simulation)
-  fs <- setupFFT(x = x, y = y, f = f, factor = 1)
+  fs <- setupFFT(x = x, y = y, f = f)
                   
   #'# apply dispersal to the population (need to run this separately for each stage)
   fft_dispersal <- list()
@@ -328,5 +328,4 @@ dispersal_core_fft <- function(params,habitat){
   pops[which_stages_disperse] <- fft_dispersal
   pops <- lapply(pops, `attr<-`, "habitat", "populations")
   return(pops)
-
 }

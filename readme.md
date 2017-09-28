@@ -1,0 +1,17 @@
+dhmpr - name to be changed to something less earthy.
+====================================================
+
+### Dynamic habitat meta-population models in R
+
+The package will enable you to setup and run dynamic habitat (landscape/seascape) meta-population models with demographic processes in R.
+
+[![Build Status](https://travis-ci.org/skitoniam/dhmpr.svg)](https://travis-ci.org/skiptoniam/dhmpr) [![codecov.io](https://codecov.io/github/skiptoniam/dhmpr/coverage.svg?branch=master)](https://codecov.io/github/skiptoniam/dhmpr?branch=master)
+
+#### Installation
+
+`dhmpr` is currently in development, a version can be installed from GitHub using the `devtools` package:
+
+``` r
+devtools::install_github('skiptoniam/dhmpr')
+library(dhmpr)
+```
