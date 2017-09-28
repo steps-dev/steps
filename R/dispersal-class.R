@@ -76,9 +76,6 @@ print.dispersal <- function(x,...){
   cat(text)
 }
 
-#' @rdname dispersal-class
-#' @name extent
-#' @export
 
 extend <- function (x, factor = 2) {
   # given an evenly-spaced vector `x` of cell centre locations, extend it to the
@@ -117,10 +114,6 @@ extend <- function (x, factor = 2) {
   newx
 }
 
-#' @rdname dispersal-class
-#' @name bcb
-#' @export
-
 bcb <- function (x, y, f = I) {
   # get a the basis vector for a block-circulant matrix representing the 
   # dispersal matrix between equally-spaced grid cells on a torus, as some 
@@ -152,10 +145,6 @@ bcb <- function (x, y, f = I) {
   f(d)
 }
 
-#' @rdname dispersal-class
-#' @name setupFFT
-#' @export
-
 setupFFT <- function (x, y, f, factor = 2) {
   # set up the objects needed for the FFT dispersal matrix representation
 
@@ -180,36 +169,6 @@ setupFFT <- function (x, y, f, factor = 2) {
        yidx = yidx)
 } 
 
-#' @rdname dispersal-class
-#' @name dispersalFFT
-#' @export
-#' @examples 
-#' # small functions that should be in base R
-#'seq_range <- function (range, by = 1) seq(range[1], range[2], by = by)
-#'ifft <- function (z) fft(z, inverse = TRUE)
-#'
-#'# coordinates of grid cells
-#'# *don't make n too big, as the dense version will take forever!*
-#'n <- 50 * c(2, 2)
-#'y <- seq_len(n[1])
-#'x <- seq_len(n[2])
-#'
-#'# dispersal function acting on distance matrix
-#'# cut-off dispersal at the minimum dimension of the grid 
-#'f <- function (d, cutoff = min(n)) {
-#'  ifelse (d > cutoff, 0, exp(-d))
-#'}
-#'
-#'# f <- function (d) exp(-d)
-#'# initial population on grid (one stage)
-#'pop <- matrix(rpois(length(x) * length(y),10),
-#'              length(y), length(x))
-#'              
-#'# setup for the fft approach (run this once, before the simulation)
-#'fs <- setupFFT(x = x, y = y, f = f, factor = 1)
-#'
-#'# apply dispersal to the population (need to run this separately for each stage)
-#'pop_new <- dispersalFFT(popmat = pop, fs = fs)
 
 dispersalFFT <- function (popmat, fs) {
   # multiply the population matrix `popmat` giving the population of this stage 
@@ -237,12 +196,10 @@ dispersalFFT <- function (popmat, fs) {
   pop_new
 }
 
-#' @rdname dispersal-class
-#' @export
+
 seq_range <- function (range, by = 1) seq(range[1], range[2], by = by)
 
-#' @rdname dispersal-class
-#' @export
+
 ifft <- function (z) fft(z, inverse = TRUE)
 
 #' @rdname dispersal-class
@@ -294,7 +251,6 @@ dispersal_core_ca <- function(params,habitat){
   return(pops)
 }
 
-#### up to here <----
 dispersal_core_fft <- function(params,habitat){
    
   #identify populations and workout which populations can disperse.

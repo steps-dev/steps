@@ -302,8 +302,7 @@ area <- function (habitat) {
 
 # this function will set up all the required needs of the experiment step.
 # rasters will be left as rasters.
-# if habitat suitability is a stack or brick, this infers that they represent a temporal change in habitat suitability.
-
+# if habitat suitability is a stack or brick, this infers that they represent a temporal change in habitat suitability
 
 list2habitat <- function (input) {
 
