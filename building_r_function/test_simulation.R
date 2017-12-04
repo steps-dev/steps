@@ -5,8 +5,19 @@ mat <- matrix(c(.53,0,.52,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
 colnames(mat) <- rownames(mat) <- c('larvae','juvenile','adult') 
 trans <- as.transition(mat)
 n_stages <- length(states(trans))
+print(trans)
 
 #set up starting populations
+set.seed(42)
+xy <- expand.grid(x=seq(145, 150, 0.1), y=seq(-40, -35, 0.1))
+Dd <- as.matrix(dist(xy))
+w <- exp(-1/nrow(xy) * Dd)
+Ww <- chol(w)
+xy$z <- t(Ww) %*% rnorm(nrow(xy), 0, 0.1)
+coordinates(xy) <- ~x+y
+r <- rasterize(xy, raster(points2grid(xy)), 'z')
+proj4string(r) <- '+init=epsg:4283'
+r[] <- scales::rescale(r[],to=c(0,1))
 random_populations <- sampleRandom(r, size=50, na.rm=TRUE, sp=TRUE)
 random_populations@data <- as.data.frame(t(rmultinom(50, size = 100, prob = c(0.8,0.2,0.1))))
 
@@ -15,71 +26,109 @@ features <- list('habitat_suitability_map'=as.habitat_suitability(r),
                  'population'=as.populations(random_populations),
                  'carrying_capacity'=as.carrying_capacity(100))
 habitat <- as.habitat(features)
+print(habitat)
 
 # set up dispersal parameters.
 dispersal_params <- as.dispersal(list(dispersal_distance=list('larvae'=3,'juvenile'=0,'adult'=3),
                 dispersal_kernel=list('larvae'=exp(-c(0:2)),'juvenile'=0,'adult'=exp(-c(0:2)*.2)),
                 dispersal_proportion=list('larvae'=0.1,'juvenile'=0,'adult'=0.3)))  
+print(dispersal_params)
 
 ## dispersal using cellular automata.                                 
 dispersed_populations <- dispersal(dispersal_params, habitat, method='ca')
 populations(habitat) <- dispersed_populations
 
 ## now I've set up a custom function which manipulates rasters (based on a dodgy fire simualtion)
-##This can be a custom function for manipulating rasters or existing functions. 
-fun <- fire_spread
-
-##Create a named list with corresponding parameters and values
-params = list(habitat_suitability(habitat),
-              fire_start_location = sample(ncell(hs),10),
+## This will be used as a module to manipulate the habitat suitability between time steps. 
+## create a named list with corresponding parameters and values
+params = list(habitat,
+              fire_start_location = sample(ncell(habitat_suitability(habitat)),10),
               prob = 0.24,
               continue_to_burn_prob = 0.01)
                
 ## check module produces expected output
-fire_module <- as.module(fun,params,check=TRUE)       
+fires <- as.module(fire_module,params)       
 
-# set up a density dependence fucntion. This isn't working as before :(
+## altenative you can run the fire module as follows:
+RUN_FIRE_screaming <- fire_module(habitat,sample(ncell(habitat_suitability(habitat)),10),
+                                  prob = 0.24,
+                                  continue_to_burn_prob = 0.01)
+
+# set up a density dependence fucntion. This isn't working as before :( But it should give you some ideas.
 ddfun <- function (pop) {
   adult_density <- pop 
   .9 * exp(-adult_density/80)* pop
 }
 
-# apply dispersal to the population (need to run this separately for each stage)
-pops <- list(as.matrix(r1),as.matrix(r2),as.matrix(r3))
-pops_time<-list('t1'=pops)
-n_time_steps <- 10
-for(j in 1:n_time_steps){
-  pops_new <- list()
-    # iterate through life histories
-    for(i in 1:n_stages){
-      pops_new[[i]] <- dispersalFFT(popmat = pops_time[[j]][[i]], fs = fs) # add in stage specific despersal function. 
-      }
-  pop_vec <- lapply(pops_new,c)
-  pop_mat <- do.call(cbind,pop_vec)
+#now we are going to try and set up an experiment using the above functions.
+pops_at_time_step <- dispersal_at_time_step <- fire_at_time_step <- habitat_suit_at_time_step <- list()
+pops_at_time_step[[1]] <- populations(habitat) 
+habitat_suit_at_time_step[[1]] <- habitat_suitability(habitat) 
+fire_at_time_step[[1]] <- fire_module(habitat,sample(ncell(habitat_suitability(habitat)),10),
+  prob = 0.24,
+  continue_to_burn_prob = 0.01)
+
+n_time_steps <- 11
+
+## begin simulation through time
+for(i in 1:n_time_steps){
   
-  #update populations
-  pops_n <- pop_mat %*% (trans$stage_matrix)
+    #update the landscape based on last fire. 
+    fire_prob <- fire_at_time_step[[i]]/max(fire_at_time_step[[i]][])   
+    
+    #now you could have some equation on how fire effects underlying habitat suitability. I'm just going to make     # something up :) = habitat_suitability*(1-fire_prob) 
+    new_hs <- habitat_suitability(habitat)*(1-fire_prob)
+    attr(new_hs,"habitat") <- "habitat_suitability" # i need to update attribute inheridence.
+    habitat_suit_at_time_step[[i+1]] <- habitat_suitability(habitat) <- new_hs 
+    
+    # let's disperse people
+    dispersed_populations <- dispersal(dispersal_params, habitat, method='ca')
+    dispersal_at_time_step[[i]] <- populations(habitat) <- dispersed_populations
+    
+    # get a vector of populations per life history
+    pop_vec <- lapply(populations(habitat),function(x)c(x[]))
+    pop_mat <- do.call(cbind,pop_vec)
   
-  ## density dependence bit working. 
-  pops_n[,3] <- ddfun(pops_n[,3])
-  pops_time[[j+1]]<-lapply(split(pops_n, rep(1:ncol(pops_n), each = nrow(pops_n))),function(x)matrix(x,nrow = nrow(pops_new[[1]])))
-  cat(j,'\n')
+    # update populations (this could be done much more nicely with pop)
+    pops_n <- pop_mat %*% (trans$stage_matrix) 
+    
+    ## update density dependence for adult populations. 
+    pops_n[,3] <- ddfun(pops_n[,3])
+    
+    #now update the populations - ideally this could be turned into a function (update_pops())
+    r <- habitat_suitability(habitat)
+    pops_updated <- lapply(split(pops_n, rep(1:ncol(pops_n), each = nrow(pops_n))),function(x){r[]<-x;return(r)})
+    pops <- lapply(pops_updated, `attr<-`, "habitat", "populations")
+    pops_at_time_step[[i+1]] <- populations(habitat) <- pops
+    
+    #now let's start another fire! Mwhahahhaha.
+    fire_at_time_step[[i+1]] <- fire_module(habitat,sample(ncell(habitat_suitability(habitat)),10),
+      prob = 0.24,
+      continue_to_burn_prob = 0.01)
 }
-  
-N <- lapply(pops_time,sum)
 
-larvae <- lapply(pops_time, "[[", 1)
-juve <- lapply(pops_time, "[[", 2)
-adult <- lapply(pops_time, "[[", 3)
+#lets look at populations
+#spatially
+larvae <- stack(lapply(pops_at_time_step, "[[", 1))
+juve <- stack(lapply(pops_at_time_step, "[[", 2))
+adult <- stack(lapply(pops_at_time_step, "[[", 3))
 
-N <- lapply(adult,mean)
+plot(larvae)
+plot(juve)
+plot(adult)
 
+#through time
+par(mfrow=c(1,3))
+adult_n <- sapply(lapply(pops_at_time_step, "[[", 3)[], function(x)sum(x[]))
+plot(adult_n,type='l',ylab='Total Adult Abundance',xlab="Time (years)",lwd=2,col='tomato')
 
-larv <- lapply(larvae, function(x) raster(matrix(x,nrow = nrow(r2))))
-st.l <- stack(larv)
+juve_n <- sapply(lapply(pops_at_time_step, "[[", 2)[], function(x)sum(x[]))
+plot(juve_n,type='l',ylab='Total Juvenile Abundance',xlab="Time (years)",lwd=2,col='dodgerblue')
 
-juv <- lapply(juve, function(x) raster(matrix(x,nrow = nrow(r2))))
-st.j <- stack(juv)
+larvae_n <- sapply(lapply(pops_at_time_step, "[[", 1)[], function(x)sum(x[]))
+plot(larvae_n,type='l',ylab='Total Larvae Abundance',xlab="Time (years)",lwd=2,col='springgreen')
 
-adl <- lapply(adult, function(x) raster(matrix(x,nrow = nrow(r2))))
-st.a <- stack(adl)
+#let's look at fire through time
+#spatially
+fire_history <- stack(fire_at_time_step)
+plot(fire_history)
