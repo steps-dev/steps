@@ -1,71 +1,47 @@
 library(raster)
-#devtools::install_github('skiptoniam/dhmpr')
 library(dhmpr)
-set.seed(42)
-xy <- expand.grid(x=seq(145, 150, 0.1), y=seq(-40, -35, 0.1))
-Dd <- as.matrix(dist(xy))
-w <- exp(-1/nrow(xy) * Dd)
-Ww <- chol(w)
-xy$z <- t(Ww) %*% rnorm(nrow(xy), 0, 0.1)
-coordinates(xy) <- ~x+y
-r <- rasterize(xy, raster(points2grid(xy)), 'z')
-r2 <- raster(r)
-res(r2) <- 0.01
-
-r2 <- resample(r, r2)
-proj4string(r2) <- '+proj=longlat'
-rthr <- r2>quantile(r2[],.8)
-
-## now the fun begins
-n_patches <- ncol(rthr)*ncol(rthr)
+# set a transition matrix
+mat <- matrix(c(.53,0,.52,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
+colnames(mat) <- rownames(mat) <- c('larvae','juvenile','adult') 
+trans <- as.transition(mat)
 n_stages <- length(states(trans))
 
-#need the pops bit first mat %*% pop
-range01 <- function(x){(x-min(x,na.rm=TRUE))/(max(x,na.rm=TRUE)-min(x,na.rm=TRUE))}
+#set up starting populations
+random_populations <- sampleRandom(r, size=50, na.rm=TRUE, sp=TRUE)
+random_populations@data <- as.data.frame(t(rmultinom(50, size = 100, prob = c(0.8,0.2,0.1))))
 
-probs <- range01(r2[])
-pops <- matrix(NA,n_patches,3)
-for(i in seq_len(n_patches))pops[i,] <- rmultinom(1,100*probs[i],c(.80,.40,.10))
+#set up habitat
+features <- list('habitat_suitability_map'=as.habitat_suitability(r),
+                 'population'=as.populations(random_populations),
+                 'carrying_capacity'=as.carrying_capacity(100))
+habitat <- as.habitat(features)
 
-pop_s1 <- pops[,1]
-pop_s2 <- pops[,2]
-pop_s3 <- pops[,3]
+# set up dispersal parameters.
+dispersal_params <- as.dispersal(list(dispersal_distance=list('larvae'=3,'juvenile'=0,'adult'=3),
+                dispersal_kernel=list('larvae'=exp(-c(0:2)),'juvenile'=0,'adult'=exp(-c(0:2)*.2)),
+                dispersal_proportion=list('larvae'=0.1,'juvenile'=0,'adult'=0.3)))  
 
-r1 <- r2 <- r3 <- rthr
-r1[]<-pop_s1
-r2[]<-pop_s2
-r3[]<-pop_s3
+## dispersal using cellular automata.                                 
+dispersed_populations <- dispersal(dispersal_params, habitat, method='ca')
+populations(habitat) <- dispersed_populations
 
-y <- seq_len(ncol(r1))
-x <- seq_len(ncol(r1))
+## now I've set up a custom function which manipulates rasters (based on a dodgy fire simualtion)
+##This can be a custom function for manipulating rasters or existing functions. 
+fun <- fire_spread
 
-# dispersal function acting on distance matrix
-# cut-off dispersal at the minimum dimension of the grid 
-f <- function (d, cutoff = 2) {
-  ifelse (d > cutoff, 0, exp(-d))
-}
+##Create a named list with corresponding parameters and values
+params = list(habitat_suitability(habitat),
+              fire_start_location = sample(ncell(hs),10),
+              prob = 0.24,
+              continue_to_burn_prob = 0.01)
+               
+## check module produces expected output
+fire_module <- as.module(fun,params,check=TRUE)       
 
-# f <- function (d) exp(-d)
-
-# initial population on grid (one stage)
-# pop <- matrix(rpois(length(x) * length(y),10),length(y), length(x))
-
-# setup for the fft approach (run this once, before the simulation)
-fs <- setupFFT(x = x, y = y, f = f, factor = 2)
-
-#stage based dispersal 
-# fs[[1]]<-larval_dispersal_fun
-
-
-
+# set up a density dependence fucntion. This isn't working as before :(
 ddfun <- function (pop) {
   adult_density <- pop 
   .9 * exp(-adult_density/80)* pop
-}
-#this is an example of threshold 
-ddfun2 <- function (pop) {
-  adult_density <- pop 
-  ifelse(pop>400,400,pop)
 }
 
 # apply dispersal to the population (need to run this separately for each stage)
@@ -81,11 +57,11 @@ for(j in 1:n_time_steps){
   pop_vec <- lapply(pops_new,c)
   pop_mat <- do.call(cbind,pop_vec)
   
-  ## density dependence bit working. 
+  #update populations
   pops_n <- pop_mat %*% (trans$stage_matrix)
-  pops_n[,3] <- ddfun2(pops_n[,3])
   
-  
+  ## density dependence bit working. 
+  pops_n[,3] <- ddfun(pops_n[,3])
   pops_time[[j+1]]<-lapply(split(pops_n, rep(1:ncol(pops_n), each = nrow(pops_n))),function(x)matrix(x,nrow = nrow(pops_new[[1]])))
   cat(j,'\n')
 }
@@ -97,14 +73,7 @@ juve <- lapply(pops_time, "[[", 2)
 adult <- lapply(pops_time, "[[", 3)
 
 N <- lapply(adult,mean)
-# 
-# # turn it into a transfun object
-# dd <- dhmpr::as.customfun(ddfun,
-#                        param = list(p = 0.9,
-#                                area = 100),
-#                         type = 'probability')
 
-# r[]<-ddfun(N,250)
 
 larv <- lapply(larvae, function(x) raster(matrix(x,nrow = nrow(r2))))
 st.l <- stack(larv)
@@ -114,24 +83,3 @@ st.j <- stack(juv)
 
 adl <- lapply(adult, function(x) raster(matrix(x,nrow = nrow(r2))))
 st.a <- stack(adl)
-
-nl <- 10
-prefix <- paste(sample(letters, 6, replace=TRUE), collapse='')
-grDevices::png(sprintf('%s/%s_%%0%sd.png', tempdir(), prefix, nchar(nl)),
-               type='cairo', width=width, height=height)
-plot_t <- function(i) {
-  p <- rasterVis::levelplot(st.a[[i]], margin=FALSE)
-  print(p)
-}
-
-mapply(plot_t, seq_len(nl)) 
-grDevices::dev.off()
-
-width = 800; height=800
-oopt <- animation::ani.options(
-  ani.width=width, ani.height=height, interval=0.05, ani.dev='png', 
-  ani.type='png', nmax=nl, autobrowse=FALSE)
-on.exit(animation::ani.options(oopt), add=TRUE)
-ff <- list.files(tempdir(), sprintf('^%s.*\\.png$', prefix), full.names=TRUE)
-animation::im.convert(ff,output = 'c:/Users/swoolley/Desktop/test.gif', extra.opts='-dispose Background', 
-                      clean=TRUE)

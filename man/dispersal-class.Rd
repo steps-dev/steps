@@ -2,16 +2,9 @@
 % Please edit documentation in R/dispersal-class.R
 \name{as.dispersal}
 \alias{as.dispersal}
-\alias{bcb}
 \alias{dispersal}
-\alias{dispersalFFT}
-\alias{extend}
-\alias{extent}
-\alias{ifft}
 \alias{is.dispersal}
 \alias{print.dispersal}
-\alias{seq_range}
-\alias{setupFFT}
 \title{dispersal class for meta-populations}
 \usage{
 as.dispersal(params)
@@ -19,18 +12,6 @@ as.dispersal(params)
 is.dispersal(x)
 
 \method{print}{dispersal}(x, ...)
-
-extend(x, factor = 2)
-
-bcb(x, y, f = I)
-
-setupFFT(x, y, f, factor = 2)
-
-dispersalFFT(popmat, fs)
-
-seq_range(range, by = 1)
-
-ifft(z)
 
 dispersal(params, habitat, method, ...)
 }
@@ -74,31 +55,5 @@ is.dispersal(disp)
 # print method
 print(dp)
 
-# small functions that should be in base R
-seq_range <- function (range, by = 1) seq(range[1], range[2], by = by)
-ifft <- function (z) fft(z, inverse = TRUE)
-
-# coordinates of grid cells
-# *don't make n too big, as the dense version will take forever!*
-n <- 50 * c(2, 2)
-y <- seq_len(n[1])
-x <- seq_len(n[2])
-
-# dispersal function acting on distance matrix
-# cut-off dispersal at the minimum dimension of the grid 
-f <- function (d, cutoff = min(n)) {
- ifelse (d > cutoff, 0, exp(-d))
-}
-
-# f <- function (d) exp(-d)
-# initial population on grid (one stage)
-pop <- matrix(rpois(length(x) * length(y),10),
-             length(y), length(x))
-             
-# setup for the fft approach (run this once, before the simulation)
-fs <- setupFFT(x = x, y = y, f = f, factor = 1)
-
-# apply dispersal to the population (need to run this separately for each stage)
-pop_new <- dispersalFFT(popmat = pop, fs = fs)
 }
 
