@@ -1,6 +1,6 @@
 #' @title fire spread object for dynamic habitat meta-populations.
-#' @name fire_spread
-#' @rdname fire_spread
+#' @name fire-module
+#' @rdname fire-module
 #' @description This is an example function which we can import as a module to manipulate the habitat. 
 #' This function uses cellular automata to spread fire across the habitat. These burnt cells can be used to reduce (or increase)
 #' the probability of occurrence within the \code{habitat} object and thus re-shape or change patch suitability. 
@@ -23,7 +23,7 @@
 #' @examples 
 #' 
 
-fire_spread <- function(habitat,
+fire_module <- function(habitat,
                         fire_start_location = NA_real_,
                         prob = 0.23, # could replace this with cell probabilities.
                         continue_to_burn_prob = 0,
