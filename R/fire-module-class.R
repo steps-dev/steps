@@ -242,35 +242,33 @@ fire_module <- function(habitat,
           }
       }
   
-    
-    
-    if (return_table) {
-        allCells <- data.table::rbindlist(list(completed, active))
-        initEventID <- allCells[indices %in% initialfire_start_location, id]
-        if (!all(is.na(initialfire_start_location))) {
-          dtToJoin <- data.table(id = sort(initEventID), initialLocus = initialfire_start_location)
-        } else {
-          dtToJoin <- data.table(id = numeric(0), initialLocus = numeric(0))
-        }
-        if (fire_historyExists) {
-          fire_historyInitialfire_start_location <- fire_history[, list(id = unique(id),
-                                                       initialLocus = unique(initialLocus))]
-          dtToJoin <- rbindlist(list(fire_historyInitialfire_start_location, dtToJoin))
-        }
-        data.table::setkeyv(dtToJoin, "id")
-        data.table::setkeyv(allCells, "id")
-        
-        allCells <- dtToJoin[allCells]
-        allCells[]
-        return(allCells)
-    }
-    
     spre <- raster(hab)
     spre[] <- 0
     spre[wh] <- spreads[wh]
       if (exists("potentials"))
         if (NROW(potentials) > 0)
           spre[potentials[, 1L]] <- spreads[potentials[, 2L]]
+    
+    if (return_table) {
+      allCells <- data.table::rbindlist(list(completed, active))
+      initEventID <- allCells[indices %in% initialfire_start_location, id]
+      if (!all(is.na(initialfire_start_location))) {
+        dtToJoin <- data.table(id = sort(initEventID), initialLocus = initialfire_start_location)
+      } else {
+        dtToJoin <- data.table(id = numeric(0), initialLocus = numeric(0))
+      }
+      if (fire_historyExists) {
+        fire_historyInitialfire_start_location <- fire_history[, list(id = unique(id),
+          initialLocus = unique(initialLocus))]
+        dtToJoin <- rbindlist(list(fire_historyInitialfire_start_location, dtToJoin))
+      }
+      data.table::setkeyv(dtToJoin, "id")
+      data.table::setkeyv(allCells, "id")
+      
+      allCells <- dtToJoin[allCells]
+      allCells[]
+      return(list(fire_spread=spre,fire_history=allCells))
+    }
     
   return(spre)
 }
