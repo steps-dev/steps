@@ -50,9 +50,6 @@ for(j in 1:simulations){
     prob = 0.24,
     continue_to_burn_prob = 0.01)
   
-  ## check module produces expected output
-  fires <- as.module(fire_module,params)       
-  
   ## altenative you can run the fire module as follows:
   RUN_FIRE_screaming <- fire_module(habitat,sample(ncell(habitat_suitability(habitat)),10),
     prob = 0.24,
