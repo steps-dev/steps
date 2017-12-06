@@ -2,7 +2,7 @@
 library(raster)
 library(dhmpr)
 # set a transition matrix
-mat <- matrix(c(.53,0,.62,0.2,0.77,0,0,0.22,0.9),nrow = 3,ncol = 3,byrow = TRUE)
+mat <- matrix(c(.53,0,.62,0.20,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
 colnames(mat) <- rownames(mat) <- c('larvae','juvenile','adult') 
 trans <- as.transition(mat)
 n_stages <- length(states(trans))
@@ -19,24 +19,27 @@ coordinates(xy) <- ~x+y
 r <- rasterize(xy, raster(points2grid(xy)), 'z')
 proj4string(r) <- '+init=epsg:4283'
 r[] <- scales::rescale(r[],to=c(0,1))
-random_populations <- sampleRandom(r, size=50, na.rm=TRUE, sp=TRUE)
-random_populations@data <- as.data.frame(t(rmultinom(50, size = 100, prob = c(0.8,0.2,0.1))))
+
+
+# here I create starting populations based on habitat suitability and stable starting state x 100 for good measure.
+starting_populations <- lapply(1:3,function(x)r*100*summary(trans)$stable.stage.distribution[x])
+start_pops <- stack(starting_populations)
+
+dispersal_params <- as.dispersal(list(dispersal_distance=list('larvae'=3,'juvenile'=0,'adult'=6),
+                                      dispersal_kernel=list('larvae'=exp(-c(0:2)),'juvenile'=0,'adult'=exp(-c(0:5)*.2)),
+                                      dispersal_proportion=list('larvae'=0.1,'juvenile'=0,'adult'=0.6)))  
+print(dispersal_params)
+
 
 #set up habitat
-simulations <- 20
+simulations <- 10
 sim_results <- list()
 for(j in 1:simulations){
   features <- list('habitat_suitability_map'=as.habitat_suitability(r),
-    'population'=as.populations(random_populations),
+    'population'=as.populations(start_pops),
     'carrying_capacity'=as.carrying_capacity(100))
   habitat <- as.habitat(features)
   # print(habitat)
-  
-  # set up dispersal parameters.
-  dispersal_params <- as.dispersal(list(dispersal_distance=list('larvae'=3,'juvenile'=0,'adult'=3),
-    dispersal_kernel=list('larvae'=exp(-c(0:2)),'juvenile'=0,'adult'=exp(-c(0:2)*.2)),
-    dispersal_proportion=list('larvae'=0.1,'juvenile'=0,'adult'=0.3)))  
-  # print(dispersal_params)
   
   ## dispersal using cellular automata.                                 
   dispersed_populations <- dispersal(dispersal_params, habitat, method='ca')
@@ -90,7 +93,7 @@ for(j in 1:simulations){
     pop_mat <- do.call(cbind,pop_vec)
     
     # update populations (this could be done much more nicely with pop)
-    pops_n <- pop_mat %*% (trans$stage_matrix * matrix(runif(length(trans$stage_matrix),max=2),dim(trans$stage_matrix)[1],dim(trans$stage_matrix)[2])) 
+    pops_n <- pop_mat %*% (trans$stage_matrix * matrix(runif(length(trans$stage_matrix),max=2.5),dim(trans$stage_matrix)[1],dim(trans$stage_matrix)[2])) 
     
     ## update density dependence for adult populations. 
     pops_n[,3] <- ddfun(pops_n[,3])
@@ -110,15 +113,41 @@ for(j in 1:simulations){
   cat(j,"\n")
 }
 
+# spatial
+mean_lar <- all_lar <- list()
+mean_juv <- all_juv <- list()
+mean_adl <- all_adl <- list()
+
+for(i in 1:12){
+  all_lar <- list()
+  all_juv <- list()
+  all_adl <- list()
+  
+   for(j in 1:10){
+      all_lar[[j]] <- sim_results[[j]][[i]][[1]]
+      all_juv[[j]] <- sim_results[[j]][[i]][[2]]
+      all_adl[[j]] <- sim_results[[j]][[i]][[3]]
+      }
+      mean_lar[[i]] <- mean(stack(all_lar))
+      mean_juv[[i]] <- mean(stack(all_juv))
+      mean_adl[[i]] <- mean(stack(all_adl))
+}
+
+plot(stack(mean_lar))
+plot(stack(mean_juv))
+plot(stack(mean_adl))
+
+
+
 #through time
 par(mfrow=c(1,3))
 larvaes_ns <- matrix(20*12,20,12)
 juveniles_ns <- matrix(20*12,20,12)
 adults_ns <- matrix(20*12,20,12)
 for(i in 1:12){ 
-  larvaes_ns[,i] <- sapply(lapply(lapply(sim_results, "[[", i),"[[",1), function(x)sum(x[]))
-  juveniles_ns[,i] <- sapply(lapply(lapply(sim_results, "[[", i),"[[",2), function(x)sum(x[]))
-  adults_ns[,i] <- sapply(lapply(lapply(sim_results, "[[", i),"[[",3), function(x)sum(x[]))
+  larvaes_ns[,i] <- sapply(lapply(lapply(sim_results, "[[", i),"[[",1), function(x)mean(x[]))
+  juveniles_ns[,i] <- sapply(lapply(lapply(sim_results, "[[", i),"[[",2), function(x)mean(x[]))
+  adults_ns[,i] <- sapply(lapply(lapply(sim_results, "[[", i),"[[",3), function(x)mean(x[]))
 }
 
 ln <- (apply(larvaes_ns, 2, quantile, c(0.1, 0.90)))
@@ -132,39 +161,39 @@ anm <- (apply(adults_ns, 2, mean))
 
 par(mfrow=c(1,3))
 x <- 1:12
-y <- 2000
-plot(x,seq(0,2000,length.out = 12),type = 'n', ylab = 'population',xlab = 'time (years)',axes=F)
+y <- 100
+plot(x,seq(0,100,length.out = 12),type = 'n', ylab = 'population',xlab = 'time (years)',axes=F)
 polygon(x = c(x, rev(x)),
   y = c(ln[1, ], rev(ln[2,])),
   col = grey(0.8),
   border = NA)
 lines(1:12,lnm, lwd = 1,type="b",pch=16)
-text(max(x),y-100,"Larvae population\n at each time step \n with variance", adj=1, family="serif")
+text(max(x),y-10,"Mean larvae population\n at each time step \n with variance", adj=1, family="serif")
 axis(1, at=x, label=x, family="serif")
-axis(2, at=seq(0,2000,200),label=seq(0,2000,200), family="serif",las=2)
+axis(2, at=seq(0,100,10),label=seq(0,100,10), family="serif",las=2)
 
 x <- 1:12
-y <- 2000
-plot(x,seq(0,2000,length.out = 12),type = 'n', ylab = 'population',xlab = 'time (years)',axes=F)
+y <- 100
+plot(x,seq(0,100,length.out = 12),type = 'n', ylab = 'population',xlab = 'time (years)',axes=F)
 polygon(x = c(x, rev(x)),
   y = c(jn[1, ], rev(jn[2,])),
   col = grey(0.8),
   border = NA)
 lines(1:12,jnm, lwd = 1,type="b",pch=16)
-text(max(x),y-100,"Juvenile population\n at each time step \n with variance", adj=1, family="serif")
+text(max(x),y-10,"Mean juvenile population\n at each time step \n with variance", adj=1, family="serif")
 axis(1, at=x, label=x, family="serif")
-axis(2, at=seq(0,2000,200),label=seq(0,2000,200), family="serif",las=2)
+axis(2, at=seq(0,100,10),label=seq(0,100,10), family="serif",las=2)
 
 x <- 1:12
-y <- 2000
-plot(x,seq(0,2000,length.out = 12),type = 'n', ylab = 'population',xlab = 'time (years)',axes=F)
+y <- 100
+plot(x,seq(0,100,length.out = 12),type = 'n', ylab = 'population',xlab = 'time (years)',axes=F)
 polygon(x = c(x, rev(x)),
   y = c(an[1, ], rev(an[2,])),
   col = grey(0.8),
   border = NA)
 lines(1:12,anm, lwd = 1,type="b",pch=16)
-text(max(x),y-100,"Adult population\n at each time step \n with variance", adj=1, family="serif")
+text(max(x),y-10,"Mean adult population\n at each time step \n with variance", adj=1, family="serif")
 axis(1, at=x, label=x, family="serif")
-axis(2, at=seq(0,2000,200),label=seq(0,2000,200), family="serif",las=2)
+axis(2, at=seq(0,100,10),label=seq(0,100,10), family="serif",las=2)
 
 

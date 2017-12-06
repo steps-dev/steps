@@ -1,7 +1,7 @@
 library(raster)
 library(dhmpr)
 # set a transition matrix
-mat <- matrix(c(.53,0,.72,0.2,0.87,0,0,0.32,0.9),nrow = 3,ncol = 3,byrow = TRUE)
+mat <- matrix(c(.53,0,.72,0.25,0.87,0,0,0.32,0.9),nrow = 3,ncol = 3,byrow = TRUE)
 colnames(mat) <- rownames(mat) <- c('larvae','juvenile','adult') 
 trans <- as.transition(mat)
 n_stages <- length(states(trans))
@@ -29,9 +29,9 @@ habitat <- as.habitat(features)
 print(habitat)
 
 # set up dispersal parameters.
-dispersal_params <- as.dispersal(list(dispersal_distance=list('larvae'=3,'juvenile'=0,'adult'=3),
-                dispersal_kernel=list('larvae'=exp(-c(0:2)),'juvenile'=0,'adult'=exp(-c(0:2)*.2)),
-                dispersal_proportion=list('larvae'=0.1,'juvenile'=0,'adult'=0.3)))  
+dispersal_params <- as.dispersal(list(dispersal_distance=list('larvae'=3,'juvenile'=0,'adult'=6),
+                dispersal_kernel=list('larvae'=exp(-c(0:2)),'juvenile'=0,'adult'=exp(-c(0:5)*.2)),
+                dispersal_proportion=list('larvae'=0.1,'juvenile'=0,'adult'=0.6)))  
 print(dispersal_params)
 
 ## dispersal using cellular automata.                                 
@@ -68,7 +68,7 @@ habitat_suit_at_time_step[[1]] <- habitat_suitability(habitat)
 fire_at_time_step[[1]] <- fire_module(habitat,sample(ncell(habitat_suitability(habitat)),10),
   prob = 0.24,
   continue_to_burn_prob = 0.01)
-n_time_steps <- 23
+n_time_steps <- 11
 
 ## begin experiment through time
 for(i in 1:n_time_steps){
@@ -90,7 +90,7 @@ for(i in 1:n_time_steps){
     pop_mat <- do.call(cbind,pop_vec)
   
     # update populations (this could be done much more nicely with pop)
-    pops_n <- pop_mat %*% (trans$stage_matrix * matrix(runif(length(trans$stage_matrix)),dim(trans$stage_matrix)[1],dim(trans$stage_matrix)[2]))
+    pops_n <- pop_mat %*% (trans$stage_matrix)# * matrix(runif(length(trans$stage_matrix)),dim(trans$stage_matrix)[1],dim(trans$stage_matrix)[2]))
     
     ## update density dependence for adult populations. 
     pops_n[,3] <- ddfun(pops_n[,3])
@@ -114,12 +114,14 @@ larvae <- stack(lapply(pops_at_time_step, "[[", 1))
 juve <- stack(lapply(pops_at_time_step, "[[", 2))
 adult <- stack(lapply(pops_at_time_step, "[[", 3))
 
-plot(larvae)
-plot(juve)
-plot(adult)
+pops_after_experiment <- stack(larvae,juve,adult)
+names(pops_after_experiment) <- c('larvae','juveniles','adults')
+# par(mfrow=c(3,1))
+plot(pops_after_experiment,nr=1)
+
 
 tot_abn <- list()
-for(i in 1:24){
+for(i in 1:12){
   tot_abn[[i]] <- sum(stack(pops_at_time_step[[i]]))
 }
 
