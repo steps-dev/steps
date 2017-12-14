@@ -23,4 +23,3 @@ list2habitat(input)
   habitat
 }
 }
-

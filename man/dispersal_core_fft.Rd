@@ -9,4 +9,3 @@ dispersal_core_fft(params, habitat)
 \description{
 # apply dispersal to the population (need to run this separately for each stage)
 }
-

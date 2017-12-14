@@ -2,9 +2,9 @@
 % Please edit documentation in R/dispersal-class.R
 \name{as.dispersal}
 \alias{as.dispersal}
-\alias{dispersal}
 \alias{is.dispersal}
 \alias{print.dispersal}
+\alias{dispersal}
 \title{dispersal class for meta-populations}
 \usage{
 as.dispersal(params)
@@ -20,9 +20,9 @@ dispersal(params, habitat, method, ...)
 
 \item{x}{an object to be tested as a dispersal transfun object}
 
-\item{method}{Can be either fast fourier transformation = 'fft'; or cellular automata = 'ca'.}
-
 \item{\dots}{further arguments passed to or from other methods.}
+
+\item{method}{Can be either fast fourier transformation = 'fft'; or cellular automata = 'ca'.}
 }
 \description{
 creates a function that governs dispersal capacity of life-history stages of a species. The input is a list which contains the first list is a dispersal kernel \code{dispersal} value for life-history stage, the second named list \code{} is the proportion of that stage will disperse. For example a probability of 0.2 for stage larvae means a random 20% of larve will a try and disperse to patches, the distance they can disperse is governed by the dispersal kernel (alpha). If params = NULL, a dispersal kernel of 1 is given to all stages, and all stages will attempt to undertake dispersal. If NULL is provided to the as.dispersal function, diffuse dispersal will be used based on the fast fourier transformation method ('fft').
@@ -56,4 +56,3 @@ is.dispersal(disp)
 print(dp)
 
 }
-
