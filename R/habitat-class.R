@@ -410,13 +410,6 @@ populations2rasterbrick <- function(pops,hab_suit){
     pop_brick <- mask(pop_brick,hab_suit)
   }
  
-  # I will in the capacity to alter population with a function soon. 
-  # if spatial points data frame generate a raster stack from known populations.
-  # if(inherits(pops,'function')){
-  #   
-  #  this will do something to convert a habitat suitability map into a raster_brick for each life-history
-  #     
-  # }  
   return(pop_brick)
 }
 
@@ -434,14 +427,6 @@ carryingcapacity2raster <- function(carry_cap,hab_suit,...){
       ccr[!is.na(ccr[])] <- carry_cap
       names(ccr)<- 'carrying_capacity'
   }
-
-  # I will in the capacity to alter population with a function soon. 
-  # if spatial points data frame generate a raster stack from known populations.
-  # if(inherits(carry_cap,'function')){
-  #   
-  #  this will do something to convert a habitat suitability map into a raster_brick for each life-history
-  #     
-  # }  
   return(ccr)
 }
 
