@@ -59,9 +59,9 @@ for(j in 1:simulations){
     continue_to_burn_prob = 0.01)
   
   # set up a density dependence fucntion. This isn't working as before :( But it should give you some ideas.
-  ddfun <- function (pop) {
-    adult_density <- pop 
-    .9 * exp(-adult_density/80)* pop
+  ddfun <- function (pop,n) {
+    new_pop<-sapply(1:length(pop),function(x)ifelse(pop[x]>n,floor(n * runif(1)),pop[x]))
+    return(new_pop)
   }
   
   #now we are going to try and set up an experiment using the above functions.
@@ -96,7 +96,7 @@ for(j in 1:simulations){
     pops_n <- pop_mat %*% (trans$stage_matrix * matrix(runif(length(trans$stage_matrix),max=2.5),dim(trans$stage_matrix)[1],dim(trans$stage_matrix)[2])) 
     
     ## update density dependence for adult populations. 
-    pops_n[,3] <- ddfun(pops_n[,3])
+    pops_n[,3] <- ddfun(pops_n[,3],100)
     
     #now update the populations - ideally this could be turned into a function (update_pops())
     r <- habitat_suitability(habitat)

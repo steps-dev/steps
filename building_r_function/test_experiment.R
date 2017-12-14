@@ -1,7 +1,7 @@
 library(raster)
 library(dhmpr)
 # set a transition matrix
-mat <- matrix(c(.53,0,.72,0.25,0.87,0,0,0.32,0.9),nrow = 3,ncol = 3,byrow = TRUE)
+mat <- matrix(c(.53,0,.62,0.15,0.87,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
 colnames(mat) <- rownames(mat) <- c('larvae','juvenile','adult') 
 trans <- as.transition(mat)
 n_stages <- length(states(trans))
@@ -19,7 +19,7 @@ r <- rasterize(xy, raster(points2grid(xy)), 'z')
 proj4string(r) <- '+init=epsg:4283'
 r[] <- scales::rescale(r[],to=c(0,1))
 random_populations <- sampleRandom(r, size=50, na.rm=TRUE, sp=TRUE)
-random_populations@data <- as.data.frame(t(rmultinom(50, size = 100, prob = c(0.8,0.2,0.1))))
+random_populations@data <- as.data.frame(t(rmultinom(50, size = 50, prob = c(0.8,0.2,0.1))))
 
 #set up habitat
 features <- list('habitat_suitability_map'=as.habitat_suitability(r),
@@ -35,7 +35,7 @@ dispersal_params <- as.dispersal(list(dispersal_distance=list('larvae'=3,'juveni
 print(dispersal_params)
 
 ## dispersal using cellular automata.                                 
-dispersed_populations <- dispersal(dispersal_params, habitat, method='ca')
+dispersed_populations <- dispersal(dispersal_params, habitat, method='fft')
 populations(habitat) <- dispersed_populations
 
 ## now I've set up a custom function which manipulates rasters (based on a dodgy fire simualtion)
@@ -55,10 +55,9 @@ RUN_FIRE_screaming <- fire_module(habitat,sample(ncell(habitat_suitability(habit
                                   continue_to_burn_prob = 0.01)
 
 # set up a density dependence fucntion. This isn't working as before :( But it should give you some ideas.
-ddfun <- function (pop) {
-  adult_density <- pop 
-  if(adult_density>10) adult_density <- 10 * runif(1)
-  adult_density
+ddfun <- function (pop,n) {
+  new_pop<-sapply(1:length(pop),function(x)ifelse(pop[x]>n,floor(n * runif(1)),pop[x]))
+  return(new_pop)
 }
 
 #now we are going to try and set up an experiment using the above functions.
@@ -90,10 +89,21 @@ for(i in 1:n_time_steps){
     pop_mat <- do.call(cbind,pop_vec)
   
     # update populations (this could be done much more nicely with pop)
+    
+    # function for this whole bit{
+    # function(pops,transmat,sdmat)
     pops_n <- pop_mat %*% (trans$stage_matrix)# * matrix(runif(length(trans$stage_matrix)),dim(trans$stage_matrix)[1],dim(trans$stage_matrix)[2]))
     
+    # different transition matrxi per pop.
+    # for (i in 1:ncell){
+    #   vec_adult_surival[i]*flatterned_pops_trans_mat[i,9]
+    #   pops_n[i,]%*%flatterned_pops_trans_mat[i,]
+    #   
+    # }
+# }
+    
     ## update density dependence for adult populations. 
-    pops_n[,3] <- ddfun(pops_n[,3])
+    pops_n[,3] <- ddfun(pops_n[,3],50)
     
     #now update the populations - ideally this could be turned into a function (update_pops())
     r <- habitat_suitability(habitat)
@@ -111,13 +121,22 @@ for(i in 1:n_time_steps){
 #lets look at populations
 #spatially
 larvae <- stack(lapply(pops_at_time_step, "[[", 1))
+larvae_disp <- stack(lapply(dispersal_at_time_step, "[[", 1))
 juve <- stack(lapply(pops_at_time_step, "[[", 2))
+juve_disp <- stack(lapply(dispersal_at_time_step, "[[", 2))
 adult <- stack(lapply(pops_at_time_step, "[[", 3))
+adult_disp <- stack(lapply(dispersal_at_time_step, "[[", 3))
+
+# these plots should show you the movement of species between each time setp.
+# negative values will be source and and +ve will be sinks. ie, you lots 20 species (-20) and gained 30 
+plot(larvae_disp-larvae[[-12]])
+plot(juve_disp-juve[[-12]])
+plot(adult_disp-adult[[-12]])
 
 pops_after_experiment <- stack(larvae,juve,adult)
-names(pops_after_experiment) <- c('larvae','juveniles','adults')
+# names(pops_after_experiment) <- c('larvae','juveniles','adults')
 # par(mfrow=c(3,1))
-plot(pops_after_experiment,nr=1)
+plot(pops_after_experiment)
 
 
 tot_abn <- list()
