@@ -1,9 +1,9 @@
-#' @title habitat_suitability_dynamics objects
-#' @name habitat_suitability_dynamics
-#' @rdname habitat_suitability_dynamics
-#' @description habitat_suitability_dynamics are functions for altering the underlying \link[dhmper]{habitat}\code{habitat_suitability} at anytime step. Habitat_suitability_dynamics has to be a function which explicitly changes the habitat_suitability. Examples could include: models of fire spread, management actions like culling, the distribution of trawling. 
+#' @title habitat_dynamics objects
+#' @name habitat_dynamics
+#' @rdname habitat_dynamics
+#' @description habitat_dynamics are functions for altering the underlying \link[dhmper]{habitat}\code{habitat} at anytime step. habitat_dynamics has to be a function which explicitly changes the habitat. Examples could include: models of fire spread, management actions like culling, the distribution of trawling. 
 #' 
-#' habitat_suitability_dynamics sets up internal or custom functions to work with \code{habitat} and \code{experiment} objects.
+#' habitat_dynamics sets up internal or custom functions to work with \code{habitat} and \code{experiment} objects.
 #' 
 #' @export
 #' @examples 
@@ -31,7 +31,7 @@
 #' random_populations@data <- as.data.frame(t(rmultinom(50, size = 50, prob = c(0.8,0.2,0.1))))
 #' 
 #' # set up habitat
-#' features <- list('habitat_suitability_map'=as.habitat_suitability(r),
+#' features <- list('habitat_map'=as.habitat_suitability(r),
 #'                  'population'=as.populations(random_populations),
 #'                  'carrying_capacity'=as.carrying_capacity(100))
 #' habitat <- as.habitat(features)
@@ -45,37 +45,37 @@
 #'              continue_to_burn_prob = 0.01)
 #'               
 #'## check habitat_suitability_dynamics produces expected output
-#' fire_affected_habitat_suitability <- as.habitat_suitability_dynamics(fire_module,params,check=TRUE)                   
+#' fire_affected_habitat_suitability <- as.habitat_dynamics(fire_module,params,check=TRUE)                   
 #'
-#'## If it does? create the habitat_suitability_dynamics (yay!).
-#'fire_habitat_suitability_dynamics <- as.habitat_suitability_dynamics(fun,params) 
+#'## If it does? create the habitat_dynamics (yay!).
+#'fire_habitat_suitability_dynamics <- as.habitat_dynamics(fun,params) 
 #'
-as.habitat_suitability_dynamics <- function(fun, params, check=FALSE, ...){
-  if(!is.function(fun))stop("habitat_suitability_dynamics needs to be a function - see the documents for details")
+as.habitat_dynamics <- function(fun, params, check=FALSE, ...){
+  if(!is.function(fun))stop("habitat_dynamics needs to be a function - see the documents for details")
   if(check) {
     message('checking to see your function works with habitat_suitabilit(habitat)')
     test <- do.call(fun,params)
-    attr(test, "habitat") <- "habitat_suitability"
+    attr(test, "habitat") <- "habitat"
     return(test)
   }
 
-    fun_params <- structure(list(fun,params),class='habitat_suitability_dynamics')
+    fun_params <- structure(list(fun,params),class='habitat_dynamics')
   return(fun_params)
 }
 
-#' @rdname habitat_suitability_dynamics
+#' @rdname habitat_dynamics
 #' @export
-is.habitat_suitability_dynamics <- function (x) inherits(x, 'habitat_suitability_dynamics')
-#' @rdname run_habitat_suitability_dynamics
+is.habitat_dynamics <- function (x) inherits(x, 'habitat_dynamics')
+#' @rdname run_habitat_dynamics
 #' @export
-#' @description this bad boy will run the habitat_suitability_dynamics in a experiment.
-run_habitat_suitability_dynamics <- function(habitat_suitability_dynamics, ...){
-  if(!is.habitat_suitability_dynamics(habitat_suitability_dynamics))
-  stop("you need to define a habitat_suitability_dynamics module in order to run it within an experiment - see the documents for details")
-  fun <- habitat_suitability_dynamics[[1]]
-  params <- habitat_suitability_dynamics[[2]]
-  altered_habitat_suitability <- do.call(fun,params)
-  attr(altered_habitat_suitability, "habitat") <- "habitat_suitability"
-  return(altered_habitat_suitability)
+#' @description this bad boy will run the habitat_dynamics in a experiment.
+run_habitat_dynamics <- function(habitat_dynamics, ...){
+  if(!is.habitat_dynamics(habitat_dynamics))
+  stop("you need to define a habitat_dynamics module in order to run it within an experiment - see the documents for details")
+  fun <- habitat_dynamics[[1]]
+  params <- habitat_dynamics[[2]]
+  altered_habitat <- do.call(fun,params)
+  attr(altered_habitat, "habitat") <- "habitat"
+  return(altered_habitat)
 }  
   
