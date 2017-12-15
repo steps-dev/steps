@@ -433,7 +433,7 @@ carryingcapacity2raster <- function(carry_cap,hab_suit,...){
 
 
 ## area functions. 
-## internal functions for estimating area percell - useful for density dependence ect. 
+## internal functions for estimating area percell - useful for density dependence etc. 
 area_at_site <- function(study_area, site_coords){
   if(raster::isLonLat(study_area)){
     #calculate area based on area function
