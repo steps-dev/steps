@@ -153,3 +153,20 @@ demographyCheck <- function (x) {
 dots <- function(...) {
   eval(substitute(alist(...)))
 }
+
+
+#### Casey I realised I messed up the demographic projections.
+#### I had the matrix multipication around the wrong way.
+#### I had vec_pops%*%stage_matrix, where is should have been stage_matrix%*%vec_pops.
+#### I'm going to write a function which shouild do all the demographic projections 
+#### and hopefully sort out any issues.
+
+estimate_demography <- function(demography, populations, parameters){
+   
+  pop_vec <- lapply(populations(habitat),function(x)c(x[]))
+  pop_mat <- do.call(cbind,pop_vec)
+  
+  
+  
+}
+
