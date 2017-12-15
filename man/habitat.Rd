@@ -69,7 +69,7 @@ an object of class \code{habitat}.
 \description{
 Habitat is an object that contains the spatial distribution of the populations, habitat suitability and carrying capacity for the landscape or seascape. Habitat requires either predefined rasters of population size for each life-history, habitat suitability map (e.g. a species distribution model) and carrying capacity. However, habitat suitability map is the only mandatory raster, population and carrying capacity can be provided as numeric values or functions which manipulate the habitat suitability map rasters to generate population per-cell and/or carrying capacity per-cell.
 
-carrying_capacity_function <- function(x,type=c('exp','logit','linear','custom'),...){
+carrying_capacity_function <- function(x, type=c('exp','logit','linear','custom'), custom_fun=NULL, params, ...){
   print(as.list(match.call(x)))
   type <- match.arg(type)
   switch(type,

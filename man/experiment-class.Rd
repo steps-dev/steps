@@ -103,6 +103,15 @@ fire_module <- as.module(fire_spread,module_params)
 
 ## add module 
 pop_hab_disp_experiments_w_module <- experiment(trans,habs,disp,fire_module)
+
+experiment_event_list <- list(e1=event(trans,year),
+                              e2=event(dispersal,weeks),
+                              e3=event(fires,years),
+                              e4=event(dispesral,),
+                              e5=event(disperal,1)
+
+
+
 # print method
 print(population_experiments)
 

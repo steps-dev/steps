@@ -1,11 +1,51 @@
+#' @title demography_dynamics objects
+#' @name demography_dynamics
+#' @rdname demography_dynamics
+#' @description demography_dynamics are functions for altering the underlying demographic process in the \link[code]{experiment}. 
+#' Demography_dynamics are functions which either directly affect the stage-based demographic matrix or other demographic processes excluding dispersal, any functions which alter dispersal are called from \link[dhmpr]{dispersal} or \link[dhmpr]{dispersal_dynamics}.
+#' \code{demography_dynamics} sets up internal or custom functions to work with \code{demography} and \code{experiment} objects.
+#'  
+#' @export
+#' @examples 
+#' ## Create population
+#' library(raster)
+#' library(dhmpr)
+#' #set a demography matrix
+#' mat <- matrix(c(.53,0,.62,0.15,0.87,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
+#' colnames(mat) <- rownames(mat) <- c('larvae','juvenile','adult') 
+#' demog <- as.demography(mat)
+#' n_stages <- length(states(demog))
+#' 
+alter_adult_survival <- function(demography,survial=0.9){
+                                #first check that demography is a demographic class
+                                if(!is.demography(demography))stop('check that demography is a demography object')
+                                  
+    
+ 
+ 
+ }
+#' ##Define a function for manipulating habitat.
+#' ##This can be a custom function for manipulating rasters or existing functions. 
+#' ##Create a named list with corresponding parameters and values
+#' params = list(habitat,
+#'              fire_start_location = sample(ncell(habitat_suitability(habitat)),10),
+#'              prob = 0.24,
+#'              continue_to_burn_prob = 0.01)
+#'               
+#'## check habitat_suitability_dynamics produces expected output
+#' fire_affected_habitat_suitability <- as.habitat_dynamics(fire_module,params,check=TRUE)                   
+#'
+#'## If it does? create the habitat_dynamics (yay!).
+#'fire_habitat_suitability_dynamics <- as.habitat_dynamics(fun,params) 
+
 library(raster)
 library(dhmpr)
-# set a transition matrix
+# set a demography matrix
 mat <- matrix(c(.53,0,.62,0.15,0.87,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
 colnames(mat) <- rownames(mat) <- c('larvae','juvenile','adult') 
-trans <- as.transition(mat)
-n_stages <- length(states(trans))
-print(trans)
+demog <- as.demography(mat)
+n_stages <- length(states(demog))
+print(demog)
 
 #set up starting populations
 set.seed(42)
@@ -28,7 +68,7 @@ features <- list('habitat_suitability_map'=as.habitat_suitability(r),
 habitat <- as.habitat(features)
 print(habitat)
 
-## just playing with idea of make cell specific transition matricies which could be altered.
+## just playing with idea of make cell specific demography matricies which could be altered.
 pop_vec <- lapply(populations(habitat),function(x)c(x[]))
 pop_mat <- do.call(cbind,pop_vec)
 habsuit <- habitat_suitability(habitat)
@@ -36,7 +76,7 @@ habsuit <- habitat_suitability(habitat)
 survival <- calc(habsuit,function(x){x[x<0.5] <- runif(1,0,.5) ;return(x)})
 c(adult_survival[])
 
-all_cells_stage_matricies <- matrix(rep(c(trans$stage_matrix),npops),npops,length(c(trans$stage_matrix)),byrow = TRUE)
+all_cells_stage_matricies <- matrix(rep(c(demog$stage_matrix),npops),npops,length(c(demog$stage_matrix)),byrow = TRUE)
 
 stages_all <- 1:9
 stages_lar <- 1:3
@@ -47,7 +87,7 @@ stages_adl <- 7:9
 # let's try with adult
 all_cells_stage_matricies[,stages_adl]<-c(survival[])*all_cells_stage_matricies[,stages_adl]
 
-pop_mat_new <- t(sapply(1:npops,function(i)pop_mat[i,]%*%matrix(all_cells_stage_matricies[i,],dim(trans$stage_matrix)[1],dim(trans$stage_matrix)[2])))
+pop_mat_new <- t(sapply(1:npops,function(i)pop_mat[i,]%*%matrix(all_cells_stage_matricies[i,],dim(demog$stage_matrix)[1],dim(demog$stage_matrix)[2])))
 
 r <- habitat_suitability(habitat)
 pops_updated <- lapply(split(pop_mat_new, rep(1:ncol(pop_mat_new), each = nrow(pop_mat_new))),function(x){r[]<-x;return(r)})

@@ -8,7 +8,7 @@
 #'  the reproductive value,
 #'  and the sensitivities and elasticities matrices.
 #'  \code{plot} will return a graph object that plots the transitions between and amoungest each stage of the population matrix.
-#' @param x For as.demography, x is a square matrix, that has transition states between population stages.
+#' @param x For as.demography, x is a square matrix, that has transition stages between population stages.
 #' @param ... other function calls.
 #' @return An object of class demography, i.e, resulting from as.demography.
 #' @author Skipton Woolley
@@ -70,17 +70,17 @@ summary.demography <-
   }
 
 #' @rdname demography
-#' @name states
+#' @name stages
 #' @param demography a demography object
 #' @export
 #' @examples
-#' # get component states
-#' states(trans)
+#' # get component stages
+#' stages(trans)
 
-states <- function (demography) {
-  # given a list of demographys, extract all of the mentioned states
-  states <- colnames(demography$stage_matrix)
-  return (states)
+stages <- function (demography) {
+  # given a list of demographys, extract all of the mentioned stages
+  stages <- colnames(demography$stage_matrix)
+  return (stages)
 }
 
 #' @rdname demography
