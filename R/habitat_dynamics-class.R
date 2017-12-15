@@ -50,9 +50,7 @@
 #'## If it does? create the habitat_suitability_dynamics (yay!).
 #'fire_habitat_suitability_dynamics <- as.habitat_suitability_dynamics(fun,params) 
 #'
-
 as.habitat_suitability_dynamics <- function(fun, params, check=FALSE, ...){
-  
   if(!is.function(fun))stop("habitat_suitability_dynamics needs to be a function - see the documents for details")
   if(check) {
     message('checking to see your function works with habitat_suitabilit(habitat)')
@@ -60,26 +58,24 @@ as.habitat_suitability_dynamics <- function(fun, params, check=FALSE, ...){
     attr(test, "habitat") <- "habitat_suitability"
     return(test)
   }
-  
-  fun_params <- structure(list(fun,params),class='habitat_suitability_dynamics')
+
+    fun_params <- structure(list(fun,params),class='habitat_suitability_dynamics')
   return(fun_params)
-  
 }
 
 #' @rdname habitat_suitability_dynamics
 #' @export
 is.habitat_suitability_dynamics <- function (x) inherits(x, 'habitat_suitability_dynamics')
-
 #' @rdname run_habitat_suitability_dynamics
 #' @export
 #' @description this bad boy will run the habitat_suitability_dynamics in a experiment.
-
 run_habitat_suitability_dynamics <- function(habitat_suitability_dynamics, ...){
   if(!is.habitat_suitability_dynamics(habitat_suitability_dynamics))
-    stop("you need to define a habitat_suitability_dynamics module in order to run it within an experiment - see the documents for details")
-    fun <- habitat_suitability_dynamics[[1]]
-    params <- habitat_suitability_dynamics[[2]]
-    altered_habitat_suitability <- do.call(fun,params)
-    attr(altered_habitat_suitability, "habitat") <- "habitat_suitability"
-    return(altered_habitat_suitability)
-}
+  stop("you need to define a habitat_suitability_dynamics module in order to run it within an experiment - see the documents for details")
+  fun <- habitat_suitability_dynamics[[1]]
+  params <- habitat_suitability_dynamics[[2]]
+  altered_habitat_suitability <- do.call(fun,params)
+  attr(altered_habitat_suitability, "habitat") <- "habitat_suitability"
+  return(altered_habitat_suitability)
+}  
+  

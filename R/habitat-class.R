@@ -234,7 +234,7 @@ is.carrying_capacity <- function (x) {
 #' #' @param type model form for converting occurrence to carrying capacity.
 #' #' @param list parameters used to convert a habitat suitability map to carrying capacity. 
 #' 
-#' carrying_capacity_function <- function(x,type=c('exp','logit','linear','custom'),...){
+#' carrying_capacity_function <- function(x, type=c('exp','logit','linear','custom'), custom_fun=NULL, params, ...){
 #'   print(as.list(match.call(x)))
 #'   type <- match.arg(type)
 #'   switch(type,
@@ -403,6 +403,7 @@ populations2rasterbrick <- function(pops,hab_suit){
   
   # if spatial points data frame generate a raster stack from known populations.
   if(inherits(pops,'SpatialPointsDataFrame')){
+    if(projection(pops)!=projection(hab_suit))stop('make sure your spatial points dataframe matches raster projections')
     n_stages <- ncol(pops@data)
     pop_brick <- rasterize(pops,hab_suit)[[-1]]
     names(pop_brick) <- paste0('stage',1:n_stages)
