@@ -163,9 +163,7 @@ dots <- function(...) {
 
 #'@param demographic_params a list of parameters which can be used to manipulate demographic projections.
 #'\itemize{
-#'\item{estdem}{Logical. Should demographic stochasticity be employed to project the dynamics of the population?}
-#'#'\item{matsd}{Matrix with the standard deviation of the probabilities in \code{mat}.}
-#'\item{stmat}{Matrix indicating for each transition probability in \code{mat} which part (i.e. which proportion) should be considered resulting from fecundity (and the rest will be considered resulting from survival). See details. }
+#'#'\item{stage_matrix_sd}{Matrix with the standard deviation of the probabilities in \code{mat}.}
 #'}
 
 estimate_demography <- function(demography, populations, parameters){
