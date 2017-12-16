@@ -16,9 +16,12 @@
 #' demog <- as.demography(mat)
 #' n_stages <- length(states(demog))
 #' 
-alter_adult_survival <- function(demography,survial=0.9){
+alter_adult_survival <- function(demography, stage='adult', survial=0.9){
                                 #first check that demography is a demographic class
                                 if(!is.demography(demography))stop('check that demography is a demography object')
+                                if(length(which(stages(demography)==stage))==0)stop('check names of the stage and make sure you have the right name')
+                                idx <-which(stages(demography)==stage)
+                                demography$stage_matrix[idx,idx]
                                   
     
  

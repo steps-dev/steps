@@ -93,7 +93,7 @@ for(j in 1:simulations){
     pop_mat <- do.call(cbind,pop_vec)
     
     # update populations (this could be done much more nicely with pop)
-    pops_n <- pop_mat %*% (trans$stage_matrix * matrix(runif(length(trans$stage_matrix),max=2.5),dim(trans$stage_matrix)[1],dim(trans$stage_matrix)[2])) 
+    pops_n <- t(trans$stage_matrix%*%t(pop_mat)) #* matrix(runif(length(trans$stage_matrix),max=2.5),dim(trans$stage_matrix)[1],dim(trans$stage_matrix)[2])) 
     
     ## update density dependence for adult populations. 
     pops_n[,3] <- ddfun(pops_n[,3],100)

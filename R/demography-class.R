@@ -161,12 +161,30 @@ dots <- function(...) {
 #### I'm going to write a function which shouild do all the demographic projections 
 #### and hopefully sort out any issues.
 
+#'@param demographic_params a list of parameters which can be used to manipulate demographic projections.
+#'\itemize{
+#'\item{estdem}{Logical. Should demographic stochasticity be employed to project the dynamics of the population?}
+#'#'\item{matsd}{Matrix with the standard deviation of the probabilities in \code{mat}.}
+#'\item{stmat}{Matrix indicating for each transition probability in \code{mat} which part (i.e. which proportion) should be considered resulting from fecundity (and the rest will be considered resulting from survival). See details. }
+#'}
+
 estimate_demography <- function(demography, populations, parameters){
    
   pop_vec <- lapply(populations(habitat),function(x)c(x[]))
   pop_mat <- do.call(cbind,pop_vec)
+  pop_mat_new <- t(sapply(1:nrow(pop_mat),function(x)estdemo(pop_mat[x,],demography$stage_matrix))) 
   
+  # might need to return this as populations so we can slot back into: populations(habitat) <- new_populations.
+  return(pop_mat_new)
+}
+
+
+estdemo <- function(popvec, stage_matrix, stage_matrix_sd=NULL){
   
+    # no stochatisity
+    popvec_new <- stage_matrix%*%popvec
+    return(popvec_new)
   
 }
+
 

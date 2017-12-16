@@ -92,7 +92,7 @@ for(i in 1:n_time_steps){
     
     # function for this whole bit{
     # function(pops,transmat,sdmat)
-    pops_n <- pop_mat %*% (trans$stage_matrix)# * matrix(runif(length(trans$stage_matrix)),dim(trans$stage_matrix)[1],dim(trans$stage_matrix)[2]))
+    pops_n <-  t(trans$stage_matrix%*%t(pop_mat)) #* matrix(runif(le# * matrix(runif(length(trans$stage_matrix)),dim(trans$stage_matrix)[1],dim(trans$stage_matrix)[2]))
     
     # different transition matrxi per pop.
     # for (i in 1:ncell){
