@@ -6,7 +6,7 @@ NULL
 #' @rdname dispersal-class
 #' @name as.dispersal
 #' @description creates a function that governs dispersal capacity of life-history stages of a species. The input is a list which contains the first list is a dispersal kernel \code{dispersal} value for life-history stage, the second named list \code{} is the proportion of that stage will disperse. For example a probability of 0.2 for stage larvae means a random 20% of larve will a try and disperse to patches, the distance they can disperse is governed by the dispersal kernel (alpha). If params = NULL, a dispersal kernel of 1 is given to all stages, and all stages will attempt to undertake dispersal. If NULL is provided to the as.dispersal function, diffuse dispersal will be used based on the fast fourier transformation method ('fft').  
-#' @param params A list of named lists which contain the parameters form dispersal behaviour and other parameters for dispersal modules - see details below for more information.
+#' @param dispersal_params A list of named lists which contain the parameters form dispersal behaviour and other parameters for dispersal modules - see details below for more information.
 #' @details text describing parameter inputs in more detail.
 #' \itemize{
 #'  \item{"dispersal_distance"}{ list The number of cells that each life-history can disperse.}

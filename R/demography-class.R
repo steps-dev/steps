@@ -170,8 +170,21 @@ estimate_demography <- function(demography, populations, parameters){
    
   pop_vec <- lapply(populations(habitat),function(x)c(x[]))
   pop_mat <- do.call(cbind,pop_vec)
-  pop_mat_new <- t(sapply(1:nrow(pop_mat),function(x)estdemo(pop_mat[x,],demography$stage_matrix))) 
+  ns <- length(stages(demography))
   
+   if(all(dim(demography$stage_matrix)==ns)){
+     # message for Casey: This will estimate deterministic population growth for a global transition matrix 
+     
+      message('Using a global demographic transition matrix for all patches\n')
+      pop_mat_new <- t(sapply(1:nrow(pop_mat),function(x)estdemo(pop_mat[x,],demography$stage_matrix))) 
+  } else {
+    # message for Casey: This will estimate deterministic population growth for a local (one percell). 
+    # The demographic$stage_matrix might need to be renamed to global_stage_matrix and local_stage_matricies. 
+    # local_stage_matrices should have the dimensions ncells(rows),nstages*nstages(cols).
+    
+      message('Using a local demographic transition matricies; one per patch\n')
+      pop_mat_new <- t(sapply(1:nrow(pop_mat),function(x)estdemo(pop_mat[x,],matrix(demography$stage_matrix[x,],ns,ns))))
+  }
   # might need to return this as populations so we can slot back into: populations(habitat) <- new_populations.
   return(pop_mat_new)
 }
