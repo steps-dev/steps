@@ -155,7 +155,7 @@ dots <- function(...) {
 }
 
 
-#### Casey I realised I messed up the demographic projections.
+#### message for Casey: I realised I messed up the demographic projections.
 #### I had the matrix multipication around the wrong way.
 #### I had vec_pops%*%stage_matrix, where is should have been stage_matrix%*%vec_pops.
 #### I'm going to write a function which shouild do all the demographic projections 
