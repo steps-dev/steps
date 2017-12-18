@@ -9,7 +9,7 @@
 \alias{estimate_demography}
 \title{demography objects}
 \usage{
-as.demography(x, ...)
+as.demography(x, method = "global", ...)
 
 \method{summary}{demography}(x, ...)
 
@@ -22,9 +22,11 @@ is.demography(x)
 estimate_demography(demography_object, habitat, parameters)
 }
 \arguments{
-\item{x}{For as.demography, x is a square matrix, that has transition stages between population stages.}
+\item{x}{For as.demography, x is a square matrix, that has stage stages between population stages.}
 
-\item{...}{other function calls.}
+\item{method}{can be 'global' or 'local' stage matrices. 'global' is the default and a single stage-based stage matrix 
+will be used for all populations. if 'local' method is called a cell specific stage matrix will be setup for all non-NA cells
+ in the underlying habitat_suitanility.}
 
 \item{demography}{a demography object}
 
@@ -41,11 +43,11 @@ An object of class demography, i.e, resulting from as.demography.
 \description{
 demography is one of the main functions for dhmpr, it helps you construct and process stage based matricies.
 Once a demography object is created \code{summary} will return:
- The finite rate of increase ("lambda"),
+ The finite rate of increase "lambda",
  the stable stage distribution,
  the reproductive value,
  and the sensitivities and elasticities matrices.
- \code{plot} will return a graph object that plots the transitions between and amoungest each stage of the population matrix.
+ \code{plot} will return a graph object that plots the stages between and amoungest each stage of the population matrix.
 }
 \examples{
 mat <- matrix(c(.53,0,.52,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)

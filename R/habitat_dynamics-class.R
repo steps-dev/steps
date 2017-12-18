@@ -66,7 +66,9 @@ as.habitat_dynamics <- function(fun, params, check=FALSE, ...){
 #' @rdname habitat_dynamics
 #' @export
 is.habitat_dynamics <- function (x) inherits(x, 'habitat_dynamics')
-#' @rdname run_habitat_dynamics
+
+#' @rdname habitat_dynamics
+#' @name run_habitat_dynamics
 #' @export
 #' @description this bad boy will run the habitat_dynamics in a experiment.
 run_habitat_dynamics <- function(habitat_dynamics, ...){

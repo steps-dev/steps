@@ -79,6 +79,14 @@ carrying_capacity_function <- function(x, type=c('exp','logit','linear','custom'
     custom = custom_fun)
 }
 }
+\details{
+parameter details for habitat function.
+\itemize{
+\item{habitat_suitability_map}{ An object of class 'habitat_suitability', which must contain at least a single \link[raster]{raster} that represents habitat suitability for the species. This need to be probabilistic (between zero and one). Functions that manipulate the landscape will alter this throughout the dynamic meta-population simulations. This can also be a \link[raster]{stack} or \link[raster]{brick}, if a raster stack or brick is provided, then then each raster in the stack/brick represents habitat suitability at temporal time steps. For example, 10 rasters could represent habitat suitability over a ten year period, one per year.}  
+\item{populations}{ List starting populations for each life-history stage. Either a \link[sp]{SpatialPointsDataFrame} which has the population size for each life history linked to a coordinate within the extent of the habitat_suitability_map. A raster of population per-cell for each life-history stage, or finally a single integer of population size for each life-histroy stage.}
+\item{carrying_capacity}{ List either a raster that represent the carrying capacity of adult populations for each cell; a function which manipulates the habitat_suitability_map and converts it to carrying capacity; or finally an integer which presents a maximum carrying capacity for all cells.}
+}
+}
 \examples{
 
 library(raster)

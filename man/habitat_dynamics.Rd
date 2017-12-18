@@ -4,16 +4,21 @@
 \alias{habitat_dynamics}
 \alias{as.habitat_dynamics}
 \alias{is.habitat_dynamics}
+\alias{run_habitat_dynamics}
 \title{habitat_dynamics objects}
 \usage{
 as.habitat_dynamics(fun, params, check = FALSE, ...)
 
 is.habitat_dynamics(x)
+
+run_habitat_dynamics(habitat_dynamics, ...)
 }
 \description{
 habitat_dynamics are functions for altering the underlying \link[dhmper]{habitat}\code{habitat} at anytime step. habitat_dynamics has to be a function which explicitly changes the habitat. Examples could include: models of fire spread, management actions like culling, the distribution of trawling. 
 
 habitat_dynamics sets up internal or custom functions to work with \code{habitat} and \code{experiment} objects.
+
+this bad boy will run the habitat_dynamics in a experiment.
 }
 \examples{
 ## Create population
