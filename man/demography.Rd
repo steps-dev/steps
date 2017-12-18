@@ -9,7 +9,7 @@
 \alias{estimate_demography}
 \title{demography objects}
 \usage{
-as.demography(x, method = "global", ...)
+as.demography(x, type = "global", ...)
 
 \method{summary}{demography}(x, ...)
 
@@ -24,11 +24,11 @@ estimate_demography(demography_object, habitat, parameters)
 \arguments{
 \item{x}{For as.demography, x is a square matrix, that has stage stages between population stages.}
 
+\item{demography}{a demography object}
+
 \item{method}{can be 'global' or 'local' stage matrices. 'global' is the default and a single stage-based stage matrix 
 will be used for all populations. if 'local' method is called a cell specific stage matrix will be setup for all non-NA cells
  in the underlying habitat_suitanility.}
-
-\item{demography}{a demography object}
 
 \item{object}{an object of \code{demography} class}
 
@@ -52,7 +52,7 @@ Once a demography object is created \code{summary} will return:
 \examples{
 mat <- matrix(c(.53,0,.52,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
 colnames(mat) <- rownames(mat) <- c('larvae','juvenile','adult') 
-demo <- as.demography(mat)
+demo <- as.demography(mat,type='global')
 summary(tmat)
 
 # get component stages

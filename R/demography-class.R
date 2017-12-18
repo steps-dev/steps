@@ -18,14 +18,16 @@
 #' @examples 
 #' mat <- matrix(c(.53,0,.52,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
 #' colnames(mat) <- rownames(mat) <- c('larvae','juvenile','adult') 
-#' demo <- as.demography(mat)
+#' demo <- as.demography(mat,type='global')
 
-as.demography <- function(x, method='global', ...){
+as.demography <- function(x,type='global', ...){
   object <- list(...)
   if(length(object)==0) object <- list(1)
-  if(method=='local' & !sapply(object, is.habitat_suitability))stop('You must include "habitat_suitability(habitat)" if you are using method "local".\n Look at examples in the documentation for examples.')
-  if(method=='local' & sapply(object, is.habitat_suitability)) habsuit<-object[[1]]
-    demography <- switch(method,
+  if(type=='local'){
+    if(!sapply(object, is.habitat_suitability))stop('You must include "habitat_suitability(habitat)" if you are using method "local".\n Look at examples in the documentation for examples.')
+    if(type=='local' & sapply(object, is.habitat_suitability)) habsuit<-object[[1]]
+  }
+    demography <- switch(type,
       global = global_stage_matrix(x),      
       local = local_stage_matrices(x, habsuit))
     return(demography)
