@@ -24,6 +24,7 @@ as.demography <- function(x, method='global', ...){
   object <- list(...)
   if(length(object)==0) object <- list(1)
   if(method=='local' & !sapply(object, is.habitat_suitability))stop('You must include "habitat_suitability(habitat)" if you are using method "local".\n Look at examples in the documentation for examples.')
+  if(method=='local' & sapply(object, is.habitat_suitability)) habsuit<-object[[1]]
     demography <- switch(method,
       global = global_stage_matrix(x),      
       local = local_stage_matrices(x, habsuit))
