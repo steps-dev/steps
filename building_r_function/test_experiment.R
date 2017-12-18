@@ -1,10 +1,10 @@
 library(raster)
 library(dhmpr)
 # set a demoition matrix
-mat <- matrix(c(.53,0,.62,0.15,0.87,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
+mat <- matrix(c(.53,0,.62,0.195,0.67,0,0,0.13,0.9),nrow = 3,ncol = 3,byrow = TRUE)
 colnames(mat) <- rownames(mat) <- c('larvae','juvenile','adult') 
 demo <- as.demography(mat)
-n_stages <- length(states(demo))
+n_stages <- length(stages(demo))
 print(demo)
 
 #set up starting populations
@@ -42,7 +42,7 @@ params = list(habitat,
               continue_to_burn_prob = 0.01)
                
 ## check module produces expected output
-fires <- as.module(fire_module,params)       
+# fires <- as.module(fire_module,params)       
 
 ## altenative you can run the fire module as follows:
 RUN_FIRE_screaming <- fire_module(habitat,sample(ncell(habitat_suitability(habitat)),10),
@@ -62,15 +62,16 @@ habitat_suit_at_time_step[[1]] <- habitat_suitability(habitat)
 fire_at_time_step[[1]] <- fire_module(habitat,sample(ncell(habitat_suitability(habitat)),10),
   prob = 0.24,
   continue_to_burn_prob = 0.01)
-n_time_steps <- 11
+n_time_steps <- 99
 
 ## begin experiment through time
 for(i in 1:n_time_steps){
   
+    # need to replace this these next four lines with: dynamic_habitat(fun,attr,params)
     #update the landscape based on last fire. 
     fire_prob <- fire_at_time_step[[i]]/max(fire_at_time_step[[i]][])   
     
-    #now you could have some equation on how fire effects underlying habitat suitability. I'm just going to make     # something up :) = habitat_suitability*(1-fire_prob) 
+    #now you could have some equation on how fire effects underlying habitat suitability. I'm just going to make     # something up :) = habitat_suitability*(1-fire_prob)
     new_hs <- habitat_suitability(habitat)*(1-fire_prob)
     attr(new_hs,"habitat") <- "habitat_suitability" # i need to update attribute inheridence.
     habitat_suit_at_time_step[[i+1]] <- habitat_suitability(habitat) <- new_hs 
@@ -82,33 +83,6 @@ for(i in 1:n_time_steps){
     ## replaced the bottom few lines with estimate_demography
     pops_at_time_step[[i+1]] <- populations(habitat) <- estimate_demography(demo,habitat)
     
-#     # get a vector of populations per life history
-#     pop_vec <- lapply(populations(habitat),function(x)c(x[]))
-#     pop_mat <- do.call(cbind,pop_vec)
-#   
-#     # update populations (this could be done much more nicely with pop)
-#     
-#     # function for this whole bit{
-#     # function(pops,demomat,sdmat)
-#     pops_n <-  t(demo$stage_matrix%*%t(pop_mat)) #* matrix(runif(le# * matrix(runif(length(demo$stage_matrix)),dim(demo$stage_matrix)[1],dim(demo$stage_matrix)[2]))
-#     
-#     # different demoition matrxi per pop.
-#     # for (i in 1:ncell){
-#     #   vec_adult_surival[i]*flatterned_pops_demo_mat[i,9]
-#     #   pops_n[i,]%*%flatterned_pops_demo_mat[i,]
-#     #   
-#     # }
-# # }
-#     
-#     ## update density dependence for adult populations. 
-#     pops_n[,3] <- ddfun(pops_n[,3],50)
-#     
-#     #now update the populations - ideally this could be turned into a function (update_pops())
-#     r <- habitat_suitability(habitat)
-#     pops_updated <- lapply(split(pops_n, rep(1:ncol(pops_n), each = nrow(pops_n))),function(x){r[]<-x;return(r)})
-#     pops <- lapply(pops_updated, `attr<-`, "habitat", "populations")
-#     pops_at_time_step[[i+1]] <- populations(habitat) <- pops
-    
     #now let's start another fire! Mwhahahhaha.
     fire_at_time_step[[i+1]] <- fire_module(habitat,sample(ncell(habitat_suitability(habitat)),10),
       prob = 0.24,
@@ -117,36 +91,36 @@ for(i in 1:n_time_steps){
 }
 
 #lets look at populations
-#spatially
-larvae <- stack(lapply(pops_at_time_step, "[[", 1))
-larvae_disp <- stack(lapply(dispersal_at_time_step, "[[", 1))
-juve <- stack(lapply(pops_at_time_step, "[[", 2))
-juve_disp <- stack(lapply(dispersal_at_time_step, "[[", 2))
-adult <- stack(lapply(pops_at_time_step, "[[", 3))
-adult_disp <- stack(lapply(dispersal_at_time_step, "[[", 3))
-
-# these plots should show you the movement of species between each time setp.
-# negative values will be source and and +ve will be sinks. ie, you lots 20 species (-20) and gained 30 
-plot(larvae_disp-larvae[[-12]])
-plot(juve_disp-juve[[-12]])
-plot(adult_disp-adult[[-12]])
-
-pops_after_experiment <- stack(larvae,juve,adult)
-# names(pops_after_experiment) <- c('larvae','juveniles','adults')
-# par(mfrow=c(3,1))
-plot(pops_after_experiment)
-
-
-tot_abn <- list()
-for(i in 1:12){
-  tot_abn[[i]] <- sum(stack(pops_at_time_step[[i]]))
-}
-
-rb <- brick(tot_abn)
-library(viridis)
-animation::saveGIF(animate(rb,pause=.001,main='dispersal',n=1,col=rev(viridis::viridis(100))), movie.name = "pop_growth_t24.gif",loop=TRUE)
-
-#through time
+# #spatially
+# larvae <- stack(lapply(pops_at_time_step, "[[", 1))
+# larvae_disp <- stack(lapply(dispersal_at_time_step, "[[", 1))
+# juve <- stack(lapply(pops_at_time_step, "[[", 2))
+# juve_disp <- stack(lapply(dispersal_at_time_step, "[[", 2))
+# adult <- stack(lapply(pops_at_time_step, "[[", 3))
+# adult_disp <- stack(lapply(dispersal_at_time_step, "[[", 3))
+# 
+# # these plots should show you the movement of species between each time setp.
+# # negative values will be source and and +ve will be sinks. ie, you lots 20 species (-20) and gained 30 
+# plot(larvae_disp-larvae[[-12]])
+# plot(juve_disp-juve[[-12]])
+# plot(adult_disp-adult[[-12]])
+# 
+# pops_after_experiment <- stack(larvae,juve,adult)
+# # names(pops_after_experiment) <- c('larvae','juveniles','adults')
+# # par(mfrow=c(3,1))
+# plot(pops_after_experiment)
+# 
+# 
+# tot_abn <- list()
+# for(i in 1:n_time_steps){
+#   tot_abn[[i]] <- sum(stack(pops_at_time_step[[i]]))
+# }
+# 
+# rb <- brick(tot_abn)
+# library(viridis)
+# animation::saveGIF(animate(rb,pause=.001,main='dispersal',n=1,col=rev(viridis::viridis(100))), movie.name = "pop_growth_t24.gif",loop=TRUE)
+# 
+# #through time
 par(mfrow=c(1,3))
 
 larvae_n <- sapply(lapply(pops_at_time_step, "[[", 1)[], function(x)sum(x[]))
@@ -159,7 +133,7 @@ adult_n <- sapply(lapply(pops_at_time_step, "[[", 3)[], function(x)sum(x[]))
 plot(adult_n,type='l',ylab='Total Adult Abundance',xlab="Time (years)",lwd=2,col='tomato')
 
 
-#let's look at fire through time
-#spatially
-fire_history <- stack(fire_at_time_step)
-plot(fire_history)
+# #let's look at fire through time
+# #spatially
+# fire_history <- stack(fire_at_time_step)
+# plot(fire_history)
