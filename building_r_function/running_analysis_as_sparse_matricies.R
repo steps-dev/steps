@@ -1,4 +1,4 @@
-## this is some code to see if we can set up the habitats, populations and other functions as sparseMatricies.
+## message for Casey: this is some code to see if we can set up the habitats, populations and other functions as sparseMatricies.
 ## hopefully if we can, we can go about converting internal R functions to run on sparseMatrices and away we go.
 
 library(Matrix)
@@ -22,7 +22,14 @@ cc <- as.carrying_capacity(300)
 
 features <- list(hsm,pops,cc)
 habitat <- as.habitat(features)
+
+## check out size of different objects
 sM<-Matrix(getValues(habitat_suitability(habitat)))
 object.size(sM)
 object.size(habitat_suitability(habitat))
+
+
+sM<-Matrix(getValues(stack(populations(habitat))))
+object.size(sM)
+object.size(populations(habitat))
 
