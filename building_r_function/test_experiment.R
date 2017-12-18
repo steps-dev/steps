@@ -1,11 +1,11 @@
 library(raster)
 library(dhmpr)
-# set a transition matrix
+# set a demoition matrix
 mat <- matrix(c(.53,0,.62,0.15,0.87,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
 colnames(mat) <- rownames(mat) <- c('larvae','juvenile','adult') 
-trans <- as.transition(mat)
-n_stages <- length(states(trans))
-print(trans)
+demo <- as.demography(mat)
+n_stages <- length(states(demo))
+print(demo)
 
 #set up starting populations
 set.seed(42)
@@ -32,11 +32,6 @@ print(habitat)
 dispersal_params <- as.dispersal(list(dispersal_distance=list('larvae'=3,'juvenile'=0,'adult'=6),
                 dispersal_kernel=list('larvae'=exp(-c(0:2)),'juvenile'=0,'adult'=exp(-c(0:5)*.2)),
                 dispersal_proportion=list('larvae'=0.1,'juvenile'=0,'adult'=0.6)))  
-print(dispersal_params)
-
-## dispersal using cellular automata.                                 
-dispersed_populations <- dispersal(dispersal_params, habitat, method='fft')
-populations(habitat) <- dispersed_populations
 
 ## now I've set up a custom function which manipulates rasters (based on a dodgy fire simualtion)
 ## This will be used as a module to manipulate the habitat suitability between time steps. 
@@ -84,32 +79,35 @@ for(i in 1:n_time_steps){
     dispersed_populations <- dispersal(dispersal_params, habitat, method='ca')
     dispersal_at_time_step[[i]] <- populations(habitat) <- dispersed_populations
     
-    # get a vector of populations per life history
-    pop_vec <- lapply(populations(habitat),function(x)c(x[]))
-    pop_mat <- do.call(cbind,pop_vec)
-  
-    # update populations (this could be done much more nicely with pop)
+    ## replaced the bottom few lines with estimate_demography
+    pops_at_time_step[[i+1]] <- populations(habitat) <- estimate_demography(demo,habitat)
     
-    # function for this whole bit{
-    # function(pops,transmat,sdmat)
-    pops_n <-  t(trans$stage_matrix%*%t(pop_mat)) #* matrix(runif(le# * matrix(runif(length(trans$stage_matrix)),dim(trans$stage_matrix)[1],dim(trans$stage_matrix)[2]))
-    
-    # different transition matrxi per pop.
-    # for (i in 1:ncell){
-    #   vec_adult_surival[i]*flatterned_pops_trans_mat[i,9]
-    #   pops_n[i,]%*%flatterned_pops_trans_mat[i,]
-    #   
-    # }
-# }
-    
-    ## update density dependence for adult populations. 
-    pops_n[,3] <- ddfun(pops_n[,3],50)
-    
-    #now update the populations - ideally this could be turned into a function (update_pops())
-    r <- habitat_suitability(habitat)
-    pops_updated <- lapply(split(pops_n, rep(1:ncol(pops_n), each = nrow(pops_n))),function(x){r[]<-x;return(r)})
-    pops <- lapply(pops_updated, `attr<-`, "habitat", "populations")
-    pops_at_time_step[[i+1]] <- populations(habitat) <- pops
+#     # get a vector of populations per life history
+#     pop_vec <- lapply(populations(habitat),function(x)c(x[]))
+#     pop_mat <- do.call(cbind,pop_vec)
+#   
+#     # update populations (this could be done much more nicely with pop)
+#     
+#     # function for this whole bit{
+#     # function(pops,demomat,sdmat)
+#     pops_n <-  t(demo$stage_matrix%*%t(pop_mat)) #* matrix(runif(le# * matrix(runif(length(demo$stage_matrix)),dim(demo$stage_matrix)[1],dim(demo$stage_matrix)[2]))
+#     
+#     # different demoition matrxi per pop.
+#     # for (i in 1:ncell){
+#     #   vec_adult_surival[i]*flatterned_pops_demo_mat[i,9]
+#     #   pops_n[i,]%*%flatterned_pops_demo_mat[i,]
+#     #   
+#     # }
+# # }
+#     
+#     ## update density dependence for adult populations. 
+#     pops_n[,3] <- ddfun(pops_n[,3],50)
+#     
+#     #now update the populations - ideally this could be turned into a function (update_pops())
+#     r <- habitat_suitability(habitat)
+#     pops_updated <- lapply(split(pops_n, rep(1:ncol(pops_n), each = nrow(pops_n))),function(x){r[]<-x;return(r)})
+#     pops <- lapply(pops_updated, `attr<-`, "habitat", "populations")
+#     pops_at_time_step[[i+1]] <- populations(habitat) <- pops
     
     #now let's start another fire! Mwhahahhaha.
     fire_at_time_step[[i+1]] <- fire_module(habitat,sample(ncell(habitat_suitability(habitat)),10),

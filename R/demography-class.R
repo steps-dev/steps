@@ -16,7 +16,7 @@
 #' @examples 
 #' mat <- matrix(c(.53,0,.52,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
 #' colnames(mat) <- rownames(mat) <- c('larvae','juvenile','adult') 
-#' trans <- as.demography(mat)
+#' demo <- as.demography(mat)
 
 as.demography <- function(x, ...){
     object <- list(...)
@@ -75,7 +75,7 @@ summary.demography <-
 #' @export
 #' @examples
 #' # get component stages
-#' stages(trans)
+#' stages(demo)
 
 stages <- function (demography) {
   # given a list of demographys, extract all of the mentioned stages
@@ -160,36 +160,40 @@ dots <- function(...) {
 #### I had vec_pops%*%stage_matrix, where is should have been stage_matrix%*%vec_pops.
 #### I'm going to write a function which shouild do all the demographic projections 
 #### and hopefully sort out any issues.
-
-#'@param demographic_params a list of parameters which can be used to manipulate demographic projections.
+#' @rdname demography
+#' @name estimate_demography
+#' @param demographic_params a list of parameters which can be used to manipulate demographic projections.
 #'\itemize{
 #'#'\item{stage_matrix_sd}{Matrix with the standard deviation of the probabilities in \code{mat}.}
 #'}
+#' @export
 
-estimate_demography <- function(demography, populations, parameters){
+estimate_demography <- function(demography_object, habitat, parameters){
    
   pop_vec <- lapply(populations(habitat),function(x)c(x[]))
   pop_mat <- do.call(cbind,pop_vec)
-  ns <- length(stages(demography))
+  ns <- length(stages(demography_object))
   
-   if(all(dim(demography$stage_matrix)==ns)){
-     # message for Casey: This will estimate deterministic population growth for a global transition matrix 
-     
+   if(all(dim(demography_object$stage_matrix)==ns)){
+      # message for Casey: This will estimate deterministic population growth for a global transition matrix 
       message('Using a global demographic transition matrix for all patches\n')
-      pop_mat_new <- t(sapply(1:nrow(pop_mat),function(x)estdemo(pop_mat[x,],demography$stage_matrix))) 
+      pop_mat_new <- t(sapply(1:nrow(pop_mat),function(x)estdemo(pop_mat[x,],demography_object$stage_matrix))) 
   } else {
-    # message for Casey: This will estimate deterministic population growth for a local (one percell). 
-    # The demographic$stage_matrix might need to be renamed to global_stage_matrix and local_stage_matricies. 
-    # local_stage_matrices should have the dimensions ncells(rows),nstages*nstages(cols).
-    
+      # message for Casey: This will estimate deterministic population growth for a local (one percell). 
+      # The demographic$stage_matrix might need to be renamed to global_stage_matrix and local_stage_matricies. 
+      # local_stage_matrices should have the dimensions ncells(rows),nstages*nstages(cols).
       message('Using a local demographic transition matricies; one per patch\n')
-      pop_mat_new <- t(sapply(1:nrow(pop_mat),function(x)estdemo(pop_mat[x,],matrix(demography$stage_matrix[x,],ns,ns))))
+      pop_mat_new <- t(sapply(1:nrow(pop_mat),function(x)estdemo(pop_mat[x,],matrix(demography_object$stage_matrix[x,],ns,ns))))
   }
-  # might need to return this as populations so we can slot back into: populations(habitat) <- new_populations.
-  return(pop_mat_new)
+  # message of Casey: I've updated this so populations are returned from estimate_demography, e.g: populations(habitat) <- estimate_demography(demo,habitat)
+  r <- populations(habitat)[[1]]
+  pops_updated <- lapply(split(pop_mat_new, rep(1:ncol(pop_mat_new), each = nrow(pop_mat_new))),function(x){r[]<-x;return(r)})
+  pops <- lapply(pops_updated, `attr<-`, "habitat", "populations")
+  return(pops)
 }
 
 
+# message for Casey: This function will do the internal projections for demographic processes, so we can add in more complicated function as we need. 
 estdemo <- function(popvec, stage_matrix, stage_matrix_sd=NULL){
   
     # no stochatisity

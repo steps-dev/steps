@@ -6,6 +6,7 @@
 \alias{stages}
 \alias{plot.demography}
 \alias{is.demography}
+\alias{estimate_demography}
 \title{demography objects}
 \usage{
 as.demography(x, ...)
@@ -17,6 +18,8 @@ stages(demography)
 \method{plot}{demography}(x, ...)
 
 is.demography(x)
+
+estimate_demography(demography_object, habitat, parameters)
 }
 \arguments{
 \item{x}{For as.demography, x is a square matrix, that has transition stages between population stages.}
@@ -26,6 +29,11 @@ is.demography(x)
 \item{demography}{a demography object}
 
 \item{object}{an object of \code{demography} class}
+
+\item{demographic_params}{a list of parameters which can be used to manipulate demographic projections.
+\itemize{
+#'\item{stage_matrix_sd}{Matrix with the standard deviation of the probabilities in \code{mat}.}
+}}
 }
 \value{
 An object of class demography, i.e, resulting from as.demography.
@@ -42,11 +50,11 @@ Once a demography object is created \code{summary} will return:
 \examples{
 mat <- matrix(c(.53,0,.52,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
 colnames(mat) <- rownames(mat) <- c('larvae','juvenile','adult') 
-trans <- as.demography(mat)
+demo <- as.demography(mat)
 summary(tmat)
 
 # get component stages
-stages(trans)
+stages(demo)
 plot(tmat)
 
 is.demography(tmat)
