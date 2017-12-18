@@ -25,7 +25,6 @@
 #' r <- rasterize(xy, raster(points2grid(xy)), 'z')
 #' proj4string(r) <- '+init=epsg:4283'
 #' r[] <- scales::rescale(r[],to=c(0,1))
-#' ## r <- disaggregate(r,10)
 #' 
 #' ## create a habitat from a list containing a habitat suitability raster and numeric values for population and carrying capacity.
 #' hsm <- as.habitat_suitability(r)
@@ -164,8 +163,6 @@ is.populations <- function (x) {
 #' 
 #' # get and set the population
 #' populations(habitat)
-#' populations(habitat) <- populations(habitat) * 2
-#' populations(habitat)
 
 populations <- function (habitat, which_stages=NULL) {
   stopifnot(is.habitat(habitat))
@@ -188,15 +185,12 @@ populations <- function (habitat, which_stages=NULL) {
 
 #' @rdname habitat
 #' @export
-#' @examples
-#' 
-#' # get population values at patches (cells)
-#' patches(habitat)
+
 patches <- function (habitat, which_stages=NULL) {
   stopifnot(is.habitat(habitat))
   if(is.null(which_stages)) which_stages <- seq_len(sum(lapply(habitat,attr,"habitat")=='populations'))
-  pops <- brick(populations(habitat)[which_stages])
-  ans <- data.frame(patch_id=cellFromXY(pops,rasterToPoints(pops)[,1:2]),population=rasterToPoints(pops)[,-1:-2])
+  pops <- raster::brick(populations(habitat)[which_stages])
+  ans <- data.frame(patch_id=raster::cellFromXY(pops,raster::rasterToPoints(pops)[,1:2]),population=raster::rasterToPoints(pops)[,-1:-2])
   return (ans)
 }
 
@@ -208,7 +202,6 @@ patches <- function (habitat, which_stages=NULL) {
 #' @name as.carrying_capacity
 #' @export
 #' @examples
-#' 
 #' as.carrying_capacity(100)
 
 as.carrying_capacity <- function(x,...){
@@ -222,7 +215,6 @@ as.carrying_capacity <- function(x,...){
 #' @name is.carrying_capacity
 #' @export
 #' @examples
-#' 
 #' is.carrying_capacity(cc)
 is.carrying_capacity <- function (x) {
   attr(x, 'habitat')=="carrying_capacity"
@@ -246,12 +238,6 @@ is.carrying_capacity <- function (x) {
 
 #' @rdname habitat
 #' @export
-#' @examples
-#' 
-#' # get and set the carrying capacity
-#' carrying_capacity(habitat)
-#' carrying_capacity(habitat) <- carrying_capacity(habitat) * 2
-#' carrying_capacity(habitat)
 
 carrying_capacity <- function (habitat) {
   stopifnot(is.habitat(habitat))
@@ -274,11 +260,6 @@ carrying_capacity <- function (habitat) {
 ######################
 #' @rdname habitat
 #' @export
-#' @examples
-#' 
-#' # get cell area
-#' area(habitat)
-
 
 area <- function (habitat) {
   stopifnot(is.habitat(habitat))
@@ -312,7 +293,7 @@ list2habitat <- function (input) {
   # sort out the habitat suitability maps.
   nrasters <- 0
   if(inherits(input[[1]],c("RasterStack","RasterBrick"))){
-    nhsm <- nlayers(input[[1]])
+    nhsm <- raster::nlayers(input[[1]])
     names(input[[1]]) <- paste0("habitat_suitability_t",1:nhsm)
     habitat_list <- sapply(1:nhsm,function(x){habitat_list[[x]]<-input[[1]][[x]]})
   } else {
@@ -397,18 +378,18 @@ populations2rasterbrick <- function(pops,hab_suit){
       tmp[!is.na(tmp[])] <- pops[i]
       pop_list[[i]] <- tmp
     }
-    pop_brick <- brick(pop_list)
+    pop_brick <- raster::brick(pop_list)
     names(pop_brick)<- paste0('stage',1:n_stages)
   }
   
   # if spatial points data frame generate a raster stack from known populations.
   if(inherits(pops,'SpatialPointsDataFrame')){
-    if(projection(pops)!=projection(hab_suit))stop('make sure your spatial points dataframe matches raster projections')
+    if(raster::projection(pops)!=raster::projection(hab_suit))stop('make sure your spatial points dataframe matches raster projections')
     n_stages <- ncol(pops@data)
-    pop_brick <- rasterize(pops,hab_suit)[[-1]]
+    pop_brick <- raster::rasterize(pops,hab_suit)[[-1]]
     names(pop_brick) <- paste0('stage',1:n_stages)
-    pop_brick <- calc(pop_brick, fun=function(x){ x[is.na(x)] <- 0; return(x)})
-    pop_brick <- mask(pop_brick,hab_suit)
+    pop_brick <- raster::calc(pop_brick, fun=function(x){ x[is.na(x)] <- 0; return(x)})
+    pop_brick <- raster::mask(pop_brick,hab_suit)
   }
  
   return(pop_brick)
@@ -454,12 +435,12 @@ area_of_region <- function(study_area){
   if(raster::isLonLat(study_area)){
     #calculate area based on area function convert kms to ms
     area_rast <- raster::area(study_area)*1000
-    area_study <- mask(area_rast,study_area)
+    area_study <- raster::mask(area_rast,study_area)
 
   } else {
     # calculate area based on equal area cell resolution
     # mode equal area should be in meters
-    area_of_cell <- xres(study_area) * yres(study_area)
+    area_of_cell <- raster::xres(study_area) * raster::yres(study_area)
     study_area[!is.na(study_area[])] <- area_of_cell
     area_study <- study_area
   }

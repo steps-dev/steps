@@ -72,7 +72,7 @@ local_stage_matrices <- function(x,habsuit){
 #' @param object an object of \code{demography} class
 #' @export
 #' @examples
-#' summary(tmat)
+#' summary(demo)
 #' 
 summary.demography <- function(x,...){
     demographyCheck(x)
@@ -114,14 +114,14 @@ stages <- function (demography) {
 #' @export
 #' @author Nick Golding
 #' @examples 
-#' plot(tmat)
+#' plot(demo)
 #' 
 
 plot.demography <- function (x, ...) {
   # plot a dynamic using igraph
   
   # extract the stage matrix & create an igraph graph x
-  par(mar=c(2,4,4,2))
+  graphics::par(mar=c(2,4,4,2))
   demographyCheck(x)
   x <- x$global_stage_matrix
   textmat <- base::t(x)
@@ -159,7 +159,7 @@ plot.demography <- function (x, ...) {
 #' @name is.demography
 #' @export
 #' @examples
-#' is.demography(tmat)
+#' is.demography(demo)
 is.demography <- function (x) {
   inherits(x, 'demography')
 }

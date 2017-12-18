@@ -23,16 +23,33 @@ NULL
 #' 
 #' @export
 #' @examples 
+#' 
+#' library(raster)
+#' library(dhmpr)
+#' set.seed(42)
+#' xy <- expand.grid(x=seq(145, 150, 0.1), y=seq(-40, -35, 0.1))
+#' Dd <- as.matrix(dist(xy))
+#' w <- exp(-1/nrow(xy) * Dd)
+#' Ww <- chol(w)
+#' xy$z <- t(Ww) %*% rnorm(nrow(xy), 0, 0.1)
+#' coordinates(xy) <- ~x+y
+#' r <- rasterize(xy, raster(points2grid(xy)), 'z')
+#' proj4string(r) <- '+init=epsg:4283'
+#' r[] <- scales::rescale(r[],to=c(0,1))
+#' 
+#' ## create a habitat from a list containing a habitat suitability raster and numeric values for population and carrying capacity.
+#' hsm <- as.habitat_suitability(r)
+#' pops <- as.populations(c(80,20,10))
+#' cc <- as.carrying_capacity(300)
+#' 
+#' features <- list(hsm,pops,cc)
+#' habitat <- as.habitat(features)
 #' dispersal_params <- as.dispersal(list(dispersal_distance=list('larvae'=3,'juvenile'=0,'adult'=3),
 #'                dispersal_kernel=list('larvae'=exp(-c(0:2)),'juvenile'=0,'adult'=exp(-c(0:2)*.2)),
 #'                dispersal_proportion=list('larvae'=0.1,'juvenile'=0,'adult'=0.3)))  
 #'
 #' ## dispersal using cellular automata.                                 
 #' dispersed_populations <- dispersal(dispersal_params, habitat, method='ca')
-#' populations(habitat) <- dispersed_populations
-#' 
-#' ## dispersal using fast fourier transforms (diffuse).
-#' dispersed_populations <- dispersal(dispersal_params, habitat, method='fft')
 #' populations(habitat) <- dispersed_populations
 
 
@@ -47,7 +64,7 @@ as.dispersal <- function (params) {
 #' @rdname dispersal-class
 #' @export
 #' @examples
-#' is.dispersal(disp)
+#' is.dispersal(dispersal_params)
 is.dispersal <- function (x) inherits(x, 'dispersal')
 
 #' @rdname dispersal-class
@@ -56,7 +73,7 @@ is.dispersal <- function (x) inherits(x, 'dispersal')
 #' @export
 #' @examples
 #' # print method
-#' print(dp)
+#' print(dispersal_params)
 #'
 print.dispersal <- function(x,...){
   
@@ -184,8 +201,8 @@ dispersalFFT <- function (popmat, fs) {
   
   # get spectral representations of the matrix & vector & compute the spectral
   # representation of their product
-  pop_fft <- fft(t(fs$pop_torus))
-  bcb_fft <- fft(fs$bcb_vec)
+  pop_fft <- stats::fft(t(fs$pop_torus))
+  bcb_fft <- stats::fft(fs$bcb_vec)
   pop_new_torus_fft <- ifft(pop_fft * bcb_fft)
   
   # convert back to real domain, apply correction and transpose
@@ -200,7 +217,7 @@ dispersalFFT <- function (popmat, fs) {
 seq_range <- function (range, by = 1) seq(range[1], range[2], by = by)
 
 
-ifft <- function (z) fft(z, inverse = TRUE)
+ifft <- function (z) stats::fft(z, inverse = TRUE)
 
 #' @rdname dispersal-class
 #' @name dispersal

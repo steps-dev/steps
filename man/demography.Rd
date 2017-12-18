@@ -52,14 +52,14 @@ Once a demography object is created \code{summary} will return:
 \examples{
 mat <- matrix(c(.53,0,.52,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
 colnames(mat) <- rownames(mat) <- c('larvae','juvenile','adult') 
-demo <- as.demography(mat,type='global')
-summary(tmat)
+demo <- as.demography(mat)
+summary(demo)
 
 # get component stages
 stages(demo)
-plot(tmat)
+plot(demo)
 
-is.demography(tmat)
+is.demography(demo)
 }
 \author{
 Skipton Woolley

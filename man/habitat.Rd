@@ -101,7 +101,6 @@ coordinates(xy) <- ~x+y
 r <- rasterize(xy, raster(points2grid(xy)), 'z')
 proj4string(r) <- '+init=epsg:4283'
 r[] <- scales::rescale(r[],to=c(0,1))
-## r <- disaggregate(r,10)
 
 ## create a habitat from a list containing a habitat suitability raster and numeric values for population and carrying capacity.
 hsm <- as.habitat_suitability(r)
@@ -135,23 +134,8 @@ is.populations(pops)
 
 # get and set the population
 populations(habitat)
-populations(habitat) <- populations(habitat) * 2
-populations(habitat)
-
-# get population values at patches (cells)
-patches(habitat)
-
 as.carrying_capacity(100)
-
 is.carrying_capacity(cc)
-
-# get and set the carrying capacity
-carrying_capacity(habitat)
-carrying_capacity(habitat) <- carrying_capacity(habitat) * 2
-carrying_capacity(habitat)
-
-# get cell area
-area(habitat)
 }
 \author{
 Nick Golding & Skip Woolley
