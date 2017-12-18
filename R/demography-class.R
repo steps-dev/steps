@@ -18,7 +18,7 @@
 #' @examples 
 #' mat <- matrix(c(.53,0,.52,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
 #' colnames(mat) <- rownames(mat) <- c('larvae','juvenile','adult') 
-#' demo <- as.demography(mat,type='global')
+#' demo <- as.demography(mat)
 
 as.demography <- function(x,type='global', ...){
   object <- list(...)
