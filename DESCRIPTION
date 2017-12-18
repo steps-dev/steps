@@ -26,7 +26,8 @@ Imports:
     methods,
     igraph,
     SDMTools,
-    data.table
+    data.table,
+    scales
 LinkingTo: Rcpp, plyr, testthat
 RoxygenNote: 6.0.1
 Suggests:
