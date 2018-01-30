@@ -24,8 +24,8 @@ as.demography <- function(x,type='global', ...){
   object <- list(...)
   if(length(object)==0) object <- list(1)
   if(type=='local'){
-    if(!sapply(object, is.habitat_suitability))stop('You must include "habitat_suitability(habitat)" if you are using method "local".\n Look at examples in the documentation for examples.')
-    if(type=='local' & sapply(object, is.habitat_suitability)) habsuit<-object[[1]]
+    if(!sapply(object,inherits,c("RasterLayer","RasterBrick","RasterStack")))stop('You must include a "habitat_suitability" spatial grid if you are using method "local".\n Look at the documentation for examples.')
+    if(type=='local' & sapply(object,inherits,c("RasterLayer","RasterBrick","RasterStack"))) habsuit<-object[[1]]
   }
     demography <- switch(type,
       global = global_stage_matrix(x),      
@@ -48,7 +48,6 @@ global_stage_matrix <- function(x){
 
 local_stage_matrices <- function(x,habsuit){
   
-  
   #check that the original stage-based matrix is of the right dimensions ect.
   x <- base::as.matrix(x)
   if(base::diff(base::dim(x)) !=0) stop("Needs to be a square matrix with stage probabilities between each stage.")
@@ -57,7 +56,8 @@ local_stage_matrices <- function(x,habsuit){
   m.names <- base::dimnames(x)[[1]]
   if(base::is.null(m.names)) m.names <- base::paste0("stage.",1:di)
   
-  #get the number of patches/cells that are avaliable in the landscape/habitat_suitability object - this will all non-NA cells.
+  #get the number of patches/cells that are avaliable in the landscape/habitat_suitability object - this will be all non-NA cells.
+  stopifnot(inherits(habsuit,c("RasterLayer","RasterBrick","RasterStack")))
   npops <- length(habsuit[!is.na(habsuit[])])
   
   # set up a matrix of (ncell)(rows)*(nstage*nstage)(cols) and fill with original stage matrix
