@@ -60,7 +60,7 @@ print(koala.demo.glob)
 summary(koala.demo.glob)
 
 #### 10 ####
-koala.demo.loc <-as.demography(transition_matrix, type="local")
+koala.demo.loc <-as.demography(transition_matrix, type="local", koala.hab.suit)
 #n_stages <- length(stages(koala.demo.loc))
 print(koala.demo.loc)
 summary(koala.demo.loc)
