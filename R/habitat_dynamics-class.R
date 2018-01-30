@@ -28,7 +28,7 @@ is.habitat_dynamics <- function (x) inherits(x, 'habitat_dynamics')
 #' @name run_habitat_dynamics
 #' @export
 #' @description this bad boy will run the habitat_dynamics in a experiment.
-run_habitat_dynamics <- function(habitat_dynamics, habitat_object, time_step, ...){
+run_habitat_dynamics <- function(habitat_dynamics, habitat_object, time_step){
   if(!is.habitat_dynamics(habitat_dynamics))
   stop("you need to define a habitat_dynamics module in order to run it within an experiment - see the documents for details")
   fun <- habitat_dynamics[[1]]
