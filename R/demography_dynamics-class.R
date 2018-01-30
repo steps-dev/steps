@@ -16,8 +16,40 @@
 #' demog <- as.demography(mat)
 #' n_stages <- length(states(demog))
 
+as.demography_dynamics <- function(fun, params, check=FALSE, ...){
+  if(!is.function(fun))stop("demography_dynamics needs to be a function - see the documents for details")
+  if(check) {
+    message('checking to see your function works with demography(XXX)')
+    test <- do.call(fun,params)
+    attr(test, "demography") <- "demography"
+    return(test)
+  }
+  
+  fun_params <- structure(list(fun,params),class='demography_dynamics')
+  return(fun_params)
+}
+
+#' @rdname demography_dynamics
+#' @export
+is.demography_dynamics <- function (x) inherits(x, 'demography_dynamics')
+
+#' @rdname demography_dynamics
+#' @name run_demography_dynamics
+#' @export
+#' @description this bad boy will run the demography_dynamics in a experiment.
+run_demography_dynamics <- function(demography_dynamics, demography_object, time_step, ...){
+  if(!is.demography_dynamics(demography_dynamics))
+    stop("you need to define a demography_dynamics module in order to run it within an experiment - see the documents for details")
+  fun <- demography_dynamics[[1]]
+  params <- list(demography_object, demography_dynamics[[2]][[time_step]])
+  altered_demography <- do.call(fun,params)
+  attr(altered_demography, "demography") <- "demography"
+  return(altered_demography)
+}  
+
+
 alter_adult_survival <- function(demography, stage='adult', survial=0.9){
-                                #first check that demography is a demographic class
+                                #first check that demography is a demography class
                                 if(!is.demography(demography))stop('check that demography is a demography object')
                                 if(length(which(stages(demography)==stage))==0)stop('check names of the stage and make sure you have the right name')
                                 idx <-which(stages(demography)==stage)
