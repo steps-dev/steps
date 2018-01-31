@@ -223,17 +223,17 @@ ifft <- function (z) stats::fft(z, inverse = TRUE)
 #' @name dispersal
 #' @export 
 
-dispersal <- function(params,habitat,method,time_step=NULL){
+dispersal <- function(params,habitat,method,time_step){
                           stopifnot(is.list(params))
                           if(!any(method==c('ca','fft')))stop('method must be either "ca" (cellular automata) or\n "fft" (fast fourier transformation).')
                           stopifnot(is.habitat(habitat))  
                           dispersal_results <- switch(method,
-                                                     ca = dispersal_core_ca(params,habitat,time_step=NULL),
-                                                     fft = dispersal_core_fft(params,habitat,time_step=NULL))  
+                                                     ca = dispersal_core_ca(params,habitat,time_step),
+                                                     fft = dispersal_core_fft(params,habitat,time_step))  
                           return(dispersal_results)
 }
 
-dispersal_core_ca <- function(params,habitat,time_step=NULL){
+dispersal_core_ca <- function(params,habitat,time_step){
 
   #generate default parameters for dispersal parameters if they are missing from 'params'. 
   if(!exists('barrier_type',params))params$barrier_type <- 0
