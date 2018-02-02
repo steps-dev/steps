@@ -74,8 +74,8 @@ print.habitat <- function(x, ...) {
   nhsms <- sum(lapply(x,attr,"habitat")=='habitat_suitability')
   nstages <- sum(lapply(x,attr,"habitat")=='populations')
   ncells <- length(x[[1]][!is.na(x[[1]])])
-  if (all(c(nhsms,nstages)<11))  text <- sprintf('%s habitat suitability layer with %s patches (cells) and \n%s population life-history stages.\n',numastext[nhsms],ncells,numastext[nstages])
-  else text <- sprintf('%s habitat suitability layer with %s patches (cells) and \n%s population life-history stages.\n',nhsms,ncells,nstages)
+  if (all(c(nhsms,nstages)<11))  text <- sprintf('%s habitat suitability layer(s) with %s patches (cells) and \n%s population life-history stage(s).\n',numastext[nhsms],ncells,numastext[nstages])
+  else text <- sprintf('%s habitat suitability layer(s) with %s patches (cells) and \n%s population life-history stage(s).\n',nhsms,ncells,nstages)
   cat(text)
 }
 
@@ -239,19 +239,19 @@ is.carrying_capacity <- function (x) {
 #' @rdname habitat
 #' @export
 
-carrying_capacity <- function (habitat) {
+carrying_capacity <- function (habitat,time_step=1) {
   stopifnot(is.habitat(habitat))
   # habitat[[which(sapply(habitat,attr,"habitat")=='carrying_capacity')]]
-  cc <- habitat[which(sapply(habitat,attr,"habitat")=='carrying_capacity')][[1]]
+  cc <- habitat[which(sapply(habitat,attr,"habitat")=='carrying_capacity')][[time_step]]
   return(cc)
 }
 
 #' @rdname habitat
 #' @export
-`carrying_capacity<-` <- function (habitat, value) {
+`carrying_capacity<-` <- function (habitat, time_step=1, value) {
   stopifnot(is.habitat(habitat))
   # population_check(value)
-  habitat[which(sapply(habitat,attr,"habitat")=='carrying_capacity')][[1]]<-value
+  habitat[which(sapply(habitat,attr,"habitat")=='carrying_capacity')][[time_step]]<-value
   habitat
 }
 
@@ -321,15 +321,16 @@ list2habitat <- function (input) {
   # add npops to the total count of rasters. 
   nrasters <- nrasters + npops
   
-  if(!inherits(input[[3]],c("RasterLayer"))){
+  if(!inherits(input[[3]],c("RasterLayer","RasterBrick","RasterStack"))){
     input[[3]] <- carryingcapacity2raster(input[[3]],input[[1]])
   }
+  
   # update the number of rasters
   nrasters <- nrasters + 1
   
   # add carrying capacity to the habitat list.
-  habitat_list[[nrasters]] <- input[[3]] 
-  
+  habitat_list[[nrasters]] <- input[[3]]
+
   # generate an area raster from habitat suitability.
   nrasters <- nrasters + 1
   areas <- area_of_region(input[[1]]) # previous checks means this is a raster of some kind. 
@@ -351,9 +352,14 @@ list2habitat <- function (input) {
 
 #internal function checks.
 area_check <- function (area) {
-  stopifnot(inherits(area,'RasterLayer'))
-  stopifnot(is.numeric(area[!is.na(area[])]))
-  stopifnot(all(area[!is.na(area[])] > 0))
+  stopifnot(inherits(area,c("RasterLayer","RasterBrick","RasterStack")))
+  if(inherits(area,"RasterLayer")) {
+    stopifnot(is.numeric(area[!is.na(area[])]))
+    stopifnot(all(area[!is.na(area[])] > 0))    
+  }else{
+    stopifnot(sapply(area, function(x) is.numeric(x[!is.na(x[])])))
+    stopifnot(sapply(area, function(x) all(x[!is.na(x[])] > 0)))  
+  }
 }
 
 # population_check <- function (population) {

@@ -223,17 +223,17 @@ ifft <- function (z) stats::fft(z, inverse = TRUE)
 #' @name dispersal
 #' @export 
 
-dispersal <- function(params,habitat,method,...){
+dispersal <- function(params,habitat,method,time_step){
                           stopifnot(is.list(params))
                           if(!any(method==c('ca','fft')))stop('method must be either "ca" (cellular automata) or\n "fft" (fast fourier transformation).')
                           stopifnot(is.habitat(habitat))  
                           dispersal_results <- switch(method,
-                                                     ca = dispersal_core_ca(params,habitat),
-                                                     fft = dispersal_core_fft(params,habitat))  
+                                                     ca = dispersal_core_ca(params,habitat,time_step),
+                                                     fft = dispersal_core_fft(params,habitat,time_step))  
                           return(dispersal_results)
 }
 
-dispersal_core_ca <- function(params,habitat){
+dispersal_core_ca <- function(params,habitat,time_step){
 
   #generate default parameters for dispersal parameters if they are missing from 'params'. 
   if(!exists('barrier_type',params))params$barrier_type <- 0
@@ -247,12 +247,27 @@ dispersal_core_ca <- function(params,habitat){
   #extract habitat suitability, relevant populations and carrying capacity. 
   pops <- populations(habitat)
   disperse_pops <- pops[which_stages_disperse]
-  cc <- carrying_capacity(habitat)
-  hsm <- habitat_suitability(habitat)
   
+  if(inherits(carrying_capacity(habitat),c("RasterStack","RasterBrick"))){
+    cc <- carrying_capacity(habitat)[[time_step]]
+  } else {
+    cc <- carrying_capacity(habitat)
+  }
+  
+  if(inherits(habitat_suitability(habitat),c("RasterStack","RasterBrick"))){
+    hsm <- habitat_suitability(habitat)[[time_step]]
+  } else {
+    hsm <- habitat_suitability(habitat)    
+  }
+
   #if barriers is NULL create a barriers matrix all == 0.
   if(!exists('barriers_map',params)){
     bm <- raster::calc(hsm,function(x){x[!is.na(x)] <- 0; return(x)})
+    params$barriers_map <- bm
+  }
+
+  if(inherits(params$barriers_map,c("RasterStack","RasterBrick"))){
+    bm <- carrying_capacity(habitat)[[time_step]]
     params$barriers_map <- bm
   }
   
