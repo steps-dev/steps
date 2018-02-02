@@ -1,10 +1,11 @@
 #library(dhmpr)
 library(raster)
 library(foreach)
-#library(pop)
-#library(popbio)
-#library(popdemo)
-#library(scales)
+
+# Questions for Nat/Skip:
+# 1) Best way to input populations - as multiple (based on life stages) or single components?
+# 2) Where should density dependence be incorporated? In the carrying capacity attributes?
+# 3) How to incorporate stochasticity? In the habitat or demographic dynamics objects?
 
 # develop all data inputs:
 
@@ -58,7 +59,7 @@ vec.pop <- c(seq(.9,.7,length.out = n/2),seq(.9,.8,length.out = n/2))
 koala.hab.pop.s <- stack(unlist(foreach(i=1:20) %do% {koala.hab.pop * vec.pop[i]}))
 
 #### 5 ####
-koala.hab.pop.n <- c(1,1,1,1)
+koala.hab.pop.n <- 1
 
 #### 10 ####
 koala.demo.glob <- as.demography(transition_matrix, type="global")
@@ -88,7 +89,7 @@ koala.disp.param <- as.dispersal(list(dispersal_distance=list('Stage_0-1'=0,'Sta
 print(koala.disp.param)
 
 #### 16 ####
-koala.dist.fire <- stack(list.files("data/Koala/Fire", full = TRUE, pattern = '*agg'))[[1]]
+koala.dist.fire <- stack(list.files("data/Koala/Fire", full = TRUE, pattern = '*agg'))[[18]]
 
 #### 17 ####
 koala.dist.fire.s <- stack(rep(list.files("data/Koala/Fire", full = TRUE, pattern = '*agg'), length.out = n))
@@ -105,6 +106,7 @@ koala.dist.fire.func <- function (x,habitat) {
 
 #### 19 ####
 koala.dist.fire.func.param <- koala.dist.fire.s
+koala.dist.fire.func.param2 <- koala.dist.fire
 
 n_time_steps <- 20
 
@@ -503,6 +505,7 @@ plot(juve_n,type='l',ylab='Total Juvenile Abundance',xlab="Time (years)",lwd=2,c
 features <- list('habitat_suitability_map'=as.habitat_suitability(koala.hab.suit),
                  'population'=as.populations(koala.hab.pop),
                  'carrying_capacity'=as.carrying_capacity(koala.hab.k))
+
 habitat <- as.habitat(features)
 print(habitat)
 
@@ -618,9 +621,204 @@ plot(juve_n,type='l',ylab='Total Juvenile Abundance',xlab="Time (years)",lwd=2,c
 
 ######################################
 
+####### Permutation 9 ########
 
+features <- list('habitat_suitability_map'=as.habitat_suitability(koala.hab.suit),
+                 'population'=as.populations(stack(koala.hab.pop*summary(koala.demo.glob)$stable.stage.distribution[1],
+                                                   koala.hab.pop*summary(koala.demo.glob)$stable.stage.distribution[2],
+                                                   koala.hab.pop*summary(koala.demo.glob)$stable.stage.distribution[3],
+                                                   koala.hab.pop*summary(koala.demo.glob)$stable.stage.distribution[4]
+                 )
+                 ),
+                 'carrying_capacity'=as.carrying_capacity(koala.hab.k))
+habitat <- as.habitat(features)
+print(habitat)
 
+koala.disp.param2 <- as.dispersal(c(koala.disp.param,barrier_type=1,barriers_map=koala.disp.bar,use_barriers=TRUE))
 
+hab_dyn <- as.habitat_dynamics(koala.dist.fire.func,koala.dist.fire.func.param)
+
+pops_at_time_step <- dispersal_at_time_step <- disturbance_at_time_step <- habitat_suit_at_time_step <- list()
+
+pops_at_time_step[[1]] <- populations(habitat)
+habitat_suit_at_time_step[[1]] <- habitat_suitability(habitat)
+
+system.time(
+  for(i in 1:n_time_steps){
+    
+    disturbance_at_time_step[[i]] <- koala.dist.fire.s[[i]]
+    
+    new_hs <- run_habitat_dynamics(hab_dyn,habitat_suitability(habitat),time_step=i)
+    attr(new_hs,"habitat") <- "habitat_suitability" # i need to update attribute inheritance.
+    habitat_suit_at_time_step[[i+1]] <- habitat_suitability(habitat) <- new_hs
+    
+    dispersed_populations <- dispersal(koala.disp.param2,habitat,method='ca')
+    dispersal_at_time_step[[i]] <- populations(habitat) <- dispersed_populations
+    
+    pops_at_time_step[[i+1]] <- populations(habitat) <- estimate_demography(koala.demo.glob,habitat)
+    
+  }
+) ##### approx 8 seconds to do 20 timesteps 
+
+Stage_0_1 <- stack(lapply(pops_at_time_step, "[[", 1))
+Stage_1_2 <- stack(lapply(pops_at_time_step, "[[", 2))
+Stage_2_3 <- stack(lapply(pops_at_time_step, "[[", 3))
+Stage_3_ <- stack(lapply(pops_at_time_step, "[[", 4))
+
+plot(Stage_0_1)
+plot(Stage_1_2)
+plot(Stage_2_3)
+plot(Stage_3_)
+
+#through time
+par(.pardefault)
+par(mfrow=c(1,4))
+
+sup_adult_n <- sapply(lapply(pops_at_time_step, "[[", 4)[], function(x)sum(x[]))
+plot(sup_adult_n,type='l',ylab='Total Super-Adult Abundance',xlab="Time (years)",lwd=2,col='gray')
+
+adult_n <- sapply(lapply(pops_at_time_step, "[[", 3)[], function(x)sum(x[]))
+plot(adult_n,type='l',ylab='Total Adult Abundance',xlab="Time (years)",lwd=2,col='tomato')
+
+sub_adult_n <- sapply(lapply(pops_at_time_step, "[[", 2)[], function(x)sum(x[]))
+plot(sub_adult_n,type='l',ylab='Total Sub-Adult Abundance',xlab="Time (years)",lwd=2,col='dodgerblue')
+
+juve_n <- sapply(lapply(pops_at_time_step, "[[", 1)[], function(x)sum(x[]))
+plot(juve_n,type='l',ylab='Total Juvenile Abundance',xlab="Time (years)",lwd=2,col='darkgreen')
+
+######################################
+
+####### Permutation 10 ########
+
+features <- list('habitat_suitability_map'=as.habitat_suitability(koala.hab.suit),
+                 'population'=as.populations(stack(koala.hab.pop*summary(koala.demo.glob)$stable.stage.distribution[1],
+                                                   koala.hab.pop*summary(koala.demo.glob)$stable.stage.distribution[2],
+                                                   koala.hab.pop*summary(koala.demo.glob)$stable.stage.distribution[3],
+                                                   koala.hab.pop*summary(koala.demo.glob)$stable.stage.distribution[4]
+                 )
+                 ),
+                 'carrying_capacity'=as.carrying_capacity(koala.hab.k))
+habitat <- as.habitat(features)
+print(habitat)
+
+koala.disp.param2 <- as.dispersal(c(koala.disp.param,barrier_type=1,barriers_map=koala.disp.bar.s,use_barriers=TRUE))
+
+hab_dyn <- as.habitat_dynamics(koala.dist.fire.func,koala.dist.fire.func.param)
+
+pops_at_time_step <- dispersal_at_time_step <- disturbance_at_time_step <- habitat_suit_at_time_step <- list()
+
+pops_at_time_step[[1]] <- populations(habitat)
+habitat_suit_at_time_step[[1]] <- habitat_suitability(habitat)
+
+system.time(
+  for(i in 1:n_time_steps){
+    
+    disturbance_at_time_step[[i]] <- koala.dist.fire.s[[i]]
+    
+    new_hs <- run_habitat_dynamics(hab_dyn,habitat_suitability(habitat),time_step=i)
+    attr(new_hs,"habitat") <- "habitat_suitability" # i need to update attribute inheritance.
+    habitat_suit_at_time_step[[i+1]] <- habitat_suitability(habitat) <- new_hs
+    
+    dispersed_populations <- dispersal(koala.disp.param2,habitat,method='ca',time_step=i)
+    dispersal_at_time_step[[i]] <- populations(habitat) <- dispersed_populations
+    
+    pops_at_time_step[[i+1]] <- populations(habitat) <- estimate_demography(koala.demo.glob,habitat)
+    
+  }
+) ##### approx 8 seconds to do 20 timesteps 
+
+Stage_0_1 <- stack(lapply(pops_at_time_step, "[[", 1))
+Stage_1_2 <- stack(lapply(pops_at_time_step, "[[", 2))
+Stage_2_3 <- stack(lapply(pops_at_time_step, "[[", 3))
+Stage_3_ <- stack(lapply(pops_at_time_step, "[[", 4))
+
+plot(Stage_0_1)
+plot(Stage_1_2)
+plot(Stage_2_3)
+plot(Stage_3_)
+
+#through time
+par(.pardefault)
+par(mfrow=c(1,4))
+
+sup_adult_n <- sapply(lapply(pops_at_time_step, "[[", 4)[], function(x)sum(x[]))
+plot(sup_adult_n,type='l',ylab='Total Super-Adult Abundance',xlab="Time (years)",lwd=2,col='gray')
+
+adult_n <- sapply(lapply(pops_at_time_step, "[[", 3)[], function(x)sum(x[]))
+plot(adult_n,type='l',ylab='Total Adult Abundance',xlab="Time (years)",lwd=2,col='tomato')
+
+sub_adult_n <- sapply(lapply(pops_at_time_step, "[[", 2)[], function(x)sum(x[]))
+plot(sub_adult_n,type='l',ylab='Total Sub-Adult Abundance',xlab="Time (years)",lwd=2,col='dodgerblue')
+
+juve_n <- sapply(lapply(pops_at_time_step, "[[", 1)[], function(x)sum(x[]))
+plot(juve_n,type='l',ylab='Total Juvenile Abundance',xlab="Time (years)",lwd=2,col='darkgreen')
+
+######################################
+
+####### Permutation 11 ########
+
+features <- list('habitat_suitability_map'=as.habitat_suitability(koala.hab.suit),
+                 'population'=as.populations(stack(koala.hab.pop*summary(koala.demo.glob)$stable.stage.distribution[1],
+                                                   koala.hab.pop*summary(koala.demo.glob)$stable.stage.distribution[2],
+                                                   koala.hab.pop*summary(koala.demo.glob)$stable.stage.distribution[3],
+                                                   koala.hab.pop*summary(koala.demo.glob)$stable.stage.distribution[4]
+                 )
+                 ),
+                 'carrying_capacity'=as.carrying_capacity(koala.hab.k))
+habitat <- as.habitat(features)
+print(habitat)
+
+hab_dyn <- as.habitat_dynamics(koala.dist.fire.func,koala.dist.fire.func.param2)
+
+pops_at_time_step <- dispersal_at_time_step <- disturbance_at_time_step <- habitat_suit_at_time_step <- list()
+
+pops_at_time_step[[1]] <- populations(habitat)
+habitat_suit_at_time_step[[1]] <- habitat_suitability(habitat)
+
+system.time(
+  for(i in 1:n_time_steps){
+    
+    disturbance_at_time_step[[i]] <- koala.dist.fire
+    
+    new_hs <- run_habitat_dynamics(hab_dyn,habitat_suitability(habitat))
+    attr(new_hs,"habitat") <- "habitat_suitability" # i need to update attribute inheritance.
+    habitat_suit_at_time_step[[i+1]] <- habitat_suitability(habitat) <- new_hs
+    
+    dispersed_populations <- dispersal(koala.disp.param,habitat,method='ca')
+    dispersal_at_time_step[[i]] <- populations(habitat) <- dispersed_populations
+    
+    pops_at_time_step[[i+1]] <- populations(habitat) <- estimate_demography(koala.demo.glob,habitat)
+    
+  }
+) ##### approx 8 seconds to do 20 timesteps 
+
+Stage_0_1 <- stack(lapply(pops_at_time_step, "[[", 1))
+Stage_1_2 <- stack(lapply(pops_at_time_step, "[[", 2))
+Stage_2_3 <- stack(lapply(pops_at_time_step, "[[", 3))
+Stage_3_ <- stack(lapply(pops_at_time_step, "[[", 4))
+
+plot(Stage_0_1)
+plot(Stage_1_2)
+plot(Stage_2_3)
+plot(Stage_3_)
+
+#through time
+par(.pardefault)
+par(mfrow=c(1,4))
+
+sup_adult_n <- sapply(lapply(pops_at_time_step, "[[", 4)[], function(x)sum(x[]))
+plot(sup_adult_n,type='l',ylab='Total Super-Adult Abundance',xlab="Time (years)",lwd=2,col='gray')
+
+adult_n <- sapply(lapply(pops_at_time_step, "[[", 3)[], function(x)sum(x[]))
+plot(adult_n,type='l',ylab='Total Adult Abundance',xlab="Time (years)",lwd=2,col='tomato')
+
+sub_adult_n <- sapply(lapply(pops_at_time_step, "[[", 2)[], function(x)sum(x[]))
+plot(sub_adult_n,type='l',ylab='Total Sub-Adult Abundance',xlab="Time (years)",lwd=2,col='dodgerblue')
+
+juve_n <- sapply(lapply(pops_at_time_step, "[[", 1)[], function(x)sum(x[]))
+plot(juve_n,type='l',ylab='Total Juvenile Abundance',xlab="Time (years)",lwd=2,col='darkgreen')
+
+######################################
 
 
 
