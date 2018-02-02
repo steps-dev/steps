@@ -265,6 +265,11 @@ dispersal_core_ca <- function(params,habitat,time_step){
     bm <- raster::calc(hsm,function(x){x[!is.na(x)] <- 0; return(x)})
     params$barriers_map <- bm
   }
+
+  if(inherits(params$barriers_map,c("RasterStack","RasterBrick"))){
+    bm <- carrying_capacity(habitat)[[time_step]]
+    params$barriers_map <- bm
+  }
   
   ca_dispersal <- list()
   # could do this in parallel if wanted. 
