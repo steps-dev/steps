@@ -32,7 +32,13 @@ run_habitat_dynamics <- function(habitat_dynamics, habitat_object, time_step){
   if(!is.habitat_dynamics(habitat_dynamics))
   stop("you need to define a habitat_dynamics module in order to run it within an experiment - see the documents for details")
   fun <- habitat_dynamics[[1]]
-  params <- list(habitat_object, habitat_dynamics[[2]][[time_step]])
+  
+  if(inherits(habitat_dynamics[[2]],c("RasterLayer"))){
+    params <- list(habitat_object, habitat_dynamics[[2]])
+  } else {
+    params <- list(habitat_object, habitat_dynamics[[2]][[time_step]])
+  }
+  
   altered_habitat <- do.call(fun,params)
   attr(altered_habitat, "habitat") <- "habitat"
   return(altered_habitat)
