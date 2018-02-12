@@ -194,38 +194,49 @@ dots <- function(...) {
 #'}
 #' @export
 
-estimate_demography <- function(demography_object, habitat, parameters){
+estimate_demography <- function(demography_object, habitat, stage_matrix_sd, time_step, parameters){
    
   pop_vec <- lapply(populations(habitat),function(x)c(x[]))
   pop_mat <- do.call(cbind,pop_vec)
   ns <- length(stages(demography_object))
   
-   if(all(dim(demography_object$global_stage_matrix)==ns)){
+  if(all(dim(demography_object$global_stage_matrix)==ns)){
       # message for Casey: This will estimate deterministic population growth for a global stage matrix 
-      message('Using a global demographic stage matrix for all patches\n')
-      pop_mat_new <- t(sapply(1:nrow(pop_mat),function(x)estdemo(pop_mat[x,],demography_object$global_stage_matrix))) 
+      if(time_step==1){message('Using a global demographic stage matrix for all patches\n')}
+      pop_mat_new <- t(sapply(1:nrow(pop_mat),function(x)estdemo(pop_mat[x,],demography_object$global_stage_matrix, stage_matrix_sd))) 
   } else {
       # message for Casey: This will estimate deterministic population growth for a local (one percell). 
       # The demographic$global_stage_matrix might need to be renamed to global_stage_matrix and local_stage_matricies. 
       # local_stage_matrices should have the dimensions ncells(rows),nstages*nstages(cols).
-      message('Using a local demographic stage matricies; one per patch\n')
-      pop_mat_new <- t(sapply(1:nrow(pop_mat),function(x)estdemo(pop_mat[x,],matrix(demography_object$local_stage_matrices[x,],ns,ns))))
+    if(time_step==1){message('Using a local demographic stage matricies; one per patch\n')}
+      pop_mat_new <- t(sapply(1:nrow(pop_mat),function(x)estdemo(pop_mat[x,],matrix(demography_object$local_stage_matrices[x,],ns,ns), stage_matrix_sd)))
   }
   # message of Casey: I've updated this so populations are returned from estimate_demography, e.g: populations(habitat) <- estimate_demography(demo,habitat)
   r <- populations(habitat)[[1]]
   pops_updated <- lapply(split(pop_mat_new, rep(1:ncol(pop_mat_new), each = nrow(pop_mat_new))),function(x){r[]<-x;return(r)})
+  
+  # add function for ceiling density dependence - based on total individuals in all stages and affects all vital rates  
+  
+  
   pops <- lapply(pops_updated, `attr<-`, "habitat", "populations")
   return(pops)
 }
 
 
 # message for Casey: This function will do the internal projections for demographic processes, so we can add in more complicated function as we need. 
-estdemo <- function(popvec, stage_matrix, stage_matrix_sd=NULL){
+estdemo <- function(popvec, stage_matrix, stage_matrix_sd){
   
-    # no stochatisity
-    popvec_new <- stage_matrix%*%popvec
-    return(popvec_new)
-  
+    # no stochastisity
+    #popvec_new <- stage_matrix%*%popvec
+    #return(popvec_new)
+    
+    # with env stochasticity by supplying standard deviation for random normal draw (truncated)
+    popvec_envstoch <- structure(sapply(stage_matrix, function(x) if(x!=0){pmax(rnorm(1,x,stage_matrix_sd),0)}else{0}), dim=dim(stage_matrix))%*%popvec
+    
+    # add in demographic stochasticity.....
+    #popvec_demostoch <- structure(sapply(stage_matrix, function(x) if(x!=0){pmax(rnorm(1,x,stage_matrix_sd),0)}else{0}), dim=dim(stage_matrix))%*%popvec_envstoch
+    
+    return(popvec_envstoch)
 }
 
 
