@@ -3,9 +3,10 @@ library(raster)
 library(foreach)
 
 # Questions for Nat/Skip:
-# 1) Best way to input populations - as multiple (based on life stages) or single components?
-# 2) Where should density dependence be incorporated? In the carrying capacity attributes?
-# 3) How to incorporate stochasticity? In the habitat or demographic dynamics objects?
+# 1) Best way to input populations - as multiple (based on life stages) or single components? - improve warning message for now
+# 2) Where should density dependence be incorporated? In the carrying capacity attributes? function that uses the carrying capacity and populations in age classes (structure) that contribute to check -> adjusts survival/fecundity in demo or population in habitat
+# 3) How to incorporate stochasticity? In the habitat or demographic dynamics objects?  look into past code from skip - inquire about demographic stochasticity
+# 4) Reset habitat layers after disturbance based on years of effect
 
 # develop all data inputs:
 
@@ -39,10 +40,10 @@ plot(koala.hab.k, box = FALSE, axes = FALSE)
 #### 4 ####
 vec.k <- c(seq(1,0.1,length.out = n/2),seq(1,0.1,length.out = n/2))
 koala.hab.k.s <- stack(unlist(foreach(i=1:20) %do% {koala.hab.k * vec.k[i]}))
-koala.hab.k.s <- stack(koala.hab.k,koala.hab.k,koala.hab.k,koala.hab.k,koala.hab.k,
-                       koala.hab.k,koala.hab.k,koala.hab.k,koala.hab.k,koala.hab.k,
-                       koala.hab.k,koala.hab.k,koala.hab.k,koala.hab.k,koala.hab.k,
-                       koala.hab.k,koala.hab.k,koala.hab.k,koala.hab.k,koala.hab.k)
+#koala.hab.k.s <- stack(koala.hab.k,koala.hab.k,koala.hab.k,koala.hab.k,koala.hab.k,
+#                       koala.hab.k,koala.hab.k,koala.hab.k,koala.hab.k,koala.hab.k,
+#                       koala.hab.k,koala.hab.k,koala.hab.k,koala.hab.k,koala.hab.k,
+#                       koala.hab.k,koala.hab.k,koala.hab.k,koala.hab.k,koala.hab.k)
 
 #### 5 ####
 koala.hab.k.n <- 85
@@ -130,22 +131,26 @@ pops_at_time_step <- dispersal_at_time_step <- disturbance_at_time_step <- habit
 pops_at_time_step[[1]] <- populations(habitat)
 habitat_suit_at_time_step[[1]] <- habitat_suitability(habitat)
 
-system.time(
-for(i in 1:n_time_steps){
+#system.time(
+  pb <- txtProgressBar(min = 0, max = n_time_steps, style = 3)
+  for(i in 1:n_time_steps){
 
-  disturbance_at_time_step[[i]] <- koala.dist.fire.s[[i]]
-  
-  new_hs <- run_habitat_dynamics(hab_dyn,habitat_suitability(habitat),time_step=i)
-  attr(new_hs,"habitat") <- "habitat_suitability" # i need to update attribute inheritance.
-  habitat_suit_at_time_step[[i+1]] <- habitat_suitability(habitat) <- new_hs
-
-  dispersed_populations <- dispersal(koala.disp.param,habitat,method='ca')
-  dispersal_at_time_step[[i]] <- populations(habitat) <- dispersed_populations
-
-  pops_at_time_step[[i+1]] <- populations(habitat) <- estimate_demography(koala.demo.glob,habitat)
-
-}
-) ##### approx 8 seconds to do 20 timesteps 
+    disturbance_at_time_step[[i]] <- koala.dist.fire.s[[i]]
+    
+    new_hs <- run_habitat_dynamics(hab_dyn,habitat_suitability(habitat),time_step=i)
+    attr(new_hs,"habitat") <- "habitat_suitability" # i need to update attribute inheritance.
+    habitat_suit_at_time_step[[i+1]] <- habitat_suitability(habitat) <- new_hs #this needs to be reset back to orginal or modified hs assuming time period of fire effect
+    
+    dispersed_populations <- dispersal(koala.disp.param,habitat,method='ca')
+    dispersal_at_time_step[[i]] <- populations(habitat) <- dispersed_populations
+    
+    pops_at_time_step[[i+1]] <- populations(habitat) <- estimate_demography(koala.demo.glob, habitat, stage_matrix_sd=1, time_step=i)
+    Sys.sleep(0.1)
+    # update progress bar
+    setTxtProgressBar(pb, i)
+  }
+  close(pb)
+#) ##### approx 30 seconds to do 20 timesteps 
 
 Stage_0_1 <- stack(lapply(pops_at_time_step, "[[", 1))
 Stage_1_2 <- stack(lapply(pops_at_time_step, "[[", 2))
