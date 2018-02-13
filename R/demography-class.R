@@ -208,16 +208,33 @@ estimate_demography <- function(demography_object, habitat, stage_matrix_sd, tim
       # message for Casey: This will estimate deterministic population growth for a local (one percell). 
       # The demographic$global_stage_matrix might need to be renamed to global_stage_matrix and local_stage_matricies. 
       # local_stage_matrices should have the dimensions ncells(rows),nstages*nstages(cols).
-    if(time_step==1){message('Using a local demographic stage matricies; one per patch\n')}
+      if(time_step==1){message('Using a local demographic stage matricies; one per patch\n')}
       pop_mat_new <- t(sapply(1:nrow(pop_mat),function(x)estdemo(pop_mat[x,],matrix(demography_object$local_stage_matrices[x,],ns,ns), stage_matrix_sd)))
   }
-  # message of Casey: I've updated this so populations are returned from estimate_demography, e.g: populations(habitat) <- estimate_demography(demo,habitat)
+
   r <- populations(habitat)[[1]]
-  pops_updated <- lapply(split(pop_mat_new, rep(1:ncol(pop_mat_new), each = nrow(pop_mat_new))),function(x){r[]<-x;return(r)})
   
-  # add function for ceiling density dependence - based on total individuals in all stages and affects all vital rates  
+  # add function for ceiling density dependence - based on total individuals in all stages  
+  if(inherits(carrying_capacity(habitat),c("RasterStack","RasterBrick"))){
+    if(sum(unlist(lapply(populations(habitat), function(x) cellStats(x,sum)))) > cellStats(carrying_capacity(habitat)[[time_step]], sum)){
+      rescale <- cellStats(carrying_capacity(habitat)[[time_step]], sum)/sum(unlist(lapply(populations(habitat), function(x) cellStats(x,sum))))
+      pop_mat_dd <- pop_mat_new*rescale
+      pops_updated <- lapply(split(pop_mat_dd, rep(1:ncol(pop_mat_dd), each = nrow(pop_mat_dd))),function(x){r[]<-x;return(r)})
+    }else{
+      pops_updated <- lapply(split(pop_mat_new, rep(1:ncol(pop_mat_new), each = nrow(pop_mat_new))),function(x){r[]<-x;return(r)})
+    }
+  }
   
-  
+  if(inherits(carrying_capacity(habitat),c("RasterLayer"))){
+    if(sum(unlist(lapply(populations(habitat), function(x) cellStats(x,sum)))) > cellStats(carrying_capacity(habitat), sum)){
+      rescale <- cellStats(carrying_capacity(habitat), sum)/sum(unlist(lapply(populations(habitat), function(x) cellStats(x,sum))))
+      pop_mat_dd <- pop_mat_new*rescale
+      pops_updated <- lapply(split(pop_mat_dd, rep(1:ncol(pop_mat_dd), each = nrow(pop_mat_dd))),function(x){r[]<-x;return(r)})
+    }else{
+      pops_updated <- lapply(split(pop_mat_new, rep(1:ncol(pop_mat_new), each = nrow(pop_mat_new))),function(x){r[]<-x;return(r)})
+    }    
+  }
+
   pops <- lapply(pops_updated, `attr<-`, "habitat", "populations")
   return(pops)
 }
@@ -231,12 +248,88 @@ estdemo <- function(popvec, stage_matrix, stage_matrix_sd){
     #return(popvec_new)
     
     # with env stochasticity by supplying standard deviation for random normal draw (truncated)
-    popvec_envstoch <- structure(sapply(stage_matrix, function(x) if(x!=0){pmax(rnorm(1,x,stage_matrix_sd),0)}else{0}), dim=dim(stage_matrix))%*%popvec
-    
+    #set.seed(123)
+    popvec_es <- structure(sapply(stage_matrix, function(x) if(x!=0){pmax(rnorm(1,x,stage_matrix_sd),0)}else{0}), dim=dim(stage_matrix))%*%popvec
+    #if(any(is.na(popvec_es))){
+    #  print(i)
+    #}
     # add in demographic stochasticity.....
-    #popvec_demostoch <- structure(sapply(stage_matrix, function(x) if(x!=0){pmax(rnorm(1,x,stage_matrix_sd),0)}else{0}), dim=dim(stage_matrix))%*%popvec_envstoch
-    
-    return(popvec_envstoch)
+    #set.seed(123)
+    return(popvec_es)
+    # 
+    # popvec_ds <- as.matrix(
+    #   rowSums(
+    #     structure(
+    #       c(rpois(length(popvec_es), stage_matrix[1, ] * popvec_es),
+    #         apply(stage_matrix[-1,],1,function(x) rbinom(length(popvec_es), round(as.vector(popvec_es),0), x))
+    #         ), 
+    #       dim=dim(stage_matrix))
+    #     ),
+    #   cols=1)
+    # 
+    # return(popvec_ds)
 }
 
+#stage_matrix %*% popvec_es
 
+# n <- length(popvec_es)
+# 
+# set.seed(1)
+# ans <- rep(NA, n)
+# for (j in seq_len(n)) {
+#   print(stage_matrix[, j]* popvec_es[j])
+#   ans[j] <- sum(rpois(n, stage_matrix[, j]* popvec_es[j]))
+# }
+# 
+# stage_matrix[, j]* popvec_es[j]
+# 
+# # to do the whole loop efficiently
+# lambdas <- t(sweep(stage_matrix, 2, popvec_es, "*"))
+# counts <- lambdas
+# counts[] <- rpois(length(lambdas), lambdas)
+# colSums(counts)
+# 
+# # to do just the first row
+# counts <- rpois(n, stage_matrix[1, ] * popvec_es)
+# 
+# # for a subset of cells
+# which_mat <- matrix(c("S", "F", "F", "F",
+#                       "G", "S", "", "",
+#                       "", "G", "S", "",
+#                       "", "", "G", "S"),
+#                     ncol = n, nrow = n, byrow = TRUE)
+# 
+# # find fecundities
+# which_F <- which(which_mat == "F", arr.ind = TRUE)
+# lambdas <- stage_matrix[which_F] * popvec_es[which_F[, 2]]
+# 
+# ans
+# set.seed(1)
+# rpois(length(popvec_es), stage_matrix %*% popvec_es)
+# 
+# 
+# t( apply( stage_matrix , 1 , `*` , popvec_es ) )
+# 
+# t(apply(t(stage_matrix)*as.vector(popvec_es),1,sum))
+# 
+# 
+# apply(stage_matrix[-1,],1,function(x) rbinom(length(popvec_es), round(as.vector(popvec_es),0), x))
+
+
+#           Stage_0-1 Stage_1-2 Stage_2-3 Stage_3+
+# Stage_0-1      0.00     0.000     0.302    0.302
+# Stage_1-2      0.94     0.000     0.000    0.000
+# Stage_2-3      0.00     0.884     0.000    0.000
+# Stage_3+       0.00     0.000     0.793    0.793
+
+#            [,1]
+# [1,]   0.000000
+# [2,]   8.618288
+# [3,]  36.548778
+# [4,] 140.850154
+
+#                 [,1]
+# Stage_0-1  53.574477
+# Stage_1-2   0.000000
+# Stage_2-3   7.618566
+# Stage_3+  140.677353
