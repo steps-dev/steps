@@ -13,12 +13,15 @@ library(foreach)
 .pardefault <- par()
 par(mar=c(0.5,0.5,0.5,0.5))
 
+#Note, this is an age-structured matrix and is not generic
 transition_matrix <- matrix(c(0.000,0.000,0.302,0.302,
                               0.940,0.000,0.000,0.000,
                               0.000,0.884,0.000,0.000,
                               0.000,0.000,0.793,0.793),
                             nrow = 4, ncol = 4, byrow = TRUE)
 colnames(transition_matrix) <- rownames(transition_matrix) <- c('Stage_0-1','Stage_1-2','Stage_2-3','Stage_3+')
+
+
 
 ############ MODEL INPUTS ###############
 
@@ -46,7 +49,7 @@ koala.hab.k.s <- stack(unlist(foreach(i=1:20) %do% {koala.hab.k * vec.k[i]}))
 #                       koala.hab.k,koala.hab.k,koala.hab.k,koala.hab.k,koala.hab.k)
 
 #### 5 ####
-koala.hab.k.n <- 85
+koala.hab.k.n <- 20
 
 #### 6 ####
 koala.hab.k.func <- function(x) x*0.866
@@ -145,8 +148,7 @@ habitat_suit_at_time_step[[1]] <- habitat_suitability(habitat)
     dispersal_at_time_step[[i]] <- populations(habitat) <- dispersed_populations
     
     pops_at_time_step[[i+1]] <- populations(habitat) <- estimate_demography(koala.demo.glob, habitat, stage_matrix_sd=1, time_step=i)
-    Sys.sleep(0.1)
-    # update progress bar
+
     setTxtProgressBar(pb, i)
   }
   close(pb)
@@ -200,7 +202,7 @@ pops_at_time_step <- dispersal_at_time_step <- disturbance_at_time_step <- habit
 pops_at_time_step[[1]] <- populations(habitat)
 habitat_suit_at_time_step[[1]] <- habitat_suitability(habitat,1)
 
-system.time(
+
   for(i in 1:n_time_steps){
     
     disturbance_at_time_step[[i]] <- koala.dist.fire.s[[i]]
@@ -212,10 +214,9 @@ system.time(
     dispersed_populations <- dispersal(koala.disp.param,habitat,method='ca',time_step=i)
     dispersal_at_time_step[[i]] <- populations(habitat) <- dispersed_populations
     
-    pops_at_time_step[[i+1]] <- populations(habitat) <- estimate_demography(koala.demo.glob,habitat)
+    pops_at_time_step[[i+1]] <- populations(habitat) <- estimate_demography(koala.demo.glob, habitat, stage_matrix_sd=1, time_step=i)
     
   }
-) ##### approx 9 seconds to do 20 timesteps 
 
 Stage_0_1 <- stack(lapply(pops_at_time_step, "[[", 1))
 Stage_1_2 <- stack(lapply(pops_at_time_step, "[[", 2))
@@ -265,7 +266,7 @@ pops_at_time_step <- dispersal_at_time_step <- disturbance_at_time_step <- habit
 pops_at_time_step[[1]] <- populations(habitat)
 habitat_suit_at_time_step[[1]] <- habitat_suitability(habitat,1)
 
-system.time(
+
   for(i in 1:n_time_steps){
     
     disturbance_at_time_step[[i]] <- koala.dist.fire.s[[i]]
@@ -277,10 +278,9 @@ system.time(
     dispersed_populations <- dispersal(koala.disp.param,habitat,method='ca',time_step=i)
     dispersal_at_time_step[[i]] <- populations(habitat) <- dispersed_populations
     
-    pops_at_time_step[[i+1]] <- populations(habitat) <- estimate_demography(koala.demo.glob,habitat)
+    pops_at_time_step[[i+1]] <- populations(habitat) <- estimate_demography(koala.demo.glob,habitat, stage_matrix_sd=1, time_step=i)
     
   }
-) ##### approx 9 seconds to do 20 timesteps 
 
 Stage_0_1 <- stack(lapply(pops_at_time_step, "[[", 1))
 Stage_1_2 <- stack(lapply(pops_at_time_step, "[[", 2))
@@ -330,7 +330,7 @@ pops_at_time_step <- dispersal_at_time_step <- disturbance_at_time_step <- habit
 pops_at_time_step[[1]] <- populations(habitat)
 habitat_suit_at_time_step[[1]] <- habitat_suitability(habitat,1)
 
-system.time(
+
   for(i in 1:n_time_steps){
     
     disturbance_at_time_step[[i]] <- koala.dist.fire.s[[i]]
@@ -342,10 +342,9 @@ system.time(
     dispersed_populations <- dispersal(koala.disp.param,habitat,method='ca')
     dispersal_at_time_step[[i]] <- populations(habitat) <- dispersed_populations
     
-    pops_at_time_step[[i+1]] <- populations(habitat) <- estimate_demography(koala.demo.glob,habitat)
+    pops_at_time_step[[i+1]] <- populations(habitat) <- estimate_demography(koala.demo.glob, habitat, stage_matrix_sd=1, time_step=i)
     
   }
-) ##### approx 9 seconds to do 20 timesteps 
 
 Stage_0_1 <- stack(lapply(pops_at_time_step, "[[", 1))
 Stage_1_2 <- stack(lapply(pops_at_time_step, "[[", 2))
@@ -395,7 +394,7 @@ pops_at_time_step <- dispersal_at_time_step <- disturbance_at_time_step <- habit
 pops_at_time_step[[1]] <- populations(habitat)
 habitat_suit_at_time_step[[1]] <- habitat_suitability(habitat,1)
 
-system.time(
+
   for(i in 1:n_time_steps){
     
     disturbance_at_time_step[[i]] <- koala.dist.fire.s[[i]]
@@ -407,10 +406,9 @@ system.time(
     dispersed_populations <- dispersal(koala.disp.param,habitat,method='ca',time_step=i)
     dispersal_at_time_step[[i]] <- populations(habitat) <- dispersed_populations
     
-    pops_at_time_step[[i+1]] <- populations(habitat) <- estimate_demography(koala.demo.glob,habitat)
+    pops_at_time_step[[i+1]] <- populations(habitat) <- estimate_demography(koala.demo.glob, habitat, stage_matrix_sd=1, time_step=i)
     
   }
-) ##### approx 9 seconds to do 20 timesteps 
 
 Stage_0_1 <- stack(lapply(pops_at_time_step, "[[", 1))
 Stage_1_2 <- stack(lapply(pops_at_time_step, "[[", 2))
@@ -460,7 +458,7 @@ pops_at_time_step <- dispersal_at_time_step <- disturbance_at_time_step <- habit
 pops_at_time_step[[1]] <- populations(habitat)
 habitat_suit_at_time_step[[1]] <- habitat_suitability(habitat,1)
 
-system.time(
+
   for(i in 1:n_time_steps){
     
     disturbance_at_time_step[[i]] <- koala.dist.fire.s[[i]]
@@ -472,10 +470,9 @@ system.time(
     dispersed_populations <- dispersal(koala.disp.param,habitat,method='ca',time_step=i)
     dispersal_at_time_step[[i]] <- populations(habitat) <- dispersed_populations
     
-    pops_at_time_step[[i+1]] <- populations(habitat) <- estimate_demography(koala.demo.glob,habitat)
+    pops_at_time_step[[i+1]] <- populations(habitat) <- estimate_demography(koala.demo.glob, habitat, stage_matrix_sd=1, time_step=i)
     
   }
-) ##### approx 9 seconds to do 20 timesteps 
 
 Stage_0_1 <- stack(lapply(pops_at_time_step, "[[", 1))
 Stage_1_2 <- stack(lapply(pops_at_time_step, "[[", 2))
@@ -521,7 +518,7 @@ pops_at_time_step <- dispersal_at_time_step <- disturbance_at_time_step <- habit
 pops_at_time_step[[1]] <- populations(habitat)
 habitat_suit_at_time_step[[1]] <- habitat_suitability(habitat)
 
-system.time(
+
   for(i in 1:n_time_steps){
     
     disturbance_at_time_step[[i]] <- koala.dist.fire.s[[i]]
@@ -533,10 +530,9 @@ system.time(
     dispersed_populations <- dispersal(koala.disp.param,habitat,method='ca')
     dispersal_at_time_step[[i]] <- populations(habitat) <- dispersed_populations
     
-    pops_at_time_step[[i+1]] <- populations(habitat) <- estimate_demography(koala.demo.glob,habitat)
+    pops_at_time_step[[i+1]] <- populations(habitat) <- estimate_demography(koala.demo.glob, habitat, stage_matrix_sd=1, time_step=i)
     
   }
-) ##### approx 8 seconds to do 20 timesteps 
 
 Stage_0_1 <- stack(lapply(pops_at_time_step, "[[", 1))
 Stage_1_2 <- stack(lapply(pops_at_time_step, "[[", 2))
@@ -581,7 +577,7 @@ pops_at_time_step <- dispersal_at_time_step <- disturbance_at_time_step <- habit
 pops_at_time_step[[1]] <- populations(habitat)
 habitat_suit_at_time_step[[1]] <- habitat_suitability(habitat)
 
-system.time(
+
   for(i in 1:n_time_steps){
     
     disturbance_at_time_step[[i]] <- koala.dist.fire.s[[i]]
@@ -593,10 +589,9 @@ system.time(
     dispersed_populations <- dispersal(koala.disp.param,habitat,method='ca')
     dispersal_at_time_step[[i]] <- populations(habitat) <- dispersed_populations
     
-    pops_at_time_step[[i+1]] <- populations(habitat) <- estimate_demography(koala.demo.glob,habitat)
+    pops_at_time_step[[i+1]] <- populations(habitat) <- estimate_demography(koala.demo.glob, habitat, stage_matrix_sd=1, time_step=i)
     
   }
-) ##### approx 8 seconds to do 20 timesteps 
 
 Stage_0_1 <- stack(lapply(pops_at_time_step, "[[", 1))
 Stage_1_2 <- stack(lapply(pops_at_time_step, "[[", 2))
@@ -648,7 +643,7 @@ pops_at_time_step <- dispersal_at_time_step <- disturbance_at_time_step <- habit
 pops_at_time_step[[1]] <- populations(habitat)
 habitat_suit_at_time_step[[1]] <- habitat_suitability(habitat)
 
-system.time(
+
   for(i in 1:n_time_steps){
     
     disturbance_at_time_step[[i]] <- koala.dist.fire.s[[i]]
@@ -660,10 +655,9 @@ system.time(
     dispersed_populations <- dispersal(koala.disp.param2,habitat,method='ca')
     dispersal_at_time_step[[i]] <- populations(habitat) <- dispersed_populations
     
-    pops_at_time_step[[i+1]] <- populations(habitat) <- estimate_demography(koala.demo.glob,habitat)
+    pops_at_time_step[[i+1]] <- populations(habitat) <- estimate_demography(koala.demo.glob, habitat, stage_matrix_sd=1, time_step=i)
     
   }
-) ##### approx 8 seconds to do 20 timesteps 
 
 Stage_0_1 <- stack(lapply(pops_at_time_step, "[[", 1))
 Stage_1_2 <- stack(lapply(pops_at_time_step, "[[", 2))
@@ -715,7 +709,7 @@ pops_at_time_step <- dispersal_at_time_step <- disturbance_at_time_step <- habit
 pops_at_time_step[[1]] <- populations(habitat)
 habitat_suit_at_time_step[[1]] <- habitat_suitability(habitat)
 
-system.time(
+
   for(i in 1:n_time_steps){
     
     disturbance_at_time_step[[i]] <- koala.dist.fire.s[[i]]
@@ -727,10 +721,9 @@ system.time(
     dispersed_populations <- dispersal(koala.disp.param2,habitat,method='ca',time_step=i)
     dispersal_at_time_step[[i]] <- populations(habitat) <- dispersed_populations
     
-    pops_at_time_step[[i+1]] <- populations(habitat) <- estimate_demography(koala.demo.glob,habitat)
+    pops_at_time_step[[i+1]] <- populations(habitat) <- estimate_demography(koala.demo.glob, habitat, stage_matrix_sd=1, time_step=i)
     
   }
-) ##### approx 8 seconds to do 20 timesteps 
 
 Stage_0_1 <- stack(lapply(pops_at_time_step, "[[", 1))
 Stage_1_2 <- stack(lapply(pops_at_time_step, "[[", 2))
@@ -780,7 +773,7 @@ pops_at_time_step <- dispersal_at_time_step <- disturbance_at_time_step <- habit
 pops_at_time_step[[1]] <- populations(habitat)
 habitat_suit_at_time_step[[1]] <- habitat_suitability(habitat)
 
-system.time(
+
   for(i in 1:n_time_steps){
     
     disturbance_at_time_step[[i]] <- koala.dist.fire
@@ -792,10 +785,9 @@ system.time(
     dispersed_populations <- dispersal(koala.disp.param,habitat,method='ca')
     dispersal_at_time_step[[i]] <- populations(habitat) <- dispersed_populations
     
-    pops_at_time_step[[i+1]] <- populations(habitat) <- estimate_demography(koala.demo.glob,habitat)
+    pops_at_time_step[[i+1]] <- populations(habitat) <- estimate_demography(koala.demo.glob, habitat, stage_matrix_sd=1, time_step=i)
     
   }
-) ##### approx 8 seconds to do 20 timesteps 
 
 Stage_0_1 <- stack(lapply(pops_at_time_step, "[[", 1))
 Stage_1_2 <- stack(lapply(pops_at_time_step, "[[", 2))
