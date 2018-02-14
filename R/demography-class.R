@@ -194,22 +194,25 @@ dots <- function(...) {
 #'}
 #' @export
 
-estimate_demography <- function(demography_object, habitat, stage_matrix_sd, time_step, parameters){
+estimate_demography <- function(demography_object, habitat, stage_matrix_sd, seed, time_step, parameters){
    
   pop_vec <- lapply(populations(habitat),function(x)c(x[]))
   pop_mat <- do.call(cbind,pop_vec)
+  if(any(is.na(pop_mat))){
+    cat(paste0("\nNA values detected in iteration ", time_step))
+  }
   ns <- length(stages(demography_object))
   
   if(all(dim(demography_object$global_stage_matrix)==ns)){
       # message for Casey: This will estimate deterministic population growth for a global stage matrix 
       if(time_step==1){message('Using a global demographic stage matrix for all patches\n')}
-      pop_mat_new <- t(sapply(1:nrow(pop_mat),function(x)estdemo(pop_mat[x,],demography_object$global_stage_matrix, stage_matrix_sd))) 
+      pop_mat_new <- t(sapply(1:nrow(pop_mat),function(x)estdemo(pop_mat[x,],demography_object$global_stage_matrix, stage_matrix_sd, seed))) 
   } else {
       # message for Casey: This will estimate deterministic population growth for a local (one percell). 
       # The demographic$global_stage_matrix might need to be renamed to global_stage_matrix and local_stage_matricies. 
       # local_stage_matrices should have the dimensions ncells(rows),nstages*nstages(cols).
       if(time_step==1){message('Using a local demographic stage matricies; one per patch\n')}
-      pop_mat_new <- t(sapply(1:nrow(pop_mat),function(x)estdemo(pop_mat[x,],matrix(demography_object$local_stage_matrices[x,],ns,ns), stage_matrix_sd)))
+      pop_mat_new <- t(sapply(1:nrow(pop_mat),function(x)estdemo(pop_mat[x,],matrix(demography_object$local_stage_matrices[x,],ns,ns), stage_matrix_sd, seed)))
   }
 
   r <- populations(habitat)[[1]]
@@ -241,34 +244,38 @@ estimate_demography <- function(demography_object, habitat, stage_matrix_sd, tim
 
 
 # message for Casey: This function will do the internal projections for demographic processes, so we can add in more complicated function as we need. 
-estdemo <- function(popvec, stage_matrix, stage_matrix_sd){
+estdemo <- function(popvec, stage_matrix, stage_matrix_sd, seed){
   
     # no stochastisity
     #popvec_new <- stage_matrix%*%popvec
     #return(popvec_new)
     
     # with env stochasticity by supplying standard deviation for random normal draw (truncated)
-    #set.seed(123)
+    set.seed(seed)
     popvec_es <- structure(sapply(stage_matrix, function(x) if(x!=0){pmax(rnorm(1,x,stage_matrix_sd),0)}else{0}), dim=dim(stage_matrix))%*%popvec
     #if(any(is.na(popvec_es))){
     #  print(i)
     #}
     # add in demographic stochasticity.....
-    #set.seed(123)
-    return(popvec_es)
-    # 
-    # popvec_ds <- as.matrix(
-    #   rowSums(
-    #     structure(
-    #       c(rpois(length(popvec_es), stage_matrix[1, ] * popvec_es),
-    #         apply(stage_matrix[-1,],1,function(x) rbinom(length(popvec_es), round(as.vector(popvec_es),0), x))
-    #         ), 
-    #       dim=dim(stage_matrix))
-    #     ),
-    #   cols=1)
-    # 
-    # return(popvec_ds)
+    #return(popvec_es)
+    
+    set.seed(seed)
+    popvec_ds <- as.matrix(
+      rowSums(
+        structure(
+          c(rpois(length(popvec_es), stage_matrix[1, ] * popvec_es),
+            apply(stage_matrix[-1,],1,function(x) rbinom(length(popvec_es), round(as.vector(popvec_es),0), x))
+            ),
+          dim=dim(stage_matrix))
+        ),
+      cols=1)
+
+    return(popvec_ds)
 }
+
+#rtnorm <- function(n, mean, sd, a = -Inf, b = Inf){
+#  qnorm(runif(n, pnorm(a, mean, sd), pnorm(b, mean, sd)), mean, sd)
+#}
 
 #stage_matrix %*% popvec_es
 
