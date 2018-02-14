@@ -2,6 +2,8 @@
 library(raster)
 library(foreach)
 
+#system('rm /home/casey/Research/Github/dhmpr/src/*.so /home/casey/Research/Github/dhmpr/src/*.o')
+
 # Questions for Nat/Skip:
 # 1) Best way to input populations - as multiple (based on life stages) or single components? - improve warning message for now
 # 2) Where should density dependence be incorporated? In the carrying capacity attributes? function that uses the carrying capacity and populations in age classes (structure) that contribute to check -> adjusts survival/fecundity in demo or population in habitat
@@ -138,16 +140,20 @@ habitat_suit_at_time_step[[1]] <- habitat_suitability(habitat)
   pb <- txtProgressBar(min = 0, max = n_time_steps, style = 3)
   for(i in 1:n_time_steps){
 
-    disturbance_at_time_step[[i]] <- koala.dist.fire.s[[i]]
-    
-    new_hs <- run_habitat_dynamics(hab_dyn,habitat_suitability(habitat),time_step=i)
-    attr(new_hs,"habitat") <- "habitat_suitability" # i need to update attribute inheritance.
-    habitat_suit_at_time_step[[i+1]] <- habitat_suitability(habitat) <- new_hs #this needs to be reset back to orginal or modified hs assuming time period of fire effect
-    
+    if(any(i == seq(4,n_time_steps,3))){ #reset back to orginal or modified hs assuming time period of fire effect (3 years)
+      disturbance_at_time_step[[i]] <- NULL
+      habitat_suit_at_time_step[[i+1]] <- habitat_suitability(habitat) <- habitat_suit_at_time_step[[1]]
+    }else{
+      disturbance_at_time_step[[i]] <- hab_dyn[[2]][[i]]
+      new_hs <- run_habitat_dynamics(hab_dyn,habitat_suitability(habitat),time_step=i)
+      attr(new_hs,"habitat") <- "habitat_suitability" # i need to update attribute inheritance.
+      habitat_suit_at_time_step[[i+1]] <- habitat_suitability(habitat) <- new_hs
+    }    
+
     dispersed_populations <- dispersal(koala.disp.param,habitat,method='ca')
     dispersal_at_time_step[[i]] <- populations(habitat) <- dispersed_populations
     
-    pops_at_time_step[[i+1]] <- populations(habitat) <- estimate_demography(koala.demo.glob, habitat, stage_matrix_sd=1, time_step=i)
+    pops_at_time_step[[i+1]] <- populations(habitat) <- estimate_demography(koala.demo.glob, habitat, stage_matrix_sd=1, seed=NULL, time_step=i)
 
     setTxtProgressBar(pb, i)
   }
