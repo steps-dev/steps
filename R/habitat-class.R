@@ -246,27 +246,27 @@ carrying_capacity <- function (habitat,time_step=1) {
   habitat
 }
 
-######################
-### area functions ###
-######################
-#' @rdname habitat
-#' @export
-
-area <- function (habitat) {
-  stopifnot(is.habitat(habitat))
-  ar <- habitat[which(sapply(habitat,attr,"habitat")=='area')]
-  return(ar)
-}
-
-## probably don't need this function as area of cells is unlikely to change.
-#' #' @rdname habitat
-#' #' @export
-#' `area<-` <- function (habitat, new_area) {
-#'   stopifnot(is.habitat(habitat))
-#'   area_check(new_area)
-#'   habitat[which(sapply(habitat,attr,"habitat")=='area')]<-new_area
-#'   habitat
-#' }
+# ######################
+# ### area functions ###
+# ######################
+# #' @rdname habitat
+# #' @export
+# 
+# area <- function (habitat) {
+#   stopifnot(is.habitat(habitat))
+#   ar <- habitat[which(sapply(habitat,attr,"habitat")=='area')]
+#   return(ar)
+# }
+# 
+# ## probably don't need this function as area of cells is unlikely to change.
+# #' #' @rdname habitat
+# #' #' @export
+# #' `area<-` <- function (habitat, new_area) {
+# #'   stopifnot(is.habitat(habitat))
+# #'   area_check(new_area)
+# #'   habitat[which(sapply(habitat,attr,"habitat")=='area')]<-new_area
+# #'   habitat
+# #' }
 
 ##################################
 ### internal habitat functions ###
@@ -305,15 +305,16 @@ list2habitat <- function (input) {
   if(inherits(input[[2]],c("RasterStack","RasterBrick"))){
     npops <- nlayers(input[[2]])
     habitat_list[c(nrasters+1):c(nrasters+npops)] <- sapply(1:npops,function(x){habitat_list[[x+nrasters]]<-input[[2]][[x]]})
-  } else {
-    stop('check your population inputs, something is going wrong.')
-  }
+  } #else {
+    #stop('Check your population inputs, perhaps it is an unsupported type.')
+  #}
   
   # add npops to the total count of rasters. 
   nrasters <- nrasters + npops
   
-  if(!inherits(input[[3]],c("RasterLayer","RasterBrick","RasterStack"))){
-    input[[3]] <- carryingcapacity2raster(input[[3]],input[[1]])
+  if(!inherits(input[[3]],c("RasterLayer"))){
+    stop('The carrying capacity input must be a raster layer.')
+    #input[[3]] <- carryingcapacity2raster(input[[3]],input[[1]])
   }
   
   # update the number of rasters
@@ -363,7 +364,7 @@ area_check <- function (area) {
 populations2rasterbrick <- function(pops,hab_suit,ss_dist){
   
   # I will in the capacity to alter population with a function soon.
-  stopifnot(inherits(pops,c("SpatialPointsDataFrame","numeric"))) #,"function")))stop()
+  if(!inherits(pops,c("SpatialPointsDataFrame","numeric"))) stop('Check your population inputs, perhaps it is an unsupported type.')
   if(inherits(hab_suit,c("RasterBrick","RasterStack"))) hab_suit <- hab_suit[[1]]
   
   # if numeric make a raster that is has the same values everywhere.
@@ -407,39 +408,39 @@ populations2rasterbrick <- function(pops,hab_suit,ss_dist){
 
 ## internal function for converting non-raster populations into rasters. 
 ## raster bricks are more efficent. 
-carryingcapacity2raster <- function(carry_cap,hab_suit,...){
-  
-  # I will in the capacity to alter population with a function soon.
-  stopifnot(inherits(carry_cap,c("numeric"))) #,"function")))stop()
-  if(inherits(hab_suit,c("RasterBrick","RasterStack"))) hab_suit <- hab_suit[[1]]
-  
-  # if numeric make a raster that is has the same values everywhere.
-  if(inherits(carry_cap,'numeric')){
-      ccr <- hab_suit
-      ccr[!is.na(ccr[])] <- carry_cap
-      names(ccr)<- 'carrying_capacity'
-  }
-  return(ccr)
-}
+# carryingcapacity2raster <- function(carry_cap,hab_suit,...){
+#   
+#   # I will in the capacity to alter population with a function soon.
+#   stopifnot(inherits(carry_cap,c("numeric"))) #,"function")))stop()
+#   if(inherits(hab_suit,c("RasterBrick","RasterStack"))) hab_suit <- hab_suit[[1]]
+#   
+#   # if numeric make a raster that is has the same values everywhere.
+#   if(inherits(carry_cap,'numeric')){
+#       ccr <- hab_suit
+#       ccr[!is.na(ccr[])] <- carry_cap
+#       names(ccr)<- 'carrying_capacity'
+#   }
+#   return(ccr)
+# }
 
 
 ## area functions. 
 ## internal functions for estimating area percell - useful for density dependence etc. 
-area_at_site <- function(study_area, site_coords){
-  if(raster::isLonLat(study_area)){
-    #calculate area based on area function
-    #convert kms to ms
-    area_rast <- raster::area(study_area)*1000
-    area_study <- raster::mask(area_rast,study_area)
-    site_area <- raster::extract(area_study,site_coords,na.rm=TRUE)
-  } else {
-    # calculate area based on equal area cell resolution
-    # mode equal area should be in meters
-    cell_area <- raster::res(study_area)[1]*raster::res(study_area)[2]
-    site_area <- rep(cell_area,nrow(site_coords))
-  }
-  return(site_area)
-}
+# area_at_site <- function(study_area, site_coords){
+#   if(raster::isLonLat(study_area)){
+#     #calculate area based on area function
+#     #convert kms to ms
+#     area_rast <- raster::area(study_area)*1000
+#     area_study <- raster::mask(area_rast,study_area)
+#     site_area <- raster::extract(area_study,site_coords,na.rm=TRUE)
+#   } else {
+#     # calculate area based on equal area cell resolution
+#     # mode equal area should be in meters
+#     cell_area <- raster::res(study_area)[1]*raster::res(study_area)[2]
+#     site_area <- rep(cell_area,nrow(site_coords))
+#   }
+#   return(site_area)
+# }
 
 area_of_region <- function(study_area){
   if(raster::isLonLat(study_area)){

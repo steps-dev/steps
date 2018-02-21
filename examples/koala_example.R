@@ -2,7 +2,6 @@
 library(raster)
 library(foreach)
 
-
 #system('rm /home/casey/Research/Github/dhmpr/src/*.so /home/casey/Research/Github/dhmpr/src/*.o')
 
 # Questions for Nat/Skip:
