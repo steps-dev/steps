@@ -26,7 +26,8 @@
 #' proj4string(r) <- '+init=epsg:4283'
 #' r[] <- scales::rescale(r[],to=c(0,1))
 #' 
-#' ## create a habitat from a list containing a habitat suitability raster and numeric values for population and carrying capacity.
+#' ## create a habitat from a list containing a habitat suitability raster and
+#' ## numeric values for population and carrying capacity.
 #' hsm <- as.habitat_suitability(r)
 #' pops <- as.populations(c(80,20,10))
 #' cc <- as.carrying_capacity(r*10)
@@ -34,7 +35,8 @@
 #' features <- list(hsm,pops,cc)
 #' habitat <- as.habitat(features)
 #'                        
-#' ## create a habitat from a list containing a habitat suitability raster, a SpatialPointsDataFrame for population and numeric values carrying capacity.
+#' ## create a habitat from a list containing a habitat suitability raster,
+#' ## a SpatialPointsDataFrame for population and numeric values carrying capacity.
 #' random_populations <- sampleRandom(r, size=50, na.rm=TRUE, sp=TRUE) 
 #' random_populations@data <- as.data.frame(t(rmultinom(50, size = 100, prob = c(0.8,0.2,0.1))))
 #' features <- list('habitat_suitability_map'=as.habitat_suitability(r),

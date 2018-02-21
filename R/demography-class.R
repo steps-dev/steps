@@ -197,7 +197,7 @@ dots <- function(...) {
 #' @name estimate_demography
 #' @param demographic_params a list of parameters which can be used to manipulate demographic projections.
 #'\itemize{
-#'#'\item{stage_matrix_sd}{Matrix with the standard deviation of the probabilities in \code{mat}.}
+#'\item{stage_matrix_sd}{Matrix with the standard deviation of the probabilities in \code{mat}.}
 #'}
 #' @export
 
