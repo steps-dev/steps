@@ -13,7 +13,7 @@ is.dispersal(x)
 
 \method{print}{dispersal}(x, ...)
 
-dispersal(params, habitat, method, ...)
+dispersal(params, habitat, method, time_step)
 }
 \arguments{
 \item{x}{an object to be tested as a dispersal transfun object}
@@ -25,7 +25,7 @@ dispersal(params, habitat, method, ...)
 \item{dispersal_params}{A list of named lists which contain the parameters form dispersal behaviour and other parameters for dispersal modules - see details below for more information.}
 }
 \description{
-creates a function that governs dispersal capacity of life-history stages of a species. The input is a list which contains the first list is a dispersal kernel \code{dispersal} value for life-history stage, the second named list \code{} is the proportion of that stage will disperse. For example a probability of 0.2 for stage larvae means a random 20% of larve will a try and disperse to patches, the distance they can disperse is governed by the dispersal kernel (alpha). If params = NULL, a dispersal kernel of 1 is given to all stages, and all stages will attempt to undertake dispersal. If NULL is provided to the as.dispersal function, diffuse dispersal will be used based on the fast fourier transformation method ('fft').
+creates a function that governs dispersal capacity of life-history stages of a species. The input is a list which contains the first list is a dispersal kernel \code{dispersal} value for life-history stage, the second named list \code{} is the proportion of that stage will disperse. For example a probability of 0.2 for stage larvae means a random 20% of larve will a try and disperse to cells, the distance they can disperse is governed by the dispersal kernel (alpha). If params = NULL, a dispersal kernel of 1 is given to all stages, and all stages will attempt to undertake dispersal. If NULL is provided to the as.dispersal function, diffuse dispersal will be used based on the fast fourier transformation method ('fft').
 }
 \details{
 text describing parameter inputs in more detail.

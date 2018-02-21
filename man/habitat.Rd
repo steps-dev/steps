@@ -12,7 +12,6 @@
 \alias{is.populations}
 \alias{populations}
 \alias{populations<-}
-\alias{patches}
 \alias{as.carrying_capacity}
 \alias{is.carrying_capacity}
 \alias{carrying_capacity}
@@ -42,15 +41,13 @@ populations(habitat, which_stages = NULL)
 
 populations(habitat, which_stages = NULL) <- value
 
-patches(habitat, which_stages = NULL)
-
 as.carrying_capacity(x, ...)
 
 is.carrying_capacity(x)
 
-carrying_capacity(habitat)
+carrying_capacity(habitat, time_step = 1)
 
-carrying_capacity(habitat) <- value
+carrying_capacity(habitat, time_step = 1) <- value
 
 area(habitat)
 }

@@ -19,7 +19,8 @@ stages(demography)
 
 is.demography(x)
 
-estimate_demography(demography_object, habitat, parameters)
+estimate_demography(demography_object, habitat, stage_matrix_sd, seed,
+  time_step, parameters)
 }
 \arguments{
 \item{x}{For as.demography, x is a square matrix, that has stage stages between population stages.}
