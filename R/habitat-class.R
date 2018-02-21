@@ -74,8 +74,8 @@ print.habitat <- function(x, ...) {
   nhsms <- sum(lapply(x,attr,"habitat")=='habitat_suitability')
   nstages <- sum(lapply(x,attr,"habitat")=='populations')
   ncells <- length(x[[1]][!is.na(x[[1]])])
-  if (all(c(nhsms,nstages)<11))  text <- sprintf('%s habitat suitability layer(s) with %s patches (cells) and \n%s population life-history stage(s).\n',numastext[nhsms],ncells,numastext[nstages])
-  else text <- sprintf('%s habitat suitability layer(s) with %s patches (cells) and \n%s population life-history stage(s).\n',nhsms,ncells,nstages)
+  if (all(c(nhsms,nstages)<11))  text <- sprintf('%s habitat suitability layer(s) with %s cells and \n%s population life-history stage(s).\n',numastext[nhsms],ncells,numastext[nstages])
+  else text <- sprintf('%s habitat suitability layer(s) with %s cells and \n%s population life-history stage(s).\n',nhsms,ncells,nstages)
   cat(text)
 }
 
@@ -181,17 +181,6 @@ populations <- function (habitat, which_stages=NULL) {
   habitat[which(sapply(habitat,attr,"habitat")=='populations')][which_stages] <- value
   pops <- habitat
   return(pops)
-}
-
-#' @rdname habitat
-#' @export
-
-patches <- function (habitat, which_stages=NULL) {
-  stopifnot(is.habitat(habitat))
-  if(is.null(which_stages)) which_stages <- seq_len(sum(lapply(habitat,attr,"habitat")=='populations'))
-  pops <- raster::brick(populations(habitat)[which_stages])
-  ans <- data.frame(patch_id=raster::cellFromXY(pops,raster::rasterToPoints(pops)[,1:2]),population=raster::rasterToPoints(pops)[,-1:-2])
-  return (ans)
 }
 
 ###################################
@@ -369,7 +358,7 @@ area_check <- function (area) {
 
 ## internal function for converting non-raster populations into rasters. 
 ## raster bricks are more efficent. 
-populations2rasterbrick <- function(pops,hab_suit){
+populations2rasterbrick <- function(pops,hab_suit,ss_dist){
   
   # I will in the capacity to alter population with a function soon.
   stopifnot(inherits(pops,c("SpatialPointsDataFrame","numeric"))) #,"function")))stop()
@@ -377,15 +366,28 @@ populations2rasterbrick <- function(pops,hab_suit){
   
   # if numeric make a raster that is has the same values everywhere.
   if(inherits(pops,'numeric')){
-    n_stages <- length(pops)
-    pop_list <- list()
-    for(i in 1:n_stages){
-      tmp <- hab_suit
-      tmp[!is.na(tmp[])] <- pops[i]
-      pop_list[[i]] <- tmp
-    }
-    pop_brick <- raster::brick(pop_list)
-    names(pop_brick)<- paste0('stage',1:n_stages)
+    # if(length(pops) == 1 & ss_dist != NULL){
+    #   cat('Initial populations were entered as a single number - they will be distributed \nacross the landscape based on the habitat suitability and stable age structure')
+    #   pop_list <- list()
+    #   if(length(ss_dist) != n_stages) stop('A stable stage muliplier needs to be entered for each life stage; please check your values.')
+    #   for(i in 1:n_stages){
+    #     tmp <- hab_suit
+    #     tmp[!is.na(tmp[])] <- pops * ss_dist[i]
+    #     pop_list[[i]] <- tmp * hab_suit
+    #     }
+    #   pop_brick <- raster::brick(pop_list)
+    #   names(pop_brick)<- paste0('stage',1:n_stages)      
+    # }else{
+      n_stages <- length(pops)
+      pop_list <- list()
+      for(i in 1:n_stages){
+        tmp <- hab_suit
+        tmp[!is.na(tmp[])] <- pops[i]
+        pop_list[[i]] <- tmp
+      }
+      pop_brick <- raster::brick(pop_list)
+      names(pop_brick)<- paste0('stage',1:n_stages)     
+    # }
   }
   
   # if spatial points data frame generate a raster stack from known populations.

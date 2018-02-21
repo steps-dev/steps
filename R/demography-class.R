@@ -25,12 +25,19 @@ as.demography <- function(x,type='global', ...){
   if(length(object)==0) object <- list(1)
   if(type=='local'){
     if(!sapply(object,inherits,c("RasterLayer","RasterBrick","RasterStack")))stop('You must include a "habitat_suitability" spatial grid if you are using method "local".\n Look at the documentation for examples.')
-    if(type=='local' & sapply(object,inherits,c("RasterLayer","RasterBrick","RasterStack"))) habsuit<-object[[1]]
+    if(type=='local' & sapply(object,inherits,c("RasterLayer","RasterBrick","RasterStack"))) habsuit <- object[[1]]
   }
-    demography <- switch(type,
-      global = global_stage_matrix(x),      
-      local = local_stage_matrices(x, habsuit))
-    return(demography)
+  transition <- switch(type,
+                       global = global_stage_matrix(x),      
+                       local = local_stage_matrices(x, habsuit))
+
+if(length(object)>1){
+  transition[["env_stoch_matrix"]] <- object[[length(object)+1]]
+}else{
+  transition[["env_stoch_matrix"]] <- object[[length(object)]]
+}
+  structure(list(transition),class='demography')
+  return(transition)
 }
 
 global_stage_matrix <- function(x){
@@ -41,8 +48,8 @@ global_stage_matrix <- function(x){
   m.names <- base::dimnames(x)[[1]]
   if(base::is.null(m.names)) m.names <- base::paste0("stage.",1:di)
   base::dimnames(x) <- base::list(m.names, m.names)
-  demography <- structure(list(global_stage_matrix=x),class='demography')
-  return(demography)
+  transition <- structure(list(global_stage_matrix=x),class='demography')
+  return(transition)
 }
 
 
@@ -56,7 +63,7 @@ local_stage_matrices <- function(x,habsuit){
   m.names <- base::dimnames(x)[[1]]
   if(base::is.null(m.names)) m.names <- base::paste0("stage.",1:di)
   
-  #get the number of patches/cells that are avaliable in the landscape/habitat_suitability object - this will be all non-NA cells.
+  #get the number of cells that are avaliable in the landscape/habitat_suitability object - this will be all non-NA cells.
   stopifnot(inherits(habsuit,c("RasterLayer","RasterBrick","RasterStack")))
   npops <- length(habsuit[!is.na(habsuit[])])
   
@@ -64,8 +71,8 @@ local_stage_matrices <- function(x,habsuit){
   all_stage_matrices <- matrix(rep(c(x),npops),npops,length(c(x)),byrow = TRUE)
   colnames(all_stage_matrices)<-paste0(rep(m.names,each=di),1:di)
   
-  demography <- structure(list(global_stage_matrix=x,local_stage_matrices=all_stage_matrices),class='demography')
-  return(demography)
+  transition <- structure(list(global_stage_matrix=x,local_stage_matrices=all_stage_matrices),class='demography')
+  return(transition)
 }
 
 #' @rdname demography
@@ -205,13 +212,13 @@ estimate_demography <- function(demography_object, habitat, stage_matrix_sd, see
   
   if(all(dim(demography_object$global_stage_matrix)==ns)){
       # message for Casey: This will estimate deterministic population growth for a global stage matrix 
-      if(time_step==1){message('Using a global demographic stage matrix for all patches\n')}
+      if(time_step==1){message('Using a global demographic stage matrix for all cells\n')}
       pop_mat_new <- t(sapply(1:nrow(pop_mat),function(x)estdemo(pop_mat[x,],demography_object$global_stage_matrix, stage_matrix_sd, seed))) 
   } else {
       # message for Casey: This will estimate deterministic population growth for a local (one percell). 
       # The demographic$global_stage_matrix might need to be renamed to global_stage_matrix and local_stage_matricies. 
       # local_stage_matrices should have the dimensions ncells(rows),nstages*nstages(cols).
-      if(time_step==1){message('Using a local demographic stage matricies; one per patch\n')}
+      if(time_step==1){message('Using a local demographic stage matricies; one per cell\n')}
       pop_mat_new <- t(sapply(1:nrow(pop_mat),function(x)estdemo(pop_mat[x,],matrix(demography_object$local_stage_matrices[x,],ns,ns), stage_matrix_sd, seed)))
   }
 
