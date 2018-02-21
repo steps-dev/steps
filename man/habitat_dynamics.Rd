@@ -14,7 +14,7 @@ is.habitat_dynamics(x)
 run_habitat_dynamics(habitat_dynamics, habitat_object, time_step)
 }
 \description{
-habitat_dynamics are functions for altering the underlying \link[dhmper]{habitat}\code{habitat} at anytime step. habitat_dynamics has to be a function which explicitly changes the habitat. Examples could include: models of fire spread, management actions like culling, the distribution of trawling. 
+habitat_dynamics are functions for altering the underlying \link[dhmpr]{habitat}\code{habitat} at anytime step. habitat_dynamics has to be a function which explicitly changes the habitat. Examples could include: models of fire spread, management actions like culling, the distribution of trawling. 
 
 habitat_dynamics sets up internal or custom functions to work with \code{habitat} and \code{experiment} objects.
 

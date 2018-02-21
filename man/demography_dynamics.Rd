@@ -14,8 +14,8 @@ is.demography_dynamics(x)
 run_demography_dynamics(demography_dynamics, demography_object, time_step, ...)
 }
 \description{
-demography_dynamics are functions for altering the underlying demographic process in the \link[code]{experiment}. 
-Demography_dynamics are functions which either directly affect the stage-based demographic matrix or other demographic processes excluding dispersal, any functions which alter dispersal are called from \link[dhmpr]{dispersal} or \link[dhmpr]{dispersal_dynamics}.
+demography_dynamics are functions for altering the underlying demographic process in the \code{experiment}. 
+Demography_dynamics are functions which either directly affect the stage-based demographic matrix or other demographic processes excluding dispersal, any functions which alter dispersal are called from \link[dhmpr]{dispersal}.
 \code{demography_dynamics} sets up internal or custom functions to work with \code{demography} and \code{experiment} objects.
 
 this bad boy will run the demography_dynamics in a experiment.
