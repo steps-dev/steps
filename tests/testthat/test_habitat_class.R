@@ -1,6 +1,7 @@
 context('habitat-class')
 
 test_that('habitat classes work', {
+  library(raster)
   
   # the types of habitat attributes
   r <- raster(vals=1, nrows=10, ncols=10, res=100, crs=('+proj=aea +lat_1=-18 +lat_2=-36 +lat_0=0 +lon_0=132 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'))
@@ -16,20 +17,20 @@ test_that('habitat classes work', {
   hab.k <- r2*2
   hab.k.func <- function(x) x*0.8
   
-  expect_true(inherits(as.habitat_suitability(hab.suit),"habitat_suitability"))
-  expect_true(inherits(as.habitat_suitability(hab.suit.s),"habitat_suitability"))
+  expect_identical(attr(as.habitat_suitability(hab.suit), "habitat"), "habitat_suitability")
+  expect_identical(attr(as.habitat_suitability(hab.suit.s), "habitat"), "habitat_suitability")
 
   expect_error(as.habitat_suitability(1))
 
-  expect_true(inherits(as.populations(hab.pop),"populations"))
-  expect_true(inherits(as.populations(hab.pop.s),"populations"))
-  expect_true(inherits(as.populations(hab.pop.n),"populations"))
-  
+  expect_identical(attr(as.populations(hab.pop), "habitat"), "populations")
+  expect_identical(attr(as.populations(hab.pop.s), "habitat"), "populations")
+  expect_identical(attr(as.populations(hab.pop.n), "habitat"), "populations")
+
   expect_error(as.populations("a"))
-  
-  expect_true(inherits(as.carrying_capacity(hab.k),"carrying_capacity"))
-  expect_true(inherits(as.carrying_capacity(hab.k.func),"carrying_capacity"))
-  
+
+  expect_identical(attr(as.carrying_capacity(hab.k), "habitat"), "carrying_capacity")
+  expect_identical(attr(as.carrying_capacity(hab.k.func), "habitat"), "carrying_capacity")
+
   expect_error(as.carrying_capacity(1))
   
   expect_error(as.habitat(c(1,2,3)))
@@ -41,9 +42,9 @@ test_that('habitat classes work', {
   expect_error(list2habitat())
     
   # check they have the right class
-  expect_s3_class(as.habitat(list(as.habitat_suitability(hab.suit),as.populations(hab.pop.n),as.carrying_capacity(hab.k)), 'habitat')
+  expect_s3_class(as.habitat(list(as.habitat_suitability(hab.suit),as.populations(hab.pop.n),as.carrying_capacity(hab.k))), 'habitat')
   
   # check is.habitat works on habitats
-  expect_true(is.habitat(as.habitat(list(as.habitat_suitability(hab.suit),as.populations(hab.pop.n),as.carrying_capacity(hab.k))))
+  expect_true(is.habitat(as.habitat(list(as.habitat_suitability(hab.suit),as.populations(hab.pop.n),as.carrying_capacity(hab.k)))))
   
 })
