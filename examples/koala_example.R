@@ -36,7 +36,7 @@ colnames(transition_matrix_es) <- rownames(transition_matrix) <- c('Stage_0-1','
 n <- 20
 
 #### 1 ####
-koala.hab.suit <- raster("data/Koala/Habitat/HS_crop_aggregate.tif") # read in spatial habitat suitability raster
+koala.hab.suit <- raster("inst/extdata/koala/habitat/HS_crop_aggregate.tif") # read in spatial habitat suitability raster
 plot(koala.hab.suit, box = FALSE, axes = FALSE)
 
 #### 2 ####
@@ -100,10 +100,10 @@ koala.disp.param <- as.dispersal(list(dispersal_distance=list('Stage_0-1'=0,'Sta
 print(koala.disp.param)
 
 #### 16 ####
-koala.dist.fire <- stack(list.files("data/Koala/Fire", full = TRUE, pattern = '*agg'))[[18]]
+koala.dist.fire <- stack(list.files("inst/extdata/koala/fire", full = TRUE, pattern = '*agg'))[[18]]
 
 #### 17 ####
-koala.dist.fire.s <- stack(rep(list.files("data/Koala/Fire", full = TRUE, pattern = '*agg'), length.out = n))
+koala.dist.fire.s <- stack(rep(list.files("inst/extdata/koala/fire", full = TRUE, pattern = '*agg'), length.out = n))
 
 #### 18 ####
 # koala.dist.fire.func.ran <- function (x, n) {

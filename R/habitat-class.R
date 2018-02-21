@@ -29,7 +29,7 @@
 #' ## create a habitat from a list containing a habitat suitability raster and numeric values for population and carrying capacity.
 #' hsm <- as.habitat_suitability(r)
 #' pops <- as.populations(c(80,20,10))
-#' cc <- as.carrying_capacity(300)
+#' cc <- as.carrying_capacity(r*10)
 #' 
 #' features <- list(hsm,pops,cc)
 #' habitat <- as.habitat(features)
@@ -39,7 +39,7 @@
 #' random_populations@data <- as.data.frame(t(rmultinom(50, size = 100, prob = c(0.8,0.2,0.1))))
 #' features <- list('habitat_suitability_map'=as.habitat_suitability(r),
 #'                  'population'=as.populations(random_populations),
-#'                  'carrying_capacity'=as.carrying_capacity(100))
+#'                  'carrying_capacity'=as.carrying_capacity(r*10))
 #'                                                 
 #' habitat <- as.habitat(features)
 
@@ -191,7 +191,7 @@ populations <- function (habitat, which_stages=NULL) {
 #' @name as.carrying_capacity
 #' @export
 #' @examples
-#' as.carrying_capacity(100)
+#' as.carrying_capacity(r*10)
 
 as.carrying_capacity <- function(x,...){
   stopifnot(inherits(x,c("RasterLayer","function")))

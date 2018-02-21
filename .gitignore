@@ -5,6 +5,7 @@ custom-modules/
 developing_functions/
 old_function/
 data/
+inst/
 src/*.o
 src/*.so
 .gitignore

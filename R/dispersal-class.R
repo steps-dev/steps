@@ -40,7 +40,7 @@ NULL
 #' ## create a habitat from a list containing a habitat suitability raster and numeric values for population and carrying capacity.
 #' hsm <- as.habitat_suitability(r)
 #' pops <- as.populations(c(80,20,10))
-#' cc <- as.carrying_capacity(300)
+#' cc <- as.carrying_capacity(r*10)
 #' 
 #' features <- list(hsm,pops,cc)
 #' habitat <- as.habitat(features)
