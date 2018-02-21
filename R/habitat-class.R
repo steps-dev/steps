@@ -194,7 +194,7 @@ populations <- function (habitat, which_stages=NULL) {
 #' as.carrying_capacity(100)
 
 as.carrying_capacity <- function(x,...){
-  stopifnot(inherits(x,c("RasterLayer","RasterBrick","RasterStack","numeric","function")))
+  stopifnot(inherits(x,c("RasterLayer","function")))
   attr(x, "habitat") <- "carrying_capacity"
   # base::class(x)<-c("populations", class(x))
   return(x)
