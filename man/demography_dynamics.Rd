@@ -28,5 +28,4 @@ library(dhmpr)
 mat <- matrix(c(.53,0,.62,0.15,0.87,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
 colnames(mat) <- rownames(mat) <- c('larvae','juvenile','adult') 
 demog <- as.demography(mat)
-n_stages <- length(states(demog))
 }
