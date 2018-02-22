@@ -6,7 +6,6 @@ sudo: required
 r_packages:
   - covr
   - raster
-  - rgdal
 
 after_success:
   - Rscript -e 'library(covr);codecov()'
