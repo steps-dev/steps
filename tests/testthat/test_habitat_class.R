@@ -3,8 +3,7 @@ context('habitat-class')
 test_that('habitat classes work', {
   library(raster)
   library(rgdal)
-  library(maptools)
-  
+
   # the types of habitat attributes
   r <- raster(vals=1, nrows=10, ncols=10, res=100, crs=('+proj=aea +lat_1=-18 +lat_2=-36 +lat_0=0 +lon_0=132 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'))
   hab.suit <- r

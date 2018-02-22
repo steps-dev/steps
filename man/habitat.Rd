@@ -16,7 +16,6 @@
 \alias{is.carrying_capacity}
 \alias{carrying_capacity}
 \alias{carrying_capacity<-}
-\alias{area}
 \title{habitat objects}
 \usage{
 as.habitat(features, ...)
@@ -48,8 +47,6 @@ is.carrying_capacity(x)
 carrying_capacity(habitat, time_step = 1)
 
 carrying_capacity(habitat, time_step = 1) <- value
-
-area(habitat)
 }
 \arguments{
 \item{features}{A named list of landscapes (or seascape) features and parameters used for setting up the habitat for dynamic meta-population models.}
