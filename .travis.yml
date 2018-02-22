@@ -15,3 +15,12 @@ warnings_are_errors: false
 notifications:
   on_success: always
   on_failure: always
+
+os:
+  - linux
+  
+group:
+  - stable
+
+dist:
+  - artful
