@@ -99,6 +99,8 @@ test_that('habitat classes work', {
   # check is.habitat works on habitats
   expect_true(is.habitat(as.habitat(list(as.habitat_suitability(hab.suit),as.populations(hab.pop.n),as.carrying_capacity(hab.k)),ss.dist)))
 
+  expect_true(is.habitat(as.habitat(list(as.habitat_suitability(hab.suit),as.populations(hab.pop.n2),as.carrying_capacity(hab.k)),ss.dist)))
+  
   print(as.habitat(list(as.habitat_suitability(hab.suit),as.populations(hab.pop.n),as.carrying_capacity(hab.k)),ss.dist))
   
   hab.obj2 <- as.habitat(list(as.habitat_suitability(hab.suit),as.populations(hab.pop.s),as.carrying_capacity(hab.k)))
@@ -106,6 +108,7 @@ test_that('habitat classes work', {
   habitat_suitability(hab.obj2) <- hab.suit
   populations(hab.obj2) <- hab.pop.s
   carrying_capacity(hab.obj2) <- hab.k
-    
+
+
 })
   
