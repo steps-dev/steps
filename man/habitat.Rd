@@ -18,7 +18,7 @@
 \alias{carrying_capacity<-}
 \title{habitat objects}
 \usage{
-as.habitat(features, ...)
+as.habitat(features, ss_dist = NULL)
 
 is.habitat(x)
 
@@ -51,9 +51,9 @@ carrying_capacity(habitat, time_step = 1) <- value
 \arguments{
 \item{features}{A named list of landscapes (or seascape) features and parameters used for setting up the habitat for dynamic meta-population models.}
 
-\item{\dots}{further arguments passed to or from other methods.}
-
 \item{x}{an object to print or test as a habitat object}
+
+\item{\dots}{further arguments passed to or from other methods.}
 
 \item{x}{a raster, raster stack or raster brick of habitat suitability for the species.}
 }

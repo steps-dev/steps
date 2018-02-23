@@ -49,13 +49,13 @@
 ### habitat functions ###
 #########################
 
-as.habitat <- function (features,...) {
+as.habitat <- function (features,ss_dist=NULL) {
            stopifnot(is.list(features))
            stopifnot(length(features)==3)
            if(!is.habitat_suitability(features[[1]]))stop('first object in list must be a "habitat_suitability" object')
            if(!is.populations(features[[2]]))stop('second object in list must be a "populations" object')
            if(!is.carrying_capacity(features[[3]]))stop('third object in list must be a "carrying_capacity" object')
-           transformed_habitat <- list2habitat(features)
+           transformed_habitat <- list2habitat(features,ss_dist)
            return(transformed_habitat)
 }
 
@@ -181,6 +181,7 @@ populations <- function (habitat, which_stages=NULL) {
   stopifnot(is.habitat(habitat))
   if(is.null(which_stages)) which_stages <- seq_len(sum(lapply(habitat,attr,"habitat")=='populations'))
   habitat[which(sapply(habitat,attr,"habitat")=='populations')][which_stages] <- value
+
   pops <- habitat
   return(pops)
 }
@@ -196,7 +197,9 @@ populations <- function (habitat, which_stages=NULL) {
 #' as.carrying_capacity(r*10)
 
 as.carrying_capacity <- function(x,...){
-  stopifnot(inherits(x,c("RasterLayer","function")))
+  if(!inherits(x,c("RasterLayer","function"))){
+    stop('The carrying capacity input must be a raster layer or a function.')
+  }
   attr(x, "habitat") <- "carrying_capacity"
   # base::class(x)<-c("populations", class(x))
   return(x)
@@ -276,7 +279,7 @@ carrying_capacity <- function (habitat,time_step=1) {
 # rasters will be left as rasters.
 # if habitat suitability is a stack or brick, this infers that they represent a temporal change in habitat suitability
 
-list2habitat <- function (input) {
+list2habitat <- function (input,ss_dist) {
 
   # generate an empty list to populate with habitat elements.
   habitat_list <- list()
@@ -298,24 +301,19 @@ list2habitat <- function (input) {
   # sort out the populations inputs.
   # if population is not a raster generate a raster from numeric or spatial points data frame.
   # update and make a brick.
-  if(!inherits(input[[2]],c("RasterLayer","RasterStack","RasterBrick"))){
-    input[[2]] <- populations2rasterbrick(input[[2]],input[[1]])
+  if(!inherits(input[[2]],c("RasterStack","RasterBrick"))){
+    input[[2]] <- populations2rasterbrick(input[[2]],input[[1]],ss_dist)
   }
-  
-  if(inherits(input[[2]],c("RasterStack","RasterBrick"))){
-    npops <- nlayers(input[[2]])
-    habitat_list[c(nrasters+1):c(nrasters+npops)] <- sapply(1:npops,function(x){habitat_list[[x+nrasters]]<-input[[2]][[x]]})
-  } #else {
-    #stop('Check your population inputs, perhaps it is an unsupported type.')
-  #}
-  
+
+  npops <- nlayers(input[[2]])
+  habitat_list[c(nrasters+1):c(nrasters+npops)] <- sapply(1:npops,function(x){habitat_list[[x+nrasters]]<-input[[2]][[x]]})
+
   # add npops to the total count of rasters. 
   nrasters <- nrasters + npops
   
-  if(!inherits(input[[3]],c("RasterLayer"))){
-    stop('The carrying capacity input must be a raster layer.')
+  #if(!inherits(input[[3]],c("RasterLayer"))){
     #input[[3]] <- carryingcapacity2raster(input[[3]],input[[1]])
-  }
+  #}
   
   # update the number of rasters
   nrasters <- nrasters + 1
@@ -364,23 +362,26 @@ area_check <- function (area) {
 populations2rasterbrick <- function(pops,hab_suit,ss_dist){
   
   # I will in the capacity to alter population with a function soon.
-  if(!inherits(pops,c("SpatialPointsDataFrame","numeric"))) stop('Check your population inputs, perhaps it is an unsupported type.')
+  if(!inherits(pops,c("numeric","SpatialPointsDataFrame","RasterLayer"))) stop('Check your population inputs, perhaps it is an unsupported type.')
   if(inherits(hab_suit,c("RasterBrick","RasterStack"))) hab_suit <- hab_suit[[1]]
   
   # if numeric make a raster that is has the same values everywhere.
   if(inherits(pops,'numeric')){
-    # if(length(pops) == 1 & ss_dist != NULL){
-    #   cat('Initial populations were entered as a single number - they will be distributed \nacross the landscape based on the habitat suitability and stable age structure')
-    #   pop_list <- list()
-    #   if(length(ss_dist) != n_stages) stop('A stable stage muliplier needs to be entered for each life stage; please check your values.')
-    #   for(i in 1:n_stages){
-    #     tmp <- hab_suit
-    #     tmp[!is.na(tmp[])] <- pops * ss_dist[i]
-    #     pop_list[[i]] <- tmp * hab_suit
-    #     }
-    #   pop_brick <- raster::brick(pop_list)
-    #   names(pop_brick)<- paste0('stage',1:n_stages)      
-    # }else{
+    if(length(pops) == 1 & is.null(ss_dist)){
+      stop('Initial populations were entered as a single number without stable stage distributions - \nplease provide stable age distributions that represents intended \nnumber of life stages.')
+    }
+    if(length(pops) == 1 & !is.null(ss_dist)){
+      cat('Initial populations were entered as a single number - populations will be distributed \naccording to habitat suitability and stable stage distributions.')
+      pop_list <- list()
+      n_stages <- length(ss_dist)
+      for(i in 1:n_stages){
+        tmp <- hab_suit
+        tmp[!is.na(tmp[])] <- pops * ss_dist[i]
+        pop_list[[i]] <- tmp * hab_suit
+        }
+      pop_brick <- raster::brick(pop_list)
+      names(pop_brick)<- paste0('stage',1:n_stages)
+    }else{
       n_stages <- length(pops)
       pop_list <- list()
       for(i in 1:n_stages){
@@ -390,19 +391,38 @@ populations2rasterbrick <- function(pops,hab_suit,ss_dist){
       }
       pop_brick <- raster::brick(pop_list)
       names(pop_brick)<- paste0('stage',1:n_stages)     
-    # }
+    }
   }
-  
+
   # if spatial points data frame generate a raster stack from known populations.
   if(inherits(pops,'SpatialPointsDataFrame')){
-    if(raster::projection(pops)!=raster::projection(hab_suit))stop('make sure your spatial points dataframe matches raster projections')
+    if(raster::projection(pops)!=raster::projection(hab_suit))stop('Spatial points dataframe projection must match raster projection')
     n_stages <- ncol(pops@data)
     pop_brick <- raster::rasterize(pops,hab_suit)[[-1]]
     names(pop_brick) <- paste0('stage',1:n_stages)
     pop_brick <- raster::calc(pop_brick, fun=function(x){ x[is.na(x)] <- 0; return(x)})
     pop_brick <- raster::mask(pop_brick,hab_suit)
   }
- 
+
+
+  if(inherits(pops,'RasterLayer')){
+    if(nlayers(pops) == 1 & is.null(ss_dist)){
+      stop('Initial populations were entered as a single raster layer without stable stage distributions - \nplease provide stable age distributions that represents intended \nnumber of life stages.')
+    }
+    if(nlayers(pops) == 1 & !is.null(ss_dist)){
+      cat('Initial populations were entered as a single raster layer - populations will be distributed \naccording to habitat suitability and stable stage distributions.')
+      pop_list <- list()
+      n_stages <- length(ss_dist)
+      for(i in 1:n_stages){
+        tmp <- hab_suit
+        tmp[!is.na(tmp[])] <- pops * ss_dist[i]
+        pop_list[[i]] <- tmp * hab_suit
+      }
+    pop_brick <- raster::brick(pop_list)
+    names(pop_brick)<- paste0('stage',1:n_stages)
+    }
+  }
+
   return(pop_brick)
 }
 
