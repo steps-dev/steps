@@ -19,8 +19,8 @@ stages(demography)
 
 is.demography(x)
 
-estimate_demography(demography_object, habitat, stage_matrix_sd, seed,
-  time_step, parameters)
+estimate_demography(demography_object, habitat_object, time_step,
+  stage_matrix_sd = 0, seed = NULL)
 }
 \arguments{
 \item{x}{For as.demography, x is a square matrix, that has stage stages between population stages.}
@@ -29,7 +29,7 @@ estimate_demography(demography_object, habitat, stage_matrix_sd, seed,
 
 \item{method}{can be 'global' or 'local' stage matrices. 'global' is the default and a single stage-based stage matrix 
 will be used for all populations. if 'local' method is called a cell specific stage matrix will be setup for all non-NA cells
- in the underlying habitat_suitanility.}
+ in the underlying habitat_suitability.}
 
 \item{object}{an object of \code{demography} class}
 

@@ -11,7 +11,7 @@
 #' @param x For as.demography, x is a square matrix, that has stage stages between population stages.
 #' @param method can be 'global' or 'local' stage matrices. 'global' is the default and a single stage-based stage matrix 
 #' will be used for all populations. if 'local' method is called a cell specific stage matrix will be setup for all non-NA cells
-#'  in the underlying habitat_suitanility.
+#'  in the underlying habitat_suitability.
 #' @return An object of class demography, i.e, resulting from as.demography.
 #' @author Skipton Woolley
 #' @export
@@ -55,7 +55,7 @@ global_stage_matrix <- function(x){
 
 local_stage_matrices <- function(x,habsuit){
   
-  #check that the original stage-based matrix is of the right dimensions ect.
+  #check that the original stage-based matrix is of the right dimensions etc.
   x <- base::as.matrix(x)
   if(base::diff(base::dim(x)) !=0) stop("Needs to be a square matrix with stage probabilities between each stage.")
   stage_matrixCheck(x) 
@@ -63,7 +63,7 @@ local_stage_matrices <- function(x,habsuit){
   m.names <- base::dimnames(x)[[1]]
   if(base::is.null(m.names)) m.names <- base::paste0("stage.",1:di)
   
-  #get the number of cells that are avaliable in the landscape/habitat_suitability object - this will be all non-NA cells.
+  #get the number of cells that are available in the landscape/habitat_suitability object - this will be all non-NA cells.
   stopifnot(inherits(habsuit,c("RasterLayer","RasterBrick","RasterStack")))
   npops <- length(habsuit[!is.na(habsuit[])])
   
@@ -183,9 +183,10 @@ demographyCheck <- function (x) {
   stopifnot(is.list(x))
 }
 
-dots <- function(...) {
-  eval(substitute(alist(...)))
-}
+# NOT SURE IF THIS IS USEFUL...YET.
+#dots <- function(...) {
+#  eval(substitute(alist(...)))
+#}
 
 
 #### message for Casey: I realised I messed up the demographic projections.
@@ -201,43 +202,44 @@ dots <- function(...) {
 #'}
 #' @export
 
-estimate_demography <- function(demography_object, habitat, stage_matrix_sd, seed, time_step, parameters){
+estimate_demography <- function(demography_object, habitat_object, time_step, stage_matrix_sd=0, seed=NULL){
    
-  pop_vec <- lapply(populations(habitat),function(x)c(x[]))
+  pop_vec <- lapply(populations(habitat_object),function(x)c(x[]))
   pop_mat <- do.call(cbind,pop_vec)
   if(any(is.na(pop_mat))){
-    cat(paste0("\nNA values detected in iteration ", time_step))
+    stop(paste0("\nNA values detected in iteration ", time_step))
+    #cat(paste0("\nNA values detected in iteration ", time_step))
   }
   ns <- length(stages(demography_object))
   
   if(all(dim(demography_object$global_stage_matrix)==ns)){
       # message for Casey: This will estimate deterministic population growth for a global stage matrix 
-      if(time_step==1){message('Using a global demographic stage matrix for all cells\n')}
+      if(time_step==1){cat("\nUsing a global demographic stage matrix for all cells\n")}
       pop_mat_new <- t(sapply(1:nrow(pop_mat),function(x)estdemo(pop_mat[x,],demography_object$global_stage_matrix, stage_matrix_sd, seed))) 
   } else {
       # message for Casey: This will estimate deterministic population growth for a local (one percell). 
       # The demographic$global_stage_matrix might need to be renamed to global_stage_matrix and local_stage_matricies. 
       # local_stage_matrices should have the dimensions ncells(rows),nstages*nstages(cols).
-      if(time_step==1){message('Using a local demographic stage matricies; one per cell\n')}
-      pop_mat_new <- t(sapply(1:nrow(pop_mat),function(x)estdemo(pop_mat[x,],matrix(demography_object$local_stage_matrices[x,],ns,ns), stage_matrix_sd, seed)))
+      if(time_step==1){cat("\nUsing a local demographic stage matricies; one per cell\n")}
+      pop_mat_new <- t(sapply(1:nrow(pop_mat),function(x) estdemo(pop_mat[x,],matrix(demography_object$local_stage_matrices[x,],ns,ns), stage_matrix_sd, seed)))
   }
 
-  r <- populations(habitat)[[1]]
+  r <- populations(habitat_object)[[1]]
   
   # add function for ceiling density dependence - based on total individuals in all stages  
-  if(inherits(carrying_capacity(habitat),c("RasterStack","RasterBrick"))){
-    if(sum(unlist(lapply(populations(habitat), function(x) cellStats(x,sum)))) > cellStats(carrying_capacity(habitat)[[time_step]], sum)){
-      rescale <- cellStats(carrying_capacity(habitat)[[time_step]], sum)/sum(unlist(lapply(populations(habitat), function(x) cellStats(x,sum))))
-      pop_mat_dd <- pop_mat_new*rescale
-      pops_updated <- lapply(split(pop_mat_dd, rep(1:ncol(pop_mat_dd), each = nrow(pop_mat_dd))),function(x){r[]<-x;return(r)})
-    }else{
-      pops_updated <- lapply(split(pop_mat_new, rep(1:ncol(pop_mat_new), each = nrow(pop_mat_new))),function(x){r[]<-x;return(r)})
-    }
-  }
+  # if(inherits(carrying_capacity(habitat_object),c("RasterStack","RasterBrick"))){
+  #   if(sum(unlist(lapply(populations(habitat_object), function(x) cellStats(x,sum)))) > cellStats(carrying_capacity(habitat_object)[[time_step]], sum)){
+  #     rescale <- cellStats(carrying_capacity(habitat_object)[[time_step]], sum)/sum(unlist(lapply(populations(habitat_object), function(x) cellStats(x,sum))))
+  #     pop_mat_dd <- pop_mat_new*rescale
+  #     pops_updated <- lapply(split(pop_mat_dd, rep(1:ncol(pop_mat_dd), each = nrow(pop_mat_dd))),function(x){r[]<-x;return(r)})
+  #   }else{
+  #     pops_updated <- lapply(split(pop_mat_new, rep(1:ncol(pop_mat_new), each = nrow(pop_mat_new))),function(x){r[]<-x;return(r)})
+  #   }
+  # }
   
-  if(inherits(carrying_capacity(habitat),c("RasterLayer"))){
-    if(sum(unlist(lapply(populations(habitat), function(x) cellStats(x,sum)))) > cellStats(carrying_capacity(habitat), sum)){
-      rescale <- cellStats(carrying_capacity(habitat), sum)/sum(unlist(lapply(populations(habitat), function(x) cellStats(x,sum))))
+  if(inherits(carrying_capacity(habitat_object),c("RasterLayer"))){
+    if(sum(unlist(lapply(populations(habitat_object), function(x) cellStats(x,sum)))) > cellStats(carrying_capacity(habitat_object), sum)){
+      rescale <- cellStats(carrying_capacity(habitat_object), sum)/sum(unlist(lapply(populations(habitat_object), function(x) cellStats(x,sum))))
       pop_mat_dd <- pop_mat_new*rescale
       pops_updated <- lapply(split(pop_mat_dd, rep(1:ncol(pop_mat_dd), each = nrow(pop_mat_dd))),function(x){r[]<-x;return(r)})
     }else{
@@ -251,22 +253,27 @@ estimate_demography <- function(demography_object, habitat, stage_matrix_sd, see
 
 
 # message for Casey: This function will do the internal projections for demographic processes, so we can add in more complicated function as we need. 
-estdemo <- function(popvec, stage_matrix, stage_matrix_sd, seed){
+estdemo <- function(popvec, stage_matrix, stage_matrix_sd=0, seed=NULL){
   
     # no stochastisity
     #popvec_new <- stage_matrix%*%popvec
     #return(popvec_new)
     
     # with env stochasticity by supplying standard deviation for random normal draw (truncated)
-    set.seed(seed)
-    popvec_es <- structure(sapply(stage_matrix, function(x) if(x!=0){pmax(rnorm(1,x,stage_matrix_sd),0)}else{0}), dim=dim(stage_matrix))%*%popvec
+    if(!is.null(seed)) set.seed(seed)
+    
+    if(!inherits(stage_matrix_sd,"matrix")){
+      popvec_es <- structure(sapply(stage_matrix, function(x) if(x!=0){pmax(rnorm(1,x,stage_matrix_sd),0)}else{0}), dim=dim(stage_matrix))%*%popvec
+    }else{
+      popvec_es <- structure(sapply(stage_matrix, function(x) pmax(rnorm(1,x,stage_matrix_sd),0)), dim=dim(stage_matrix))%*%popvec
+    }
     #if(any(is.na(popvec_es))){
     #  print(i)
     #}
     # add in demographic stochasticity.....
     #return(popvec_es)
     
-    set.seed(seed)
+    if(!is.null(seed)) set.seed(seed)
     popvec_ds <- as.matrix(
       rowSums(
         structure(
