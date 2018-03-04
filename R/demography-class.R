@@ -230,9 +230,9 @@ estimate_demography <- function(demography_object, habitat_object, time_step, se
   }
  
   ns <- length(stages(demography_object))
-  if(!all(dim(demography_object$global_stage_matrix)==ns)){
-    stop("Check dimensions of stage matrix.")
-  }
+  # if(!all(dim(demography_object$global_stage_matrix)==ns)){
+  #   stop("Check dimensions of stage matrix.")
+  # }
   if('local_stage_matrices' %in% attributes(demography_object)$names){
     if(time_step==1){cat("\nUsing a local demographic stage matricies; one per cell\n")}
     pop_mat_new <- t(sapply(1:nrow(pop_mat),function(x) estdemo(pop_mat[x,],matrix(demography_object$local_stage_matrices[x,],ns,ns), stage_matrix_sd, seed)))
