@@ -70,13 +70,14 @@ test_that('demography classes work', {
 
   # check is.demography works on demographies
   expect_true(is.demography(as.demography(mat)))
+  expect_true(is.demography(as.demography(mat, stage_matrix_sd=mat_sd)))
     
   # check for NA values whilst estimating demography
   expect_error(estimate_demography(as.demography(mat),habitat_popNA, time_step=1))
   
   # check output of estimate demography
-  expect_true(inherits(estimate_demography(as.demography(mat),habitat, time_step=1), 'list'))
-  expect_true(inherits(estimate_demography(as.demography(mat),habitat, time_step=1)[[1]], 'RasterLayer'))
+  expect_true(inherits(estimate_demography(as.demography(mat, stage_matrix_sd=mat_sd),habitat, time_step=1), 'list'))
+  expect_true(inherits(estimate_demography(as.demography(mat, stage_matrix_sd=mat_sd),habitat, time_step=1)[[1]], 'RasterLayer'))
   
   expect_true(inherits(estimate_demography(as.demography(mat),habitat_altK, time_step=1), 'list'))
   expect_true(inherits(estimate_demography(as.demography(mat),habitat_altK, time_step=1)[[1]], 'RasterLayer'))
@@ -84,11 +85,11 @@ test_that('demography classes work', {
   expect_true(inherits(estimate_demography(as.demography(mat),habitat, time_step=1, seed=123), 'list'))
   expect_true(inherits(estimate_demography(as.demography(mat),habitat, time_step=1, seed=123)[[1]], 'RasterLayer'))
 
-  expect_true(inherits(estimate_demography(as.demography(mat, type="local", hab.suit), habitat, time_step=1), 'list'))
-  expect_true(inherits(estimate_demography(as.demography(mat, type="local", hab.suit), habitat, time_step=1)[[1]], 'RasterLayer'))
+  expect_true(inherits(estimate_demography(as.demography(mat, type="local", habsuit=hab.suit), habitat, time_step=1), 'list'))
+  expect_true(inherits(estimate_demography(as.demography(mat, type="local", habsuit=hab.suit), habitat, time_step=1)[[1]], 'RasterLayer'))
   
-  expect_true(inherits(estimate_demography(as.demography(mat, type="local", hab.suit),habitat, time_step=1, seed=123), 'list'))
-  expect_true(inherits(estimate_demography(as.demography(mat, type="local", hab.suit),habitat, time_step=1, seed=123)[[1]], 'RasterLayer'))
+  expect_true(inherits(estimate_demography(as.demography(mat, type="local", habsuit=hab.suit),habitat, time_step=1, seed=123), 'list'))
+  expect_true(inherits(estimate_demography(as.demography(mat, type="local", habsuit=hab.suit),habitat, time_step=1, seed=123)[[1]], 'RasterLayer'))
       
   
   summary.demography(as.demography(mat))

@@ -230,16 +230,16 @@ estimate_demography <- function(demography_object, habitat_object, time_step, se
   }
  
   ns <- length(stages(demography_object))
-  if(all(dim(demography_object$global_stage_matrix)==ns)){
-      # message for Casey: This will estimate deterministic population growth for a global stage matrix 
-      if(time_step==1){cat("\nUsing a global demographic stage matrix for all cells\n")}
-      pop_mat_new <- t(sapply(1:nrow(pop_mat),function(x)estdemo(pop_mat[x,],demography_object$global_stage_matrix, stage_matrix_sd, seed))) 
-  } else {
-      # message for Casey: This will estimate deterministic population growth for a local (one percell). 
-      # The demographic$global_stage_matrix might need to be renamed to global_stage_matrix and local_stage_matricies. 
-      # local_stage_matrices should have the dimensions ncells(rows),nstages*nstages(cols).
-      if(time_step==1){cat("\nUsing a local demographic stage matricies; one per cell\n")}
-      pop_mat_new <- t(sapply(1:nrow(pop_mat),function(x) estdemo(pop_mat[x,],matrix(demography_object$local_stage_matrices[x,],ns,ns), stage_matrix_sd, seed)))
+  if(!all(dim(demography_object$global_stage_matrix)==ns)){
+    stop("Check dimensions of stage matrix.")
+  }
+  if('local_stage_matrices' %in% attributes(demography_object)$names){
+    if(time_step==1){cat("\nUsing a local demographic stage matricies; one per cell\n")}
+    pop_mat_new <- t(sapply(1:nrow(pop_mat),function(x) estdemo(pop_mat[x,],matrix(demography_object$local_stage_matrices[x,],ns,ns), stage_matrix_sd, seed)))
+
+  }else{
+    if(time_step==1){cat("\nUsing a global demographic stage matrix for all cells\n")}
+    pop_mat_new <- t(sapply(1:nrow(pop_mat),function(x)estdemo(pop_mat[x,],demography_object$global_stage_matrix, stage_matrix_sd, seed))) 
   }
 
   r <- populations(habitat_object)[[1]]
