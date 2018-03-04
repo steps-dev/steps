@@ -20,22 +20,31 @@
 #' colnames(mat) <- rownames(mat) <- c('larvae','juvenile','adult') 
 #' demo <- as.demography(mat)
 
-as.demography <- function(x,type='global', ...){
-  object <- list(...)
-  if(length(object)==0) object <- list(1)
+as.demography <- function(x, type='global', habsuit=NULL, stage_matrix_sd=0){
+  #object <- list(...)
+  #if(length(object)==0) object <- list(1)
   if(type=='local'){
-    if(!sapply(object,inherits,c("RasterLayer","RasterBrick","RasterStack")))stop('You must include a "habitat_suitability" spatial grid if you are using method "local".\n Look at the documentation for examples.')
-    if(type=='local' & sapply(object,inherits,c("RasterLayer","RasterBrick","RasterStack"))) habsuit <- object[[1]]
+    if(is.null(habsuit)){
+      stop('You must include a "habitat_suitability" spatial grid if you are using method "local".')
+    } 
+    if(!sapply(list(habsuit),inherits,c("RasterLayer","RasterBrick","RasterStack"))){
+      stop('The "habitat_suitability" input must be a spatial grid if you are using method "local".')
+    }
+    if(type=='local' & sapply(list(habsuit),inherits,c("RasterBrick","RasterStack"))){
+      habsuit <- habsuit[[1]] 
+    }
   }
   transition <- switch(type,
                        global = global_stage_matrix(x),      
                        local = local_stage_matrices(x, habsuit))
 
-if(length(object)>1){
-  transition[["env_stoch_matrix"]] <- object[[length(object)+1]]
-}else{
-  transition[["env_stoch_matrix"]] <- object[[length(object)]]
-}
+# if(length(object)>1){
+#   transition[["env_stoch_matrix"]] <- object[[length(object)+1]]
+# }else{
+#   transition[["env_stoch_matrix"]] <- object[[length(object)]]
+# }
+  transition[["env_stoch_matrix"]] <- stage_matrix_sd
+  
   structure(list(transition),class='demography')
   return(transition)
 }
@@ -96,6 +105,7 @@ summary.demography <- function(x,...){
     sensitivity <-  (vr  %*%  base::t(ssd))  / (base::t(vr) %*% ssd)[1,1]
     elasticity <- sensitivity * x / lambda
     
+    #### Add stochasticity summary...
     result<- list(lambda=lambda, stable.stage.distribution = ssd,
                   reproductive.value =vr, sensitivity = sensitivity,
                   elasticity=elasticity,name.mat=name.mat,m.names= m.names)
@@ -202,7 +212,8 @@ demographyCheck <- function (x) {
 #'}
 #' @export
 
-estimate_demography <- function(demography_object, habitat_object, time_step, stage_matrix_sd=0, seed=NULL){
+#estimate_demography <- function(demography_object, habitat_object, time_step, stage_matrix_sd=0, seed=NULL){
+estimate_demography <- function(demography_object, habitat_object, time_step, seed=NULL){
    
   pop_vec <- lapply(populations(habitat_object),function(x)c(x[]))
   pop_mat <- do.call(cbind,pop_vec)
@@ -210,8 +221,15 @@ estimate_demography <- function(demography_object, habitat_object, time_step, st
     stop(paste0("\nNA values detected in iteration ", time_step))
     #cat(paste0("\nNA values detected in iteration ", time_step))
   }
-  ns <- length(stages(demography_object))
   
+  if(inherits(demography_object$env_stoch_matrix,'numeric')){
+    stage_matrix_sd <- demography_object$global_stage_matrix
+    stage_matrix_sd[] <- demography_object$env_stoch_matrix
+  }else{
+    stage_matrix_sd <- demography_object$env_stoch_matrix
+  }
+ 
+  ns <- length(stages(demography_object))
   if(all(dim(demography_object$global_stage_matrix)==ns)){
       # message for Casey: This will estimate deterministic population growth for a global stage matrix 
       if(time_step==1){cat("\nUsing a global demographic stage matrix for all cells\n")}
@@ -262,11 +280,11 @@ estdemo <- function(popvec, stage_matrix, stage_matrix_sd=0, seed=NULL){
     # with env stochasticity by supplying standard deviation for random normal draw (truncated)
     if(!is.null(seed)) set.seed(seed)
     
-    if(!inherits(stage_matrix_sd,"matrix")){
-      popvec_es <- structure(sapply(stage_matrix, function(x) if(x!=0){pmax(rnorm(1,x,stage_matrix_sd),0)}else{0}), dim=dim(stage_matrix))%*%popvec
-    }else{
+    # if(!inherits(stage_matrix_sd,"matrix")){
+    #   popvec_es <- structure(sapply(stage_matrix, function(x) if(x!=0){pmax(rnorm(1,x,stage_matrix_sd),0)}else{0}), dim=dim(stage_matrix))%*%popvec
+    # }else{
       popvec_es <- structure(sapply(stage_matrix, function(x) pmax(rnorm(1,x,stage_matrix_sd),0)), dim=dim(stage_matrix))%*%popvec
-    }
+    # }
     #if(any(is.na(popvec_es))){
     #  print(i)
     #}
@@ -274,6 +292,7 @@ estdemo <- function(popvec, stage_matrix, stage_matrix_sd=0, seed=NULL){
     #return(popvec_es)
     
     if(!is.null(seed)) set.seed(seed)
+    
     popvec_ds <- as.matrix(
       rowSums(
         structure(

@@ -9,7 +9,7 @@
 \alias{estimate_demography}
 \title{demography objects}
 \usage{
-as.demography(x, type = "global", ...)
+as.demography(x, type = "global", habsuit = NULL, stage_matrix_sd = 0)
 
 \method{summary}{demography}(x, ...)
 
@@ -19,8 +19,7 @@ stages(demography)
 
 is.demography(x)
 
-estimate_demography(demography_object, habitat_object, time_step,
-  stage_matrix_sd = 0, seed = NULL)
+estimate_demography(demography_object, habitat_object, time_step, seed = NULL)
 }
 \arguments{
 \item{x}{For as.demography, x is a square matrix, that has stage stages between population stages.}
