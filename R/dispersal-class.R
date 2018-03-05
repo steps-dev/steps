@@ -57,7 +57,9 @@ NULL
 as.dispersal <- function (params) {
   stopifnot(is.list(params))
   stopifnot(length(params)>=3)
-  if(!exists(c('dispersal_distance','dispersal_kernel','dispersal_proportion'),params))stop('dispersal parameters must contain "dispersal_distance","dispersal_kernel" and "dispersal_proportion"')
+  if(!exists(c('dispersal_distance','dispersal_kernel','dispersal_proportion'),params)){
+    stop('dispersal parameters must contain "dispersal_distance","dispersal_kernel" and "dispersal_proportion"')
+  }
   class(params) <- 'dispersal'
   return(params)
 }
@@ -225,7 +227,7 @@ ifft <- function (z) stats::fft(z, inverse = TRUE)
 #' @export 
 
 dispersal <- function(params,habitat,method,time_step){
-                          stopifnot(is.list(params))
+                          stopifnot(is.dispersal(params))
                           if(!any(method==c('ca','fft')))stop('method must be either "ca" (cellular automata) or\n "fft" (fast fourier transformation).')
                           stopifnot(is.habitat(habitat))  
                           dispersal_results <- switch(method,
@@ -237,9 +239,9 @@ dispersal <- function(params,habitat,method,time_step){
 dispersal_core_ca <- function(params,habitat,time_step){
 
   #generate default parameters for dispersal parameters if they are missing from 'params'. 
-  if(!exists('barrier_type',params))params$barrier_type <- 0
-  if(!exists('dispersal_steps',params))params$dispersal_steps <- 1
-  if(!exists('use_barriers',params))params$use_barriers <- FALSE
+  if(!exists('barrier_type',params)) params$barrier_type <- 0
+  if(!exists('dispersal_steps',params)) params$dispersal_steps <- 1
+  if(!exists('use_barriers',params)) params$use_barriers <- FALSE
   
   #identify populations and workout which populations can disperse.
   which_stages_disperse <- which(params$dispersal_proportion>0)
@@ -249,11 +251,11 @@ dispersal_core_ca <- function(params,habitat,time_step){
   pops <- populations(habitat)
   disperse_pops <- pops[which_stages_disperse]
   
-  if(inherits(carrying_capacity(habitat),c("RasterStack","RasterBrick"))){
-    cc <- carrying_capacity(habitat)[[time_step]]
-  } else {
+  # if(inherits(carrying_capacity(habitat),c("RasterStack","RasterBrick"))){
+  #   cc <- carrying_capacity(habitat)[[time_step]]
+  # } else {
     cc <- carrying_capacity(habitat)
-  }
+  # }
   
   if(inherits(habitat_suitability(habitat),c("RasterStack","RasterBrick"))){
     hsm <- habitat_suitability(habitat)[[time_step]]
