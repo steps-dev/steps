@@ -232,7 +232,7 @@ dispersal <- function(params,habitat,method,time_step){
                           stopifnot(is.habitat(habitat))  
                           dispersal_results <- switch(method,
                                                      ca = dispersal_core_ca(params,habitat,time_step),
-                                                     fft = dispersal_core_fft(params,habitat,time_step))  
+                                                     fft = dispersal_core_fft(params,habitat))  
                           return(dispersal_results)
 }
 
