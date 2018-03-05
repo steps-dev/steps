@@ -51,6 +51,7 @@ test_that('dispersal functions work', {
   
   habitat <- as.habitat(list(as.habitat_suitability(hab.suit), as.populations(hab.pop.n2), as.carrying_capacity(hab.k)))
   habitat2 <- as.habitat(list(as.habitat_suitability(hab.suit.s), as.populations(hab.pop.n2), as.carrying_capacity(hab.k)))
+  habitat3 <- as.habitat(list(as.habitat_suitability(hab.suit.s), as.populations(hab.pop.n2), as.carrying_capacity(hab.k*.01)))
 
   disp.bar <- hab.suit*0
   disp.bar[cellFromCol(disp.bar,ncol(disp.bar)/2)] <- 1
@@ -176,6 +177,8 @@ test_that('dispersal functions work', {
   expect_true(inherits(dispersal_core_ca(paramsUB, habitat, time_step=1), 'list'))
   
   expect_true(inherits(dispersal_core_ca(params, habitat2, time_step=1), 'list'))
+  
+  expect_true(inherits(dispersal_core_ca(params, habitat3, time_step=1), 'list'))
 
   expect_true(inherits(dispersal_core_ca(paramsBM, habitat, time_step=1), 'list'))
   expect_true(inherits(dispersal_core_ca(paramsBM2, habitat, time_step=1), 'list'))
