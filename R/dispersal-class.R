@@ -50,7 +50,7 @@ NULL
 #'                dispersal_proportion=list('larvae'=0.1,'juvenile'=0,'adult'=0.3)))  
 #'
 #' ## dispersal using cellular automata.                                 
-#' dispersed_populations <- dispersal(dispersal_params, habitat, method='ca')
+#' dispersed_populations <- dispersal(dispersal_params, habitat, method='ca', time_step=1)
 #' populations(habitat) <- dispersed_populations
 
 
@@ -257,11 +257,11 @@ dispersal_core_ca <- function(params,habitat,time_step){
     cc <- carrying_capacity(habitat)
   # }
   
-  if(inherits(habitat_suitability(habitat),c("RasterStack","RasterBrick"))){
-    hsm <- habitat_suitability(habitat)[[time_step]]
-  } else {
-    hsm <- habitat_suitability(habitat)    
-  }
+  # if(inherits(habitat_suitability(habitat),c("RasterStack","RasterBrick"))){
+    hsm <- habitat_suitability(habitat,time_step)
+  # } else {
+  #   hsm <- habitat_suitability(habitat)    
+  # }
 
   #if barriers is NULL create a barriers matrix all == 0.
   if(!exists('barriers_map',params)){

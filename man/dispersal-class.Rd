@@ -67,7 +67,7 @@ dispersal_params <- as.dispersal(list(dispersal_distance=list('larvae'=3,'juveni
                dispersal_proportion=list('larvae'=0.1,'juvenile'=0,'adult'=0.3)))  
 
 ## dispersal using cellular automata.                                 
-dispersed_populations <- dispersal(dispersal_params, habitat, method='ca')
+dispersed_populations <- dispersal(dispersal_params, habitat, method='ca', time_step=1)
 populations(habitat) <- dispersed_populations
 is.dispersal(dispersal_params)
 # print method

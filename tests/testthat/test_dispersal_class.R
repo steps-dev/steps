@@ -156,9 +156,8 @@ test_that('dispersal functions work', {
 
     
   # check output of dispersal - cellular automata
-  expect_true(inherits(dispersal(params, habitat, method='ca'), 'list'))
-  expect_true(inherits(dispersal(params, habitat, method='fft'), 'list'))
-  
+  expect_true(inherits(dispersal(params, habitat, method='ca', time_step=1), 'list'))
+
   expect_true(inherits(dispersal_core_ca(params, habitat, time_step=1), 'list'))
   expect_true(inherits(dispersal_core_ca(params, habitat, time_step=1)[[1]], 'RasterLayer'))
   
@@ -172,6 +171,7 @@ test_that('dispersal functions work', {
   expect_true(inherits(dispersal_core_ca(paramsBMS, habitat, time_step=1), 'list'))
 
   # check output of dispersal - fast fourier transformation 
+  expect_true(inherits(dispersal(params, habitat, method='fft'), 'list'))
   expect_true(inherits(dispersal_core_fft(params, habitat), 'list'))
   expect_true(inherits(dispersal_core_fft(params, habitat)[[1]], 'RasterLayer'))  
   
