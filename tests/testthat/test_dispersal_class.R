@@ -56,7 +56,7 @@ test_that('dispersal functions work', {
   disp.bar <- hab.suit*0
   disp.bar[cellFromCol(disp.bar,ncol(disp.bar)/2)] <- 1
   disp.bar2 <- hab.suit*0
-  disp.bar2[sampleRandom(disp.bar2, size=25, na.rm=TRUE, sp=TRUE)] <- 1
+  disp.bar2[sampleRandom(disp.bar2, size=80, na.rm=TRUE, sp=TRUE)] <- 1
   
   disp.bar.s <- stack(mget(rep("disp.bar",3)))
   
@@ -101,6 +101,16 @@ test_that('dispersal functions work', {
       dispersal_kernel=list('Stage_0-1'=0,'Stage_1-2'=exp(-c(0:9)^1/3.36),'Stage_2-3'=exp(-c(0:9)^1/3.36),'Stage_3+'=0),
       dispersal_proportion=list('Stage_0-1'=0,'Stage_1-2'=0.35,'Stage_2-3'=0.35*0.714,'Stage_3+'=0),
       barriers_map=disp.bar,
+      use_barriers=TRUE
+    )
+  )
+  
+  paramsBMT <- as.dispersal(
+    list(
+      dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=10,'Stage_2-3'=10,'Stage_3+'=0),
+      dispersal_kernel=list('Stage_0-1'=0,'Stage_1-2'=exp(-c(0:9)^1/3.36),'Stage_2-3'=exp(-c(0:9)^1/3.36),'Stage_3+'=0),
+      dispersal_proportion=list('Stage_0-1'=0,'Stage_1-2'=0.35,'Stage_2-3'=0.35*0.714,'Stage_3+'=0),
+      barriers_map=disp.bar,
       use_barriers=TRUE,
       barrier_type=1
     )
@@ -116,6 +126,16 @@ test_that('dispersal functions work', {
   )
   
   paramsBM3 <- as.dispersal(
+    list(
+      dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=10,'Stage_2-3'=10,'Stage_3+'=0),
+      dispersal_kernel=list('Stage_0-1'=0,'Stage_1-2'=exp(-c(0:9)^1/3.36),'Stage_2-3'=exp(-c(0:9)^1/3.36),'Stage_3+'=0),
+      dispersal_proportion=list('Stage_0-1'=0,'Stage_1-2'=0.35,'Stage_2-3'=0.35*0.714,'Stage_3+'=0),
+      barriers_map=disp.bar2,
+      use_barriers=TRUE
+    )
+  )
+  
+  paramsBM3T <- as.dispersal(
     list(
       dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=10,'Stage_2-3'=10,'Stage_3+'=0),
       dispersal_kernel=list('Stage_0-1'=0,'Stage_1-2'=exp(-c(0:9)^1/3.36),'Stage_2-3'=exp(-c(0:9)^1/3.36),'Stage_3+'=0),
@@ -209,6 +229,8 @@ test_that('dispersal functions work', {
   expect_true(inherits(dispersal_core_ca(paramsBM3, habitat, time_step=1), 'list'))
   expect_true(inherits(dispersal_core_ca(paramsBMS, habitat, time_step=1), 'list'))
   expect_true(inherits(dispersal_core_ca(paramsBMS3, habitat, time_step=1), 'list'))
+  expect_true(inherits(dispersal_core_ca(paramsBMT, habitat, time_step=1), 'list'))
+  expect_true(inherits(dispersal_core_ca(paramsBM3T, habitat, time_step=1), 'list'))
 
   # check output of dispersal - fast fourier transformation 
   expect_true(inherits(dispersal(params, habitat, method='fft'), 'list'))
