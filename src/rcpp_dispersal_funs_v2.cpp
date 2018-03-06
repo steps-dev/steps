@@ -356,7 +356,7 @@ NumericMatrix na_matrix(int nr, int nc){
 // //' @param habitat_suitability raster of habitat suitability that has been converted to carrying capacity
 // //' @param barrier_map raster of barriers to the dispersal, 1=barrier; 0=no barrier.
 // //' @param barrier_type if 0 weak barrier, if 1 strong barriers.
-// //' @param use_barriers if true use barriers in dispersal analysis.
+// //' @param use_barrier if true use barriers in dispersal analysis.
 // //' @param dispersal_steps The number of dispersal iterations per C++ call.
 // //' @param dispersal_distance The maximum number of cells the species can disperse.
 // //' @param dispersal_kernal a numeric vector of probabilites of dispersing from one to n cells, where n is the dispersal distance.
