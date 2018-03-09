@@ -35,7 +35,7 @@ test_that('dispersal functions work', {
   disp.bar <- hab.suit*0
   disp.bar[cellFromCol(disp.bar,ncol(disp.bar)/2)] <- 1
   disp.bar2 <- hab.suit*0
-  disp.bar2[sampleRandom(disp.bar2, size=200, na.rm=TRUE, sp=TRUE)] <- 1
+  disp.bar2[sampleRandom(disp.bar2, size=700, na.rm=TRUE, sp=TRUE)] <- 1
 
   params <- list(
     dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=10,'Stage_2-3'=10,'Stage_3+'=0),
@@ -45,7 +45,17 @@ test_that('dispersal functions work', {
     use_barriers=TRUE,
     barrier_type=1
   )
+  
+  params2 <- list(
+    dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=10,'Stage_2-3'=10,'Stage_3+'=0),
+    dispersal_kernel=list('Stage_0-1'=0,'Stage_1-2'=exp(-c(0:9)^1/3.36),'Stage_2-3'=exp(-c(0:9)^1/3.36),'Stage_3+'=0),
+    dispersal_proportion=list('Stage_0-1'=0,'Stage_1-2'=0.35,'Stage_2-3'=0.35*0.714,'Stage_3+'=0),
+    barriers_map=disp.bar2,
+    use_barriers=TRUE,
+    barrier_type=1
+  )
 
   expect_true(inherits(dispersal_core_ca(params, pop=pop, hsm=hab.suit, cc=hab.k), 'RasterStack'))
+  expect_true(inherits(dispersal_core_ca(params2, pop=pop, hsm=hab.suit, cc=hab.k), 'RasterStack'))
 
 })
