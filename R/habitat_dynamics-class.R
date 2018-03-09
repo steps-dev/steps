@@ -1,59 +1,55 @@
-#' @title habitat_dynamics objects
-#' @name habitat_dynamics
-#' @rdname habitat_dynamics
-#' @description habitat_dynamics are functions for altering the underlying \link[dhmpr]{habitat}\code{habitat} at anytime step. habitat_dynamics has to be a function which explicitly changes the habitat. Examples could include: models of fire spread, management actions like culling, the distribution of trawling. 
-#' 
-#' habitat_dynamics sets up internal or custom functions to work with \code{habitat} and \code{experiment} objects.
-#' 
+#' Change the habitat in a state object
+#'
+#' @param habitat_dynamics_function A function that operates on a state object to change habitat at specified timesteps. User may enter a custom function or select a pre-defined module - see documentation. 
+#'
+#' @return An object of class \code{habitat_dynamics}
 #' @export
+#'
+#' @examples
+#' 
+#' library(raster)
+#' library(dhmpr)
+#'
+#' example_function <- function (state, timestep) {
+#' state
+#' }
+#' no_habitat_dynamics <- as.habitat_dynamics(example_function)
 
-as.habitat_dynamics <- function(fun, params, check=FALSE, ...){
-  if(!is.function(fun))stop("habitat_dynamics needs to be a function - see the documents for details")
-  if(check) {
-    message('checking to see your function works with habitat_suitabilit(habitat)')
-    test <- do.call(fun,params)
-    attr(test, "habitat") <- "habitat"
-    return(test)
-  }
-
-    fun_params <- structure(list(fun,params),class='habitat_dynamics')
-  return(fun_params)
+as.habitat_dynamics <- function (habitat_dynamics_function) {
+  stopifnot(inherits(habitat_dynamics_function,"function"))
+  set_class(habitat_dynamics_function, "habitat_dynamics")
 }
 
-#' @rdname habitat_dynamics
+#' Print details of a habitat_dynamics object
+#'
+#' @param x an object to print or test as an habitat_dynamic object
+#' @param ... further arguments passed to or from other methods
+#'
 #' @export
-is.habitat_dynamics <- function (x) inherits(x, 'habitat_dynamics')
+#'
+# @examples
+# example_function <- function (state, timestep) {
+# state
+# }
+# no_habitat_dynamics <- as.habitat_dynamics(example_function)
+# print(no_habitat_dynamics)
 
-#' @rdname habitat_dynamics
-#' @name run_habitat_dynamics
+print.habitat_dynamics <- function (x, ...) {
+  cat("This is a habitat_dynamics object")
+}
+
+##########################
+### internal functions ###
+##########################
+
+
+
+
+####################################
+### pre-defined module functions ###
+####################################
+
 #' @export
-#' @description this bad boy will run the habitat_dynamics in a experiment.
-run_habitat_dynamics <- function(habitat_dynamics, habitat_object, time_step){
-  if(!is.habitat_dynamics(habitat_dynamics))
-  stop("you need to define a habitat_dynamics module in order to run it within an experiment - see the documents for details")
-  fun <- habitat_dynamics[[1]]
-  
-  if(inherits(habitat_dynamics[[2]],c("RasterLayer"))){
-    params <- list(habitat_object, habitat_dynamics[[2]])
-  } else {
-    params <- list(habitat_object, habitat_dynamics[[2]][[time_step]])
-  }
-  
-  altered_habitat <- do.call(fun,params)
-  attr(altered_habitat, "habitat") <- "habitat"
-  return(altered_habitat)
-}  
-
-# #' @rdname habitat_dynamics
-# #' @name run_habitat_dynamics
-# #' @export
-# #' @description this bad boy will run the habitat_dynamics in a experiment.
-# run_habitat_dynamics <- function(habitat_dynamics, ...){
-#   if(!is.habitat_dynamics(habitat_dynamics))
-#     stop("you need to define a habitat_dynamics module in order to run it within an experiment - see the documents for details")
-#   fun <- habitat_dynamics[[1]]
-#   params <- habitat_dynamics[[2]]
-#   altered_habitat <- do.call(fun,params)
-#   attr(altered_habitat, "habitat") <- "habitat"
-#   return(altered_habitat)
-# } 
+no_habitat_dynamics <- function (state, timestep) {
+  state
+}

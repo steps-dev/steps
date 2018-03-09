@@ -1,11 +1,11 @@
-# context('habitat-class')
+# context('habitat_dynamics-class')
 # 
 # test_that('habitat classes work', {
 #   library(raster)
 #   library(rgdal)
 # 
 #   # the types of habitat attributes
-#   r <- raster(vals=1, nrows=10, ncols=10, res=100, crs=('+proj=aea +lat_1=-18 +lat_2=-36 +lat_0=0 +lon_0=132 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'))
+#   r <- raster(vals=1, nrows=10, ncols=10, res=25, crs=('+proj=aea +lat_1=-18 +lat_2=-36 +lat_0=0 +lon_0=132 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'))
 #   
 #   r2 <- r
 #   r2[] <- round(runif(ncell(r2),0,20),0)
@@ -16,7 +16,7 @@
 #   
 #   hab.suit <- r
 #   
-#   hab.suit.s <- stack(r,r,r,r,r)
+#   hab.suit.s <- stack(r,r,r,r)
 #   hab.suit.s.NA <- hab.suit.s
 #   hab.suit.s.NA[[1]][1,c(1,2)] <- "a"
 #   hab.suit.s.0 <- hab.suit.s
@@ -25,7 +25,7 @@
 # 
 #   hab.pop <- r2
 #   
-#   hab.pop.s <- stack(r2,r2,r2,r2,r2)
+#   hab.pop.s <- stack(r2,r2,r2,r2)
 #   
 #   hab.pop.n <- 4
 #   hab.pop.n2 <- c(4,4,4,4)
@@ -37,14 +37,37 @@
 #   hab.k <- r2*2
 #   
 #   hab.k.func <- function(x) x*0.8
+# 
+#   habitat <- as.habitat(list(as.habitat_suitability(hab.suit), as.populations(hab.pop.n2), as.carrying_capacity(hab.k)))
+#   
+#   dist.r <- hab.suit
+#   dist.r[] <- 1
+#   dist.s <- stack(mget(rep("dist.r",4)))
+#   
+#   for(i in 1:nlayers(dist.s)){
+#     dist.s[[i]][sampleRandom(dist.s[[i]], size=20, na.rm=TRUE, sp=TRUE)] <- 0
+#   }
+#   
+#   dist.r[sampleRandom(dist.r, size=20, na.rm=TRUE, sp=TRUE)] <- 0
+#     
+#   dyn.func <- function (hab,dist) {
+#     return(hab*dist)
+#   }
+#   
+#   dyn.func.param <- list(habitat_suitability(habitat),dist.r)
+#   dyn.func.param2 <- list(habitat_suitability(habitat),dist.s)
 #   
 #  
-#   expect_identical(attr(as.habitat_suitability(hab.suit), "habitat"), "habitat_suitability")
-#   expect_identical(attr(as.habitat_suitability(hab.suit.s), "habitat"), "habitat_suitability")
+#   expect_true(inherits(as.habitat_dynamics(dyn.func, dyn.func.param), "habitat_dynamics"))
+#   expect_identical(attr(as.habitat_dynamics(dyn.func, dyn.func.param, check=TRUE), "habitat"), "habitat")
+#   
+#   expect_error(as.habitat_dynamics(1,dyn.func.param))
 # 
-#   expect_error(as.habitat_suitability(1))
-# 
-#   expect_error(habitat_suitability(1))
+#   expect_true(is.habitat_dynamics(as.habitat_dynamics(dyn.func, dyn.func.param)))
+#   
+#   expect_error(run_habitat_dynamics(1, habitat, 1))
+#   
+#   run_habitat_dynamics(as.habitat_dynamics(dyn.func, dyn.func.param), habitat, 1)
 #   
 #   expect_error(inherits(habitat_suitability(as.habitat(list(as.habitat_suitability(hab.suit),as.populations(hab.pop.n),as.carrying_capacity(hab.k)))),c("RasterLayer")))
 #   expect_true(inherits(habitat_suitability(as.habitat(list(as.habitat_suitability(hab.suit),as.populations(hab.pop.n),as.carrying_capacity(hab.k)),ss.dist)),c("RasterLayer")))
