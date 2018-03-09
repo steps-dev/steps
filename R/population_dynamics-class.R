@@ -258,7 +258,7 @@ dispersal_core_ca <- function(params,pop,hsm,cc){
 
   # could do this in parallel if wanted. 
   for (i in which_stages_disperse){
-    pop[[i]] <- dhmpr::rcpp_dispersal(raster::as.matrix(pop[[i]]),
+    pop[[i]][] <- dhmpr::rcpp_dispersal(raster::as.matrix(pop[[i]]),
                                       raster::as.matrix(cc),
                                       raster::as.matrix(hsm),
                                       raster::as.matrix(params$barriers_map),
@@ -298,15 +298,19 @@ dispersal_core_fft <- function(params,pop){
   fs <- setupFFT(x = x, y = y, f = f)
   
   #'# apply dispersal to the population (need to run this separately for each stage)
-  fft_dispersal <- list()
-  # could do this in parallel if wanted. 
-  for (i in seq_len(n_dispersing_stages)){
-    fft_dispersal[[i]] <- dispersalFFT(popmat = raster::as.matrix(pops[[i]]), fs = fs)
+  # fft_dispersal <- list()
+  # # could do this in parallel if wanted. 
+  # for (i in seq_len(n_dispersing_stages)){
+  #   fft_dispersal[[i]] <- dispersalFFT(popmat = raster::as.matrix(pops[[i]]), fs = fs)
+  # }
+  
+  for (i in which_stages_disperse){
+    pops[[i]][] <- dispersalFFT(popmat = raster::as.matrix(pops[[i]]), fs = fs)
   }
   
-  fft_dispersal <- lapply(fft_dispersal,function(x){pops[[1]][]<-x;return(pops[[1]])})
-  pops[which_stages_disperse] <- fft_dispersal
-  pops <- lapply(pops, `attr<-`, "habitat", "populations")
+  # fft_dispersal <- lapply(fft_dispersal,function(x){pops[[1]][]<-x;return(pops[[1]])})
+  # pops[[which_stages_disperse]] <- fft_dispersal
+  # pops <- lapply(pops, `attr<-`, "habitat", "populations")
   return(pops)
 }
 
@@ -363,12 +367,38 @@ ca_dispersal_population_dynamics <- function (state, timestep) {
   population_raster[idx] <- population
    
   # do dispersal
-  state$population$population_raster <- dispersal(dispersal_parameters,
-                                                  population_raster,
-                                                  habitat_suitability,
-                                                  carrying_capacity,
+  state$population$population_raster <- dispersal(params = dispersal_parameters,
+                                                  pop = population_raster,
+                                                  hsm = habitat_suitability,
+                                                  cc = carrying_capacity,
                                                   method = "ca"
                                                   )
   state
 } 
   
+#' @export
+fft_dispersal_population_dynamics <- function (state, timestep) {
+  
+  population_raster <- state$population$population_raster
+  dispersal_parameters <- state$demography$dispersal_parameters
+  transition_matrix <- state$demography$transition_matrix
+  habitat_suitability <- state$habitat$habitat_suitability
+  carrying_capacity <- state$habitat$carrying_capacity
+  
+  # get population as a matrix
+  idx <- which(!is.na(getValues(population_raster[[1]])))
+  population <- extract(population_raster, idx)
+  
+  # do population change
+  population <- population %*% transition_matrix
+  
+  # put back in the raster
+  population_raster[idx] <- population
+  
+  # do dispersal
+  state$population$population_raster <- dispersal(params = dispersal_parameters,
+                                                  pop = population_raster,
+                                                  method = "fft"
+  )
+  state
+}
