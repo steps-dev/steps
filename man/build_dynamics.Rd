@@ -4,14 +4,15 @@
 \alias{build_dynamics}
 \title{Create a dynamics object to run in an experiment}
 \usage{
-build_dynamics(habitat_dynamics, demographic_dynamics, population_dynamics)
+build_dynamics(habitat_dynamics, demography_dynamics, population_dynamics,
+  order = c("demography_dynamics", "habitat_dynamics", "population_dynamics"))
 }
 \arguments{
 \item{habitat_dynamics}{A module to alter the habitat object in an experiment}
 
-\item{demographic_dynamics}{A module to alter the habitat object in an experiment}
-
 \item{population_dynamics}{A module to alter the population object in an experiment}
+
+\item{demographic_dynamics}{A module to alter the habitat object in an experiment}
 }
 \value{
 An object of class \code{dynamics}

@@ -93,6 +93,24 @@ print.population_dynamics <- function (x, ...) {
 ### internal functions ###
 ##########################
 
+cap_population <- function (new_population, carrying_capacity) {
+  
+  #carrying_capacity <- state$habitat$carrying_capacity
+  
+  if (is.null(carrying_capacity)) {
+    stop ("carrying capacity must be specified",
+          call. = FALSE)
+  }
+  
+  # get degree of overpopulation, and shrink accordingly
+  overpopulation <- as.vector(carrying_capacity) / rowSums(new_population)
+  overpopulation[is.nan(overpopulation)] <- 0
+  overpopulation <- pmin(overpopulation, 1)
+  new_population <- sweep(new_population, 1, overpopulation, "*")
+  
+  new_population
+}
+
 dispersal_matrix <- function (locations, distance_decay = 0.5) {
   D <- as.matrix(dist(locations))
   dispersal_matrix <- exp(-D / distance_decay)
@@ -353,6 +371,7 @@ ca_dispersal_population_dynamics <- function (state, timestep) {
   population_raster <- state$population$population_raster
   dispersal_parameters <- state$demography$dispersal_parameters
   transition_matrix <- state$demography$transition_matrix
+  transition_matrix_sd <- state$demography$transition_matrix_sd
   habitat_suitability <- state$habitat$habitat_suitability
   carrying_capacity <- state$habitat$carrying_capacity
   
@@ -362,7 +381,10 @@ ca_dispersal_population_dynamics <- function (state, timestep) {
   
   # do population change
   population <- population %*% transition_matrix
- 
+  
+  # check density dependence
+  population <- cap_population(population, carrying_capacity)
+  
   # put back in the raster
   population_raster[idx] <- population
    

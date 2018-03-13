@@ -34,3 +34,16 @@ build_population <- function (population_raster) {
 print.population <- function (x, ...) {
   cat("This is a population object")
 }
+
+#' Verify a population object
+#' @param x an object to print or test as a population object
+#' 
+#' @export
+#' 
+#' @examples
+#' 
+##' is.population(pops)
+##' 
+is.population <- function (x) {
+  inherits(x, 'population')
+}

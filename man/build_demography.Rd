@@ -4,7 +4,8 @@
 \alias{build_demography}
 \title{Create a demography object to define population transition matrices}
 \usage{
-build_demography(transition_matrix, dispersal_parameters)
+build_demography(transition_matrix, transition_matrix_sd = 0,
+  dispersal_parameters)
 }
 \arguments{
 \item{transition_matrix}{A symmetrical stage-based population structure matrix}

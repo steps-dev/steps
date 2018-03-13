@@ -14,24 +14,27 @@ koala.trans.mat <- matrix(c(0.000,0.000,0.302,0.302,
                               0.000,0.884,0.000,0.000,
                               0.000,0.000,0.793,0.793),
                             nrow = 4, ncol = 4, byrow = TRUE)
-colnames(koala.trans.mat) <- rownames(koala.trans.mat) <- c('Stage_0-1','Stage_1-2','Stage_2-3','Stage_3+')
+colnames(koala.trans.mat) <- rownames(koala.trans.mat) <- c('Stage_0_1','Stage_1_2','Stage_2_3','Stage_3_')
 
 koala.trans.mat.es <- matrix(c(0.000,0.000,1,1,
                                  1,0.000,0.000,0.000,
                                  0.000,1,0.000,0.000,
                                  0.000,0.000,1,1),
                                nrow = 4, ncol = 4, byrow = TRUE)
-colnames(koala.trans.mat.es) <- rownames(koala.trans.mat.es) <- c('Stage_0-1','Stage_1-2','Stage_2-3','Stage_3+')
+colnames(koala.trans.mat.es) <- rownames(koala.trans.mat.es) <- c('Stage_0_1','Stage_1_2','Stage_2_3','Stage_3_')
 
 
 koala.hab.suit <- raster("inst/extdata/koala/habitat/HS_crop_aggregate.tif") # read in spatial habitat suitability raster
 koala.hab.suit <- (koala.hab.suit - cellStats(koala.hab.suit, min)) / (cellStats(koala.hab.suit, max) - cellStats(koala.hab.suit, min))
+names(koala.hab.suit) <- "Habitat"
 plot(koala.hab.suit, box = FALSE, axes = FALSE)
 
 koala.hab.k <- koala.hab.suit*60
+names(koala.hab.k) <- "Carrying Capacity"
 plot(koala.hab.k, box = FALSE, axes = FALSE)
 
 koala.pop <- stack(replicate(4, (koala.hab.k)*0.05))
+names(koala.pop) <- colnames(koala.trans.mat)
 
 koala.disp.param <- list(dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=10,'Stage_2-3'=10,'Stage_3+'=0),
                                       dispersal_kernel=list('Stage_0-1'=0,'Stage_1-2'=exp(-c(0:9)^1/3.36),'Stage_2-3'=exp(-c(0:9)^1/3.36),'Stage_3+'=0),
@@ -61,12 +64,15 @@ koala.disp.param3 <- list(dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=10,'
                           use_barriers=TRUE
 )
 
+koala.dist.fire <- stack(list.files("inst/extdata/koala/fire", full = TRUE, pattern = '*agg'))
+
 ####### Permutation 1 ########
 
 koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit,
                                carrying_capacity = koala.hab.k)
-koala.demography <- build_demography(koala.trans.mat,
-                                     rlnorm(1))
+koala.demography <- build_demography(transition_matrix = koala.trans.mat,
+                                     transition_matrix_sd = koala.trans.mat.es,
+                                     dispersal_parameters = rlnorm(1))
 koala.population <- build_population(population_raster = koala.pop)
 koala.state <- build_state(koala.habitat, koala.demography, koala.population)
 
@@ -78,63 +84,48 @@ koala.dynamics <- build_dynamics(koala.habitat.dynamics,
                                  koala.population.dynamics
 )
 
-my.results <- experiment(koala.state,
-                         koala.dynamics,
-                         timesteps = 5)
-
-rasters <- lapply(my.results, function (state) state$population$population_raster[[1]])
-plot(stack(rasters))
-
 ######################################
 
 ####### Permutation 2 ########
 
 koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit,
                                carrying_capacity = koala.hab.k)
-koala.demography <- build_demography(koala.trans.mat,
-                                     koala.disp.param3)
+koala.demography <- build_demography(transition_matrix = koala.trans.mat,
+                                     transition_matrix_sd = koala.trans.mat.es, 
+                                     dispersal_parameters = koala.disp.param3)
 koala.population <- build_population(population_raster = koala.pop)
 koala.state <- build_state(koala.habitat, koala.demography, koala.population)
 
-koala.habitat.dynamics <- as.habitat_dynamics(no_habitat_dynamics)
-koala.demography.dynamics <- as.demography_dynamics(no_demographic_dynamics)
+koala.habitat.dynamics <- fire_habitat_dynamics(habitat_suitability = koala.hab.suit,
+                                                disturbance_layers = koala.dist.fire,
+                                                effect_time=3)
+koala.demography.dynamics <- envstoch_demographic_dynamics(global_transition_matrix = koala.trans.mat,
+                                                           stochasticity = koala.trans.mat.es)
 koala.population.dynamics <- as.population_dynamics(ca_dispersal_population_dynamics)
-koala.dynamics <- build_dynamics(koala.habitat.dynamics,
-                                 koala.demography.dynamics,
-                                 koala.population.dynamics
+koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
+                                 demography_dynamics = koala.demography.dynamics,
+                                 population_dynamics = koala.population.dynamics,
+                                 order = c("habitat_dynamics",
+                                           "demography_dynamics",
+                                           "population_dynamics")
 )
 
-my.results <- experiment(koala.state,
-                         koala.dynamics,
-                         timesteps = 10)
-
-rasters <- lapply(my.results, function (state) state$population$population_raster[[2]])
-plot(stack(rasters))
 
 ######################################
 
-####### Permutation 3 ########
-
-koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit,
-                               carrying_capacity = koala.hab.k)
-koala.demography <- build_demography(koala.trans.mat,
-                                     koala.disp.param)
-koala.population <- build_population(population_raster = koala.pop)
-koala.state <- build_state(koala.habitat, koala.demography, koala.population)
-
-koala.habitat.dynamics <- as.habitat_dynamics(no_habitat_dynamics)
-koala.demography.dynamics <- as.demography_dynamics(no_demographic_dynamics)
-koala.population.dynamics <- as.population_dynamics(fft_dispersal_population_dynamics)
-koala.dynamics <- build_dynamics(koala.habitat.dynamics,
-                                 koala.demography.dynamics,
-                                 koala.population.dynamics
+system.time(
+  my.results <- experiment(koala.state,
+                         koala.dynamics,
+                         timesteps = 20
+                         )
 )
 
-my.results <- experiment(koala.state,
-                         koala.dynamics,
-                         timesteps = 10)
+plot.experiment_results(my.results, type = "graph")
 
-rasters <- lapply(my.results, function (state) state$population$population_raster[[2]])
-plot(stack(rasters))
+plot.experiment_results(my.results, type = "graph", stage = 2)
 
-######################################
+plot.experiment_results(my.results, stage = 2)
+
+plot.experiment_results(my.results, object = "habitat_suitability")
+
+plot.experiment_results(my.results, object = "carrying_capacity")

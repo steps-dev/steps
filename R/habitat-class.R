@@ -35,3 +35,16 @@ build_habitat <- function (habitat_suitability, carrying_capacity) {
 print.habitat <- function (x, ...) {
   cat("This is a habitat object")
 }
+
+#' Verify habitat object
+#'
+#' @param x an object to print or test as an habitat object 
+#'
+#' @export
+#' 
+#' @examples 
+##' is.habitat(test_habitat)
+
+is.habitat <- function (x) {
+  inherits(x, 'habitat')
+}

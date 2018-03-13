@@ -4,10 +4,10 @@
 \alias{print.experiment_results}
 \title{Print details of a experiment object}
 \usage{
-\method{print}{experiment_results}(x, ...)
+\method{print}{experiment_results}(results)
 }
 \arguments{
-\item{x}{an object to print or test as an experiment_results object}
+\item{results}{an object to print or test as an experiment_results object}
 
 \item{...}{further arguments passed to or from other methods}
 }

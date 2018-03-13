@@ -53,3 +53,40 @@ print.demography_dynamics <- function (x, ...) {
 no_demographic_dynamics <- function (state, timestep) {
   state
 }
+
+#' @export
+envstoch_demographic_dynamics <- function (global_transition_matrix, stochasticity=0) {
+  
+  dim <- nrow(global_transition_matrix)
+  idx <- which(global_transition_matrix != 0)
+  recruitment_mask <- idx == ((dim ^ 2) - dim + 1)
+  lower <- 0
+  upper <- ifelse(recruitment_mask, 1, Inf)
+  vals <- global_transition_matrix[idx]
+  
+  if (is.matrix(stochasticity)) {
+    stopifnot(identical(dim(global_transition_matrix), dim(stochasticity)))
+    stopifnot(identical(which(stochasticity != 0), idx))
+    stochasticity <- stochasticity[idx]
+  }
+  
+  demographic_dynamics <- function (state, timestep) {
+    
+    transition_matrix <- global_transition_matrix
+    
+    
+    transition_matrix[idx] <- extraDistr::rtnorm(length(idx),
+                                                 vals,
+                                                 stochasticity,
+                                                 a = lower,
+                                                 b = upper)
+    
+    state$demography$transition_matrix <- transition_matrix
+    
+    state
+    
+  }
+  
+  as.demography_dynamics(demographic_dynamics)
+
+}
