@@ -42,8 +42,8 @@ print.habitat <- function (x, ...) {
 #'
 #' @export
 #' 
-#' @examples 
-##' is.habitat(test_habitat)
+# @examples 
+# is.habitat(test_habitat)
 
 is.habitat <- function (x) {
   inherits(x, 'habitat')

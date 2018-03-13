@@ -14,6 +14,3 @@
 \description{
 Show details of demography object
 }
-\examples{
-summary(demo)
-}

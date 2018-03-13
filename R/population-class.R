@@ -40,10 +40,9 @@ print.population <- function (x, ...) {
 #' 
 #' @export
 #' 
-#' @examples
-#' 
-##' is.population(pops)
-##' 
+# @examples
+# is.population(pops)
+ 
 is.population <- function (x) {
   inherits(x, 'population')
 }

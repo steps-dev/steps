@@ -14,6 +14,3 @@
 \description{
 Plot details of demography object
 }
-\examples{
-plot(demo)
-}

@@ -13,7 +13,7 @@
 #' 
 #' test_demography <- build_demography(fake_transition_matrix(4), rlnorm(1))
 
-build_demography <- function (transition_matrix, transition_matrix_sd=0, dispersal_parameters) {
+build_demography <- function (transition_matrix, dispersal_parameters) {
   x <- transition_matrix
   if(base::diff(base::dim(x)) !=0) stop("Needs to be a square matrix with stage probabilities between each stage.")
   stage_matrixCheck(x)
@@ -22,7 +22,6 @@ build_demography <- function (transition_matrix, transition_matrix_sd=0, dispers
   if(base::is.null(m.names)) m.names <- base::paste0("stage.",1:di)
   base::dimnames(x) <- base::list(m.names, m.names)
   demography <- list(transition_matrix = transition_matrix,
-                     transition_matrix_sd = transition_matrix_sd,
                      dispersal_parameters = dispersal_parameters)
   set_class(demography, "demography")
 }
@@ -49,8 +48,8 @@ print.demography <- function (x, ...) {
 #'
 #' @export
 #'
-##' @examples
-##' summary(demo)
+# @examples
+# summary(demo)
 
 summary.demography <- function (x,...) {
   demographyCheck(x)
@@ -83,8 +82,8 @@ summary.demography <- function (x,...) {
 #' @importFrom igraph graph.adjacency
 #' @export
 #' 
-#' @examples 
-##' plot(demo)
+# @examples 
+# plot(demo)
 
 plot.demography <- function (x, ...) {
   # plot a dynamic using igraph
@@ -130,8 +129,8 @@ plot.demography <- function (x, ...) {
 #'
 #' @export
 #' 
-#' @examples
-##' is.demography(demo)
+# @examples
+# is.demography(demo)
 
 is.demography <- function (x) {
   inherits(x, 'demography')

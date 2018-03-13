@@ -12,8 +12,3 @@ is.population(x)
 \description{
 Verify a population object
 }
-\examples{
-
-is.population(pops)
-
-}

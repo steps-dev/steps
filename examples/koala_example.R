@@ -71,7 +71,6 @@ koala.dist.fire <- stack(list.files("inst/extdata/koala/fire", full = TRUE, patt
 koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit,
                                carrying_capacity = koala.hab.k)
 koala.demography <- build_demography(transition_matrix = koala.trans.mat,
-                                     transition_matrix_sd = koala.trans.mat.es,
                                      dispersal_parameters = rlnorm(1))
 koala.population <- build_population(population_raster = koala.pop)
 koala.state <- build_state(koala.habitat, koala.demography, koala.population)
@@ -89,18 +88,20 @@ koala.dynamics <- build_dynamics(koala.habitat.dynamics,
 ####### Permutation 2 ########
 
 koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit,
-                               carrying_capacity = koala.hab.k)
+                               carrying_capacity = koala.hab.k*.07)
 koala.demography <- build_demography(transition_matrix = koala.trans.mat,
-                                     transition_matrix_sd = koala.trans.mat.es, 
                                      dispersal_parameters = koala.disp.param3)
 koala.population <- build_population(population_raster = koala.pop)
-koala.state <- build_state(koala.habitat, koala.demography, koala.population)
+koala.state <- build_state(habitat = koala.habitat,
+                           demography = koala.demography,
+                           population = koala.population)
 
 koala.habitat.dynamics <- fire_habitat_dynamics(habitat_suitability = koala.hab.suit,
                                                 disturbance_layers = koala.dist.fire,
                                                 effect_time=3)
-koala.demography.dynamics <- envstoch_demographic_dynamics(global_transition_matrix = koala.trans.mat,
-                                                           stochasticity = koala.trans.mat.es)
+koala.demography.dynamics <- as.demography_dynamics(no_demographic_dynamics)
+# koala.demography.dynamics <- envstoch_demographic_dynamics(global_transition_matrix = koala.trans.mat,
+#                                                            stochasticity = koala.trans.mat.es)
 koala.population.dynamics <- as.population_dynamics(ca_dispersal_population_dynamics)
 koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
                                  demography_dynamics = koala.demography.dynamics,

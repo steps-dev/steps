@@ -61,7 +61,7 @@ fire_habitat_dynamics <- function (habitat_suitability, disturbance_layers, effe
     
     original_habitat <- habitat_suitability
     
-    if (nlayers(disturbance_layers) >= timestep ) {
+    if (nlayers(disturbance_layers) < timestep ) {
       stop("The number of disturbance layers must match the \nnumber of timesteps in the experiment")
     }
 

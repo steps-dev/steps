@@ -12,6 +12,3 @@ is.habitat(x)
 \description{
 Verify habitat object
 }
-\examples{
-is.habitat(test_habitat)
-}

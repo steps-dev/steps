@@ -12,6 +12,3 @@ is.demography(x)
 \description{
 Verify demography object
 }
-\examples{
-is.demography(demo)
-}
