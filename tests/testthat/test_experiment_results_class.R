@@ -122,6 +122,7 @@ test_that('experiment_results classes work', {
                                            stochasticity = mat_sd)
   pop_dyn <- as.population_dynamics(ca_dispersal_population_dynamics)
   pop_dyn2 <- as.population_dynamics(fast_population_dynamics)
+  pop_dyn3 <- as.population_dynamics(fft_dispersal_population_dynamics)
   
   b_dynamics <- build_dynamics(habitat_dynamics = hab_dyn,
                                demography_dynamics = dem_dyn,
@@ -138,6 +139,11 @@ test_that('experiment_results classes work', {
                                 population_dynamics = pop_dyn2
   )
   
+  b_dynamics4 <- build_dynamics(habitat_dynamics = hab_dyn,
+                               demography_dynamics = dem_dyn,
+                               population_dynamics = pop_dyn3
+  )
+  
   expect_true(inherits(experiment(state = b_state,
                                   dynamics = b_dynamics,
                                   timesteps = 10),
@@ -152,6 +158,12 @@ test_that('experiment_results classes work', {
   
   expect_true(inherits(experiment(state = b_state4,
                                   dynamics = b_dynamics3,
+                                  timesteps = 10),
+                       "experiment_results")
+  )
+  
+  expect_true(inherits(experiment(state = b_state,
+                                  dynamics = b_dynamics4,
                                   timesteps = 10),
                        "experiment_results")
   )
