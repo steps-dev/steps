@@ -41,7 +41,7 @@ experiment <- function (state, dynamics, timesteps = 100) {
 # print(results)
 
 print.experiment_results <- function (results) {
-  #cat("This is an experiment results object, for", length(x), "timesteps")
+  cat("This is an experiment results object, for", length(results), "timesteps")
 }
 
 #' Plot an experiment object

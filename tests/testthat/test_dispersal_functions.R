@@ -4,23 +4,6 @@ test_that('dispersal functions work', {
   library(raster)
   library(rgdal)
 
-  # the types of demography
-  mat <- matrix(c(0.000,0.000,0.302,0.302,
-                  0.940,0.000,0.000,0.000,
-                  0.000,0.884,0.000,0.000,
-                  0.000,0.000,0.793,0.793),
-                nrow = 4, ncol = 4, byrow = TRUE)
-  colnames(mat) <- rownames(mat) <- c('Stage_0-1','Stage_1-2','Stage_2-3','Stage_3+')
-
-  # the types of demography
-  mat_sd <- matrix(c(0.000,0.000,1,1,
-                     1,0.000,0.000,0.000,
-                     0.000,1,0.000,0.000,
-                     0.000,0.000,1,1),
-                   nrow = 4, ncol = 4, byrow = TRUE)
-  colnames(mat_sd) <- rownames(mat_sd) <- c('Stage_0-1','Stage_1-2','Stage_2-3','Stage_3+')
-
-  # the types of habitat attributes
   r <- raster(vals=1, nrows=150, ncols=150, res=c(5,5), crs=('+proj=aea +lat_1=-18 +lat_2=-36 +lat_0=0 +lon_0=132 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'))
 
   hab.suit <- r*sample(seq(0,1,.01), ncell(r), replace=TRUE)
@@ -31,7 +14,7 @@ test_that('dispersal functions work', {
   r2[c(adjacent(hab.suit, cells, directions=8, pairs=FALSE),cells)]  <- 10
   r3 <- r2#*hab.suit
   
-  pop <- stack(r3,r3,r3,r3)
+  pop <- stack(r3*2,r3*2,r3*2,r3*2)
 
   hab.k <- hab.suit*10
 

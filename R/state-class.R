@@ -20,6 +20,7 @@
 #' test_state <- build_state(test_habitat, test_demography, test_population)
 
 build_state <- function (habitat, demography, population) {
+  # CHECK OBJECT TYPES
   check_habitat_matches_population(habitat, population)
   check_demography_matches_population(demography, population)
   state <- list(habitat = habitat,

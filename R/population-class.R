@@ -16,6 +16,7 @@
 #' test_population <- build_population(stack(replicate(4, test_habitat$carrying_capacity * 0.2)))
 
 build_population <- function (population_raster) {
+  #ADD CHECKS AND OBJECT CONVERSIONS
   population <- list(population_raster = population_raster)
   set_class(population, "population")
 }

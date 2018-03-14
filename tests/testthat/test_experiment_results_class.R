@@ -1,6 +1,6 @@
-context('demography-class')
+context('experiment_results-class')
 
-test_that('demography classes work', {
+test_that('experiment_results classes work', {
   library(raster)
   library(rgdal)
 
@@ -40,6 +40,20 @@ test_that('demography classes work', {
   disp.bar2 <- hab.suit*0
   disp.bar2[sampleRandom(disp.bar2, size=700, na.rm=TRUE, sp=TRUE)] <- 1
   
+  dist_list <- list()
+  
+  for (i in 1:10) {
+    
+    r2 <- r
+    r2[] <- 1
+    cells <- sample(c(1:ncell(r2)), 10)
+    r2[c(adjacent(hab.suit, cells, directions=8, pairs=FALSE),cells)]  <- 0.5
+    dist_list[[i]] <- r2
+    
+  }
+  
+  dist.s <- stack(dist_list)
+  
   params <- list(
     dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=1,'Stage_2-3'=1,'Stage_3+'=0),
     dispersal_kernel=list('Stage_0-1'=0,'Stage_1-2'=exp(-c(0:9)^1/3.36),'Stage_2-3'=exp(-c(0:9)^1/3.36),'Stage_3+'=0),
@@ -66,27 +80,76 @@ test_that('demography classes work', {
     barrier_type=1
   )
   
-  expect_true(inherits(build_demography(mat,dispersal_parameters=params3),"demography"))
+  b_hab <- build_habitat(habitat_suitability = hab.suit,
+                       carrying_capacity = hab.k)
+  b_pop <- build_population(pop)
+  b_dem <- build_demography(transition_matrix = mat,
+                          dispersal_parameters = params2)
   
-  plot(build_demography(mat,dispersal_parameters=params3))
+  b_state <- build_state(habitat = b_hab,
+              population = b_pop,
+              demography = b_dem
+              )
   
-  expect_error(build_demography(mat[c(1:2),c(1:3)],dispersal_parameters=params3))
+  hab_dyn <- fire_habitat_dynamics(habitat_suitability = hab.suit,
+                                                  disturbance_layers = dist.s,
+                                                  effect_time = 2)
+  dem_dyn <- envstoch_demographic_dynamics(global_transition_matrix = mat,
+                                           stochasticity = mat_sd)
+  pop_dyn <- as.population_dynamics(ca_dispersal_population_dynamics)
   
-  mat2 <- mat
-  mat2[1,2] <- NA
-  expect_error(build_demography(mat2,dispersal_parameters=params3))
+  b_dynamics <- build_dynamics(habitat_dynamics = hab_dyn,
+                               demography_dynamics = dem_dyn,
+                               population_dynamics = pop_dyn
+                               )
   
-  expect_error(build_demography(as.vector(mat),dispersal_parameters=params3))
+  expect_true(inherits(experiment(state = b_state,
+                                  dynamics = b_dynamics,
+                                  timesteps = 10),
+                       "experiment_results")
+              )
   
-  print(build_demography(mat,dispersal_parameters=params3))
+  expect_error(experiment(state = b_state,
+                                  dynamics = b_dynamics,
+                                  timesteps = 15)
+              )
+
+  test_experiment <- experiment(state = b_state,
+                                dynamics = b_dynamics,
+                                timesteps = 10)
+   
+  print(test_experiment)
+
+  plot(test_experiment,
+       object = "population",
+       type = "raster",
+       stage = 2
+  )
   
-  summary(build_demography(mat,dispersal_parameters=params3))
+  plot(test_experiment,
+       object = "population",
+       type = "graph"
+  )
   
-  plot(build_demography(mat,dispersal_parameters=params3))
+  plot(test_experiment,
+       object = "population",
+       type = "graph",
+       stage = 2
+  )
   
-  expect_true(is.demography(build_demography(mat,dispersal_parameters=params3)))
+  plot(test_experiment,
+       object = "habitat_suitability"
+  )
   
-  #expect_error(as.demography(c(1,2,3)))
+  plot(test_experiment,
+       object = "carrying_capacity"
+  )
+    
+  expect_error(plot(test_experiment,
+                    object = "population",
+                    type = "raster"
+                    )
+  )
 
 })
  

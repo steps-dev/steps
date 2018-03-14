@@ -16,6 +16,7 @@
 #' test_habitat <- build_habitat(habitat_suitability = r / cellStats(r, "max"), carrying_capacity = ceiling(r * 0.1))
 
 build_habitat <- function (habitat_suitability, carrying_capacity) {
+  #INSERT CHECKS AND OBJECT TRANSFORMATIONS
   habitat <- list(habitat_suitability = habitat_suitability,
                   carrying_capacity = carrying_capacity)
   set_class(habitat, "habitat")

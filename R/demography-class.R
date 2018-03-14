@@ -15,13 +15,12 @@
 
 build_demography <- function (transition_matrix, dispersal_parameters) {
   x <- transition_matrix
-  if(base::diff(base::dim(x)) !=0) stop("Needs to be a square matrix with stage probabilities between each stage.")
   stage_matrixCheck(x)
   di <- base::dim(x)[[1]]
   m.names <- base::dimnames(x)[[1]]
   if(base::is.null(m.names)) m.names <- base::paste0("stage.",1:di)
   base::dimnames(x) <- base::list(m.names, m.names)
-  demography <- list(transition_matrix = transition_matrix,
+  demography <- list(transition_matrix = x,
                      dispersal_parameters = dispersal_parameters)
   set_class(demography, "demography")
 }
@@ -52,7 +51,6 @@ print.demography <- function (x, ...) {
 # summary(demo)
 
 summary.demography <- function (x,...) {
-  demographyCheck(x)
   x <- x$transition_matrix
   di <- base::dim(x)[1]
   ea <- base::eigen(x)
@@ -90,8 +88,7 @@ plot.demography <- function (x, ...) {
   
   # extract the stage matrix & create an igraph graph x
   graphics::par(mar=c(2,4,4,2))
-  demographyCheck(x)
-  x <- x$global_stage_matrix
+  x <- x$transition_matrix
   textmat <- base::t(x)
   textmat[textmat>0]<-base::paste0('p(',base::as.character(textmat[textmat>0]),')')
   textmat[textmat=='0'] <-''
@@ -141,12 +138,7 @@ is.demography <- function (x) {
 ##########################
 
 stage_matrixCheck <- function (x) {
-  stopifnot(ncol(x) == nrow(x))
-  stopifnot(is.matrix(x))
-  stopifnot(all(is.finite(x)))
-}
-
-demographyCheck <- function (x) {
-  stopifnot(inherits(x,'demography'))
-  stopifnot(is.list(x))
+  if (!is.matrix(x)) stop("A matrix object is required")
+  if (ncol(x) != nrow(x)) stop("A square matrix with stage probabilities between each stage is required")
+  if (!all(is.finite(x))) stop("All values in matrix are required to be either zero or positive and finite")
 }
