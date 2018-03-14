@@ -86,8 +86,14 @@ test_that('experiment_results classes work', {
   b_dem <- build_demography(transition_matrix = mat,
                           dispersal_parameters = params2)
   
+  b_hab2 <- build_habitat(habitat_suitability = hab.suit,
+                         carrying_capacity = NULL)
+  
   b_dem2 <- build_demography(transition_matrix = fake_transition_matrix(4),
                              dispersal_parameters = params3)
+  
+  b_dem3 <- build_demography(transition_matrix = mat,
+                            dispersal_parameters = rlnorm(1))
   
   b_state <- build_state(habitat = b_hab,
               population = b_pop,
@@ -99,12 +105,23 @@ test_that('experiment_results classes work', {
                          demography = b_dem2
   )
   
+  b_state3 <- build_state(habitat = b_hab2,
+                          population = b_pop,
+                          demography = b_dem
+  )
+  
+  b_state4 <- build_state(habitat = b_hab,
+                          population = b_pop,
+                          demography = b_dem3
+  )
+  
   hab_dyn <- fire_habitat_dynamics(habitat_suitability = hab.suit,
                                                   disturbance_layers = dist.s,
                                                   effect_time = 2)
   dem_dyn <- envstoch_demographic_dynamics(global_transition_matrix = mat,
                                            stochasticity = mat_sd)
   pop_dyn <- as.population_dynamics(ca_dispersal_population_dynamics)
+  pop_dyn2 <- as.population_dynamics(fast_population_dynamics)
   
   b_dynamics <- build_dynamics(habitat_dynamics = hab_dyn,
                                demography_dynamics = dem_dyn,
@@ -114,6 +131,11 @@ test_that('experiment_results classes work', {
   b_dynamics2 <- build_dynamics(habitat_dynamics = as.habitat_dynamics(no_habitat_dynamics),
                                demography_dynamics = as.demography_dynamics(no_demographic_dynamics),
                                population_dynamics = pop_dyn
+  )
+  
+  b_dynamics3 <- build_dynamics(habitat_dynamics = as.habitat_dynamics(no_habitat_dynamics),
+                                demography_dynamics = as.demography_dynamics(no_demographic_dynamics),
+                                population_dynamics = pop_dyn2
   )
   
   expect_true(inherits(experiment(state = b_state,
@@ -128,10 +150,21 @@ test_that('experiment_results classes work', {
                        "experiment_results")
   )
   
+  expect_true(inherits(experiment(state = b_state4,
+                                  dynamics = b_dynamics3,
+                                  timesteps = 10),
+                       "experiment_results")
+  )
+  
   expect_error(experiment(state = b_state,
                                   dynamics = b_dynamics,
                                   timesteps = 15)
               )
+  
+  expect_error(experiment(state = b_state3,
+                          dynamics = b_dynamics,
+                          timesteps = 10)
+  )
 
   test_experiment <- experiment(state = b_state,
                                 dynamics = b_dynamics,
