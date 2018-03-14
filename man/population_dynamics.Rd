@@ -2,23 +2,34 @@
 % Please edit documentation in R/population_dynamics-class.R
 \name{as.population_dynamics}
 \alias{as.population_dynamics}
+\alias{is.population_dynamics}
+\alias{print.population_dynamics}
 \title{Change the population in a state object}
 \usage{
 as.population_dynamics(population_dynamics_function)
+
+is.population_dynamics(x)
+
+\method{print}{population_dynamics}(x, ...)
 }
 \arguments{
 \item{population_dynamics_function}{A function that operates on a state object to change population at specified timesteps. User may enter a custom function or select a pre-defined module - see documentation.}
+
+\item{x}{a population_dynamic object}
+
+\item{...}{further arguments passed to or from other methods}
 }
 \value{
 An object of class \code{population_dynamics}
 }
 \description{
-Change the population in a state object
+A 'population dynamics' object is used to modify species populations in space and time.
+It is a sub-component of a \link[dhmpr]{dynamics} object and is executed in each timestep of an experiment.
 }
 \examples{
 
-library(raster)
 library(dhmpr)
+library(raster)
 
 example_function <- function (state, timestep) {
 
@@ -47,5 +58,12 @@ population_raster[idx] <- population
 state$population$population_raster <- population_raster
 state
 }
+
 fast_population_dynamics <- as.population_dynamics(example_function)
+
+# Test if object is of the type 'population dynamics'
+  
+is.population_dynamics(fast_population_dynamics)
+
+print(fast_population_dynamics)
 }

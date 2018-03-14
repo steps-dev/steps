@@ -1,16 +1,27 @@
 #' Run an experiment to make spatially-explicit population projections
 #'
-#' @param state A state object - static habitat, population, and demography in a timestep
-#' @param dynamics A dynamics object - modules that change habitat, population, and demography during and experiment
-#' @param timesteps Number of timesteps used in the experiment
+#' @description A habitat object is used to store spatially-explicit information on habitat suitability and the carrying_capacity of a landscape.
+#' It is a sub-component of a \link[dhmpr]{state} object and is modified in each timestep of an experiment.
+#' 
+#' @rdname experiment_results
+#'
+#' @param state a state object - static habitat, population, and demography in a timestep
+#' @param dynamics a dynamics object - modules that change habitat, population, and demography during and experiment
+#' @param timesteps number of timesteps used in the experiment
+#' @param results an experiment_reults object
+#' @param object the state object to plot - can be 'population' (default), 'habitat_suitability' or 'carrying_capacity'
+#' @param type the plot type - 'graph' (default) or 'raster'
+#' @param stage life-stage to plot - must be specified for 'raster' plot types; default is NULL and all life-stages will be plotted
+#' @param ... further arguments passed to or from other methods
 #' 
 #' @return An object of class \code{experiment_results}
+#' 
 #' @export
 #'
 #' @examples
 #' 
-#' library(raster)
 #' library(dhmpr)
+#' library(raster)
 #' 
 #' r <- raster(system.file("external/test.grd", package="raster"))
 #' 
@@ -28,36 +39,41 @@ experiment <- function (state, dynamics, timesteps = 100) {
   set_class(output_states, "experiment_results")
 }
 
-
-#' Print details of a experiment object
-#'
-#' @param results an object to print or test as an experiment_results object
-#' @param ... further arguments passed to or from other methods
+#' @rdname experiment_results
 #'
 #' @export
+#' 
+#' @examples
 #'
-# @examples
-# results <- experiment(test_state, fast_approximation, timesteps = 10)
-# print(results)
+#' # Test if object is of the type 'experiment results'
+#'   
+#' is.experiment_results(results)
+
+is.experiment_results <- function (results) {
+  inherits(results, 'experiment_results')
+}
+
+#' @rdname experiment_results
+#' 
+#' @export
+#'
+#' @examples
+#' 
+#' print(results)
 
 print.experiment_results <- function (results) {
   cat("This is an experiment results object, for", length(results), "timesteps")
 }
 
-#' Plot an experiment object
-#'
-#' @param results 
-#' @param object 
-#' @param type 
-#' @param ... 
+#' @rdname experiment_results
 #'
 #' @export
 #'
-# @examples
-# results <- experiment(test_state, fast_approximation, timesteps = 10)
-# plot(results)
+#' @examples
+#' 
+#' plot(results)
 
-plot.experiment_results <- function (results, object = "population", type = "raster", stage = NULL, ...) {
+plot.experiment_results <- function (results, object = "population", type = "graph", stage = NULL, ...) {
 
   stages <- nlayers(results[[1]]$population$population_raster)
   

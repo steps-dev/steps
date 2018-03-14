@@ -1,17 +1,36 @@
-#' Create a demography object to define population transition matrices
+#' Create a demography object to use in a state object
 #'
-#' @param transition_matrix A symmetrical stage-based population structure matrix
-#' @param dispersal_parameters Specifications for dispersal in the landscape
+#' @description A demography object is used to store information on how populations change in space and time.
+#' This includes life-stage matrices and parameters to control dispersal.
+#' It is a sub-component of a \link[dhmpr]{state} object and is modified in each timestep of an experiment.
+#' 
+#' @rdname demography
+#' 
+#' @param transition_matrix a symmetrical stage-based population structure matrix
+#' @param dispersal_parameters specifications for dispersal in the landscape
+#' @param x a demography object
+#' @param ... further arguments passed to or from other methods
 #'
 #' @return An object of class \code{demography}
+#' 
 #' @export
 #'
 #' @examples
 #' 
-#' library(raster)
 #' library(dhmpr)
+#' library(raster)
 #' 
-#' test_demography <- build_demography(fake_transition_matrix(4), rlnorm(1))
+#' # Use a built-in function to generate a four life-stage transition matrix
+#' 
+#' mat <- fake_transition_matrix(4)
+#' 
+#' # Provide a list of dispersal parameters
+#' 
+#' params <- list(rlnorm(1),c(1:4))
+#' 
+#' # Construct the demography object.
+#' 
+#' test_demography <- build_demography(mat, params)
 
 build_demography <- function (transition_matrix, dispersal_parameters) {
   x <- transition_matrix
@@ -25,30 +44,43 @@ build_demography <- function (transition_matrix, dispersal_parameters) {
   set_class(demography, "demography")
 }
 
-#' Print details of a demography object
+#' @rdname demography
 #'
-#' @param x an object to print or test as an demography object
-#' @param ... further arguments passed to or from other methods
+#' @export
+#' 
+#' @examples
+#' 
+#' # Test if object is of the type 'population'
+#' 
+#' is.demography(test_demography)
+
+is.demography <- function (x) {
+  inherits(x, 'demography')
+}
+
+#' @rdname demography
 #'
 #' @export
 #'
-# @examples
-# test_demography <- build_demography(fake_transition_matrix(4), rlnorm(1))
-# print(test_demography)
+#' @examples
+#' 
+#' # Print information about the 'demography' object
+#' 
+#' print(test_demography)
 
 print.demography <- function (x, ...) {
   cat("This is a demography object")
 }
 
-#' Show details of demography object
-#'
-#' @param x a demography object to summarise
-#' @param ... further arguments passed to or from other methods 
+#' @rdname demography
 #'
 #' @export
 #'
-# @examples
-# summary(demo)
+#' @examples
+#' 
+#' # Print a summary of 'demography' object attributes
+#' 
+#' summary(test_demography)
 
 summary.demography <- function (x,...) {
   x <- x$transition_matrix
@@ -72,16 +104,17 @@ summary.demography <- function (x,...) {
   return (result)
 }
 
-#' Plot details of demography object
+#' @rdname demography
 #'
-#' @param x a demography object to summarise
-#' @param ... further arguments passed to or from other methods 
-
 #' @importFrom igraph graph.adjacency
+#' 
 #' @export
 #' 
-# @examples 
-# plot(demo)
+#' @examples
+#' 
+#' # Plot the 'demography' object
+#' 
+#' plot(test_demography)
 
 plot.demography <- function (x, ...) {
   # plot a dynamic using igraph
@@ -118,19 +151,6 @@ plot.demography <- function (x, ...) {
   # return the igraph x
   return (base::invisible(g))
   
-}
-
-#' Verify demography object
-#'
-#' @param x a demography object to summarise
-#'
-#' @export
-#' 
-# @examples
-# is.demography(demo)
-
-is.demography <- function (x) {
-  inherits(x, 'demography')
 }
 
 ##########################

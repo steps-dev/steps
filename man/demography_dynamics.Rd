@@ -2,26 +2,44 @@
 % Please edit documentation in R/demography_dynamics-class.R
 \name{as.demography_dynamics}
 \alias{as.demography_dynamics}
+\alias{is.demography_dynamics}
+\alias{print.demography_dynamics}
 \title{Change the demography in a state object}
 \usage{
 as.demography_dynamics(demography_dynamics_function)
+
+is.demography_dynamics(x)
+
+\method{print}{demography_dynamics}(x, ...)
 }
 \arguments{
 \item{demography_dynamics_function}{A function that operates on a state object to change demography at specified timesteps. User may enter a custom function or select a pre-defined module - see documentation.}
+
+\item{x}{an object to print or test as an demography_dynamic object}
+
+\item{...}{further arguments passed to or from other methods}
 }
 \value{
 An object of class \code{demography_dynamics}
 }
 \description{
-Change the demography in a state object
+A 'demography dynamics' object is used to modify life-stage transition matrices - adding stochasticity for example.
+It is a sub-component of a \link[dhmpr]{dynamics} object and is executed in each timestep of an experiment.
 }
 \examples{
 
-library(raster)
 library(dhmpr)
+library(raster)
 
 example_function <- function (state, timestep) {
 state
 }
+
 no_demography_dynamics <- as.demography_dynamics(example_function)
+
+# Test if object is of the type 'demography dynamics'
+  
+is.demography_dynamics(no_demography_dynamics)
+
+print(no_demography_dynamics)
 }

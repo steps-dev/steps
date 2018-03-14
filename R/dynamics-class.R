@@ -1,16 +1,24 @@
 #' Create a dynamics object to run in an experiment
 #'
+#' @description A dynamics object is a group of modules (functions) used modify habitat, population, and demography in a timestep.
+#' It modifies a \link[dhmpr]{state} object in each timestep of an experiment.
+#' 
+#' @rdname dynamics
+#' 
 #' @param population_dynamics A module to alter the population object in an experiment
 #' @param habitat_dynamics A module to alter the habitat object in an experiment
 #' @param demographic_dynamics A module to alter the habitat object in an experiment
+#' @param x an object to print or test as a dynamics object
+#' @param ... further arguments passed to or from other methods
 #'
 #' @return An object of class \code{dynamics}
+#' 
 #' @export
 #'
 #' @examples
 #' 
-#' library(raster)
 #' library(dhmpr)
+#' library(raster)
 #' 
 #' r <- raster(system.file("external/test.grd", package="raster"))
 #' 
@@ -18,7 +26,7 @@
 #' test_demography <- build_demography(fake_transition_matrix(4), rlnorm(1))
 #' test_population <- build_population(stack(replicate(4, test_habitat$carrying_capacity * 0.2)))
 #' test_state <- build_state(test_habitat, test_demography, test_population)
-#' fast_approximation <- build_dynamics(no_habitat_dynamics, no_demographic_dynamics, fast_population_dynamics)
+#' test_dynamics <- build_dynamics(no_habitat_dynamics, no_demographic_dynamics, fast_population_dynamics)
 
 build_dynamics <- function (habitat_dynamics,
                             demography_dynamics,
@@ -38,16 +46,27 @@ build_dynamics <- function (habitat_dynamics,
   set_class(dynamics, "dynamics")
 }
 
-#' Print details of a dynamics object
+#' @rdname dynamics
 #'
-#' @param x an object to print or test as a dynamics object
-#' @param ... further arguments passed to or from other methods
+#' @export
+#' 
+#' @examples
+#'
+#' # Test if object is of the type 'dynamics'
+#'   
+#' is.dynamics(test_dynamics)
+
+is.dynamics <- function (x) {
+  inherits(x, 'dynamics')
+}
+
+#' @rdname dynamics
 #'
 #' @export
 #'
-# @examples
-# fast_approximation <- build_dynamics(no_habitat_dynamics, no_demographic_dynamics, fast_population_dynamics)
-# print(fast_approximation)
+#' @examples
+#'
+#' print(test_dynamics)
 
 print.dynamics <- function(x, ...) {
   cat("This is a dynamics object")

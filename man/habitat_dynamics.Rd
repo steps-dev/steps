@@ -2,26 +2,44 @@
 % Please edit documentation in R/habitat_dynamics-class.R
 \name{as.habitat_dynamics}
 \alias{as.habitat_dynamics}
+\alias{is.habitat_dynamics}
+\alias{print.habitat_dynamics}
 \title{Change the habitat in a state object}
 \usage{
 as.habitat_dynamics(habitat_dynamics_function)
+
+is.habitat_dynamics(x)
+
+\method{print}{habitat_dynamics}(x, ...)
 }
 \arguments{
 \item{habitat_dynamics_function}{A function that operates on a state object to change habitat at specified timesteps. User may enter a custom function or select a pre-defined module - see documentation.}
+
+\item{x}{an object to print or test as an habitat_dynamic object}
+
+\item{...}{further arguments passed to or from other methods}
 }
 \value{
 An object of class \code{habitat_dynamics}
 }
 \description{
-Change the habitat in a state object
+A 'habitat dynamics' object is used to modify habitat suitability (or carrying capacity) of a landscape in space and time.
+It is a sub-component of a \link[dhmpr]{dynamics} object and is executed in each timestep of an experiment.
 }
 \examples{
 
-library(raster)
 library(dhmpr)
+library(raster)
 
 example_function <- function (state, timestep) {
 state
 }
+
 no_habitat_dynamics <- as.habitat_dynamics(example_function)
+
+# Test if object is of the type 'habitat dynamics'
+  
+is.habitat_dynamics(no_habitat_dynamics)
+
+print(no_habitat_dynamics)
 }

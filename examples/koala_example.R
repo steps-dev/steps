@@ -88,20 +88,16 @@ koala.dynamics <- build_dynamics(koala.habitat.dynamics,
 ####### Permutation 2 ########
 
 koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit,
-                               carrying_capacity = koala.hab.k*.07)
+                               carrying_capacity = koala.hab.k)
 koala.demography <- build_demography(transition_matrix = koala.trans.mat,
-                                     dispersal_parameters = koala.disp.param3)
+                                     dispersal_parameters = koala.disp.param)
 koala.population <- build_population(population_raster = koala.pop)
 koala.state <- build_state(habitat = koala.habitat,
                            demography = koala.demography,
                            population = koala.population)
 
-koala.habitat.dynamics <- fire_habitat_dynamics(habitat_suitability = koala.hab.suit,
-                                                disturbance_layers = koala.dist.fire,
-                                                effect_time=3)
+koala.habitat.dynamics <- as.habitat_dynamics(no_habitat_dynamics)
 koala.demography.dynamics <- as.demography_dynamics(no_demographic_dynamics)
-# koala.demography.dynamics <- envstoch_demographic_dynamics(global_transition_matrix = koala.trans.mat,
-#                                                            stochasticity = koala.trans.mat.es)
 koala.population.dynamics <- as.population_dynamics(ca_dispersal_population_dynamics)
 koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
                                  demography_dynamics = koala.demography.dynamics,
@@ -113,6 +109,86 @@ koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
 
 
 ######################################
+
+####### Permutation 3 ########
+
+koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit,
+                               carrying_capacity = koala.hab.k)
+koala.demography <- build_demography(transition_matrix = koala.trans.mat,
+                                     dispersal_parameters = koala.disp.param)
+koala.population <- build_population(population_raster = koala.pop)
+koala.state <- build_state(habitat = koala.habitat,
+                           demography = koala.demography,
+                           population = koala.population)
+
+koala.habitat.dynamics <- as.habitat_dynamics(no_habitat_dynamics)
+koala.demography.dynamics <- envstoch_demographic_dynamics(global_transition_matrix = koala.trans.mat,
+                                                           stochasticity = koala.trans.mat.es)
+koala.population.dynamics <- as.population_dynamics(ca_dispersal_population_dynamics)
+koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
+                                 demography_dynamics = koala.demography.dynamics,
+                                 population_dynamics = koala.population.dynamics,
+                                 order = c("habitat_dynamics",
+                                           "demography_dynamics",
+                                           "population_dynamics")
+)
+
+
+######################################
+
+####### Permutation 4 ########
+
+koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit,
+                               carrying_capacity = koala.hab.k)
+koala.demography <- build_demography(transition_matrix = koala.trans.mat,
+                                     dispersal_parameters = koala.disp.param2)
+koala.population <- build_population(population_raster = koala.pop)
+koala.state <- build_state(habitat = koala.habitat,
+                           demography = koala.demography,
+                           population = koala.population)
+
+koala.habitat.dynamics <- as.habitat_dynamics(no_habitat_dynamics)
+koala.demography.dynamics <- envstoch_demographic_dynamics(global_transition_matrix = koala.trans.mat,
+                                                           stochasticity = koala.trans.mat.es)
+koala.population.dynamics <- as.population_dynamics(ca_dispersal_population_dynamics)
+koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
+                                 demography_dynamics = koala.demography.dynamics,
+                                 population_dynamics = koala.population.dynamics,
+                                 order = c("habitat_dynamics",
+                                           "demography_dynamics",
+                                           "population_dynamics")
+)
+
+
+######################################
+
+####### Permutation 5 ########
+
+koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit,
+                               carrying_capacity = koala.hab.k)
+koala.demography <- build_demography(transition_matrix = koala.trans.mat,
+                                     dispersal_parameters = koala.disp.param)
+koala.population <- build_population(population_raster = koala.pop)
+koala.state <- build_state(habitat = koala.habitat,
+                           demography = koala.demography,
+                           population = koala.population)
+
+koala.habitat.dynamics <- fire_habitat_dynamics(habitat_suitability = koala.hab.suit,
+                                                disturbance_layers = koala.dist.fire,
+                                                effect_time=3)
+koala.demography.dynamics <- envstoch_demographic_dynamics(global_transition_matrix = koala.trans.mat,
+                                                           stochasticity = koala.trans.mat.es)
+koala.population.dynamics <- as.population_dynamics(ca_dispersal_population_dynamics)
+koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
+                                 demography_dynamics = koala.demography.dynamics,
+                                 population_dynamics = koala.population.dynamics,
+                                 order = c("habitat_dynamics",
+                                           "demography_dynamics",
+                                           "population_dynamics")
+)
+
+
+#####################################
 
 system.time(
   my.results <- experiment(koala.state,

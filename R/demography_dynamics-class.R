@@ -1,18 +1,27 @@
 #' Change the demography in a state object
+#' 
+#' @description A 'demography dynamics' object is used to modify life-stage transition matrices - adding stochasticity for example.
+#' It is a sub-component of a \link[dhmpr]{dynamics} object and is executed in each timestep of an experiment.
+#'
+#' @rdname demography_dynamics
 #'
 #' @param demography_dynamics_function A function that operates on a state object to change demography at specified timesteps. User may enter a custom function or select a pre-defined module - see documentation. 
+#' @param x an object to print or test as an demography_dynamic object
+#' @param ... further arguments passed to or from other methods
 #'
 #' @return An object of class \code{demography_dynamics}
+#' 
 #' @export
 #'
 #' @examples
 #' 
-#' library(raster)
 #' library(dhmpr)
+#' library(raster)
 #'
 #' example_function <- function (state, timestep) {
 #' state
 #' }
+#' 
 #' no_demography_dynamics <- as.demography_dynamics(example_function)
 
 as.demography_dynamics <- function (demography_dynamics_function) {
@@ -20,19 +29,27 @@ as.demography_dynamics <- function (demography_dynamics_function) {
   set_class(demography_dynamics_function, "demography_dynamics")
 }
 
-#' Print details of a demography_dynamics object
+#' @rdname demography_dynamics
 #'
-#' @param x an object to print or test as an demography_dynamic object
-#' @param ... further arguments passed to or from other methods
+#' @export
+#' 
+#' @examples
+#'
+#' # Test if object is of the type 'demography dynamics'
+#'   
+#' is.demography_dynamics(no_demography_dynamics)
+
+is.demography_dynamics <- function (x) {
+  inherits(x, 'demography_dynamics')
+}
+
+#' @rdname demography_dynamics
 #'
 #' @export
 #'
-# @examples
-# example_function <- function (state, timestep) {
-# state
-# }
-# no_demography_dynamics <- as.demography_dynamics(example_function)
-# print(no_demography_dynamics)
+#' @examples
+#' 
+#' print(no_demography_dynamics)
 
 print.demography_dynamics <- function (x, ...) {
   cat("This is a demography_dynamics object")

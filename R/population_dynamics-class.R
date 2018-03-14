@@ -2,16 +2,24 @@
 #' @importFrom Rcpp sourceCpp
 NULL
 #' Change the population in a state object
+#' 
+#' @description A 'population dynamics' object is used to modify species populations in space and time.
+#' It is a sub-component of a \link[dhmpr]{dynamics} object and is executed in each timestep of an experiment.
+#'
+#' @rdname population_dynamics
 #'
 #' @param population_dynamics_function A function that operates on a state object to change population at specified timesteps. User may enter a custom function or select a pre-defined module - see documentation. 
+#' @param x a population_dynamic object
+#' @param ... further arguments passed to or from other methods
 #'
 #' @return An object of class \code{population_dynamics}
+#' 
 #' @export
 #'
 #' @examples
 #' 
-#' library(raster)
 #' library(dhmpr)
+#' library(raster)
 #'
 #' example_function <- function (state, timestep) {
 #' 
@@ -40,6 +48,7 @@ NULL
 #' state$population$population_raster <- population_raster
 #' state
 #' }
+#' 
 #' fast_population_dynamics <- as.population_dynamics(example_function)
 
 as.population_dynamics <- function (population_dynamics_function) {
@@ -47,43 +56,27 @@ as.population_dynamics <- function (population_dynamics_function) {
   set_class(population_dynamics_function, "population_dynamics")
 }
 
-#' Print details of a population_dynamics object
+#' @rdname population_dynamics
 #'
-#' @param x an object to print or test as an population_dynamic object
-#' @param ... further arguments passed to or from other methods
+#' @export
+#' 
+#' @examples
+#'
+#' # Test if object is of the type 'population dynamics'
+#'   
+#' is.population_dynamics(fast_population_dynamics)
+
+is.population_dynamics <- function (x) {
+  inherits(x, 'population_dynamics')
+}
+
+#' @rdname population_dynamics
 #'
 #' @export
 #'
-# @examples
-# example_function <- function (state, timestep) {
-# 
-# population_raster <- state$population$population_raster
-# dispersal_parameters <- state$demography$dispersal_parameters
-# transition_matrix <- state$demography$transition_matrix
-# 
-# #  get population as a matrix
-# idx <- which(!is.na(getValues(population_raster[[1]])))
-# population <- extract(population_raster, idx)
-# 
-# # do population change
-# population <- population %*% transition_matrix
-# 
-# # do dispersal
-# locations <- raster::xyFromCell(population_raster, idx)
-# resolution <- mean(res(population_raster))
-# dispersal_decay <- dispersal_parameters * resolution
-# 
-# dispersal <- dispersal_matrix(locations, dispersal_decay)
-# population <- dispersal %*% population
-# 
-# # put back in the raster
-# population_raster[idx] <- population
-# 
-# state$population$population_raster <- population_raster
-# state
-# }
-# fast_population_dynamics <- as.population_dynamics(example_function)
-# print(fast_population_dynamics)
+#' @examples
+#' 
+#' print(fast_population_dynamics)
 
 print.population_dynamics <- function (x, ...) {
   cat("This is a population_dynamics object")

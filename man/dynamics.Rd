@@ -2,15 +2,25 @@
 % Please edit documentation in R/dynamics-class.R
 \name{build_dynamics}
 \alias{build_dynamics}
+\alias{is.dynamics}
+\alias{print.dynamics}
 \title{Create a dynamics object to run in an experiment}
 \usage{
 build_dynamics(habitat_dynamics, demography_dynamics, population_dynamics,
   order = c("demography_dynamics", "habitat_dynamics", "population_dynamics"))
+
+is.dynamics(x)
+
+\method{print}{dynamics}(x, ...)
 }
 \arguments{
 \item{habitat_dynamics}{A module to alter the habitat object in an experiment}
 
 \item{population_dynamics}{A module to alter the population object in an experiment}
+
+\item{x}{an object to print or test as a dynamics object}
+
+\item{...}{further arguments passed to or from other methods}
 
 \item{demographic_dynamics}{A module to alter the habitat object in an experiment}
 }
@@ -18,12 +28,13 @@ build_dynamics(habitat_dynamics, demography_dynamics, population_dynamics,
 An object of class \code{dynamics}
 }
 \description{
-Create a dynamics object to run in an experiment
+A dynamics object is a group of modules (functions) used modify habitat, population, and demography in a timestep.
+It modifies a \link[dhmpr]{state} object in each timestep of an experiment.
 }
 \examples{
 
-library(raster)
 library(dhmpr)
+library(raster)
 
 r <- raster(system.file("external/test.grd", package="raster"))
 
@@ -31,5 +42,11 @@ test_habitat <- build_habitat(habitat_suitability = r / cellStats(r, "max"), car
 test_demography <- build_demography(fake_transition_matrix(4), rlnorm(1))
 test_population <- build_population(stack(replicate(4, test_habitat$carrying_capacity * 0.2)))
 test_state <- build_state(test_habitat, test_demography, test_population)
-fast_approximation <- build_dynamics(no_habitat_dynamics, no_demographic_dynamics, fast_population_dynamics)
+test_dynamics <- build_dynamics(no_habitat_dynamics, no_demographic_dynamics, fast_population_dynamics)
+
+# Test if object is of the type 'dynamics'
+  
+is.dynamics(test_dynamics)
+
+print(test_dynamics)
 }
