@@ -86,10 +86,18 @@ test_that('experiment_results classes work', {
   b_dem <- build_demography(transition_matrix = mat,
                           dispersal_parameters = params2)
   
+  b_dem2 <- build_demography(transition_matrix = fake_transition_matrix(4),
+                             dispersal_parameters = params3)
+  
   b_state <- build_state(habitat = b_hab,
               population = b_pop,
               demography = b_dem
               )
+  
+  b_state2 <- build_state(habitat = b_hab,
+                         population = b_pop,
+                         demography = b_dem2
+  )
   
   hab_dyn <- fire_habitat_dynamics(habitat_suitability = hab.suit,
                                                   disturbance_layers = dist.s,
@@ -103,11 +111,22 @@ test_that('experiment_results classes work', {
                                population_dynamics = pop_dyn
                                )
   
+  b_dynamics2 <- build_dynamics(habitat_dynamics = as.habitat_dynamics(no_habitat_dynamics),
+                               demography_dynamics = as.demography_dynamics(no_demographic_dynamics),
+                               population_dynamics = pop_dyn
+  )
+  
   expect_true(inherits(experiment(state = b_state,
                                   dynamics = b_dynamics,
                                   timesteps = 10),
                        "experiment_results")
               )
+  
+  expect_true(inherits(experiment(state = b_state2,
+                                  dynamics = b_dynamics2,
+                                  timesteps = 10),
+                       "experiment_results")
+  )
   
   expect_error(experiment(state = b_state,
                                   dynamics = b_dynamics,
