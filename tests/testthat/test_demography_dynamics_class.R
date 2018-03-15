@@ -5,6 +5,8 @@ test_that('demography_dynamics classes work', {
   func <- function(x) x
   
   expect_true(inherits(as.demography_dynamics(func),"demography_dynamics"))
+  
+  expect_true(is.demography_dynamics(as.demography_dynamics(func)))
 
   expect_error(as.demography_dynamics(1))
     

@@ -5,6 +5,8 @@ test_that('habitat_dynamics classes work', {
   func <- function(x) x
   
   expect_true(inherits(as.habitat_dynamics(func),"habitat_dynamics"))
+  
+  expect_true(is.habitat_dynamics(as.habitat_dynamics(func)))
 
   expect_error(as.habitat_dynamics(1))
     

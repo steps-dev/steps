@@ -148,6 +148,12 @@ test_that('experiment_results classes work', {
                                   dynamics = b_dynamics,
                                   timesteps = 10),
                        "experiment_results")
+  )
+  
+  expect_true(is.experiment_results(experiment(state = b_state,
+                                  dynamics = b_dynamics,
+                                  timesteps = 10)
+                                  )
               )
   
   expect_true(inherits(experiment(state = b_state2,

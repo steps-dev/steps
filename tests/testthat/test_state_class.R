@@ -78,6 +78,12 @@ test_that('state classes work', {
                        "state")
               )
   
+  expect_true(is.state(build_state(habitat = b_hab,
+                                      population = b_pop,
+                                      demography = b_dem)
+                          )
+              )
+  
   expect_error(build_state(habitat = b_hab,
                            population = b_pop)
                )

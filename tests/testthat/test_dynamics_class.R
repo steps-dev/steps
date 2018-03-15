@@ -75,6 +75,13 @@ test_that('dynamics classes work', {
                        "dynamics")
               )
   
+  expect_true(is.dynamics(build_dynamics(as.habitat_dynamics(func),
+                                         as.population_dynamics(func),
+                                         as.demography_dynamics(func)
+                                         )
+                          )
+              )
+  
   expect_error(inherits(build_dynamics(as.habitat_dynamics(func),
                                       as.population_dynamics(func)
                                       ),
