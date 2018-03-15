@@ -301,7 +301,8 @@ dispersal_core_fft <- function(params,pop){
   
   ## set up disperal function
   f <- function (d, cutoff = min(n)) {
-    ifelse (d > cutoff, 0, exp(-d))
+    disp <- ifelse (d > cutoff, 0, exp(-d))
+    disp / sum(disp)
   }
   
   # f <- function (d) exp(-d)
