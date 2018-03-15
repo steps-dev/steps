@@ -1,6 +1,6 @@
-context('demography-class')
+context('state-class')
 
-test_that('demography classes work', {
+test_that('state classes work', {
   library(raster)
   library(rgdal)
 
@@ -66,27 +66,60 @@ test_that('demography classes work', {
     barrier_type=1
   )
   
-  expect_true(inherits(build_demography(mat,dispersal_parameters=params3),"demography"))
+  b_hab <- build_habitat(habitat_suitability = hab.suit,
+                       carrying_capacity = hab.k)
+  b_pop <- build_population(pop)
+  b_dem <- build_demography(transition_matrix = mat,
+                          dispersal_parameters = params3)
   
-  plot(build_demography(mat,dispersal_parameters=params3))
+  expect_true(inherits(build_state(habitat = b_hab,
+                                   population = b_pop,
+                                   demography = b_dem),
+                       "state")
+              )
   
-  expect_error(build_demography(mat[c(1:2),c(1:3)],dispersal_parameters=params3))
+  expect_true(is.state(build_state(habitat = b_hab,
+                                      population = b_pop,
+                                      demography = b_dem)
+                          )
+              )
   
-  mat2 <- mat
-  mat2[1,2] <- NA
-  expect_error(build_demography(mat2,dispersal_parameters=params3))
+  expect_error(build_state(habitat = b_hab,
+                           population = b_pop)
+               )
+ 
+  pop2 <- pop
+  res(pop2) <- 10
+  b_pop2 <- build_population(pop2)
+  expect_error(build_state(habitat = b_hab,
+                                   population = b_pop2,
+                                   demography = b_dem)
+               )
   
-  expect_error(build_demography(as.vector(mat),dispersal_parameters=params3))
+  pop3 <- pop
+  extent(pop3) <- c(-160, 180, -90, 90)
+  res(pop3) <- 5
+  b_pop3 <- build_population(pop3)
+  expect_error(build_state(habitat = b_hab,
+                                    population = b_pop3,
+                                    demography = b_dem)
+               )
+
+  mat2 <- mat[c(1:3),c(1:3)]
+  b_dem2 <- build_demography(transition_matrix = mat2,
+                             dispersal_parameters = params3)
+  expect_error(build_state(habitat = b_hab,
+                                    population = b_pop,
+                                    demography = b_dem2)
+               )
+    
   
-  print(build_demography(mat,dispersal_parameters=params3))
+  print(build_state(habitat = b_hab,
+                    population = b_pop,
+                    demography = b_dem)
+        )
   
-  summary(build_demography(mat,dispersal_parameters=params3))
-  
-  plot(build_demography(mat,dispersal_parameters=params3))
-  
-  expect_true(is.demography(build_demography(mat,dispersal_parameters=params3)))
-  
-  #expect_error(as.demography(c(1,2,3)))
+  #expect_error(as.dynamics(c(1,2,3)))
 
 })
  

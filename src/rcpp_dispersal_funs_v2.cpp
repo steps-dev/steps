@@ -216,13 +216,13 @@ int total_dispersal_cells(NumericMatrix habitat_suitability_map){
 }
 
 // [[Rcpp::export]]
-IntegerVector can_source_cell_disperse(int i, int j, NumericMatrix carrying_capacity_avaliable, 
+IntegerVector can_source_cell_disperse(int i, int j, NumericMatrix carrying_capacity_available, 
                                        NumericMatrix tracking_population_state, NumericMatrix habitat_suitability_map,
                                        NumericMatrix barriers_map, bool use_barrier, int barrier_type, int loopID, 
                                        int dispersal_distance, NumericVector dispersal_kernel){
 
- 	int ncols = carrying_capacity_avaliable.ncol();
-  int nrows = carrying_capacity_avaliable.nrow();
+ 	int ncols = carrying_capacity_available.ncol();
+  int nrows = carrying_capacity_available.nrow();
 	int    k, l, real_distance;
 	double prob_colonisation, rnd;
 	IntegerVector source_found(2,-9999);
@@ -242,7 +242,7 @@ IntegerVector can_source_cell_disperse(int i, int j, NumericMatrix carrying_capa
       ** 	  - The pixel must have avaliable carrying capacity to allow recruitment.
       */
       if ((k >= 0) && (k < nrows) && (l >= 0) && (l < ncols)){
-		    if (carrying_capacity_avaliable(k,l) > 0){
+		    if (carrying_capacity_available(k,l) > 0){
 		        if (tracking_population_state(k,l) != loopID){
 		            if(!R_IsNA(tracking_population_state(k,l))){
           	    /*
@@ -287,7 +287,7 @@ IntegerVector can_source_cell_disperse(int i, int j, NumericMatrix carrying_capa
   return(source_found);
 }
 
-// This function cleans up the habitat martix before dispersal.
+// This function cleans up the habitat matrix before dispersal.
 // [[Rcpp::export]]
 NumericMatrix clean_matrix(NumericMatrix in_matrix,
 						   NumericMatrix barriers_map,
@@ -356,20 +356,20 @@ NumericMatrix na_matrix(int nr, int nc){
 // //' @param habitat_suitability raster of habitat suitability that has been converted to carrying capacity
 // //' @param barrier_map raster of barriers to the dispersal, 1=barrier; 0=no barrier.
 // //' @param barrier_type if 0 weak barrier, if 1 strong barriers.
-// //' @param use_barriers if true use barriers in dispersal analysis.
+// //' @param use_barrier if true use barriers in dispersal analysis.
 // //' @param dispersal_steps The number of dispersal iterations per C++ call.
 // //' @param dispersal_distance The maximum number of cells the species can disperse.
 // //' @param dispersal_kernal a numeric vector of probabilites of dispersing from one to n cells, where n is the dispersal distance.
 // //' @param dispersal_proportion the proportion of species that will disperse from source cell, needs to be between 0 and 1. e.g 0.2 means that 20% of the cell's population disperses. 
 //' @export
 // [[Rcpp::export]]
-List rcpp_dispersal(NumericMatrix starting_population_state, NumericMatrix potiential_carrying_capacity,
+List rcpp_dispersal(NumericMatrix starting_population_state, NumericMatrix potential_carrying_capacity,
   NumericMatrix habitat_suitability_map,NumericMatrix barriers_map, int barrier_type, bool use_barrier, int dispersal_steps,
   int dispersal_distance, NumericVector dispersal_kernel, double dispersal_proportion){
 
 	  int ncols = starting_population_state.ncol();
     int nrows = starting_population_state.nrow();
-    NumericMatrix carrying_capacity_avaliable = na_matrix(nrows,ncols); // carrying capacity avaliable.
+    NumericMatrix carrying_capacity_available = na_matrix(nrows,ncols); // carrying capacity avaliable.
     NumericMatrix tracking_population_state = na_matrix(nrows,ncols); // tracking population state.
     NumericMatrix future_population_state = na_matrix(nrows,ncols); // future population size (after dispersal).
     int loopID, dispersal_step, i, j;
@@ -379,7 +379,7 @@ List rcpp_dispersal(NumericMatrix starting_population_state, NumericMatrix potie
      for(i = 0; i < nrows; i++){
          for(j = 0; j < ncols; j++){
       			 if(!R_IsNA(starting_population_state(i,j))){
-	              carrying_capacity_avaliable(i,j) = potiential_carrying_capacity(i,j) - starting_population_state(i,j); // carrying capacity avaliable = potiential carrying capacity - current population state.
+	              carrying_capacity_available(i,j) = potential_carrying_capacity(i,j) - starting_population_state(i,j); // carrying capacity available = potential carrying capacity - current population state.
                 tracking_population_state(i,j) = starting_population_state(i,j);			   
 	          }
 	      }
@@ -391,13 +391,13 @@ List rcpp_dispersal(NumericMatrix starting_population_state, NumericMatrix potie
       **  3. set habitat suitability values to NoData where barrier = NoData.
       ** and also  */
       // if(use_barrier){ 
-      NumericMatrix carrying_capacity_avaliable_cleaned = clean_matrix(carrying_capacity_avaliable, barriers_map, true, true, true);
+      NumericMatrix carrying_capacity_available_cleaned = clean_matrix(carrying_capacity_available, barriers_map, true, true, true);
       // }
       // else {
-        // NumericMatrix carrying_capacity_avaliable_cleaned = clean_matrix(carrying_capacity_avaliable, barriers_map, true, false, false);
+        // NumericMatrix carrying_capacity_available_cleaned = clean_matrix(carrying_capacity_available, barriers_map, true, false, false);
       // }
       NumericMatrix tracking_population_state_cleaned = clean_matrix(tracking_population_state, barriers_map, true, true, true);
-      // int n_dispersal_cells = total_dispersal_cells(carrying_capacity_avaliable_cleaned);
+      // int n_dispersal_cells = total_dispersal_cells(carrying_capacity_available_cleaned);
 
       /* *********************** */
       /* Dispersal starts here.  */
@@ -411,7 +411,7 @@ List rcpp_dispersal(NumericMatrix starting_population_state, NumericMatrix potie
 	    /* Source cell search: Can the sink pixel be colonized? There are four
 	    ** conditions to be met for a sink pixel to become colonized:
 	    **   1. Sink pixel is currently suitable.
-	    **	 2. Sink pixel has avaliable carrying capacity.
+	    **	 2. Sink pixel has available carrying capacity.
 	    **   3. Sink pixel is within dispersal distance of an already colonised cell.
 	    **   4. There is no obstacle (barrier) between the pixel to be colonised
 	    **      (sink pixel) and the pixel that is already colonised (source
@@ -421,13 +421,13 @@ List rcpp_dispersal(NumericMatrix starting_population_state, NumericMatrix potie
 	    for(i = 0; i < nrows; i++){
 	      for(j = 0; j < ncols; j++){
 
-		    //The are boolian calls which indicate if habitat is suitable and if cell can disperse
+		    //The are boolean calls which indicate if habitat is suitable and if cell can disperse
 	        habitat_is_suitable = false;
 	        // cell_in_dispersal_distance = false;
 
 	        /* 1. Test whether the pixel is a suitable sink (i.e., its habitat
 	        **    is suitable, it has avaliable carrying capacity, it's not NA and is not on a barrier). */
-	        if((habitat_suitability_map(i,j) > 0) && (carrying_capacity_avaliable_cleaned(i,j) > 0) && !R_IsNA(carrying_capacity_avaliable_cleaned(i,j))) habitat_is_suitable = true;
+	        if((habitat_suitability_map(i,j) > 0) && (carrying_capacity_available_cleaned(i,j) > 0) && !R_IsNA(carrying_capacity_available_cleaned(i,j))) habitat_is_suitable = true;
 
 	        /* 2. Test whether there is a source cell within the dispersal
 	        **    distance. To be more time efficient, this code runs only if
@@ -446,9 +446,10 @@ List rcpp_dispersal(NumericMatrix starting_population_state, NumericMatrix potie
     		        int source_y = cell_in_dispersal_distance[1];
     		        // Rcpp::Rcout << source_x << std::endl;
     		        int source_pop_dispersed = proportion_of_population_to_disperse(source_x, source_y, i, j, starting_population_state,
-    		                                                                        carrying_capacity_avaliable_cleaned, dispersal_proportion);
+    		                                                                        carrying_capacity_available_cleaned, dispersal_proportion);
     		        future_population_state(i,j) = starting_population_state(i,j) + source_pop_dispersed;//*habitat_suitability_map(i,j);
     		        starting_population_state(source_x,source_y) = starting_population_state(source_x,source_y) - source_pop_dispersed;
+    	          if(starting_population_state(source_x,source_y)<0)starting_population_state(source_x,source_y)=0;
     	          // future_population_state(source_x,source_y) = starting_population_state(source_x,source_y) - source_pop_dispersed;//*habitat_suitability_map(i,j);
     	          // Rcpp::Rcout << future_population_state(i,j) << ' ' << future_population_state(source_x,source_y) << std::endl;
     	          tracking_population_state_cleaned(i,j) = loopID;
@@ -461,6 +462,7 @@ List rcpp_dispersal(NumericMatrix starting_population_state, NumericMatrix potie
 	    for(j = 0; j < ncols; j++){
 	        if(R_IsNA(future_population_state(i,j))){
 	          future_population_state(i,j)=starting_population_state(i,j);
+	          if(future_population_state(i,j)<0)future_population_state(i,j)=0;
 	      }
 	    }
 	  }

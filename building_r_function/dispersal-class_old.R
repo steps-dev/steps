@@ -5,7 +5,7 @@ NULL
 #' @title dispersal class for meta-populations
 #' @rdname dispersal-class
 #' @name as.dispersal
-#' @description creates a function that governs dispersal capacity of life-history stages of a species. The input is a list which contains the first list is a dispersal kernel \code{dispersal} value for life-history stage, the second named list \code{} is the proportion of that stage will disperse. For example a probability of 0.2 for stage larvae means a random 20% of larve will a try and disperse to patches, the distance they can disperse is governed by the dispersal kernel (alpha). If params = NULL, a dispersal kernel of 1 is given to all stages, and all stages will attempt to undertake dispersal. If NULL is provided to the as.dispersal function, diffuse dispersal will be used based on the fast fourier transformation method ('fft').  
+#' @description creates a function that governs dispersal capacity of life-history stages of a species. The input is a list which contains the first list is a dispersal kernel \code{dispersal} value for life-history stage, the second named list \code{} is the proportion of that stage will disperse. For example a probability of 0.2 for stage larvae means a random 20% of larve will a try and disperse to cells, the distance they can disperse is governed by the dispersal kernel (alpha). If params = NULL, a dispersal kernel of 1 is given to all stages, and all stages will attempt to undertake dispersal. If NULL is provided to the as.dispersal function, diffuse dispersal will be used based on the fast fourier transformation method ('fft').  
 #' @param dispersal_params A list of named lists which contain the parameters form dispersal behaviour and other parameters for dispersal modules - see details below for more information.
 #' @details text describing parameter inputs in more detail.
 #' \itemize{
@@ -37,10 +37,11 @@ NULL
 #' proj4string(r) <- '+init=epsg:4283'
 #' r[] <- scales::rescale(r[],to=c(0,1))
 #' 
-#' ## create a habitat from a list containing a habitat suitability raster and numeric values for population and carrying capacity.
+#' ## create a habitat from a list containing a habitat suitability raster and
+#' ## numeric values for population and carrying capacity.
 #' hsm <- as.habitat_suitability(r)
 #' pops <- as.populations(c(80,20,10))
-#' cc <- as.carrying_capacity(300)
+#' cc <- as.carrying_capacity(r*10)
 #' 
 #' features <- list(hsm,pops,cc)
 #' habitat <- as.habitat(features)
@@ -49,14 +50,16 @@ NULL
 #'                dispersal_proportion=list('larvae'=0.1,'juvenile'=0,'adult'=0.3)))  
 #'
 #' ## dispersal using cellular automata.                                 
-#' dispersed_populations <- dispersal(dispersal_params, habitat, method='ca')
+#' dispersed_populations <- dispersal(dispersal_params, habitat, method='ca', time_step=1)
 #' populations(habitat) <- dispersed_populations
 
 
 as.dispersal <- function (params) {
   stopifnot(is.list(params))
   stopifnot(length(params)>=3)
-  if(!exists(c('dispersal_distance','dispersal_kernel','dispersal_proportion'),params))stop('dispersal parameters must contain "dispersal_distance","dispersal_kernel" and "dispersal_proportion"')
+  if(!exists(c('dispersal_distance','dispersal_kernel','dispersal_proportion'),params)){
+    stop('dispersal parameters must contain "dispersal_distance","dispersal_kernel" and "dispersal_proportion"')
+  }
   class(params) <- 'dispersal'
   return(params)
 }
@@ -224,21 +227,21 @@ ifft <- function (z) stats::fft(z, inverse = TRUE)
 #' @export 
 
 dispersal <- function(params,habitat,method,time_step){
-                          stopifnot(is.list(params))
+                          stopifnot(is.dispersal(params))
                           if(!any(method==c('ca','fft')))stop('method must be either "ca" (cellular automata) or\n "fft" (fast fourier transformation).')
                           stopifnot(is.habitat(habitat))  
                           dispersal_results <- switch(method,
                                                      ca = dispersal_core_ca(params,habitat,time_step),
-                                                     fft = dispersal_core_fft(params,habitat,time_step))  
+                                                     fft = dispersal_core_fft(params,habitat))  
                           return(dispersal_results)
 }
 
 dispersal_core_ca <- function(params,habitat,time_step){
 
   #generate default parameters for dispersal parameters if they are missing from 'params'. 
-  if(!exists('barrier_type',params))params$barrier_type <- 0
-  if(!exists('dispersal_steps',params))params$dispersal_steps <- 1
-  if(!exists('use_barriers',params))params$use_barriers <- FALSE
+  if(!exists('barrier_type',params)) params$barrier_type <- 0
+  if(!exists('dispersal_steps',params)) params$dispersal_steps <- 1
+  if(!exists('use_barriers',params)) params$use_barriers <- FALSE
   
   #identify populations and workout which populations can disperse.
   which_stages_disperse <- which(params$dispersal_proportion>0)
@@ -248,17 +251,17 @@ dispersal_core_ca <- function(params,habitat,time_step){
   pops <- populations(habitat)
   disperse_pops <- pops[which_stages_disperse]
   
-  if(inherits(carrying_capacity(habitat),c("RasterStack","RasterBrick"))){
-    cc <- carrying_capacity(habitat)[[time_step]]
-  } else {
+  # if(inherits(carrying_capacity(habitat),c("RasterStack","RasterBrick"))){
+  #   cc <- carrying_capacity(habitat)[[time_step]]
+  # } else {
     cc <- carrying_capacity(habitat)
-  }
+  # }
   
-  if(inherits(habitat_suitability(habitat),c("RasterStack","RasterBrick"))){
-    hsm <- habitat_suitability(habitat)[[time_step]]
-  } else {
-    hsm <- habitat_suitability(habitat)    
-  }
+  # if(inherits(habitat_suitability(habitat),c("RasterStack","RasterBrick"))){
+    hsm <- habitat_suitability(habitat,time_step)
+  # } else {
+  #   hsm <- habitat_suitability(habitat)    
+  # }
 
   #if barriers is NULL create a barriers matrix all == 0.
   if(!exists('barriers_map',params)){
@@ -267,7 +270,7 @@ dispersal_core_ca <- function(params,habitat,time_step){
   }
 
   if(inherits(params$barriers_map,c("RasterStack","RasterBrick"))){
-    bm <- carrying_capacity(habitat)[[time_step]]
+    bm <- params$barriers_map[[time_step]]
     params$barriers_map <- bm
   }
   

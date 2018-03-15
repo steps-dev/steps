@@ -9,8 +9,8 @@ total_dispersal_cells <- function(habitat_suitability_map) {
     .Call('_dhmpr_total_dispersal_cells', PACKAGE = 'dhmpr', habitat_suitability_map)
 }
 
-can_source_cell_disperse <- function(i, j, carrying_capacity_avaliable, tracking_population_state, habitat_suitability_map, barriers_map, use_barrier, barrier_type, loopID, dispersal_distance, dispersal_kernel) {
-    .Call('_dhmpr_can_source_cell_disperse', PACKAGE = 'dhmpr', i, j, carrying_capacity_avaliable, tracking_population_state, habitat_suitability_map, barriers_map, use_barrier, barrier_type, loopID, dispersal_distance, dispersal_kernel)
+can_source_cell_disperse <- function(i, j, carrying_capacity_available, tracking_population_state, habitat_suitability_map, barriers_map, use_barrier, barrier_type, loopID, dispersal_distance, dispersal_kernel) {
+    .Call('_dhmpr_can_source_cell_disperse', PACKAGE = 'dhmpr', i, j, carrying_capacity_available, tracking_population_state, habitat_suitability_map, barriers_map, use_barrier, barrier_type, loopID, dispersal_distance, dispersal_kernel)
 }
 
 clean_matrix <- function(in_matrix, barriers_map, filter_na_data = TRUE, filter_barriers = TRUE, insert_na_data = TRUE) {

@@ -1,129 +1,127 @@
-#' @title demography objects 
-#' @name as.demography
+#' Create a demography object to use in a state object
+#'
+#' @description A demography object is used to store information on how populations change in space and time.
+#' This includes life-stage matrices and parameters to control dispersal.
+#' It is a sub-component of a \link[dhmpr]{state} object and is modified in each timestep of an experiment.
+#' 
 #' @rdname demography
-#' @description demography is one of the main functions for dhmpr, it helps you construct and process stage based matricies.
-#' Once a demography object is created \code{summary} will return:
-#'  The finite rate of increase "lambda",
-#'  the stable stage distribution,
-#'  the reproductive value,
-#'  and the sensitivities and elasticities matrices.
-#'  \code{plot} will return a graph object that plots the stages between and amoungest each stage of the population matrix.
-#' @param x For as.demography, x is a square matrix, that has stage stages between population stages.
-#' @param method can be 'global' or 'local' stage matrices. 'global' is the default and a single stage-based stage matrix 
-#' will be used for all populations. if 'local' method is called a cell specific stage matrix will be setup for all non-NA cells
-#'  in the underlying habitat_suitanility.
-#' @return An object of class demography, i.e, resulting from as.demography.
-#' @author Skipton Woolley
+#' 
+#' @param transition_matrix a symmetrical stage-based population structure matrix
+#' @param dispersal_parameters specifications for dispersal in the landscape
+#' @param x a demography object
+#' @param ... further arguments passed to or from other methods
+#'
+#' @return An object of class \code{demography}
+#' 
 #' @export
-#' @examples 
-#' mat <- matrix(c(.53,0,.52,0.1,0.77,0,0,0.12,0.9),nrow = 3,ncol = 3,byrow = TRUE)
-#' colnames(mat) <- rownames(mat) <- c('larvae','juvenile','adult') 
-#' demo <- as.demography(mat)
+#'
+#' @examples
+#' 
+#' library(dhmpr)
+#' library(raster)
+#' 
+#' # Use a built-in function to generate a four life-stage transition matrix
+#' 
+#' mat <- fake_transition_matrix(4)
+#' 
+#' # Provide a list of dispersal parameters
+#' 
+#' params <- list(rlnorm(1),c(1:4))
+#' 
+#' # Construct the demography object.
+#' 
+#' test_demography <- build_demography(mat, params)
 
-as.demography <- function(x,type='global', ...){
-  object <- list(...)
-  if(length(object)==0) object <- list(1)
-  if(type=='local'){
-    if(!sapply(object,inherits,c("RasterLayer","RasterBrick","RasterStack")))stop('You must include a "habitat_suitability" spatial grid if you are using method "local".\n Look at the documentation for examples.')
-    if(type=='local' & sapply(object,inherits,c("RasterLayer","RasterBrick","RasterStack"))) habsuit<-object[[1]]
-  }
-    demography <- switch(type,
-      global = global_stage_matrix(x),      
-      local = local_stage_matrices(x, habsuit))
-    return(demography)
-}
-
-global_stage_matrix <- function(x){
-  x <- base::as.matrix(x)
-  if(base::diff(base::dim(x)) !=0) stop("Needs to be a square matrix with stage probabilities between each stage.")
-  stage_matrixCheck(x) 
+build_demography <- function (transition_matrix, dispersal_parameters) {
+  x <- transition_matrix
+  stage_matrixCheck(x)
   di <- base::dim(x)[[1]]
   m.names <- base::dimnames(x)[[1]]
   if(base::is.null(m.names)) m.names <- base::paste0("stage.",1:di)
   base::dimnames(x) <- base::list(m.names, m.names)
-  demography <- structure(list(global_stage_matrix=x),class='demography')
-  return(demography)
-}
-
-
-local_stage_matrices <- function(x,habsuit){
-  
-  #check that the original stage-based matrix is of the right dimensions ect.
-  x <- base::as.matrix(x)
-  if(base::diff(base::dim(x)) !=0) stop("Needs to be a square matrix with stage probabilities between each stage.")
-  stage_matrixCheck(x) 
-  di <- base::dim(x)[[1]]
-  m.names <- base::dimnames(x)[[1]]
-  if(base::is.null(m.names)) m.names <- base::paste0("stage.",1:di)
-  
-  #get the number of patches/cells that are avaliable in the landscape/habitat_suitability object - this will be all non-NA cells.
-  stopifnot(inherits(habsuit,c("RasterLayer","RasterBrick","RasterStack")))
-  npops <- length(habsuit[!is.na(habsuit[])])
-  
-  # set up a matrix of (ncell)(rows)*(nstage*nstage)(cols) and fill with original stage matrix
-  all_stage_matrices <- matrix(rep(c(x),npops),npops,length(c(x)),byrow = TRUE)
-  colnames(all_stage_matrices)<-paste0(rep(m.names,each=di),1:di)
-  
-  demography <- structure(list(global_stage_matrix=x,local_stage_matrices=all_stage_matrices),class='demography')
-  return(demography)
+  demography <- list(transition_matrix = x,
+                     dispersal_parameters = dispersal_parameters)
+  set_class(demography, "demography")
 }
 
 #' @rdname demography
-#' @param object an object of \code{demography} class
+#'
 #' @export
-#' @examples
-#' summary(demo)
 #' 
-summary.demography <- function(x,...){
-    demographyCheck(x)
-    x <- x$global_stage_matrix
-    name.mat<-deparse(substitute(x))
-    x <- x
-    di <- base::dim(x)[1]
-    m.names <- base::dimnames(x)[[1]] 
-    ea<- base::eigen(x)
-    lambda <- base::abs(ea$values[1]) 
-    ssd <- base::abs(ea$vectors[,1]/base::sum(ea$vectors[,1]) ) 
-    ae <- base::eigen(base::t(x))
-    vr <- base::abs(ae$vectors[,1]/ae$vectors[1,1] )
-    sensitivity <-  (vr  %*%  base::t(ssd))  / (base::t(vr) %*% ssd)[1,1]
-    elasticity <- sensitivity * x / lambda
-    
-    result<- list(lambda=lambda, stable.stage.distribution = ssd,
-                  reproductive.value =vr, sensitivity = sensitivity,
-                  elasticity=elasticity,name.mat=name.mat,m.names= m.names)
-    return (result)
-  }
-
-#' @rdname demography
-#' @name stages
-#' @param demography a demography object
-#' @export
 #' @examples
-#' # get component stages
-#' stages(demo)
+#' 
+#' # Test if object is of the type 'population'
+#' 
+#' is.demography(test_demography)
 
-stages <- function (demography) {
-  # given a list of demographys, extract all of the mentioned stages
-  stages <- colnames(demography$global_stage_matrix)
-  return (stages)
+is.demography <- function (x) {
+  inherits(x, 'demography')
 }
 
 #' @rdname demography
+#'
+#' @export
+#'
+#' @examples
+#' 
+#' # Print information about the 'demography' object
+#' 
+#' print(test_demography)
+
+print.demography <- function (x, ...) {
+  cat("This is a demography object")
+}
+
+#' @rdname demography
+#'
+#' @export
+#'
+#' @examples
+#' 
+#' # Print a summary of 'demography' object attributes
+#' 
+#' summary(test_demography)
+
+summary.demography <- function (x,...) {
+  x <- x$transition_matrix
+  di <- base::dim(x)[1]
+  ea <- base::eigen(x)
+  lambda <- base::abs(ea$values[1]) 
+  ssd <- base::abs(ea$vectors[,1]/base::sum(ea$vectors[,1]) ) 
+  ae <- base::eigen(base::t(x))
+  vr <- base::abs(ae$vectors[,1]/ae$vectors[1,1] )
+  sensitivity <- (vr  %*%  base::t(ssd))  / (base::t(vr) %*% ssd)[1,1]
+  elasticity <- sensitivity * x / lambda
+  
+  #### Add stochasticity summary...
+  result<- list(lambda = lambda,
+                stable.stage.distribution = ssd,
+                reproductive.value = vr,
+                sensitivity = sensitivity,
+                elasticity = elasticity
+                )
+  
+  return (result)
+}
+
+#' @rdname demography
+#'
 #' @importFrom igraph graph.adjacency
-#' @export
-#' @author Nick Golding
-#' @examples 
-#' plot(demo)
 #' 
+#' @export
+#' 
+#' @examples
+#' 
+#' # Plot the 'demography' object
+#' 
+#' plot(test_demography)
 
 plot.demography <- function (x, ...) {
   # plot a dynamic using igraph
   
   # extract the stage matrix & create an igraph graph x
   graphics::par(mar=c(2,4,4,2))
-  demographyCheck(x)
-  x <- x$global_stage_matrix
+  x <- x$transition_matrix
   textmat <- base::t(x)
   textmat[textmat>0]<-base::paste0('p(',base::as.character(textmat[textmat>0]),')')
   textmat[textmat=='0'] <-''
@@ -155,77 +153,12 @@ plot.demography <- function (x, ...) {
   
 }
 
-#' @rdname demography
-#' @name is.demography
-#' @export
-#' @examples
-#' is.demography(demo)
-is.demography <- function (x) {
-  inherits(x, 'demography')
-}
-
+##########################
+### internal functions ###
+##########################
 
 stage_matrixCheck <- function (x) {
-  stopifnot(ncol(x) == nrow(x))
-  stopifnot(is.matrix(x))
-  stopifnot(all(is.finite(x)))
+  if (!is.matrix(x)) stop("A matrix object is required")
+  if (ncol(x) != nrow(x)) stop("A square matrix with stage probabilities between each stage is required")
+  if (!all(is.finite(x))) stop("All values in matrix are required to be either zero or positive and finite")
 }
-
-demographyCheck <- function (x) {
-  stopifnot(inherits(x,'demography'))
-  stopifnot(is.list(x))
-}
-
-dots <- function(...) {
-  eval(substitute(alist(...)))
-}
-
-
-#### message for Casey: I realised I messed up the demographic projections.
-#### I had the matrix multipication around the wrong way.
-#### I had vec_pops%*%stage_matrix, where is should have been stage_matrix%*%vec_pops.
-#### I'm going to write a function which shouild do all the demographic projections 
-#### and hopefully sort out any issues.
-#' @rdname demography
-#' @name estimate_demography
-#' @param demographic_params a list of parameters which can be used to manipulate demographic projections.
-#'\itemize{
-#'#'\item{stage_matrix_sd}{Matrix with the standard deviation of the probabilities in \code{mat}.}
-#'}
-#' @export
-
-estimate_demography <- function(demography_object, habitat, parameters){
-   
-  pop_vec <- lapply(populations(habitat),function(x)c(x[]))
-  pop_mat <- do.call(cbind,pop_vec)
-  ns <- length(stages(demography_object))
-  
-   if(all(dim(demography_object$global_stage_matrix)==ns)){
-      # message for Casey: This will estimate deterministic population growth for a global stage matrix 
-      message('Using a global demographic stage matrix for all patches\n')
-      pop_mat_new <- t(sapply(1:nrow(pop_mat),function(x)estdemo(pop_mat[x,],demography_object$global_stage_matrix))) 
-  } else {
-      # message for Casey: This will estimate deterministic population growth for a local (one percell). 
-      # The demographic$global_stage_matrix might need to be renamed to global_stage_matrix and local_stage_matricies. 
-      # local_stage_matrices should have the dimensions ncells(rows),nstages*nstages(cols).
-      message('Using a local demographic stage matricies; one per patch\n')
-      pop_mat_new <- t(sapply(1:nrow(pop_mat),function(x)estdemo(pop_mat[x,],matrix(demography_object$local_stage_matrices[x,],ns,ns))))
-  }
-  # message of Casey: I've updated this so populations are returned from estimate_demography, e.g: populations(habitat) <- estimate_demography(demo,habitat)
-  r <- populations(habitat)[[1]]
-  pops_updated <- lapply(split(pop_mat_new, rep(1:ncol(pop_mat_new), each = nrow(pop_mat_new))),function(x){r[]<-x;return(r)})
-  pops <- lapply(pops_updated, `attr<-`, "habitat", "populations")
-  return(pops)
-}
-
-
-# message for Casey: This function will do the internal projections for demographic processes, so we can add in more complicated function as we need. 
-estdemo <- function(popvec, stage_matrix, stage_matrix_sd=NULL){
-  
-    # no stochatisity
-    popvec_new <- stage_matrix%*%popvec
-    return(popvec_new)
-  
-}
-
-

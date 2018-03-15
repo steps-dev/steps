@@ -1,6 +1,6 @@
-context('demography-class')
+context('dynamics-class')
 
-test_that('demography classes work', {
+test_that('dynamics classes work', {
   library(raster)
   library(rgdal)
 
@@ -66,27 +66,43 @@ test_that('demography classes work', {
     barrier_type=1
   )
   
-  expect_true(inherits(build_demography(mat,dispersal_parameters=params3),"demography"))
+  func <- function(x) x
   
-  plot(build_demography(mat,dispersal_parameters=params3))
+  expect_true(inherits(build_dynamics(as.habitat_dynamics(func),
+                                      as.population_dynamics(func),
+                                      as.demography_dynamics(func)
+                                      ),
+                       "dynamics")
+              )
   
-  expect_error(build_demography(mat[c(1:2),c(1:3)],dispersal_parameters=params3))
+  expect_true(is.dynamics(build_dynamics(as.habitat_dynamics(func),
+                                         as.population_dynamics(func),
+                                         as.demography_dynamics(func)
+                                         )
+                          )
+              )
   
-  mat2 <- mat
-  mat2[1,2] <- NA
-  expect_error(build_demography(mat2,dispersal_parameters=params3))
+  expect_error(inherits(build_dynamics(as.habitat_dynamics(func),
+                                      as.population_dynamics(func)
+                                      ),
+                       "dynamics")
+              )
+ 
+  expect_error(build_dynamics(as.habitat_dynamics(func),
+                                      as.population_dynamics(func),
+                                      as.demography_dynamics(func),
+                                      order = "one"
+                                      )
+               ) 
   
-  expect_error(build_demography(as.vector(mat),dispersal_parameters=params3))
   
-  print(build_demography(mat,dispersal_parameters=params3))
+  print(build_dynamics(as.habitat_dynamics(func),
+                      as.population_dynamics(func),
+                      as.demography_dynamics(func)
+                      )
+        )
   
-  summary(build_demography(mat,dispersal_parameters=params3))
-  
-  plot(build_demography(mat,dispersal_parameters=params3))
-  
-  expect_true(is.demography(build_demography(mat,dispersal_parameters=params3)))
-  
-  #expect_error(as.demography(c(1,2,3)))
+  #expect_error(as.dynamics(c(1,2,3)))
 
 })
  

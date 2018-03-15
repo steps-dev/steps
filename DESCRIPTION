@@ -22,12 +22,14 @@ Imports:
     RColorBrewer,
     plyr,
     raster,
+    rgdal,
     sp,
     methods,
     igraph,
     SDMTools,
     data.table,
-    scales
+    scales,
+    extraDistr
 LinkingTo: Rcpp, plyr, testthat
 RoxygenNote: 6.0.1
 Suggests:
