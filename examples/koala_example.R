@@ -190,6 +190,34 @@ koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
 
 #####################################
 
+####### Permutation 6 ########
+
+koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit,
+                               carrying_capacity = koala.hab.k*.07)
+koala.demography <- build_demography(transition_matrix = koala.trans.mat,
+                                     dispersal_parameters = koala.disp.param)
+koala.population <- build_population(population_raster = koala.pop)
+koala.state <- build_state(habitat = koala.habitat,
+                           demography = koala.demography,
+                           population = koala.population)
+
+koala.habitat.dynamics <- fire_habitat_dynamics(habitat_suitability = koala.hab.suit,
+                                                disturbance_layers = koala.dist.fire,
+                                                effect_time=3)
+koala.demography.dynamics <- envstoch_demographic_dynamics(global_transition_matrix = koala.trans.mat,
+                                                           stochasticity = koala.trans.mat.es)
+koala.population.dynamics <- as.population_dynamics(fft_dispersal_population_dynamics)
+koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
+                                 demography_dynamics = koala.demography.dynamics,
+                                 population_dynamics = koala.population.dynamics,
+                                 order = c("habitat_dynamics",
+                                           "demography_dynamics",
+                                           "population_dynamics")
+)
+
+
+#####################################
+
 system.time(
   my.results <- experiment(koala.state,
                          koala.dynamics,
@@ -197,12 +225,12 @@ system.time(
                          )
 )
 
-plot.experiment_results(my.results, type = "graph")
+plot(my.results)
 
-plot.experiment_results(my.results, type = "graph", stage = 2)
+plot(my.results, type = "graph", stage = 2)
 
-plot.experiment_results(my.results, stage = 2)
+plot(my.results, type = "raster", stage = 2)
 
-plot.experiment_results(my.results, object = "habitat_suitability")
+plot(my.results, object = "habitat_suitability")
 
 plot.experiment_results(my.results, object = "carrying_capacity")
