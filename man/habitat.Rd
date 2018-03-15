@@ -48,9 +48,9 @@ as.carrying_capacity(x, ...)
 
 is.carrying_capacity(x)
 
-carrying_capacity(habitat)
+carrying_capacity(habitat, time_step = 1)
 
-carrying_capacity(habitat) <- value
+carrying_capacity(habitat, time_step = 1) <- value
 
 area(habitat)
 }

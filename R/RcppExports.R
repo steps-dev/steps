@@ -26,7 +26,7 @@ na_matrix <- function(nr, nc) {
 }
 
 #' @export
-rcpp_dispersal <- function(starting_population_state, potential_carrying_capacity, habitat_suitability_map, barriers_map, barrier_type, use_barrier, dispersal_steps, dispersal_distance, dispersal_kernel, dispersal_proportion) {
-    .Call('_dhmpr_rcpp_dispersal', PACKAGE = 'dhmpr', starting_population_state, potential_carrying_capacity, habitat_suitability_map, barriers_map, barrier_type, use_barrier, dispersal_steps, dispersal_distance, dispersal_kernel, dispersal_proportion)
+rcpp_dispersal <- function(starting_population_state, potiential_carrying_capacity, habitat_suitability_map, barriers_map, barrier_type, use_barrier, dispersal_steps, dispersal_distance, dispersal_kernel, dispersal_proportion) {
+    .Call('_dhmpr_rcpp_dispersal', PACKAGE = 'dhmpr', starting_population_state, potiential_carrying_capacity, habitat_suitability_map, barriers_map, barrier_type, use_barrier, dispersal_steps, dispersal_distance, dispersal_kernel, dispersal_proportion)
 }
 

@@ -13,7 +13,7 @@ is.dispersal(x)
 
 \method{print}{dispersal}(x, ...)
 
-dispersal(params, habitat, method, ...)
+dispersal(params, habitat, method, time_step)
 }
 \arguments{
 \item{x}{an object to be tested as a dispersal transfun object}

@@ -1,4 +1,4 @@
-#library(dhmpr)
+library(dhmpr)
 library(raster)
 library(foreach)
 

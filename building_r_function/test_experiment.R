@@ -36,18 +36,18 @@ dispersal_params <- as.dispersal(list(dispersal_distance=list('larvae'=3,'juveni
 ## now I've set up a custom function which manipulates rasters (based on a dodgy fire simualtion)
 ## This will be used as a module to manipulate the habitat suitability between time steps. 
 ## create a named list with corresponding parameters and values
-params = list(habitat,
-              fire_start_location = sample(ncell(habitat_suitability(habitat)),10),
-              prob = 0.24,
-              continue_to_burn_prob = 0.01)
+fire_params <- list(habitat,
+                    fire_start_location = sample(ncell(habitat_suitability(habitat)),10),
+                    prob = 0.24,
+                    continue_to_burn_prob = 0.01)
                
-## check module produces expected output
-# fires <- as.module(fire_module,params)       
+## check to see that it produces a burnt landscape.
+hab_dynamics <- as.habitat_dynamics(fire_module,fire_params,check=TRUE)
 
-## altenative you can run the fire module as follows:
-RUN_FIRE_screaming <- fire_module(habitat,sample(ncell(habitat_suitability(habitat)),10),
-                                  prob = 0.24,
-                                  continue_to_burn_prob = 0.01)
+## now it'll return a habitat_dynamics object which can be used in a simulation/experiment.
+hab_dynamics <- as.habitat_dynamics(fire_module,fire_params)
+# is.habitat_dynamics(hab_dynamics)
+run_habitat_dynamics(hab_dynamics)
 
 # set up a density dependence fucntion. This isn't working as before :( But it should give you some ideas.
 ddfun <- function (pop,n) {
@@ -59,10 +59,7 @@ ddfun <- function (pop,n) {
 pops_at_time_step <- dispersal_at_time_step <- fire_history_df_list <- fire_at_time_step <- habitat_suit_at_time_step <- list()
 pops_at_time_step[[1]] <- populations(habitat) 
 habitat_suit_at_time_step[[1]] <- habitat_suitability(habitat) 
-fire_at_time_step[[1]] <- fire_module(habitat,sample(ncell(habitat_suitability(habitat)),10),
-  prob = 0.24,
-  continue_to_burn_prob = 0.01)
-n_time_steps <- 99
+fire_at_time_step[[1]] <- run_habitat_dynamics(hab_dynamics)
 
 ## begin experiment through time
 for(i in 1:n_time_steps){
@@ -90,36 +87,6 @@ for(i in 1:n_time_steps){
       fire_history = )
 }
 
-#lets look at populations
-# #spatially
-# larvae <- stack(lapply(pops_at_time_step, "[[", 1))
-# larvae_disp <- stack(lapply(dispersal_at_time_step, "[[", 1))
-# juve <- stack(lapply(pops_at_time_step, "[[", 2))
-# juve_disp <- stack(lapply(dispersal_at_time_step, "[[", 2))
-# adult <- stack(lapply(pops_at_time_step, "[[", 3))
-# adult_disp <- stack(lapply(dispersal_at_time_step, "[[", 3))
-# 
-# # these plots should show you the movement of species between each time setp.
-# # negative values will be source and and +ve will be sinks. ie, you lots 20 species (-20) and gained 30 
-# plot(larvae_disp-larvae[[-12]])
-# plot(juve_disp-juve[[-12]])
-# plot(adult_disp-adult[[-12]])
-# 
-# pops_after_experiment <- stack(larvae,juve,adult)
-# # names(pops_after_experiment) <- c('larvae','juveniles','adults')
-# # par(mfrow=c(3,1))
-# plot(pops_after_experiment)
-# 
-# 
-# tot_abn <- list()
-# for(i in 1:n_time_steps){
-#   tot_abn[[i]] <- sum(stack(pops_at_time_step[[i]]))
-# }
-# 
-# rb <- brick(tot_abn)
-# library(viridis)
-# animation::saveGIF(animate(rb,pause=.001,main='dispersal',n=1,col=rev(viridis::viridis(100))), movie.name = "pop_growth_t24.gif",loop=TRUE)
-# 
 # #through time
 par(mfrow=c(1,3))
 
@@ -132,8 +99,3 @@ plot(juve_n,type='l',ylab='Total Juvenile Abundance',xlab="Time (years)",lwd=2,c
 adult_n <- sapply(lapply(pops_at_time_step, "[[", 3)[], function(x)sum(x[]))
 plot(adult_n,type='l',ylab='Total Adult Abundance',xlab="Time (years)",lwd=2,col='tomato')
 
-
-# #let's look at fire through time
-# #spatially
-# fire_history <- stack(fire_at_time_step)
-# plot(fire_history)
