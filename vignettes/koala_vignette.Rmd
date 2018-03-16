@@ -1,0 +1,40 @@
+---
+title: "Koala example"
+author: "Casey Visintin"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+Here is a groove example of what this package can do.
+
+First we are going to setup the stage based transition matricies.
+
+```{r}
+koala.trans.mat <- matrix(c(0.000,0.000,0.302,0.302,
+                              0.940,0.000,0.000,0.000,
+                              0.000,0.884,0.000,0.000,
+                              0.000,0.000,0.793,0.793),
+                            nrow = 4, ncol = 4, byrow = TRUE)
+colnames(koala.trans.mat) <- rownames(koala.trans.mat) <- c('Stage_0_1','Stage_1_2','Stage_2_3','Stage_3_')
+
+koala.trans.mat.es <- matrix(c(0.000,0.000,1,1,
+                                 1,0.000,0.000,0.000,
+                                 0.000,1,0.000,0.000,
+                                 0.000,0.000,1,1),
+                               nrow = 4, ncol = 4, byrow = TRUE)
+colnames(koala.trans.mat.es) <- rownames(koala.trans.mat.es) <- c('Stage_0_1','Stage_1_2','Stage_2_3','Stage_3_')
+
+```    
+
+
+The figure sizes have been customised so that you can easily put two images side-by-side. 
+
+```{r, fig.show='hold'}
+plot(1:10)
+plot(10:1)
+```
+
