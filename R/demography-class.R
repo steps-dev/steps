@@ -7,7 +7,10 @@
 #' @rdname demography
 #' 
 #' @param transition_matrix a symmetrical stage-based population structure matrix
+#' @param type scale of transition matrix - either 'global' or 'local' (cell-based)
+#' @param habitat_suitability habitat suitability raster layer (required if 'local' type is specified)
 #' @param dispersal_parameters specifications for dispersal in the landscape
+#' @param misc miscellaneous inputs used to modify demography
 #' @param x a demography object
 #' @param ... further arguments passed to or from other methods
 #'
@@ -30,17 +33,34 @@
 #' 
 #' # Construct the demography object.
 #' 
-#' test_demography <- build_demography(mat, params)
+#' test_demography <- build_demography(transition_matrix = mat, dispersal_parameters = params)
 
-build_demography <- function (transition_matrix, dispersal_parameters) {
+build_demography <- function (transition_matrix, type = 'global', habitat_suitability = NULL, dispersal_parameters, misc = NULL, ...) {
   x <- transition_matrix
   stage_matrixCheck(x)
   di <- base::dim(x)[[1]]
   m.names <- base::dimnames(x)[[1]]
   if(base::is.null(m.names)) m.names <- base::paste0("stage.",1:di)
   base::dimnames(x) <- base::list(m.names, m.names)
-  demography <- list(transition_matrix = x,
-                     dispersal_parameters = dispersal_parameters)
+  
+  if (type == 'local' ) {
+    if (!inherits(habitat_suitability,c("RasterLayer"))) stop("A raster layer must be specified if storing local (cell-based) transition matrices")
+    ncells <- length(habitat_suitability)
+    
+    # set up a matrix of (ncell)(rows)*(nstage*nstage)(cols) and fill with original stage matrix
+    all_stage_matrices <- matrix(rep(c(x),ncells),ncells,length(c(x)),byrow = TRUE)
+    colnames(all_stage_matrices)<-paste0(rep(m.names,each=di),1:di)
+    
+    demography <- list(global_transition_matrix = x,
+                       local_transition_matrix = all_stage_matrices,
+                       dispersal_parameters = dispersal_parameters,
+                       misc = misc)
+  }else{
+    demography <- list(global_transition_matrix = x,
+                       dispersal_parameters = dispersal_parameters,
+                       misc = misc)    
+  }
+
   set_class(demography, "demography")
 }
 
@@ -83,7 +103,8 @@ print.demography <- function (x, ...) {
 #' summary(test_demography)
 
 summary.demography <- function (x,...) {
-  x <- x$transition_matrix
+
+  x <- x$global_transition_matrix
   di <- base::dim(x)[1]
   ea <- base::eigen(x)
   lambda <- base::abs(ea$values[1]) 
@@ -121,7 +142,7 @@ plot.demography <- function (x, ...) {
   
   # extract the stage matrix & create an igraph graph x
   graphics::par(mar=c(2,4,4,2))
-  x <- x$transition_matrix
+  x <- x$global_transition_matrix
   textmat <- base::t(x)
   textmat[textmat>0]<-base::paste0('p(',base::as.character(textmat[textmat>0]),')')
   textmat[textmat=='0'] <-''

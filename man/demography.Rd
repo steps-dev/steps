@@ -8,7 +8,8 @@
 \alias{plot.demography}
 \title{Create a demography object to use in a state object}
 \usage{
-build_demography(transition_matrix, dispersal_parameters)
+build_demography(transition_matrix, type = "global",
+  habitat_suitability = NULL, dispersal_parameters, misc = NULL, ...)
 
 is.demography(x)
 
@@ -21,11 +22,17 @@ is.demography(x)
 \arguments{
 \item{transition_matrix}{a symmetrical stage-based population structure matrix}
 
+\item{type}{scale of transition matrix - either 'global' or 'local' (cell-based)}
+
+\item{habitat_suitability}{habitat suitability raster layer (required if 'local' type is specified)}
+
 \item{dispersal_parameters}{specifications for dispersal in the landscape}
 
-\item{x}{a demography object}
+\item{misc}{miscellaneous inputs used to modify demography}
 
 \item{...}{further arguments passed to or from other methods}
+
+\item{x}{a demography object}
 }
 \value{
 An object of class \code{demography}
@@ -50,7 +57,7 @@ params <- list(rlnorm(1),c(1:4))
 
 # Construct the demography object.
 
-test_demography <- build_demography(mat, params)
+test_demography <- build_demography(transition_matrix = mat, dispersal_parameters = params)
 
 # Test if object is of the type 'population'
 

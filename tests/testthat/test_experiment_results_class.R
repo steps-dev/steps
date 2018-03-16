@@ -198,7 +198,8 @@ test_that('experiment_results classes work', {
   
   plot(test_experiment,
        object = "population",
-       type = "graph"
+       type = "graph",
+       stage = 0
   )
   
   plot(test_experiment,

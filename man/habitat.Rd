@@ -6,7 +6,7 @@
 \alias{print.habitat}
 \title{Create a habitat object to use in a state object}
 \usage{
-build_habitat(habitat_suitability, carrying_capacity)
+build_habitat(habitat_suitability, carrying_capacity, misc = NULL, ...)
 
 is.habitat(x)
 
@@ -17,9 +17,11 @@ is.habitat(x)
 
 \item{carrying_capacity}{A raster layer specifying carrying capacity values for each cell}
 
-\item{x}{an object to print or test as an habitat object}
+\item{misc}{miscellaneous inputs used to modify habitat}
 
 \item{...}{further arguments passed to or from other methods}
+
+\item{x}{an object to print or test as an habitat object}
 }
 \value{
 An object of class \code{habitat}
@@ -37,7 +39,7 @@ library(raster)
 
 r <- raster(system.file("external/test.grd", package="raster"))
 
-# Modify raster to contain values between 0 and 1
+# Modify raster to contain values between 0 and 1  
 
 hs <- r / cellStats(r, "max")
 
@@ -50,7 +52,7 @@ k <- ceiling(r * 0.1)
 test_habitat <- build_habitat(habitat_suitability = hs, carrying_capacity = k)
 
 # Test if object is of the type 'habitat'
-
+  
 is.habitat(test_habitat)
 
 # Print information about the 'habitat' object

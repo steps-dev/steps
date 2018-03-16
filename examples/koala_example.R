@@ -227,7 +227,9 @@ system.time(
 
 plot(my.results)
 
-plot(my.results, type = "graph", stage = 2)
+plot(my.results, stage = 2)
+
+plot(my.results, stage = 0)
 
 plot(my.results, type = "raster", stage = 2)
 

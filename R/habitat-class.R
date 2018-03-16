@@ -7,6 +7,7 @@
 #' 
 #' @param habitat_suitability A raster layer or stack containing habitat suitability for each cell
 #' @param carrying_capacity A raster layer specifying carrying capacity values for each cell
+#' @param misc miscellaneous inputs used to modify habitat
 #' @param x an object to print or test as an habitat object
 #' @param ... further arguments passed to or from other methods
 #'
@@ -35,10 +36,11 @@
 #' 
 #' test_habitat <- build_habitat(habitat_suitability = hs, carrying_capacity = k)
 
-build_habitat <- function (habitat_suitability, carrying_capacity) {
+build_habitat <- function (habitat_suitability, carrying_capacity, misc=NULL, ...) {
   #INSERT CHECKS AND OBJECT TRANSFORMATIONS
   habitat <- list(habitat_suitability = habitat_suitability,
-                  carrying_capacity = carrying_capacity)
+                  carrying_capacity = carrying_capacity,
+                  misc = misc)
   set_class(habitat, "habitat")
 }
 

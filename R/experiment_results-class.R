@@ -26,7 +26,7 @@
 #' r <- raster(system.file("external/test.grd", package="raster"))
 #' 
 #' test_habitat <- build_habitat(habitat_suitability = r / cellStats(r, "max"), carrying_capacity = ceiling(r * 0.1))
-#' test_demography <- build_demography(fake_transition_matrix(4), rlnorm(1))
+#' test_demography <- build_demography(transition_matrix = fake_transition_matrix(4), dispersal_parameters = rlnorm(1))
 #' test_population <- build_population(stack(replicate(4, test_habitat$carrying_capacity * 0.2)))
 #' test_state <- build_state(test_habitat, test_demography, test_population)
 #' fast_approximation <- build_dynamics(no_habitat_dynamics, no_demographic_dynamics, fast_population_dynamics)
@@ -77,6 +77,20 @@ plot.experiment_results <- function (results, object = "population", type = "gra
 
   stages <- nlayers(results[[1]]$population$population_raster)
   
+  pal <- colorRampPalette(
+    c(
+      '#440154', # dark purple
+      '#472c7a', # purple
+      '#3b518b', # blue
+      '#2c718e', # blue
+      '#21908d', # blue-green
+      '#27ad81', # green
+      '#5cc863', # green
+      '#aadc32', # lime green
+      '#fde725' # yellow
+    )
+  )
+  
     if (object == "population") {
 
       if (type == "graph") {
@@ -85,7 +99,7 @@ plot.experiment_results <- function (results, object = "population", type = "gra
         pops <- lapply(results, function(x) extract(x$population$population_raster, idx))
         pop_sums <- lapply(pops, function(x) colSums(x))
         
-        stage_names <- unlist(dimnames(results[[1]]$demography$transition_matrix)[1])
+        stage_names <- unlist(dimnames(results[[1]]$demography$global_transition_matrix)[1])
         
         colours <- c("#94d1c7", "#cccc2b", "#bebada", "#fb8072", "#80b1d3", "#fdb462", "#b3de69", "#fccde5", "#969696", "#bc80bd")
 
@@ -108,6 +122,23 @@ plot.experiment_results <- function (results, object = "population", type = "gra
             
           }
           
+        }
+        
+        if (stage == 0) {
+          
+          par(mfrow=c(1,1))
+
+            plot(unlist(lapply(pop_sums, function(x) sum(x))),
+                 type='l',
+                 ylab="Total Population (all stages)",
+                 xlab="Time (years)",
+                 lwd=2,
+                 col="black"
+            )
+            abline(h=cellStats(results[[1]]$habitat$carrying_capacity,sum),
+                   lwd=1,
+                   lty=2)
+
         }else{
           
           par(mfrow=c(1,1))
@@ -132,14 +163,21 @@ plot.experiment_results <- function (results, object = "population", type = "gra
         
         rasters <- stack(lapply(results, function (state) state$population$population_raster[[stage]]))
         
+        # Find maximum and minimum population value in raster cells for all timesteps for life-stage
+        scale_max <- ceiling(max(cellStats(rasters, max)))
+        scale_min <- floor(min(cellStats(rasters, min)))
+        
+        # Produce scale of values
+        breaks <- seq(scale_min, scale_max, scale_max/10)
+        
         ts <- seq_len(nlayers(rasters))
         groups <- split(ts, ceiling(seq_along(ts)/9))
         
         for (i in 1:length(groups)) {
           
-          par(mfrow=c(3,3))
+          par(mar = c(0, 0, 0, 0), mfrow = c(3,3))
           group <- groups[[i]]
-          plot(rasters[[group]])
+          plot(rasters[[group]], breaks = breaks, col = pal(length(breaks)), axes = FALSE, box = FALSE)
         
         }
       }
@@ -155,9 +193,9 @@ plot.experiment_results <- function (results, object = "population", type = "gra
       
       for (i in 1:length(groups)) {
         
-        par(mfrow=c(3,3))
+        par(mar = c(0, 0, 0, 0), mfrow = c(3,3))
         group <- groups[[i]]
-        plot(rasters[[group]])
+        plot(rasters[[group]], axes = FALSE, box = FALSE)
         
       }
     
@@ -172,9 +210,9 @@ plot.experiment_results <- function (results, object = "population", type = "gra
       
       for (i in 1:length(groups)) {
         
-        par(mfrow=c(3,3))
+        par(mar = c(0, 0, 0, 0), mfrow = c(3,3))
         group <- groups[[i]]
-        plot(rasters[[group]])
+        plot(rasters[[group]], axes = FALSE, box = FALSE)
         
       }
     
