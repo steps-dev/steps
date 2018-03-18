@@ -73,7 +73,7 @@ print.experiment_results <- function (results) {
 #' 
 #' plot(results)
 
-plot.experiment_results <- function (results, object = "population", type = "graph", stage = NULL, ...) {
+plot.experiment_results <- function (results, object = "population", type = "graph", stage = NULL, ...){
 
   stages <- nlayers(results[[1]]$population$population_raster)
   
@@ -124,7 +124,8 @@ plot.experiment_results <- function (results, object = "population", type = "gra
           
         }
         
-        if (stage == 0) {
+        if (!is.null(stage)) {
+          if(stage==0){
           
           par(mfrow=c(1,1))
 
@@ -138,8 +139,7 @@ plot.experiment_results <- function (results, object = "population", type = "gra
             abline(h=cellStats(results[[1]]$habitat$carrying_capacity,sum),
                    lwd=1,
                    lty=2)
-
-        }else{
+          } else{
           
           par(mfrow=c(1,1))
           
@@ -154,8 +154,9 @@ plot.experiment_results <- function (results, object = "population", type = "gra
                  lwd=1,
                  lty=2)
           
+          }
         }
-      }
+      }  
       
       if (type == "raster") {
         

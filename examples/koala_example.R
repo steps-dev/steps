@@ -235,4 +235,4 @@ plot(my.results, type = "raster", stage = 2)
 
 plot(my.results, object = "habitat_suitability")
 
-plot.experiment_results(my.results, object = "carrying_capacity")
+plot(my.results, object = "carrying_capacity")
