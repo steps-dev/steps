@@ -122,9 +122,7 @@ plot.experiment_results <- function (results, object = "population", type = "gra
             
           }
           
-        }
-        
-        if (stage == 0) {
+        } else if (stage == 0) {
           
           par(mfrow=c(1,1))
 
@@ -139,7 +137,7 @@ plot.experiment_results <- function (results, object = "population", type = "gra
                    lwd=1,
                    lty=2)
 
-        }else{
+        } else {
           
           par(mfrow=c(1,1))
           
