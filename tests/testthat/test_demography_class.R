@@ -72,6 +72,15 @@ test_that('demography classes work', {
   
   expect_error(build_demography(mat[c(1:2),c(1:3)],dispersal_parameters=params3))
   
+  expect_true(inherits(build_demography(mat,dispersal_parameters=params3),"demography"))
+  
+  expect_true(inherits(build_demography(transition_matrix=mat,
+                                type='local',
+                                habitat_suitability=hab.suit,
+                                dispersal_parameters=params),
+                       "demography")
+              )
+  
   mat2 <- mat
   mat2[1,2] <- NA
   expect_error(build_demography(mat2,dispersal_parameters=params3))

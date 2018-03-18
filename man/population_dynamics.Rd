@@ -35,7 +35,7 @@ example_function <- function (state, timestep) {
 
 population_raster <- state$population$population_raster
 dispersal_parameters <- state$demography$dispersal_parameters
-transition_matrix <- state$demography$transition_matrix
+transition_matrix <- state$demography$global_transition_matrix
 
 #  get population as a matrix
 idx <- which(!is.na(getValues(population_raster[[1]])))

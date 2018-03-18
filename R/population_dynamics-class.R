@@ -25,7 +25,7 @@ NULL
 #' 
 #' population_raster <- state$population$population_raster
 #' dispersal_parameters <- state$demography$dispersal_parameters
-#' transition_matrix <- state$demography$transition_matrix
+#' transition_matrix <- state$demography$global_transition_matrix
 #' 
 #' #  get population as a matrix
 #' idx <- which(!is.na(getValues(population_raster[[1]])))
@@ -335,7 +335,7 @@ fast_population_dynamics <- function (state, timestep) {
   
   population_raster <- state$population$population_raster
   dispersal_parameters <- state$demography$dispersal_parameters
-  transition_matrix <- state$demography$transition_matrix
+  transition_matrix <- state$demography$global_transition_matrix
   
   # get population as a matrix
   idx <- which(!is.na(getValues(population_raster[[1]])))
@@ -364,7 +364,7 @@ ca_dispersal_population_dynamics <- function (state, timestep) {
   
   population_raster <- state$population$population_raster
   dispersal_parameters <- state$demography$dispersal_parameters
-  transition_matrix <- state$demography$transition_matrix
+  transition_matrix <- state$demography$global_transition_matrix
   transition_matrix_sd <- state$demography$transition_matrix_sd
   habitat_suitability <- state$habitat$habitat_suitability
   carrying_capacity <- state$habitat$carrying_capacity
@@ -397,7 +397,7 @@ fft_dispersal_population_dynamics <- function (state, timestep) {
   
   population_raster <- state$population$population_raster
   dispersal_parameters <- state$demography$dispersal_parameters
-  transition_matrix <- state$demography$transition_matrix
+  transition_matrix <- state$demography$global_transition_matrix
   habitat_suitability <- state$habitat$habitat_suitability
   carrying_capacity <- state$habitat$carrying_capacity
   

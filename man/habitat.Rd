@@ -6,7 +6,7 @@
 \alias{print.habitat}
 \title{Create a habitat object to use in a state object}
 \usage{
-build_habitat(habitat_suitability, carrying_capacity)
+build_habitat(habitat_suitability, carrying_capacity, misc = NULL, ...)
 
 is.habitat(x)
 
@@ -17,9 +17,11 @@ is.habitat(x)
 
 \item{carrying_capacity}{A raster layer specifying carrying capacity values for each cell}
 
-\item{x}{an object to print or test as an habitat object}
+\item{misc}{miscellaneous inputs used to modify habitat}
 
 \item{...}{further arguments passed to or from other methods}
+
+\item{x}{an object to print or test as an habitat object}
 }
 \value{
 An object of class \code{habitat}
