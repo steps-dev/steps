@@ -122,14 +122,11 @@ plot.experiment_results <- function (results, object = "population", type = "gra
             
           }
           
-<<<<<<< HEAD
         }
         
         if (!is.null(stage)) {
           if(stage==0){
-=======
-        } else if (stage == 0) {
->>>>>>> c54c189d5ed6fc91e1f524ee23a8a2de616cb466
+
           
           par(mfrow=c(1,1))
 
@@ -143,12 +140,9 @@ plot.experiment_results <- function (results, object = "population", type = "gra
             abline(h=cellStats(results[[1]]$habitat$carrying_capacity,sum),
                    lwd=1,
                    lty=2)
-<<<<<<< HEAD
-          } else{
-=======
 
         } else {
->>>>>>> c54c189d5ed6fc91e1f524ee23a8a2de616cb466
+
           
           par(mfrow=c(1,1))
           
