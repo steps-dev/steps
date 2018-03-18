@@ -38,7 +38,7 @@ state
 no_demography_dynamics <- as.demography_dynamics(example_function)
 
 # Test if object is of the type 'demography dynamics'
-
+  
 is.demography_dynamics(no_demography_dynamics)
 
 print(no_demography_dynamics)

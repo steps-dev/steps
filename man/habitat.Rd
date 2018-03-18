@@ -37,7 +37,7 @@ library(raster)
 
 r <- raster(system.file("external/test.grd", package="raster"))
 
-# Modify raster to contain values between 0 and 1
+# Modify raster to contain values between 0 and 1  
 
 hs <- r / cellStats(r, "max")
 
@@ -50,7 +50,7 @@ k <- ceiling(r * 0.1)
 test_habitat <- build_habitat(habitat_suitability = hs, carrying_capacity = k)
 
 # Test if object is of the type 'habitat'
-
+  
 is.habitat(test_habitat)
 
 # Print information about the 'habitat' object
