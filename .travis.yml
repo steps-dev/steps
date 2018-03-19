@@ -29,3 +29,8 @@ warnings_are_errors: false
 notifications:
   on_success: always
   on_failure: always
+  
+env:
+  global:
+    - R_BUILD_ARGS="--no-build-vignettes"
+    - R_CHECK_ARGS="--no-build-vignettes --as-cran"
