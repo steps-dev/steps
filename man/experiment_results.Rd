@@ -38,11 +38,11 @@ An object of class \code{experiment_results}
 }
 \description{
 A habitat object is used to store spatially-explicit information on habitat suitability and the carrying_capacity of a landscape.
-It is a sub-component of a \link[dhmpr]{state} object and is modified in each timestep of an experiment.
+It is a sub-component of a \link[steps]{state} object and is modified in each timestep of an experiment.
 }
 \examples{
 
-library(dhmpr)
+library(steps)
 library(raster)
 
 r <- raster(system.file("external/test.grd", package="raster"))

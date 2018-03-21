@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // barrier_to_dispersal
 bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatrix barriers_map, int barrier_type);
-RcppExport SEXP _dhmpr_barrier_to_dispersal(SEXP snkXSEXP, SEXP snkYSEXP, SEXP srcXSEXP, SEXP srcYSEXP, SEXP barriers_mapSEXP, SEXP barrier_typeSEXP) {
+RcppExport SEXP _steps_barrier_to_dispersal(SEXP snkXSEXP, SEXP snkYSEXP, SEXP srcXSEXP, SEXP srcYSEXP, SEXP barriers_mapSEXP, SEXP barrier_typeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -23,7 +23,7 @@ END_RCPP
 }
 // total_dispersal_cells
 int total_dispersal_cells(NumericMatrix habitat_suitability_map);
-RcppExport SEXP _dhmpr_total_dispersal_cells(SEXP habitat_suitability_mapSEXP) {
+RcppExport SEXP _steps_total_dispersal_cells(SEXP habitat_suitability_mapSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -34,7 +34,7 @@ END_RCPP
 }
 // can_source_cell_disperse
 IntegerVector can_source_cell_disperse(int i, int j, NumericMatrix carrying_capacity_available, NumericMatrix tracking_population_state, NumericMatrix habitat_suitability_map, NumericMatrix barriers_map, bool use_barrier, int barrier_type, int loopID, int dispersal_distance, NumericVector dispersal_kernel);
-RcppExport SEXP _dhmpr_can_source_cell_disperse(SEXP iSEXP, SEXP jSEXP, SEXP carrying_capacity_availableSEXP, SEXP tracking_population_stateSEXP, SEXP habitat_suitability_mapSEXP, SEXP barriers_mapSEXP, SEXP use_barrierSEXP, SEXP barrier_typeSEXP, SEXP loopIDSEXP, SEXP dispersal_distanceSEXP, SEXP dispersal_kernelSEXP) {
+RcppExport SEXP _steps_can_source_cell_disperse(SEXP iSEXP, SEXP jSEXP, SEXP carrying_capacity_availableSEXP, SEXP tracking_population_stateSEXP, SEXP habitat_suitability_mapSEXP, SEXP barriers_mapSEXP, SEXP use_barrierSEXP, SEXP barrier_typeSEXP, SEXP loopIDSEXP, SEXP dispersal_distanceSEXP, SEXP dispersal_kernelSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -55,7 +55,7 @@ END_RCPP
 }
 // clean_matrix
 NumericMatrix clean_matrix(NumericMatrix in_matrix, NumericMatrix barriers_map, bool filter_na_data, bool filter_barriers, bool insert_na_data);
-RcppExport SEXP _dhmpr_clean_matrix(SEXP in_matrixSEXP, SEXP barriers_mapSEXP, SEXP filter_na_dataSEXP, SEXP filter_barriersSEXP, SEXP insert_na_dataSEXP) {
+RcppExport SEXP _steps_clean_matrix(SEXP in_matrixSEXP, SEXP barriers_mapSEXP, SEXP filter_na_dataSEXP, SEXP filter_barriersSEXP, SEXP insert_na_dataSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -70,7 +70,7 @@ END_RCPP
 }
 // proportion_of_population_to_disperse
 int proportion_of_population_to_disperse(int source_x, int source_y, int sink_x, int sink_y, NumericMatrix starting_population_state, NumericMatrix current_carrying_capacity, double dispersal_proportion);
-RcppExport SEXP _dhmpr_proportion_of_population_to_disperse(SEXP source_xSEXP, SEXP source_ySEXP, SEXP sink_xSEXP, SEXP sink_ySEXP, SEXP starting_population_stateSEXP, SEXP current_carrying_capacitySEXP, SEXP dispersal_proportionSEXP) {
+RcppExport SEXP _steps_proportion_of_population_to_disperse(SEXP source_xSEXP, SEXP source_ySEXP, SEXP sink_xSEXP, SEXP sink_ySEXP, SEXP starting_population_stateSEXP, SEXP current_carrying_capacitySEXP, SEXP dispersal_proportionSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -87,7 +87,7 @@ END_RCPP
 }
 // na_matrix
 NumericMatrix na_matrix(int nr, int nc);
-RcppExport SEXP _dhmpr_na_matrix(SEXP nrSEXP, SEXP ncSEXP) {
+RcppExport SEXP _steps_na_matrix(SEXP nrSEXP, SEXP ncSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -99,7 +99,7 @@ END_RCPP
 }
 // rcpp_dispersal
 List rcpp_dispersal(NumericMatrix starting_population_state, NumericMatrix potential_carrying_capacity, NumericMatrix habitat_suitability_map, NumericMatrix barriers_map, int barrier_type, bool use_barrier, int dispersal_steps, int dispersal_distance, NumericVector dispersal_kernel, double dispersal_proportion);
-RcppExport SEXP _dhmpr_rcpp_dispersal(SEXP starting_population_stateSEXP, SEXP potential_carrying_capacitySEXP, SEXP habitat_suitability_mapSEXP, SEXP barriers_mapSEXP, SEXP barrier_typeSEXP, SEXP use_barrierSEXP, SEXP dispersal_stepsSEXP, SEXP dispersal_distanceSEXP, SEXP dispersal_kernelSEXP, SEXP dispersal_proportionSEXP) {
+RcppExport SEXP _steps_rcpp_dispersal(SEXP starting_population_stateSEXP, SEXP potential_carrying_capacitySEXP, SEXP habitat_suitability_mapSEXP, SEXP barriers_mapSEXP, SEXP barrier_typeSEXP, SEXP use_barrierSEXP, SEXP dispersal_stepsSEXP, SEXP dispersal_distanceSEXP, SEXP dispersal_kernelSEXP, SEXP dispersal_proportionSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -119,17 +119,17 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_dhmpr_barrier_to_dispersal", (DL_FUNC) &_dhmpr_barrier_to_dispersal, 6},
-    {"_dhmpr_total_dispersal_cells", (DL_FUNC) &_dhmpr_total_dispersal_cells, 1},
-    {"_dhmpr_can_source_cell_disperse", (DL_FUNC) &_dhmpr_can_source_cell_disperse, 11},
-    {"_dhmpr_clean_matrix", (DL_FUNC) &_dhmpr_clean_matrix, 5},
-    {"_dhmpr_proportion_of_population_to_disperse", (DL_FUNC) &_dhmpr_proportion_of_population_to_disperse, 7},
-    {"_dhmpr_na_matrix", (DL_FUNC) &_dhmpr_na_matrix, 2},
-    {"_dhmpr_rcpp_dispersal", (DL_FUNC) &_dhmpr_rcpp_dispersal, 10},
+    {"_steps_barrier_to_dispersal", (DL_FUNC) &_steps_barrier_to_dispersal, 6},
+    {"_steps_total_dispersal_cells", (DL_FUNC) &_steps_total_dispersal_cells, 1},
+    {"_steps_can_source_cell_disperse", (DL_FUNC) &_steps_can_source_cell_disperse, 11},
+    {"_steps_clean_matrix", (DL_FUNC) &_steps_clean_matrix, 5},
+    {"_steps_proportion_of_population_to_disperse", (DL_FUNC) &_steps_proportion_of_population_to_disperse, 7},
+    {"_steps_na_matrix", (DL_FUNC) &_steps_na_matrix, 2},
+    {"_steps_rcpp_dispersal", (DL_FUNC) &_steps_rcpp_dispersal, 10},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_dhmpr(DllInfo *dll) {
+RcppExport void R_init_steps(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }

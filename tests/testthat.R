@@ -1,7 +1,7 @@
 library(testthat)
 library(raster)
-library(dhmpr)
+library(steps)
 library(rgdal)
 library(extraDistr)
 
-test_check("dhmpr")
+test_check("steps")

@@ -2,31 +2,31 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 barrier_to_dispersal <- function(snkX, snkY, srcX, srcY, barriers_map, barrier_type) {
-    .Call('_dhmpr_barrier_to_dispersal', PACKAGE = 'dhmpr', snkX, snkY, srcX, srcY, barriers_map, barrier_type)
+    .Call('_steps_barrier_to_dispersal', PACKAGE = 'steps', snkX, snkY, srcX, srcY, barriers_map, barrier_type)
 }
 
 total_dispersal_cells <- function(habitat_suitability_map) {
-    .Call('_dhmpr_total_dispersal_cells', PACKAGE = 'dhmpr', habitat_suitability_map)
+    .Call('_steps_total_dispersal_cells', PACKAGE = 'steps', habitat_suitability_map)
 }
 
 can_source_cell_disperse <- function(i, j, carrying_capacity_available, tracking_population_state, habitat_suitability_map, barriers_map, use_barrier, barrier_type, loopID, dispersal_distance, dispersal_kernel) {
-    .Call('_dhmpr_can_source_cell_disperse', PACKAGE = 'dhmpr', i, j, carrying_capacity_available, tracking_population_state, habitat_suitability_map, barriers_map, use_barrier, barrier_type, loopID, dispersal_distance, dispersal_kernel)
+    .Call('_steps_can_source_cell_disperse', PACKAGE = 'steps', i, j, carrying_capacity_available, tracking_population_state, habitat_suitability_map, barriers_map, use_barrier, barrier_type, loopID, dispersal_distance, dispersal_kernel)
 }
 
 clean_matrix <- function(in_matrix, barriers_map, filter_na_data = TRUE, filter_barriers = TRUE, insert_na_data = TRUE) {
-    .Call('_dhmpr_clean_matrix', PACKAGE = 'dhmpr', in_matrix, barriers_map, filter_na_data, filter_barriers, insert_na_data)
+    .Call('_steps_clean_matrix', PACKAGE = 'steps', in_matrix, barriers_map, filter_na_data, filter_barriers, insert_na_data)
 }
 
 proportion_of_population_to_disperse <- function(source_x, source_y, sink_x, sink_y, starting_population_state, current_carrying_capacity, dispersal_proportion) {
-    .Call('_dhmpr_proportion_of_population_to_disperse', PACKAGE = 'dhmpr', source_x, source_y, sink_x, sink_y, starting_population_state, current_carrying_capacity, dispersal_proportion)
+    .Call('_steps_proportion_of_population_to_disperse', PACKAGE = 'steps', source_x, source_y, sink_x, sink_y, starting_population_state, current_carrying_capacity, dispersal_proportion)
 }
 
 na_matrix <- function(nr, nc) {
-    .Call('_dhmpr_na_matrix', PACKAGE = 'dhmpr', nr, nc)
+    .Call('_steps_na_matrix', PACKAGE = 'steps', nr, nc)
 }
 
 #' @export
 rcpp_dispersal <- function(starting_population_state, potential_carrying_capacity, habitat_suitability_map, barriers_map, barrier_type, use_barrier, dispersal_steps, dispersal_distance, dispersal_kernel, dispersal_proportion) {
-    .Call('_dhmpr_rcpp_dispersal', PACKAGE = 'dhmpr', starting_population_state, potential_carrying_capacity, habitat_suitability_map, barriers_map, barrier_type, use_barrier, dispersal_steps, dispersal_distance, dispersal_kernel, dispersal_proportion)
+    .Call('_steps_rcpp_dispersal', PACKAGE = 'steps', starting_population_state, potential_carrying_capacity, habitat_suitability_map, barriers_map, barrier_type, use_barrier, dispersal_steps, dispersal_distance, dispersal_kernel, dispersal_proportion)
 }
 

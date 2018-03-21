@@ -24,11 +24,11 @@ An object of class \code{habitat_dynamics}
 }
 \description{
 A 'habitat dynamics' object is used to modify habitat suitability (or carrying capacity) of a landscape in space and time.
-It is a sub-component of a \link[dhmpr]{dynamics} object and is executed in each timestep of an experiment.
+It is a sub-component of a \link[steps]{dynamics} object and is executed in each timestep of an experiment.
 }
 \examples{
 
-library(dhmpr)
+library(steps)
 library(raster)
 
 example_function <- function (state, timestep) {
