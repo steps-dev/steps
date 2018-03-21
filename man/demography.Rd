@@ -40,11 +40,11 @@ An object of class \code{demography}
 \description{
 A demography object is used to store information on how populations change in space and time.
 This includes life-stage matrices and parameters to control dispersal.
-It is a sub-component of a \link[dhmpr]{state} object and is modified in each timestep of an experiment.
+It is a sub-component of a \link[steps]{state} object and is modified in each timestep of an experiment.
 }
 \examples{
 
-library(dhmpr)
+library(steps)
 library(raster)
 
 # Use a built-in function to generate a four life-stage transition matrix
