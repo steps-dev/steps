@@ -1,6 +1,6 @@
-Package: dhmpr
+Package: steps
 Type: Package
-Title: Dynamic Habitat Meta-Population Models in R
+Title: Spatially and Temporally Explicit Populations
 Version: 0.01
 Date: 2015-12-16
 Authors@R: person("Skipton", "Woolley", email = "skip.woolley@csiro.au",
