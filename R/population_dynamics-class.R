@@ -105,7 +105,7 @@ cap_population <- function (new_population, carrying_capacity) {
 }
 
 dispersal_matrix <- function (locations, distance_decay = 0.5) {
-  D <- as.matrix(dist(locations))
+  D <- as.matrix(stats::dist(locations))
   dispersal_matrix <- exp(-D / distance_decay)
   sums <- colSums(dispersal_matrix)
   dispersal_matrix <- sweep(dispersal_matrix, 2, sums, "/")
@@ -330,7 +330,7 @@ dispersal_core_fft <- function(params,pop){
 ### pre-defined module functions ###
 ####################################
 
-#' @export
+# @export
 fast_population_dynamics <- function (state, timestep) {
   
   population_raster <- state$population$population_raster
@@ -338,15 +338,15 @@ fast_population_dynamics <- function (state, timestep) {
   transition_matrix <- state$demography$global_transition_matrix
   
   # get population as a matrix
-  idx <- which(!is.na(getValues(population_raster[[1]])))
-  population <- extract(population_raster, idx)
+  idx <- which(!is.na(raster::getValues(population_raster[[1]])))
+  population <- raster::extract(population_raster, idx)
   
   # do population change
   population <- population %*% transition_matrix
   
   # do dispersal
   locations <- raster::xyFromCell(population_raster, idx)
-  resolution <- mean(res(population_raster))
+  resolution <- mean(raster::res(population_raster))
   dispersal_decay <- dispersal_parameters * resolution
   
   dispersal <- dispersal_matrix(locations, dispersal_decay)
@@ -359,7 +359,7 @@ fast_population_dynamics <- function (state, timestep) {
   state
 }
 
-#' @export
+# @export
 ca_dispersal_population_dynamics <- function (state, timestep) {
   
   population_raster <- state$population$population_raster
@@ -370,8 +370,8 @@ ca_dispersal_population_dynamics <- function (state, timestep) {
   carrying_capacity <- state$habitat$carrying_capacity
   
   # get population as a matrix
-  idx <- which(!is.na(getValues(population_raster[[1]])))
-  population <- extract(population_raster, idx)
+  idx <- which(!is.na(raster::getValues(population_raster[[1]])))
+  population <- raster::extract(population_raster, idx)
   
   # do population change
   population <- population %*% transition_matrix
@@ -392,7 +392,7 @@ ca_dispersal_population_dynamics <- function (state, timestep) {
   state
 } 
   
-#' @export
+# @export
 fft_dispersal_population_dynamics <- function (state, timestep) {
   
   population_raster <- state$population$population_raster
@@ -402,8 +402,8 @@ fft_dispersal_population_dynamics <- function (state, timestep) {
   carrying_capacity <- state$habitat$carrying_capacity
   
   # get population as a matrix
-  idx <- which(!is.na(getValues(population_raster[[1]])))
-  population <- extract(population_raster, idx)
+  idx <- which(!is.na(raster::getValues(population_raster[[1]])))
+  population <- raster::extract(population_raster, idx)
   
   # do population change
   population <- population %*% transition_matrix

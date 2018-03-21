@@ -35,7 +35,7 @@ Read in spatial inputs to be used for the experiment and simulations. For the ko
 ```{r}
 library(raster)
 # read in spatial habitat suitability raster
-koala.hab.suit <- raster(system.file("extdata","koala","habitat","HS_crop_aggregate.tif", package="steps"))
+koala.hab.suit <- raster(system.file("extdata","Koala_HabSuit.tif", package="steps"))
 
 # rescale habitat raster to relative suitability (or likelihood of occurrence) between 0 and 1.
 koala.hab.suit <- (koala.hab.suit - cellStats(koala.hab.suit, min)) / (cellStats(koala.hab.suit, max) - cellStats(koala.hab.suit, min))

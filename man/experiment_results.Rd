@@ -11,7 +11,7 @@ experiment(state, dynamics, timesteps = 100)
 
 is.experiment_results(results)
 
-\method{print}{experiment_results}(results)
+\method{print}{experiment_results}(results, ...)
 
 \method{plot}{experiment_results}(results, object = "population",
   type = "graph", stage = NULL, ...)
@@ -25,13 +25,13 @@ is.experiment_results(results)
 
 \item{results}{an experiment_reults object}
 
+\item{...}{further arguments passed to or from other methods}
+
 \item{object}{the state object to plot - can be 'population' (default), 'habitat_suitability' or 'carrying_capacity'}
 
 \item{type}{the plot type - 'graph' (default) or 'raster'}
 
 \item{stage}{life-stage to plot - must be specified for 'raster' plot types; default is NULL and all life-stages will be plotted}
-
-\item{...}{further arguments passed to or from other methods}
 }
 \value{
 An object of class \code{experiment_results}
@@ -48,10 +48,10 @@ library(raster)
 r <- raster(system.file("external/test.grd", package="raster"))
 
 test_habitat <- build_habitat(habitat_suitability = r / cellStats(r, "max"), carrying_capacity = ceiling(r * 0.1))
-test_demography <- build_demography(transition_matrix = fake_transition_matrix(4), dispersal_parameters = rlnorm(1))
+test_demography <- build_demography(transition_matrix = steps:::fake_transition_matrix(4), dispersal_parameters = rlnorm(1))
 test_population <- build_population(stack(replicate(4, test_habitat$carrying_capacity * 0.2)))
 test_state <- build_state(test_habitat, test_demography, test_population)
-fast_approximation <- build_dynamics(no_habitat_dynamics, no_demographic_dynamics, fast_population_dynamics)
+fast_approximation <- build_dynamics(steps:::no_habitat_dynamics, steps:::no_demographic_dynamics, steps:::fast_population_dynamics)
 results <- experiment(test_state, fast_approximation, timesteps = 10)
 
 # Test if object is of the type 'experiment results'

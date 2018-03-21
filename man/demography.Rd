@@ -49,7 +49,7 @@ library(raster)
 
 # Use a built-in function to generate a four life-stage transition matrix
 
-mat <- fake_transition_matrix(4)
+mat <- steps:::fake_transition_matrix(4)
 
 # Provide a list of dispersal parameters
 

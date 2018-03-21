@@ -1,7 +1,7 @@
 #' Create a state object
 #'
 #' @description A state object represents a static representation of habitat, population, and demography in a timestep.
-#' It is modified in each timestep of an experiment based on the specified \link[steps]{dynamic} objects.
+#' It is modified in each timestep of an experiment based on the specified dynamic objects.
 #' 
 #' @rdname state
 #'
@@ -22,7 +22,7 @@
 #' r <- raster(system.file("external/test.grd", package="raster"))
 #' 
 #' test_habitat <- build_habitat(habitat_suitability = r / cellStats(r, "max"), carrying_capacity = ceiling(r * 0.1))
-#' test_demography <- build_demography(transition_matrix = fake_transition_matrix(4), dispersal_parameters = rlnorm(1))
+#' test_demography <- build_demography(transition_matrix = steps:::fake_transition_matrix(4), dispersal_parameters = rlnorm(1))
 #' test_population <- build_population(stack(replicate(4, test_habitat$carrying_capacity * 0.2)))
 #' 
 #' test_state <- build_state(test_habitat, test_demography, test_population)
@@ -70,11 +70,11 @@ print.state <- function (x, ...) {
 check_habitat_matches_population <- function (habitat, population) {
   hab_ras <- habitat$habitat_suitability
   pop_ras <- population$population_raster
-  stopifnot(identical(res(hab_ras), res(pop_ras)))
-  stopifnot(identical(extent(hab_ras), extent(pop_ras)))
+  stopifnot(identical(raster::res(hab_ras), raster::res(pop_ras)))
+  stopifnot(identical(raster::extent(hab_ras), raster::extent(pop_ras)))
 }
 
 check_demography_matches_population <- function (demography, population) {
   stopifnot(identical(ncol(demography$global_transition_matrix),
-                      nlayers(population$population_raster)))
+                      raster::nlayers(population$population_raster)))
 }

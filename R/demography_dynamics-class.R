@@ -66,12 +66,12 @@ print.demography_dynamics <- function (x, ...) {
 ### pre-defined module functions ###
 ####################################
 
-#' @export
+# @export
 no_demographic_dynamics <- function (state, timestep) {
   state
 }
 
-#' @export
+# @export
 envstoch_demographic_dynamics <- function (global_transition_matrix, stochasticity=0) {
   
   dim <- nrow(global_transition_matrix)

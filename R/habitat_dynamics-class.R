@@ -66,23 +66,23 @@ print.habitat_dynamics <- function (x, ...) {
 ### pre-defined module functions ###
 ####################################
 
-#' @export
+# @export
 no_habitat_dynamics <- function (state, timestep) {
   state
 }
 
-#' @export
+# @export
 fire_habitat_dynamics <- function (habitat_suitability, disturbance_layers, effect_time=1) {
   
   habitat_dynamics <- function (state, timestep) {
     
     original_habitat <- habitat_suitability
     
-    if (nlayers(disturbance_layers) < timestep ) {
+    if (raster::nlayers(disturbance_layers) < timestep ) {
       stop("The number of disturbance layers must match the \nnumber of timesteps in the experiment")
     }
 
-    modified_habitat <- original_habitat * overlay(disturbance_layers[[tail(seq_len(timestep), effect_time)]], fun=prod)
+    modified_habitat <- original_habitat * raster::overlay(disturbance_layers[[utils::tail(seq_len(timestep), effect_time)]], fun=prod)
     names(modified_habitat) <- "Habitat"
 
     state$habitat$habitat_suitability <- modified_habitat

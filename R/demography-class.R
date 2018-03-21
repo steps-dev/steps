@@ -25,7 +25,7 @@
 #' 
 #' # Use a built-in function to generate a four life-stage transition matrix
 #' 
-#' mat <- fake_transition_matrix(4)
+#' mat <- steps:::fake_transition_matrix(4)
 #' 
 #' # Provide a list of dispersal parameters
 #' 
@@ -102,7 +102,7 @@ print.demography <- function (x, ...) {
 #' 
 #' summary(test_demography)
 
-summary.demography <- function (x,...) {
+summary.demography <- function (x, ...) {
 
   x <- x$global_transition_matrix
   di <- base::dim(x)[1]

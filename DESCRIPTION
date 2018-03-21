@@ -1,7 +1,7 @@
 Package: steps
 Type: Package
 Title: Spatially- and Temporally-Explicit Population Simulator
-Version: 0.01
+Version: 0.1
 Date: 2015-12-16
 Authors@R: person("Skipton", "Woolley", email = "skip.woolley@csiro.au",
   role = c("aut", "cre"))
@@ -9,10 +9,10 @@ Authors@R: person("Skipton", "Woolley", email = "skip.woolley@csiro.au",
   role = c("aut", "cre"))
   person("Nick", "Golding", email = "nick.golding.research@gmail.com",
   role = c("aut", "cre"))
-  person("Casey","Visintin",email = "casey.visintin@unimelb.edu.au",
+  person("Casey", "Visintin", email = "casey.visintin@unimelb.edu.au",
   role=c("aut", "cre"))
 Maintainer: Skipton Woolley <skip.woolley@csiro.au>
-Description: Spatially- and Temporally-Explicit Population Simulator
+Description: Software to simulate population dynamics across space and time.
 Depends:
     R (>= 3.2.2),
 License: GPL (>= 2)

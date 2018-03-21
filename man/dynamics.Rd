@@ -16,20 +16,22 @@ is.dynamics(x)
 \arguments{
 \item{habitat_dynamics}{A module to alter the habitat object in an experiment}
 
+\item{demography_dynamics}{A module to alter the habitat object in an experiment}
+
 \item{population_dynamics}{A module to alter the population object in an experiment}
+
+\item{order}{The order to apply the dynamics at each timestep in an experiment}
 
 \item{x}{an object to print or test as a dynamics object}
 
 \item{...}{further arguments passed to or from other methods}
-
-\item{demographic_dynamics}{A module to alter the habitat object in an experiment}
 }
 \value{
 An object of class \code{dynamics}
 }
 \description{
 A dynamics object is a group of modules (functions) used modify habitat, population, and demography in a timestep.
-It modifies a \link[steps]{state} object in each timestep of an experiment.
+It modifies a state object in each timestep of an experiment.
 }
 \examples{
 
@@ -39,10 +41,10 @@ library(raster)
 r <- raster(system.file("external/test.grd", package="raster"))
 
 test_habitat <- build_habitat(habitat_suitability = r / cellStats(r, "max"), carrying_capacity = ceiling(r * 0.1))
-test_demography <- build_demography(transition_matrix = fake_transition_matrix(4), dispersal_parameters = rlnorm(1))
+test_demography <- build_demography(transition_matrix = steps:::fake_transition_matrix(4), dispersal_parameters = rlnorm(1))
 test_population <- build_population(stack(replicate(4, test_habitat$carrying_capacity * 0.2)))
 test_state <- build_state(test_habitat, test_demography, test_population)
-test_dynamics <- build_dynamics(no_habitat_dynamics, no_demographic_dynamics, fast_population_dynamics)
+test_dynamics <- build_dynamics(steps:::no_habitat_dynamics, steps:::no_demographic_dynamics, steps:::fast_population_dynamics)
 
 # Test if object is of the type 'dynamics'
   

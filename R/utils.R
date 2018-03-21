@@ -9,13 +9,13 @@ set_class <- function (x, class) {
   x
 }
 
-#' @export
+# @export
 # used in examples to create a transition matrix
 fake_transition_matrix <- function (n_stages) {
   
-  survival <- runif(n_stages, 0.7, 0.9)
-  growth <- runif(n_stages - 1, 0.5, 0.7)
-  recruitment <- rlnorm(1)
+  survival <- stats::runif(n_stages, 0.7, 0.9)
+  growth <- stats::runif(n_stages - 1, 0.5, 0.7)
+  recruitment <- stats::rlnorm(1)
   
   # base matrix 
   transition_matrix <- diag(n_stages)

@@ -26,10 +26,10 @@
 #' r <- raster(system.file("external/test.grd", package="raster"))
 #' 
 #' test_habitat <- build_habitat(habitat_suitability = r / cellStats(r, "max"), carrying_capacity = ceiling(r * 0.1))
-#' test_demography <- build_demography(transition_matrix = fake_transition_matrix(4), dispersal_parameters = rlnorm(1))
+#' test_demography <- build_demography(transition_matrix = steps:::fake_transition_matrix(4), dispersal_parameters = rlnorm(1))
 #' test_population <- build_population(stack(replicate(4, test_habitat$carrying_capacity * 0.2)))
 #' test_state <- build_state(test_habitat, test_demography, test_population)
-#' fast_approximation <- build_dynamics(no_habitat_dynamics, no_demographic_dynamics, fast_population_dynamics)
+#' fast_approximation <- build_dynamics(steps:::no_habitat_dynamics, steps:::no_demographic_dynamics, steps:::fast_population_dynamics)
 #' results <- experiment(test_state, fast_approximation, timesteps = 10)
 
 experiment <- function (state, dynamics, timesteps = 100) {
@@ -61,7 +61,7 @@ is.experiment_results <- function (results) {
 #' 
 #' print(results)
 
-print.experiment_results <- function (results) {
+print.experiment_results <- function (results, ...) {
   cat("This is an experiment results object, for", length(results), "timesteps")
 }
 
@@ -75,9 +75,9 @@ print.experiment_results <- function (results) {
 
 plot.experiment_results <- function (results, object = "population", type = "graph", stage = NULL, ...){
 
-  stages <- nlayers(results[[1]]$population$population_raster)
+  stages <- raster::nlayers(results[[1]]$population$population_raster)
   
-  pal <- colorRampPalette(
+  pal <- grDevices::colorRampPalette(
     c(
       '#440154', # dark purple
       '#472c7a', # purple
@@ -95,8 +95,8 @@ plot.experiment_results <- function (results, object = "population", type = "gra
 
       if (type == "graph") {
         
-        idx <- which(!is.na(getValues(results[[1]]$population$population_raster[[1]])))
-        pops <- lapply(results, function(x) extract(x$population$population_raster, idx))
+        idx <- which(!is.na(raster::getValues(results[[1]]$population$population_raster[[1]])))
+        pops <- lapply(results, function(x) raster::extract(x$population$population_raster, idx))
         pop_sums <- lapply(pops, function(x) colSums(x))
         
         stage_names <- unlist(dimnames(results[[1]]$demography$global_transition_matrix)[1])
@@ -105,18 +105,18 @@ plot.experiment_results <- function (results, object = "population", type = "gra
 
         if (is.null(stage)) {
           
-          par(mfrow=c(1,stages))
+          graphics::par(mfrow=c(1,stages))
           
           for (i in 1:stages) {
             
-            plot(unlist(lapply(pop_sums, function(x) x[[i]])),
+            graphics::plot(unlist(lapply(pop_sums, function(x) x[[i]])),
                  type='l',
                  ylab=paste("Total Population: ",stage_names[i]),
                  xlab="Time (years)",
                  lwd=2,
                  col=colours[i]
             )
-            abline(h=cellStats(results[[1]]$habitat$carrying_capacity,sum)/stages,
+            graphics::abline(h=raster::cellStats(results[[1]]$habitat$carrying_capacity,sum)/stages,
                   lwd=1,
                   lty=2)
             
@@ -126,32 +126,32 @@ plot.experiment_results <- function (results, object = "population", type = "gra
         
         if(!is.null(stage) && stage == 0) {
           
-          par(mfrow=c(1,1))
+          graphics::par(mfrow=c(1,1))
           
-          plot(unlist(lapply(pop_sums, function(x) sum(x))),
+          graphics::plot(unlist(lapply(pop_sums, function(x) sum(x))),
                type='l',
                ylab="Total Population (all stages)",
                xlab="Time (years)",
                lwd=2,
                col="black"
           )
-          abline(h=cellStats(results[[1]]$habitat$carrying_capacity,sum),
+          graphics::abline(h=raster::cellStats(results[[1]]$habitat$carrying_capacity,sum),
                  lwd=1,
                  lty=2)
         }
         
         if (!is.null(stage) && stage > 0) {
           
-          par(mfrow=c(1,1))
+          graphics::par(mfrow=c(1,1))
           
-          plot(unlist(lapply(pop_sums, function(x) x[[stage]])),
+          graphics::plot(unlist(lapply(pop_sums, function(x) x[[stage]])),
                type='l',
                ylab=paste("Total Population: ",stage_names[stage]),
                xlab="Time (years)",
                lwd=2,
                col=colours[stage]
           )
-          abline(h=cellStats(results[[1]]$habitat$carrying_capacity,sum)/stages,
+          graphics::abline(h=raster::cellStats(results[[1]]$habitat$carrying_capacity,sum)/stages,
                  lwd=1,
                  lty=2)
         }
@@ -162,23 +162,23 @@ plot.experiment_results <- function (results, object = "population", type = "gra
         
         if (is.null(stage)) stop("Please provide a life-stage when plotting population rasters")
         
-        rasters <- stack(lapply(results, function (state) state$population$population_raster[[stage]]))
+        rasters <- raster::stack(lapply(results, function (state) state$population$population_raster[[stage]]))
         
         # Find maximum and minimum population value in raster cells for all timesteps for life-stage
-        scale_max <- ceiling(max(cellStats(rasters, max)))
-        scale_min <- floor(min(cellStats(rasters, min)))
+        scale_max <- ceiling(max(raster::cellStats(rasters, max)))
+        scale_min <- floor(min(raster::cellStats(rasters, min)))
         
         # Produce scale of values
         breaks <- seq(scale_min, scale_max, scale_max/10)
         
-        ts <- seq_len(nlayers(rasters))
+        ts <- seq_len(raster::nlayers(rasters))
         groups <- split(ts, ceiling(seq_along(ts)/9))
         
         for (i in 1:length(groups)) {
           
-          par(mar = c(0, 0, 0, 0), mfrow = c(3,3))
+          graphics::par(mar = c(0, 0, 0, 0), mfrow = c(3,3))
           group <- groups[[i]]
-          plot(rasters[[group]], breaks = breaks, col = pal(length(breaks)), axes = FALSE, box = FALSE)
+          raster::plot(rasters[[group]], breaks = breaks, col = pal(length(breaks)), axes = FALSE, box = FALSE)
         
         }
       }
@@ -187,16 +187,16 @@ plot.experiment_results <- function (results, object = "population", type = "gra
   
     if (object == "habitat_suitability") {
     
-      rasters <- stack(lapply(results, function (state) state$habitat$habitat_suitability))
+      rasters <- raster::stack(lapply(results, function (state) state$habitat$habitat_suitability))
       
-      ts <- seq_len(nlayers(rasters))
+      ts <- seq_len(raster::nlayers(rasters))
       groups <- split(ts, ceiling(seq_along(ts)/9))
       
       for (i in 1:length(groups)) {
         
-        par(mar = c(0, 0, 0, 0), mfrow = c(3,3))
+        graphics::par(mar = c(0, 0, 0, 0), mfrow = c(3,3))
         group <- groups[[i]]
-        plot(rasters[[group]], axes = FALSE, box = FALSE)
+        raster::plot(rasters[[group]], axes = FALSE, box = FALSE)
         
       }
     
@@ -204,16 +204,16 @@ plot.experiment_results <- function (results, object = "population", type = "gra
   
     if (object == "carrying_capacity") {
     
-      rasters <- stack(lapply(results, function (state) state$habitat$carrying_capacity))
+      rasters <- raster::stack(lapply(results, function (state) state$habitat$carrying_capacity))
       
-      ts <- seq_len(nlayers(rasters))
+      ts <- seq_len(raster::nlayers(rasters))
       groups <- split(ts, ceiling(seq_along(ts)/9))
       
       for (i in 1:length(groups)) {
         
-        par(mar = c(0, 0, 0, 0), mfrow = c(3,3))
+        graphics::par(mar = c(0, 0, 0, 0), mfrow = c(3,3))
         group <- groups[[i]]
-        plot(rasters[[group]], axes = FALSE, box = FALSE)
+        raster::plot(rasters[[group]], axes = FALSE, box = FALSE)
         
       }
     
@@ -230,13 +230,13 @@ iterate_system <- function (state, dynamics, timesteps) {
   
   output_states <- list()
   
-  pb <- txtProgressBar(min = 0, max = max(timesteps), style = 3)
+  pb <- utils::txtProgressBar(min = 0, max = max(timesteps), style = 3)
   for (timestep in timesteps) {
     for (dynamic_function in dynamics) {
       state <- dynamic_function(state, timestep)
     }
     output_states[[timestep]] <- state
-    setTxtProgressBar(pb, timestep)
+    utils::setTxtProgressBar(pb, timestep)
   }
   close(pb)
   
