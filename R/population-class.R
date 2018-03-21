@@ -1,7 +1,7 @@
 #' Create a population object to use in a state object
 #' 
 #' @description A population object is used to store spatially-explicit information on species populations.
-#' It is a sub-component of a \link[dhmpr]{state} object and is modified in each timestep of an experiment.
+#' It is a sub-component of a \link[steps]{state} object and is modified in each timestep of an experiment.
 #' 
 #' @rdname population
 #' 
@@ -15,7 +15,7 @@
 #'
 #' @examples
 #' 
-#' library(dhmpr)
+#' library(steps)
 #' library(raster)
 #' 
 #' # Construct a raster object

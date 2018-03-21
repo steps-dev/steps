@@ -1,7 +1,7 @@
 #' Create a dynamics object to run in an experiment
 #'
 #' @description A dynamics object is a group of modules (functions) used modify habitat, population, and demography in a timestep.
-#' It modifies a \link[dhmpr]{state} object in each timestep of an experiment.
+#' It modifies a \link[steps]{state} object in each timestep of an experiment.
 #' 
 #' @rdname dynamics
 #' 
@@ -17,7 +17,7 @@
 #'
 #' @examples
 #' 
-#' library(dhmpr)
+#' library(steps)
 #' library(raster)
 #' 
 #' r <- raster(system.file("external/test.grd", package="raster"))

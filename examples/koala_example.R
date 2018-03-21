@@ -1,7 +1,7 @@
-library(dhmpr)
+library(steps)
 library(raster)
 
-#system('rm /home/casey/Research/Github/dhmpr/src/*.so /home/casey/Research/Github/dhmpr/src/*.o')
+#system('rm /home/casey/Research/Github/steps/src/*.so /home/casey/Research/Github/steps/src/*.o')
 
 #.pardefault <- par()
 #par(mar=c(0.5,0.5,0.5,0.5))

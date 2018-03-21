@@ -1,10 +1,10 @@
-#' @useDynLib dhmpr
+#' @useDynLib steps
 #' @importFrom Rcpp sourceCpp
 NULL
 #' Change the population in a state object
 #' 
 #' @description A 'population dynamics' object is used to modify species populations in space and time.
-#' It is a sub-component of a \link[dhmpr]{dynamics} object and is executed in each timestep of an experiment.
+#' It is a sub-component of a \link[steps]{dynamics} object and is executed in each timestep of an experiment.
 #'
 #' @rdname population_dynamics
 #'
@@ -18,7 +18,7 @@ NULL
 #'
 #' @examples
 #' 
-#' library(dhmpr)
+#' library(steps)
 #' library(raster)
 #'
 #' example_function <- function (state, timestep) {
@@ -269,7 +269,7 @@ dispersal_core_ca <- function(params,pop,hsm,cc){
 
   # could do this in parallel if wanted. 
   for (i in which_stages_disperse){
-    pop[[i]][] <- dhmpr::rcpp_dispersal(raster::as.matrix(pop[[i]]),
+    pop[[i]][] <- steps::rcpp_dispersal(raster::as.matrix(pop[[i]]),
                                       raster::as.matrix(cc),
                                       raster::as.matrix(hsm),
                                       raster::as.matrix(params$barriers_map),

@@ -1,7 +1,7 @@
 #' Create a state object
 #'
 #' @description A state object represents a static representation of habitat, population, and demography in a timestep.
-#' It is modified in each timestep of an experiment based on the specified \link[dhmpr]{dynamic} objects.
+#' It is modified in each timestep of an experiment based on the specified \link[steps]{dynamic} objects.
 #' 
 #' @rdname state
 #'
@@ -16,7 +16,7 @@
 #'
 #' @examples
 #' 
-#' library(dhmpr)
+#' library(steps)
 #' library(raster)
 #' 
 #' r <- raster(system.file("external/test.grd", package="raster"))
