@@ -1,6 +1,6 @@
 Package: steps
 Type: Package
-Title: Spatially and Temporally Explicit Populations
+Title: Spatially- and Temporally-Explicit Population Simulator
 Version: 0.01
 Date: 2015-12-16
 Authors@R: person("Skipton", "Woolley", email = "skip.woolley@csiro.au",
@@ -12,7 +12,7 @@ Authors@R: person("Skipton", "Woolley", email = "skip.woolley@csiro.au",
   person("Casey","Visintin",email = "casey.visintin@unimelb.edu.au",
   role=c("aut", "cre"))
 Maintainer: Skipton Woolley <skip.woolley@csiro.au>
-Description: Dynamic Habitat Meta-Population Models in R
+Description: Spatially- and Temporally-Explicit Population Simulator
 Depends:
     R (>= 3.2.2),
 License: GPL (>= 2)
