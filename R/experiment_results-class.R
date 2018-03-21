@@ -124,25 +124,23 @@ plot.experiment_results <- function (results, object = "population", type = "gra
           
         }
         
-        if (!is.null(stage)) {
-          if(stage==0){
-
+        if(stage == 0) {
           
           par(mfrow=c(1,1))
-
-            plot(unlist(lapply(pop_sums, function(x) sum(x))),
-                 type='l',
-                 ylab="Total Population (all stages)",
-                 xlab="Time (years)",
-                 lwd=2,
-                 col="black"
-            )
-            abline(h=cellStats(results[[1]]$habitat$carrying_capacity,sum),
-                   lwd=1,
-                   lty=2)
-
-        } else {
-
+          
+          plot(unlist(lapply(pop_sums, function(x) sum(x))),
+               type='l',
+               ylab="Total Population (all stages)",
+               xlab="Time (years)",
+               lwd=2,
+               col="black"
+          )
+          abline(h=cellStats(results[[1]]$habitat$carrying_capacity,sum),
+                 lwd=1,
+                 lty=2)
+        }
+        
+        if (stage > 0) {
           
           par(mfrow=c(1,1))
           
@@ -156,9 +154,8 @@ plot.experiment_results <- function (results, object = "population", type = "gra
           abline(h=cellStats(results[[1]]$habitat$carrying_capacity,sum)/stages,
                  lwd=1,
                  lty=2)
-          
-          }
         }
+
       }  
       
       if (type == "raster") {

@@ -190,6 +190,8 @@ test_that('experiment_results classes work', {
    
   print(test_experiment)
 
+  plot(test_experiment)
+  
   plot(test_experiment,
        object = "population",
        type = "raster",
