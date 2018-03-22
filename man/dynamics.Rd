@@ -38,7 +38,9 @@ It modifies a state object in each timestep of an experiment.
 library(steps)
 library(raster)
 
-test_dynamics <- build_dynamics(no_habitat_dynamics, no_demographic_dynamics, fast_population_dynamics)
+test_dynamics <- build_dynamics(no_habitat_dynamics,
+                                no_demography_dynamics,
+                                fast_population_dynamics)
 
 # Test if object is of the type 'dynamics'
   

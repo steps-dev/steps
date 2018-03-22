@@ -4,6 +4,9 @@
 \alias{as.population_dynamics}
 \alias{is.population_dynamics}
 \alias{print.population_dynamics}
+\alias{fast_population_dynamics}
+\alias{ca_dispersal_population_dynamics}
+\alias{fft_dispersal_population_dynamics}
 \title{Change the population in a state object}
 \usage{
 as.population_dynamics(population_dynamics_function)
@@ -11,6 +14,12 @@ as.population_dynamics(population_dynamics_function)
 is.population_dynamics(x)
 
 \method{print}{population_dynamics}(x, ...)
+
+fast_population_dynamics(state, timestep)
+
+ca_dispersal_population_dynamics(state, timestep)
+
+fft_dispersal_population_dynamics(state, timestep)
 }
 \arguments{
 \item{population_dynamics_function}{A function that operates on a state object to change population at specified timesteps. User may enter a custom function or select a pre-defined module - see documentation.}
@@ -18,6 +27,10 @@ is.population_dynamics(x)
 \item{x}{a population_dynamic object}
 
 \item{...}{further arguments passed to or from other methods}
+
+\item{state}{a state object to apply the population function to}
+
+\item{timestep}{the timestep in the experiment to apply the population function to the state object}
 }
 \value{
 An object of class \code{population_dynamics}
@@ -31,39 +44,63 @@ It is a sub-component of a \link[steps]{dynamics} object and is executed in each
 library(steps)
 library(raster)
 
+r <- raster(system.file("external/test.grd", package="raster"))
+
+mat <- matrix(c(0.000,0.000,0.302,0.302,
+                0.940,0.000,0.000,0.000,
+                0.000,0.884,0.000,0.000,
+                0.000,0.000,0.793,0.793),
+              nrow = 4, ncol = 4, byrow = TRUE)
+colnames(mat) <- rownames(mat) <- c('Stage_1','Stage_2','Stage_3','Stage_4')
+
+pop <- stack(replicate(4, ceiling(r * 0.2)))
+
+test_habitat <- build_habitat(habitat_suitability = r / cellStats(r, "max"),
+                              carrying_capacity = ceiling(r * 0.1))
+test_demography <- build_demography(transition_matrix = mat,
+                                    dispersal_parameters = rlnorm(1))
+test_population <- build_population(pop)
+
+test_state <- build_state(test_habitat, test_demography, test_population)
+
 example_function <- function (state, timestep) {
-
-population_raster <- state$population$population_raster
-dispersal_parameters <- state$demography$dispersal_parameters
-transition_matrix <- state$demography$global_transition_matrix
-
-#  get population as a matrix
-idx <- which(!is.na(getValues(population_raster[[1]])))
-population <- extract(population_raster, idx)
-
-# do population change
-population <- population \%*\% transition_matrix
-
-# do dispersal
-locations <- raster::xyFromCell(population_raster, idx)
-resolution <- mean(res(population_raster))
-dispersal_decay <- dispersal_parameters * resolution
-
-dispersal <- dispersal_matrix(locations, dispersal_decay)
-population <- dispersal \%*\% population
-
-# put back in the raster
-population_raster[idx] <- population
-
-state$population$population_raster <- population_raster
 state
 }
 
-fast_population_dynamics <- as.population_dynamics(example_function)
+no_population_dynamics <- as.population_dynamics(example_function)
 
 # Test if object is of the type 'population dynamics'
   
-is.population_dynamics(fast_population_dynamics)
+is.population_dynamics(no_population_dynamics)
 
-print(fast_population_dynamics)
+print(no_population_dynamics)
+
+# Use the fast_population_dynamics object to modify the  
+# population using life-stage transitions and dispersal:
+
+test_state2 <- fast_population_dynamics(test_state, 1)
+
+par(mfrow=c(1,2))
+plot(test_state$population$population_raster[[2]])
+plot(test_state2$population$population_raster[[2]])
+
+# Use the ca_population_dynamics object to modify the  
+# population using life-stage transitions, density-dependence,
+# and cellular-automata based dispersal:
+
+test_state2 <- ca_dispersal_population_dynamics(test_state, 1)
+
+par(mfrow=c(1,2))
+plot(test_state$population$population_raster[[2]])
+plot(test_state2$population$population_raster[[2]])
+
+# Use the fft_population_dynamics object to modify the  
+# population using life-stage transitions, density-dependence,
+# and fast-fourier transformation based dispersal:
+
+test_state2 <- fft_dispersal_population_dynamics(test_state, 1)
+
+par(mfrow=c(1,2))
+plot(test_state$population$population_raster[[2]])
+plot(test_state2$population$population_raster[[2]])
 }

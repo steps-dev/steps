@@ -4,6 +4,8 @@
 \alias{as.demography_dynamics}
 \alias{is.demography_dynamics}
 \alias{print.demography_dynamics}
+\alias{no_demography_dynamics}
+\alias{envstoch_demography_dynamics}
 \title{Change the demography in a state object}
 \usage{
 as.demography_dynamics(demography_dynamics_function)
@@ -11,13 +13,25 @@ as.demography_dynamics(demography_dynamics_function)
 is.demography_dynamics(x)
 
 \method{print}{demography_dynamics}(x, ...)
+
+no_demography_dynamics(state, timestep)
+
+envstoch_demography_dynamics(global_transition_matrix, stochasticity = 0)
 }
 \arguments{
-\item{demography_dynamics_function}{A function that operates on a state object to change demography at specified timesteps. User may enter a custom function or select a pre-defined module - see documentation.}
+\item{demography_dynamics_function}{A function that operates on a state object to change demography at specified timesteps. User may enter a custom function or select a pre-defined module - see examples.}
 
 \item{x}{an object to print or test as an demography_dynamic object}
 
 \item{...}{further arguments passed to or from other methods}
+
+\item{state}{a state object to apply the demographic function to}
+
+\item{timestep}{the timestep in the experiment to apply the demographic function to the state object}
+
+\item{global_transition_matrix}{a life-stage transition matrix}
+
+\item{stochasticity}{a matrix with standard deviations (consistent or varying) around the transition means with matching dimensions as the life-stage transition matrix or a number representing a consitent standard deviation to apply to all transitions (default is 0)}
 }
 \value{
 An object of class \code{demography_dynamics}
@@ -31,9 +45,40 @@ It is a sub-component of a \link[steps]{dynamics} object and is executed in each
 library(steps)
 library(raster)
 
+r <- raster(system.file("external/test.grd", package="raster"))
+
+mat <- matrix(c(0.000,0.000,0.302,0.302,
+                0.940,0.000,0.000,0.000,
+                0.000,0.884,0.000,0.000,
+                0.000,0.000,0.793,0.793),
+              nrow = 4, ncol = 4, byrow = TRUE)
+colnames(mat) <- rownames(mat) <- c('Stage_1','Stage_2','Stage_3','Stage_4')
+
+mat_sd <- matrix(c(0.000,0.000,1,1,
+                1,0.000,0.000,0.000,
+                0.000,1,0.000,0.000,
+                0.000,0.000,1,1),
+              nrow = 4, ncol = 4, byrow = TRUE)
+colnames(mat_sd) <- rownames(mat_sd) <- c('Stage_1','Stage_2','Stage_3','Stage_4')
+
+pop <- stack(replicate(4, ceiling(r * 0.2)))
+
+test_habitat <- build_habitat(habitat_suitability = r / cellStats(r, "max"),
+                              carrying_capacity = ceiling(r * 0.1))
+test_demography <- build_demography(transition_matrix = mat,
+                                    dispersal_parameters = rlnorm(1))
+test_population <- build_population(pop)
+
+test_state <- build_state(test_habitat, test_demography, test_population)
+
+# Create a generic function that simply returns an unmodified state
+# object at each timestep
+
 example_function <- function (state, timestep) {
 state
 }
+
+# Define the function as a demography_dynamics object
 
 no_demography_dynamics <- as.demography_dynamics(example_function)
 
@@ -41,5 +86,20 @@ no_demography_dynamics <- as.demography_dynamics(example_function)
   
 is.demography_dynamics(no_demography_dynamics)
 
+# Print details about the demography_dynamics object
+
 print(no_demography_dynamics)
+
+# Use the no_demography_dynamics object as a placeholder as it 
+# does not modify the demography object:
+
+test_state2 <- no_demography_dynamics(test_state, 1)
+
+identical(test_state, test_state2)
+
+# Use the envstoch_demography_dynamics function to modify the transition
+# matrix with specified environmental stochasticity:
+
+test_state2 <- envstoch_demography_dynamics(global_transition_matrix = mat,
+                                    stochasticity = mat_sd)
 }

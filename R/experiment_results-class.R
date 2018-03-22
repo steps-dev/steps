@@ -42,9 +42,11 @@
 #' 
 #' test_state <- build_state(test_habitat, test_demography, test_population)
 #' 
-#' fast_approximation <- build_dynamics(steps:::no_habitat_dynamics, steps:::no_demographic_dynamics, steps:::fast_population_dynamics)
+#' simple_approximation <- build_dynamics(no_habitat_dynamics,
+#'                                        no_demography_dynamics,
+#'                                        fast_population_dynamics)
 #' 
-#' results <- experiment(test_state, fast_approximation, timesteps = 10)
+#' results <- experiment(test_state, simple_approximation, timesteps = 10)
 
 experiment <- function (state, dynamics, timesteps = 100) {
   # check stuff

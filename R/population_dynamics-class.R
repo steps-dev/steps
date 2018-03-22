@@ -11,6 +11,8 @@ NULL
 #' @param population_dynamics_function A function that operates on a state object to change population at specified timesteps. User may enter a custom function or select a pre-defined module - see documentation. 
 #' @param x a population_dynamic object
 #' @param ... further arguments passed to or from other methods
+#' @param state a state object to apply the population function to
+#' @param timestep the timestep in the experiment to apply the population function to the state object
 #'
 #' @return An object of class \code{population_dynamics}
 #' 
@@ -20,36 +22,31 @@ NULL
 #' 
 #' library(steps)
 #' library(raster)
+#' 
+#' r <- raster(system.file("external/test.grd", package="raster"))
+#' 
+#' mat <- matrix(c(0.000,0.000,0.302,0.302,
+#'                 0.940,0.000,0.000,0.000,
+#'                 0.000,0.884,0.000,0.000,
+#'                 0.000,0.000,0.793,0.793),
+#'               nrow = 4, ncol = 4, byrow = TRUE)
+#' colnames(mat) <- rownames(mat) <- c('Stage_1','Stage_2','Stage_3','Stage_4')
+#' 
+#' pop <- stack(replicate(4, ceiling(r * 0.2)))
+#' 
+#' test_habitat <- build_habitat(habitat_suitability = r / cellStats(r, "max"),
+#'                               carrying_capacity = ceiling(r * 0.1))
+#' test_demography <- build_demography(transition_matrix = mat,
+#'                                     dispersal_parameters = rlnorm(1))
+#' test_population <- build_population(pop)
+#' 
+#' test_state <- build_state(test_habitat, test_demography, test_population)
 #'
 #' example_function <- function (state, timestep) {
-#' 
-#' population_raster <- state$population$population_raster
-#' dispersal_parameters <- state$demography$dispersal_parameters
-#' transition_matrix <- state$demography$global_transition_matrix
-#' 
-#' #  get population as a matrix
-#' idx <- which(!is.na(getValues(population_raster[[1]])))
-#' population <- extract(population_raster, idx)
-#' 
-#' # do population change
-#' population <- population %*% transition_matrix
-#' 
-#' # do dispersal
-#' locations <- raster::xyFromCell(population_raster, idx)
-#' resolution <- mean(res(population_raster))
-#' dispersal_decay <- dispersal_parameters * resolution
-#' 
-#' dispersal <- dispersal_matrix(locations, dispersal_decay)
-#' population <- dispersal %*% population
-#' 
-#' # put back in the raster
-#' population_raster[idx] <- population
-#' 
-#' state$population$population_raster <- population_raster
 #' state
 #' }
 #' 
-#' fast_population_dynamics <- as.population_dynamics(example_function)
+#' no_population_dynamics <- as.population_dynamics(example_function)
 
 as.population_dynamics <- function (population_dynamics_function) {
   stopifnot(inherits(population_dynamics_function,"function"))
@@ -64,7 +61,7 @@ as.population_dynamics <- function (population_dynamics_function) {
 #'
 #' # Test if object is of the type 'population dynamics'
 #'   
-#' is.population_dynamics(fast_population_dynamics)
+#' is.population_dynamics(no_population_dynamics)
 
 is.population_dynamics <- function (x) {
   inherits(x, 'population_dynamics')
@@ -76,7 +73,7 @@ is.population_dynamics <- function (x) {
 #'
 #' @examples
 #' 
-#' print(fast_population_dynamics)
+#' print(no_population_dynamics)
 
 print.population_dynamics <- function (x, ...) {
   cat("This is a population_dynamics object")
@@ -339,6 +336,21 @@ dispersal_core_fft <- function(params, pop){
 ### pre-defined module functions ###
 ####################################
 
+#' @rdname population_dynamics
+#' 
+#' @export
+#' 
+#' @examples
+#' 
+#' # Use the fast_population_dynamics object to modify the  
+#' # population using life-stage transitions and dispersal:
+#' 
+#' test_state2 <- fast_population_dynamics(test_state, 1)
+#' 
+#' par(mfrow=c(1,2))
+#' plot(test_state$population$population_raster[[2]])
+#' plot(test_state2$population$population_raster[[2]])
+
 fast_population_dynamics <- function (state, timestep) {
   
   population_raster <- state$population$population_raster
@@ -367,6 +379,21 @@ fast_population_dynamics <- function (state, timestep) {
   state
 }
 
+#' @rdname population_dynamics
+#' 
+#' @export
+#' 
+#' @examples
+#' 
+#' # Use the ca_population_dynamics object to modify the  
+#' # population using life-stage transitions, density-dependence,
+#' # and cellular-automata based dispersal:
+#' 
+#' test_state2 <- ca_dispersal_population_dynamics(test_state, 1)
+#' 
+#' par(mfrow=c(1,2))
+#' plot(test_state$population$population_raster[[2]])
+#' plot(test_state2$population$population_raster[[2]])
 
 ca_dispersal_population_dynamics <- function (state, timestep) {
   
@@ -399,7 +426,22 @@ ca_dispersal_population_dynamics <- function (state, timestep) {
                                                   )
   state
 } 
-  
+
+#' @rdname population_dynamics
+#' 
+#' @export
+#'
+#' @examples
+#' 
+#' # Use the fft_population_dynamics object to modify the  
+#' # population using life-stage transitions, density-dependence,
+#' # and fast-fourier transformation based dispersal:
+#' 
+#' test_state2 <- fft_dispersal_population_dynamics(test_state, 1)
+#' 
+#' par(mfrow=c(1,2))
+#' plot(test_state$population$population_raster[[2]])
+#' plot(test_state2$population$population_raster[[2]])
 
 fft_dispersal_population_dynamics <- function (state, timestep) {
   

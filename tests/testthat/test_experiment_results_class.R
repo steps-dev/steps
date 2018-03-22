@@ -118,7 +118,7 @@ test_that('experiment_results classes work', {
   hab_dyn <- fire_habitat_dynamics(habitat_suitability = hab.suit,
                                                   disturbance_layers = dist.s,
                                                   effect_time = 2)
-  dem_dyn <- envstoch_demographic_dynamics(global_transition_matrix = mat,
+  dem_dyn <- envstoch_demography_dynamics(global_transition_matrix = mat,
                                            stochasticity = mat_sd)
   pop_dyn <- as.population_dynamics(ca_dispersal_population_dynamics)
   pop_dyn2 <- as.population_dynamics(fast_population_dynamics)
@@ -130,12 +130,12 @@ test_that('experiment_results classes work', {
                                )
   
   b_dynamics2 <- build_dynamics(habitat_dynamics = as.habitat_dynamics(no_habitat_dynamics),
-                               demography_dynamics = as.demography_dynamics(no_demographic_dynamics),
+                               demography_dynamics = as.demography_dynamics(no_demography_dynamics),
                                population_dynamics = pop_dyn
   )
   
   b_dynamics3 <- build_dynamics(habitat_dynamics = as.habitat_dynamics(no_habitat_dynamics),
-                                demography_dynamics = as.demography_dynamics(no_demographic_dynamics),
+                                demography_dynamics = as.demography_dynamics(no_demography_dynamics),
                                 population_dynamics = pop_dyn2
   )
   

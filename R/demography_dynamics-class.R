@@ -21,14 +21,41 @@
 #' 
 #' library(steps)
 #' library(raster)
-#'
-#' # create a generic function that simple returns an unmodified state object at each timestep
+#' 
+#' r <- raster(system.file("external/test.grd", package="raster"))
+#' 
+#' mat <- matrix(c(0.000,0.000,0.302,0.302,
+#'                 0.940,0.000,0.000,0.000,
+#'                 0.000,0.884,0.000,0.000,
+#'                 0.000,0.000,0.793,0.793),
+#'               nrow = 4, ncol = 4, byrow = TRUE)
+#' colnames(mat) <- rownames(mat) <- c('Stage_1','Stage_2','Stage_3','Stage_4')
+#' 
+#' mat_sd <- matrix(c(0.000,0.000,1,1,
+#'                 1,0.000,0.000,0.000,
+#'                 0.000,1,0.000,0.000,
+#'                 0.000,0.000,1,1),
+#'               nrow = 4, ncol = 4, byrow = TRUE)
+#' colnames(mat_sd) <- rownames(mat_sd) <- c('Stage_1','Stage_2','Stage_3','Stage_4')
+#' 
+#' pop <- stack(replicate(4, ceiling(r * 0.2)))
+#' 
+#' test_habitat <- build_habitat(habitat_suitability = r / cellStats(r, "max"),
+#'                               carrying_capacity = ceiling(r * 0.1))
+#' test_demography <- build_demography(transition_matrix = mat,
+#'                                     dispersal_parameters = rlnorm(1))
+#' test_population <- build_population(pop)
+#' 
+#' test_state <- build_state(test_habitat, test_demography, test_population)
+#' 
+#' # Create a generic function that simply returns an unmodified state
+#' # object at each timestep
 #'
 #' example_function <- function (state, timestep) {
 #' state
 #' }
 #' 
-#' define the function as a demography_dynamics object
+#' # Define the function as a demography_dynamics object
 #' 
 #' no_demography_dynamics <- as.demography_dynamics(example_function)
 
@@ -57,6 +84,8 @@ is.demography_dynamics <- function (x) {
 #'
 #' @examples
 #' 
+#' # Print details about the demography_dynamics object
+#' 
 #' print(no_demography_dynamics)
 
 print.demography_dynamics <- function (x, ...) {
@@ -73,17 +102,37 @@ print.demography_dynamics <- function (x, ...) {
 ####################################
 ### pre-defined module functions ###
 ####################################
+
 #' @rdname demography_dynamics
 #' 
 #' @export
-no_demographic_dynamics <- function (state, timestep) {
+#' 
+#' @examples
+#' 
+#' # Use the no_demography_dynamics object as a placeholder as it 
+#' # does not modify the demography object:
+#' 
+#' test_state2 <- no_demography_dynamics(test_state, 1)
+#' 
+#' identical(test_state, test_state2)
+ 
+no_demography_dynamics <- function (state, timestep) {
   state
 }
 
 #' @rdname demography_dynamics
 #' 
 #' @export
-envstoch_demographic_dynamics <- function (global_transition_matrix, stochasticity=0) {
+#' 
+#' @examples
+#' 
+#' # Use the envstoch_demography_dynamics function to modify the transition
+#' # matrix with specified environmental stochasticity:
+#' 
+#' test_state2 <- envstoch_demography_dynamics(global_transition_matrix = mat,
+#'                                     stochasticity = mat_sd)
+
+envstoch_demography_dynamics <- function (global_transition_matrix, stochasticity=0) {
   
   dim <- nrow(global_transition_matrix)
   idx <- which(global_transition_matrix != 0)
