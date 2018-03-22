@@ -414,7 +414,7 @@ fast_population_dynamics <- function (state, timestep) {
 #' # population using life-stage transitions, density-dependence,
 #' # and cellular-automata based dispersal:
 #' 
-#' test_state2 <- ca_dispersal_population_dynamics(test_state_dp, 1)
+#' test_state_dp2 <- ca_dispersal_population_dynamics(test_state_dp, 1)
 #' 
 #' par(mfrow=c(1,2))
 #' plot(test_state_dp$population$population_raster[[2]])
