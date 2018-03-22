@@ -34,16 +34,41 @@ NULL
 #' 
 #' pop <- stack(replicate(4, ceiling(r * 0.2)))
 #' 
-#' test_habitat <- build_habitat(habitat_suitability = r / cellStats(r, "max"),
-#'                               carrying_capacity = ceiling(r * 0.1))
+#' hab_suit <- r / cellStats(r, "max")
+#' 
+#' k <- ceiling(hab_suit * 10)
+#' 
+#' dp_params <- list(dispersal_distance=list('Stage_1'=0,
+#'                                           'Stage_2'=10,
+#'                                           'Stage_3'=10,
+#'                                           'Stage_4'=0),
+#'                   dispersal_kernel=list('Stage_1'=0,
+#'                                         'Stage_2'=exp(-c(0:9)^1/3.36),
+#'                                         'Stage_3'=exp(-c(0:9)^1/3.36),
+#'                                         'Stage_4'=0),
+#'                   dispersal_proportion=list('Stage_1'=0,
+#'                                             'Stage_2'=0.35,
+#'                                             'Stage_3'=0.35*0.714,
+#'                                             'Stage_4'=0)
+#'                   )
+#' 
+#' test_habitat <- build_habitat(habitat_suitability = hab_suit,
+#'                               carrying_capacity = k)
 #' test_demography <- build_demography(transition_matrix = mat,
 #'                                     dispersal_parameters = rlnorm(1))
+#' 
+#' test_demography_dp <- build_demography(transition_matrix = mat,
+#'                                     dispersal_parameters = dp_params)
 #' test_population <- build_population(pop)
 #' 
 #' test_state <- build_state(test_habitat, test_demography, test_population)
-#'
+#' 
+#' test_state_dp <- build_state(test_habitat,
+#'                              test_demography_dp,
+#'                              test_population)
+#'                              
 #' example_function <- function (state, timestep) {
-#' state
+#'  state
 #' }
 #' 
 #' no_population_dynamics <- as.population_dynamics(example_function)
@@ -384,16 +409,16 @@ fast_population_dynamics <- function (state, timestep) {
 #' @export
 #' 
 #' @examples
-#' 
+#'
 #' # Use the ca_population_dynamics object to modify the  
 #' # population using life-stage transitions, density-dependence,
 #' # and cellular-automata based dispersal:
 #' 
-#' test_state2 <- ca_dispersal_population_dynamics(test_state, 1)
+#' test_state2 <- ca_dispersal_population_dynamics(test_state_dp, 1)
 #' 
 #' par(mfrow=c(1,2))
-#' plot(test_state$population$population_raster[[2]])
-#' plot(test_state2$population$population_raster[[2]])
+#' plot(test_state_dp$population$population_raster[[2]])
+#' plot(test_state_dp2$population$population_raster[[2]])
 
 ca_dispersal_population_dynamics <- function (state, timestep) {
   
@@ -433,15 +458,11 @@ ca_dispersal_population_dynamics <- function (state, timestep) {
 #'
 #' @examples
 #' 
-#' # Use the fft_population_dynamics object to modify the  
-#' # population using life-stage transitions, density-dependence,
-#' # and fast-fourier transformation based dispersal:
-#' 
-#' test_state2 <- fft_dispersal_population_dynamics(test_state, 1)
+#' test_state_dp2 <- fft_dispersal_population_dynamics(test_state_dp, 1)
 #' 
 #' par(mfrow=c(1,2))
-#' plot(test_state$population$population_raster[[2]])
-#' plot(test_state2$population$population_raster[[2]])
+#' plot(test_state_dp$population$population_raster[[2]])
+#' plot(test_state_dp2$population$population_raster[[2]])
 
 fft_dispersal_population_dynamics <- function (state, timestep) {
   
