@@ -12,7 +12,7 @@
 
 <meta name="author" content="Casey Visintin &amp; Skipton Woolley" />
 
-<meta name="date" content="2018-03-21" />
+<meta name="date" content="2018-03-22" />
 
 <title>A population simulation example using the Koala</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">A population simulation example using the Koala</h1>
 <h4 class="author"><em>Casey Visintin &amp; Skipton Woolley</em></h4>
-<h4 class="date"><em>2018-03-21</em></h4>
+<h4 class="date"><em>2018-03-22</em></h4>
 
 
 
@@ -98,7 +98,7 @@ koala.trans.mat.es &lt;-<span class="st"> </span><span class="kw">matrix</span>(
 ## 
 ##     extend</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># read in spatial habitat suitability raster</span>
-koala.hab.suit &lt;-<span class="st"> </span><span class="kw">raster</span>(<span class="kw">system.file</span>(<span class="st">&quot;extdata&quot;</span>,<span class="st">&quot;koala&quot;</span>,<span class="st">&quot;habitat&quot;</span>,<span class="st">&quot;HS_crop_aggregate.tif&quot;</span>, <span class="dt">package=</span><span class="st">&quot;steps&quot;</span>))
+koala.hab.suit &lt;-<span class="st"> </span><span class="kw">raster</span>(<span class="kw">system.file</span>(<span class="st">&quot;extdata&quot;</span>,<span class="st">&quot;Koala_HabSuit.tif&quot;</span>, <span class="dt">package=</span><span class="st">&quot;steps&quot;</span>))
 
 <span class="co"># rescale habitat raster to relative suitability (or likelihood of occurrence) between 0 and 1.</span>
 koala.hab.suit &lt;-<span class="st"> </span>(koala.hab.suit <span class="op">-</span><span class="st"> </span><span class="kw">cellStats</span>(koala.hab.suit, min)) <span class="op">/</span><span class="st"> </span>(<span class="kw">cellStats</span>(koala.hab.suit, max) <span class="op">-</span><span class="st"> </span><span class="kw">cellStats</span>(koala.hab.suit, min))
