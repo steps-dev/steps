@@ -8,6 +8,7 @@
 #' @param state a state object - static habitat, population, and demography in a timestep
 #' @param dynamics a dynamics object - modules that change habitat, population, and demography during and experiment
 #' @param timesteps number of timesteps used in the experiment
+#' @param simulations number of times to simulate the experiment
 #' @param x an experiment_reults object
 #' @param object the state object to plot - can be 'population' (default), 'habitat_suitability' or 'carrying_capacity'
 #' @param type the plot type - 'graph' (default) or 'raster'
@@ -47,6 +48,7 @@
 #'                                        fast_population_dynamics)
 #' 
 #' results <- experiment(test_state, simple_approximation, timesteps = 10)
+#' #sim_results <- simulation(test_state, simple_approximation, timesteps = 10, simulations=10)
 
 experiment <- function (state, dynamics, timesteps = 100) {
   # check stuff
@@ -54,6 +56,32 @@ experiment <- function (state, dynamics, timesteps = 100) {
   output_states <- iterate_system(state, dynamics, timesteps)
   set_class(output_states, "experiment_results")
 }
+
+# simulation <- function(state, dynamics, timesteps, simulations){
+#   
+#   plan(multiprocess)
+#   simulation_results <- list()
+#   for(sim in seq_len(simulations)){
+#     simulation_results[[sim]] <- future(
+#       experiment(state,dynamics,timesteps)
+#     )
+#   }
+#   set_class(simulation_results, "simulation_results")
+# }
+
+
+#' @rdname experiment_results
+#' 
+#' @export
+#'
+#' @examples
+#' 
+#' print(results)
+
+print.experiment_results <- function (x, ...) {
+  cat("This is an experiment results object, for", length(x), "timesteps")
+}
+
 
 #' @rdname experiment_results
 #'

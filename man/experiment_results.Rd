@@ -2,12 +2,15 @@
 % Please edit documentation in R/experiment_results-class.R
 \name{experiment}
 \alias{experiment}
+\alias{print.experiment_results}
 \alias{is.experiment_results}
 \alias{print.experiment_results}
 \alias{plot.experiment_results}
 \title{Run an experiment to make spatially-explicit population projections}
 \usage{
 experiment(state, dynamics, timesteps = 100)
+
+\method{print}{experiment_results}(x, ...)
 
 is.experiment_results(x)
 
@@ -32,6 +35,8 @@ is.experiment_results(x)
 \item{type}{the plot type - 'graph' (default) or 'raster'}
 
 \item{stage}{life-stage to plot - must be specified for 'raster' plot types; default is NULL and all life-stages will be plotted}
+
+\item{simulations}{number of times to simulate the experiment}
 }
 \value{
 An object of class \code{experiment_results}
@@ -69,6 +74,9 @@ simple_approximation <- build_dynamics(no_habitat_dynamics,
                                        fast_population_dynamics)
 
 results <- experiment(test_state, simple_approximation, timesteps = 10)
+#sim_results <- simulation(test_state, simple_approximation, timesteps = 10, simulations=10)
+
+print(results)
 
 # Test if object is of the type 'experiment results'
   
