@@ -107,7 +107,7 @@ plot.experiment_results <- function (results, object = "population", type = "gra
           
           graphics::par(mfrow=c(1,stages))
           
-          for (i in 1:stages) {
+          for (i in seq_len(stages)) {
             
             graphics::plot(unlist(lapply(pop_sums, function(x) x[[i]])),
                  type='l',
@@ -174,7 +174,7 @@ plot.experiment_results <- function (results, object = "population", type = "gra
         ts <- seq_len(raster::nlayers(rasters))
         groups <- split(ts, ceiling(seq_along(ts)/9))
         
-        for (i in 1:length(groups)) {
+        for (i in seq_along(groups)) {
           
           graphics::par(mar = c(0, 0, 0, 0), mfrow = c(3,3))
           group <- groups[[i]]
@@ -192,7 +192,7 @@ plot.experiment_results <- function (results, object = "population", type = "gra
       ts <- seq_len(raster::nlayers(rasters))
       groups <- split(ts, ceiling(seq_along(ts)/9))
       
-      for (i in 1:length(groups)) {
+      for (i in seq_along(groups)) {
         
         graphics::par(mar = c(0, 0, 0, 0), mfrow = c(3,3))
         group <- groups[[i]]
@@ -209,7 +209,7 @@ plot.experiment_results <- function (results, object = "population", type = "gra
       ts <- seq_len(raster::nlayers(rasters))
       groups <- split(ts, ceiling(seq_along(ts)/9))
       
-      for (i in 1:length(groups)) {
+      for (i in seq_along(groups)) {
         
         graphics::par(mar = c(0, 0, 0, 0), mfrow = c(3,3))
         group <- groups[[i]]
