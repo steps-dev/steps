@@ -29,7 +29,8 @@ Imports:
     SDMTools,
     data.table,
     scales,
-    extraDistr
+    extraDistr,
+    future
 LinkingTo: Rcpp, plyr, testthat
 RoxygenNote: 6.0.1
 Suggests:
