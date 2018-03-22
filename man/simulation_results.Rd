@@ -39,7 +39,7 @@ test_state <- build_state(test_habitat, test_demography, test_population)
 fast_approximation <- build_dynamics(steps:::no_habitat_dynamics, steps:::no_demographic_dynamics, steps:::fast_population_dynamics)
 simulation_results <- simulation(test_state,fast_approximation,timesteps=10,simulations=10)
 
-# Test if object is of the type 'experiment results'
+# Test if object is of the type 'simulation results'
   
 is.simulation_results(results)
 }

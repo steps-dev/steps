@@ -26,7 +26,3 @@ koala.hab.suit <- (koala.hab.suit - cellStats(koala.hab.suit, min)) / (cellStats
 names(koala.hab.suit) <- "Habitat"
 plot(koala.hab.suit, box = FALSE, axes = FALSE)
 
-## ---- fig.show='hold'----------------------------------------------------
-plot(1:10)
-plot(10:1)
-
