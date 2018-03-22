@@ -5,3 +5,6 @@
 \.travis\.yml$
 ^.*\.Rproj$
 ^\.Rproj\.user$
+working
+readme.Rmd
+readme.md

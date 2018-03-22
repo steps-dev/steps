@@ -1,6 +1,7 @@
 context('dispersal-functions')
 
 test_that('dispersal functions work', {
+  library(steps)
   library(raster)
   library(rgdal)
 
@@ -13,7 +14,7 @@ test_that('dispersal functions work', {
   cells <- sample(c(1:ncell(r2)), 10)
   r2[c(adjacent(hab.suit, cells, directions=8, pairs=FALSE),cells)]  <- 10
   r3 <- r2#*hab.suit
-  
+
   pop <- stack(r3*2,r3*2,r3*2,r3*2)
 
   hab.k <- hab.suit*10
@@ -30,7 +31,7 @@ test_that('dispersal functions work', {
     #barriers_map=disp.bar,
     #use_barriers=TRUE
   )
-  
+
   params2 <- list(
     dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=10,'Stage_2-3'=10,'Stage_3+'=0),
     dispersal_kernel=list('Stage_0-1'=0,'Stage_1-2'=exp(-c(0:9)^1/3.36),'Stage_2-3'=exp(-c(0:9)^1/3.36),'Stage_3+'=0),
@@ -39,7 +40,7 @@ test_that('dispersal functions work', {
     use_barriers=TRUE,
     barrier_type=1
   )
-  
+
   params3 <- list(
     dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=10,'Stage_2-3'=10,'Stage_3+'=0),
     dispersal_kernel=list('Stage_0-1'=0,'Stage_1-2'=exp(-c(0:9)^1/3.36),'Stage_2-3'=exp(-c(0:9)^1/3.36),'Stage_3+'=0),
@@ -48,7 +49,7 @@ test_that('dispersal functions work', {
     use_barriers=TRUE,
     barrier_type=1
   )
-  
+
   params4 <- list(
     dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=10,'Stage_2-3'=10,'Stage_3+'=0),
     dispersal_kernel=list('Stage_0-1'=0,'Stage_1-2'=exp(-c(0:9)^1/3.36),'Stage_2-3'=exp(-c(0:9)^1/3.36),'Stage_3+'=0),
@@ -61,7 +62,7 @@ test_that('dispersal functions work', {
   expect_true(inherits(dispersal_core_ca(params2, pop=pop, hsm=hab.suit, cc=hab.k), 'RasterStack'))
   expect_true(inherits(dispersal_core_ca(params3, pop=pop, hsm=hab.suit, cc=hab.k), 'RasterStack'))
   expect_true(inherits(dispersal_core_ca(params4, pop=pop, hsm=hab.suit, cc=hab.k), 'RasterStack'))
-  
+
   expect_true(inherits(dispersal_core_fft(params, pop=pop), 'RasterStack'))
 
 })

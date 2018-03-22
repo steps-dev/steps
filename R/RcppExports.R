@@ -25,7 +25,6 @@ na_matrix <- function(nr, nc) {
     .Call('_steps_na_matrix', PACKAGE = 'steps', nr, nc)
 }
 
-#' @export
 rcpp_dispersal <- function(starting_population_state, potential_carrying_capacity, habitat_suitability_map, barriers_map, barrier_type, use_barrier, dispersal_steps, dispersal_distance, dispersal_kernel, dispersal_proportion) {
     .Call('_steps_rcpp_dispersal', PACKAGE = 'steps', starting_population_state, potential_carrying_capacity, habitat_suitability_map, barriers_map, barrier_type, use_barrier, dispersal_steps, dispersal_distance, dispersal_kernel, dispersal_proportion)
 }

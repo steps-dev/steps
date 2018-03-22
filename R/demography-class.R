@@ -11,6 +11,7 @@
 #' @param habitat_suitability habitat suitability raster layer (required if 'local' type is specified)
 #' @param dispersal_parameters specifications for dispersal in the landscape
 #' @param misc miscellaneous inputs used to modify demography
+#' @param object a demography object
 #' @param x a demography object
 #' @param ... further arguments passed to or from other methods
 #'
@@ -102,9 +103,9 @@ print.demography <- function (x, ...) {
 #' 
 #' summary(test_demography)
 
-summary.demography <- function (x, ...) {
+summary.demography <- function (object, ...) {
 
-  x <- x$global_transition_matrix
+  x <- object$global_transition_matrix
   di <- base::dim(x)[1]
   ea <- base::eigen(x)
   lambda <- base::abs(ea$values[1]) 

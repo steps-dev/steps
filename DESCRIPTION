@@ -30,7 +30,7 @@ Imports:
     data.table,
     scales,
     extraDistr
-LinkingTo: Rcpp, plyr, testthat
+LinkingTo: Rcpp
 RoxygenNote: 6.0.1
 Suggests:
     testthat,

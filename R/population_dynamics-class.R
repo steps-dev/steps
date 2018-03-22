@@ -104,6 +104,7 @@ cap_population <- function (new_population, carrying_capacity) {
   new_population
 }
 
+
 dispersal_matrix <- function (locations, distance_decay = 0.5) {
   D <- as.matrix(stats::dist(locations))
   dispersal_matrix <- exp(-D / distance_decay)
@@ -111,6 +112,7 @@ dispersal_matrix <- function (locations, distance_decay = 0.5) {
   dispersal_matrix <- sweep(dispersal_matrix, 2, sums, "/")
   dispersal_matrix
 }
+
 
 extend <- function (x, factor = 2) {
   # given an evenly-spaced vector `x` of cell centre locations, extend it to the
@@ -149,6 +151,7 @@ extend <- function (x, factor = 2) {
   newx
 }
 
+
 bcb <- function (x, y, f = I) {
   # get a the basis vector for a block-circulant matrix representing the 
   # dispersal matrix between equally-spaced grid cells on a torus, as some 
@@ -179,6 +182,7 @@ bcb <- function (x, y, f = I) {
   d <- sqrt(xdist ^ 2 + ydist ^ 2)
   f(d)
 }
+
 
 setupFFT <- function (x, y, f, factor = 2) {
   # set up the objects needed for the FFT dispersal matrix representation
@@ -231,11 +235,14 @@ dispersalFFT <- function (popmat, fs) {
   pop_new
 }
 
+
 seq_range <- function (range, by = 1) seq(range[1], range[2], by = by)
+
 
 ifft <- function (z) stats::fft(z, inverse = TRUE)
 
-dispersal <- function(params,pop,hsm,cc,method){
+
+dispersal <- function(params, pop, hsm, cc, method){
   #stopifnot(is.dispersal(params))
   if(!any(method==c('ca','fft')))stop('method must be either "ca" (cellular automata) or\n "fft" (fast fourier transformation).')
   #stopifnot(is.habitat(habitat))  
@@ -245,7 +252,8 @@ dispersal <- function(params,pop,hsm,cc,method){
   return(dispersal_results)
 }
 
-dispersal_core_ca <- function(params,pop,hsm,cc){
+
+dispersal_core_ca <- function(params, pop, hsm, cc){
   
   #generate default parameters for dispersal parameters if they are missing from 'params'. 
   if(!exists('barrier_type',params)) params$barrier_type <- 0
@@ -269,7 +277,7 @@ dispersal_core_ca <- function(params,pop,hsm,cc){
 
   # could do this in parallel if wanted. 
   for (i in which_stages_disperse){
-    pop[[i]][] <- steps::rcpp_dispersal(raster::as.matrix(pop[[i]]),
+    pop[[i]][] <- rcpp_dispersal(raster::as.matrix(pop[[i]]),
                                       raster::as.matrix(cc),
                                       raster::as.matrix(hsm),
                                       raster::as.matrix(params$barriers_map),
@@ -286,7 +294,8 @@ dispersal_core_ca <- function(params,pop,hsm,cc){
   return(pop)
 }
 
-dispersal_core_fft <- function(params,pop){
+
+dispersal_core_fft <- function(params, pop){
   
   #identify populations and workout which populations can disperse.
   which_stages_disperse <- which(params$dispersal_proportion>0)
@@ -309,7 +318,7 @@ dispersal_core_fft <- function(params,pop){
   # setup for the fft approach (run this once, before the simulation)
   fs <- setupFFT(x = x, y = y, f = f)
   
-  #'# apply dispersal to the population (need to run this separately for each stage)
+  # apply dispersal to the population (need to run this separately for each stage)
   # fft_dispersal <- list()
   # # could do this in parallel if wanted. 
   # for (i in seq_len(n_dispersing_stages)){
@@ -330,7 +339,6 @@ dispersal_core_fft <- function(params,pop){
 ### pre-defined module functions ###
 ####################################
 
-# @export
 fast_population_dynamics <- function (state, timestep) {
   
   population_raster <- state$population$population_raster
@@ -359,7 +367,7 @@ fast_population_dynamics <- function (state, timestep) {
   state
 }
 
-# @export
+
 ca_dispersal_population_dynamics <- function (state, timestep) {
   
   population_raster <- state$population$population_raster
@@ -392,7 +400,7 @@ ca_dispersal_population_dynamics <- function (state, timestep) {
   state
 } 
   
-# @export
+
 fft_dispersal_population_dynamics <- function (state, timestep) {
   
   population_raster <- state$population$population_raster

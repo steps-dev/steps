@@ -37,9 +37,20 @@ library(raster)
 
 r <- raster(system.file("external/test.grd", package="raster"))
 
-test_habitat <- build_habitat(habitat_suitability = r / cellStats(r, "max"), carrying_capacity = ceiling(r * 0.1))
-test_demography <- build_demography(transition_matrix = steps:::fake_transition_matrix(4), dispersal_parameters = rlnorm(1))
-test_population <- build_population(stack(replicate(4, test_habitat$carrying_capacity * 0.2)))
+mat <- matrix(c(0.000,0.000,0.302,0.302,
+                0.940,0.000,0.000,0.000,
+                0.000,0.884,0.000,0.000,
+                0.000,0.000,0.793,0.793),
+              nrow = 4, ncol = 4, byrow = TRUE)
+colnames(mat) <- rownames(mat) <- c('Stage_1','Stage_2','Stage_3','Stage_4')
+
+pop <- stack(replicate(4, ceiling(r * 0.2)))
+
+test_habitat <- build_habitat(habitat_suitability = r / cellStats(r, "max"),
+                              carrying_capacity = ceiling(r * 0.1))
+test_demography <- build_demography(transition_matrix = mat,
+                                    dispersal_parameters = rlnorm(1))
+test_population <- build_population(pop)
 
 test_state <- build_state(test_habitat, test_demography, test_population)
 
