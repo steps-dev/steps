@@ -5,8 +5,8 @@
 #' 
 #' @rdname habitat
 #' 
-#' @param habitat_suitability A raster layer or stack containing habitat suitability for each cell
-#' @param carrying_capacity A raster layer specifying carrying capacity values for each cell
+#' @param habitat_suitability a raster layer or stack containing habitat suitability for each cell
+#' @param carrying_capacity a raster layer specifying carrying capacity values for each cell
 #' @param misc miscellaneous inputs used to modify habitat
 #' @param x an object to print or test as an habitat object
 #' @param ... further arguments passed to or from other methods

@@ -36,7 +36,12 @@
 #' 
 #' test_demography <- build_demography(transition_matrix = mat, dispersal_parameters = params)
 
-build_demography <- function (transition_matrix, type = 'global', habitat_suitability = NULL, dispersal_parameters, misc = NULL, ...) {
+build_demography <- function (transition_matrix, 
+                              type = 'global', 
+                              habitat_suitability = NULL, 
+                              dispersal_parameters, 
+                              misc = NULL, 
+                              ...) {
   x <- transition_matrix
   stage_matrixCheck(x)
   di <- base::dim(x)[[1]]
@@ -45,7 +50,10 @@ build_demography <- function (transition_matrix, type = 'global', habitat_suitab
   base::dimnames(x) <- base::list(m.names, m.names)
   
   if (type == 'local' ) {
-    if (!inherits(habitat_suitability,c("RasterLayer"))) stop("A raster layer must be specified if storing local (cell-based) transition matrices")
+    if (!inherits(habitat_suitability,c("RasterLayer"))) {
+      stop("A raster layer must be specified if storing local (cell-based) transition matrices")
+    }
+    
     ncells <- length(habitat_suitability)
     
     # set up a matrix of (ncell)(rows)*(nstage*nstage)(cols) and fill with original stage matrix
@@ -180,7 +188,15 @@ plot.demography <- function (x, ...) {
 ##########################
 
 stage_matrixCheck <- function (x) {
-  if (!is.matrix(x)) stop("A matrix object is required")
-  if (ncol(x) != nrow(x)) stop("A square matrix with stage probabilities between each stage is required")
-  if (!all(is.finite(x))) stop("All values in matrix are required to be either zero or positive and finite")
+  if (!is.matrix(x)) {
+    stop("A matrix object is required")
+  }
+  
+  if (ncol(x) != nrow(x)) {
+    stop("A square matrix with stage probabilities between each stage is required")
+  }
+  
+  if (!all(is.finite(x))) {
+    stop("All values in matrix are required to be either zero or positive and finite")
+  }
 }

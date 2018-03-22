@@ -9,8 +9,6 @@ set_class <- function (x, class) {
   x
 }
 
-# @export
-# used in examples to create a transition matrix
 fake_transition_matrix <- function (n_stages) {
   
   survival <- stats::runif(n_stages, 0.7, 0.9)

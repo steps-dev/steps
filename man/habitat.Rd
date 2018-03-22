@@ -13,9 +13,9 @@ is.habitat(x)
 \method{print}{habitat}(x, ...)
 }
 \arguments{
-\item{habitat_suitability}{A raster layer or stack containing habitat suitability for each cell}
+\item{habitat_suitability}{a raster layer or stack containing habitat suitability for each cell}
 
-\item{carrying_capacity}{A raster layer specifying carrying capacity values for each cell}
+\item{carrying_capacity}{a raster layer specifying carrying capacity values for each cell}
 
 \item{misc}{miscellaneous inputs used to modify habitat}
 
