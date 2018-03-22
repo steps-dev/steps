@@ -9,12 +9,12 @@
 \usage{
 experiment(state, dynamics, timesteps = 100)
 
-is.experiment_results(results)
+is.experiment_results(x)
 
-\method{print}{experiment_results}(results, ...)
+\method{print}{experiment_results}(x, ...)
 
-\method{plot}{experiment_results}(results, object = "population",
-  type = "graph", stage = NULL, ...)
+\method{plot}{experiment_results}(x, object = "population", type = "graph",
+  stage = NULL, ...)
 }
 \arguments{
 \item{state}{a state object - static habitat, population, and demography in a timestep}
@@ -23,7 +23,7 @@ is.experiment_results(results)
 
 \item{timesteps}{number of timesteps used in the experiment}
 
-\item{results}{an experiment_reults object}
+\item{x}{an experiment_reults object}
 
 \item{...}{further arguments passed to or from other methods}
 
@@ -47,11 +47,25 @@ library(raster)
 
 r <- raster(system.file("external/test.grd", package="raster"))
 
-test_habitat <- build_habitat(habitat_suitability = r / cellStats(r, "max"), carrying_capacity = ceiling(r * 0.1))
-test_demography <- build_demography(transition_matrix = steps:::fake_transition_matrix(4), dispersal_parameters = rlnorm(1))
-test_population <- build_population(stack(replicate(4, test_habitat$carrying_capacity * 0.2)))
+mat <- matrix(c(0.000,0.000,0.302,0.302,
+                0.940,0.000,0.000,0.000,
+                0.000,0.884,0.000,0.000,
+                0.000,0.000,0.793,0.793),
+              nrow = 4, ncol = 4, byrow = TRUE)
+colnames(mat) <- rownames(mat) <- c('Stage_1','Stage_2','Stage_3','Stage_4')
+
+pop <- stack(replicate(4, ceiling(r * 0.2)))
+
+test_habitat <- build_habitat(habitat_suitability = r / cellStats(r, "max"),
+                              carrying_capacity = ceiling(r * 0.1))
+test_demography <- build_demography(transition_matrix = mat,
+                                    dispersal_parameters = rlnorm(1))
+test_population <- build_population(pop)
+
 test_state <- build_state(test_habitat, test_demography, test_population)
+
 fast_approximation <- build_dynamics(steps:::no_habitat_dynamics, steps:::no_demographic_dynamics, steps:::fast_population_dynamics)
+
 results <- experiment(test_state, fast_approximation, timesteps = 10)
 
 # Test if object is of the type 'experiment results'

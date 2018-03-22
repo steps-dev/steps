@@ -8,7 +8,7 @@
 #' @param state a state object - static habitat, population, and demography in a timestep
 #' @param dynamics a dynamics object - modules that change habitat, population, and demography during and experiment
 #' @param timesteps number of timesteps used in the experiment
-#' @param results an experiment_reults object
+#' @param x an experiment_reults object
 #' @param object the state object to plot - can be 'population' (default), 'habitat_suitability' or 'carrying_capacity'
 #' @param type the plot type - 'graph' (default) or 'raster'
 #' @param stage life-stage to plot - must be specified for 'raster' plot types; default is NULL and all life-stages will be plotted
@@ -25,11 +25,25 @@
 #' 
 #' r <- raster(system.file("external/test.grd", package="raster"))
 #' 
-#' test_habitat <- build_habitat(habitat_suitability = r / cellStats(r, "max"), carrying_capacity = ceiling(r * 0.1))
-#' test_demography <- build_demography(transition_matrix = steps:::fake_transition_matrix(4), dispersal_parameters = rlnorm(1))
-#' test_population <- build_population(stack(replicate(4, test_habitat$carrying_capacity * 0.2)))
+#' mat <- matrix(c(0.000,0.000,0.302,0.302,
+#'                 0.940,0.000,0.000,0.000,
+#'                 0.000,0.884,0.000,0.000,
+#'                 0.000,0.000,0.793,0.793),
+#'               nrow = 4, ncol = 4, byrow = TRUE)
+#' colnames(mat) <- rownames(mat) <- c('Stage_1','Stage_2','Stage_3','Stage_4')
+#' 
+#' pop <- stack(replicate(4, ceiling(r * 0.2)))
+#' 
+#' test_habitat <- build_habitat(habitat_suitability = r / cellStats(r, "max"),
+#'                               carrying_capacity = ceiling(r * 0.1))
+#' test_demography <- build_demography(transition_matrix = mat,
+#'                                     dispersal_parameters = rlnorm(1))
+#' test_population <- build_population(pop)
+#' 
 #' test_state <- build_state(test_habitat, test_demography, test_population)
+#' 
 #' fast_approximation <- build_dynamics(steps:::no_habitat_dynamics, steps:::no_demographic_dynamics, steps:::fast_population_dynamics)
+#' 
 #' results <- experiment(test_state, fast_approximation, timesteps = 10)
 
 experiment <- function (state, dynamics, timesteps = 100) {
@@ -49,8 +63,8 @@ experiment <- function (state, dynamics, timesteps = 100) {
 #'   
 #' is.experiment_results(results)
 
-is.experiment_results <- function (results) {
-  inherits(results, 'experiment_results')
+is.experiment_results <- function (x) {
+  inherits(x, 'experiment_results')
 }
 
 #' @rdname experiment_results
@@ -61,8 +75,8 @@ is.experiment_results <- function (results) {
 #' 
 #' print(results)
 
-print.experiment_results <- function (results, ...) {
-  cat("This is an experiment results object, for", length(results), "timesteps")
+print.experiment_results <- function (x, ...) {
+  cat("This is an experiment results object, for", length(x), "timesteps")
 }
 
 #' @rdname experiment_results
@@ -73,9 +87,9 @@ print.experiment_results <- function (results, ...) {
 #' 
 #' plot(results)
 
-plot.experiment_results <- function (results, object = "population", type = "graph", stage = NULL, ...){
+plot.experiment_results <- function (x, object = "population", type = "graph", stage = NULL, ...){
 
-  stages <- raster::nlayers(results[[1]]$population$population_raster)
+  stages <- raster::nlayers(x[[1]]$population$population_raster)
   
   pal <- grDevices::colorRampPalette(
     c(
@@ -95,11 +109,11 @@ plot.experiment_results <- function (results, object = "population", type = "gra
 
       if (type == "graph") {
         
-        idx <- which(!is.na(raster::getValues(results[[1]]$population$population_raster[[1]])))
-        pops <- lapply(results, function(x) raster::extract(x$population$population_raster, idx))
+        idx <- which(!is.na(raster::getValues(x[[1]]$population$population_raster[[1]])))
+        pops <- lapply(x, function(x) raster::extract(x$population$population_raster, idx))
         pop_sums <- lapply(pops, function(x) colSums(x))
         
-        stage_names <- unlist(dimnames(results[[1]]$demography$global_transition_matrix)[1])
+        stage_names <- unlist(dimnames(x[[1]]$demography$global_transition_matrix)[1])
         
         colours <- c("#94d1c7", "#cccc2b", "#bebada", "#fb8072", "#80b1d3", "#fdb462", "#b3de69", "#fccde5", "#969696", "#bc80bd")
 
@@ -116,7 +130,7 @@ plot.experiment_results <- function (results, object = "population", type = "gra
                  lwd=2,
                  col=colours[i]
             )
-            graphics::abline(h=raster::cellStats(results[[1]]$habitat$carrying_capacity,sum)/stages,
+            graphics::abline(h=raster::cellStats(x[[1]]$habitat$carrying_capacity,sum)/stages,
                   lwd=1,
                   lty=2)
             
@@ -135,7 +149,7 @@ plot.experiment_results <- function (results, object = "population", type = "gra
                lwd=2,
                col="black"
           )
-          graphics::abline(h=raster::cellStats(results[[1]]$habitat$carrying_capacity,sum),
+          graphics::abline(h=raster::cellStats(x[[1]]$habitat$carrying_capacity,sum),
                  lwd=1,
                  lty=2)
         }
@@ -151,7 +165,7 @@ plot.experiment_results <- function (results, object = "population", type = "gra
                lwd=2,
                col=colours[stage]
           )
-          graphics::abline(h=raster::cellStats(results[[1]]$habitat$carrying_capacity,sum)/stages,
+          graphics::abline(h=raster::cellStats(x[[1]]$habitat$carrying_capacity,sum)/stages,
                  lwd=1,
                  lty=2)
         }
@@ -162,7 +176,7 @@ plot.experiment_results <- function (results, object = "population", type = "gra
         
         if (is.null(stage)) stop("Please provide a life-stage when plotting population rasters")
         
-        rasters <- raster::stack(lapply(results, function (state) state$population$population_raster[[stage]]))
+        rasters <- raster::stack(lapply(x, function (state) state$population$population_raster[[stage]]))
         
         # Find maximum and minimum population value in raster cells for all timesteps for life-stage
         scale_max <- ceiling(max(raster::cellStats(rasters, max)))
@@ -187,7 +201,7 @@ plot.experiment_results <- function (results, object = "population", type = "gra
   
     if (object == "habitat_suitability") {
     
-      rasters <- raster::stack(lapply(results, function (state) state$habitat$habitat_suitability))
+      rasters <- raster::stack(lapply(x, function (state) state$habitat$habitat_suitability))
       
       ts <- seq_len(raster::nlayers(rasters))
       groups <- split(ts, ceiling(seq_along(ts)/9))
@@ -204,7 +218,7 @@ plot.experiment_results <- function (results, object = "population", type = "gra
   
     if (object == "carrying_capacity") {
     
-      rasters <- raster::stack(lapply(results, function (state) state$habitat$carrying_capacity))
+      rasters <- raster::stack(lapply(x, function (state) state$habitat$carrying_capacity))
       
       ts <- seq_len(raster::nlayers(rasters))
       groups <- split(ts, ceiling(seq_along(ts)/9))

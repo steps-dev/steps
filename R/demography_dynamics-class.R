@@ -5,9 +5,13 @@
 #'
 #' @rdname demography_dynamics
 #'
-#' @param demography_dynamics_function A function that operates on a state object to change demography at specified timesteps. User may enter a custom function or select a pre-defined module - see documentation. 
+#' @param demography_dynamics_function A function that operates on a state object to change demography at specified timesteps. User may enter a custom function or select a pre-defined module - see examples. 
 #' @param x an object to print or test as an demography_dynamic object
 #' @param ... further arguments passed to or from other methods
+#' @param state a state object to apply the demographic function to
+#' @param timestep the timestep in the experiment to apply the demographic function to the state object
+#' @param global_transition_matrix a life-stage transition matrix
+#' @param stochasticity a matrix with standard deviations (consistent or varying) around the transition means with matching dimensions as the life-stage transition matrix or a number representing a consitent standard deviation to apply to all transitions (default is 0)
 #'
 #' @return An object of class \code{demography_dynamics}
 #' 
@@ -18,9 +22,13 @@
 #' library(steps)
 #' library(raster)
 #'
+#' # create a generic function that simple returns an unmodified state object at each timestep
+#'
 #' example_function <- function (state, timestep) {
 #' state
 #' }
+#' 
+#' define the function as a demography_dynamics object
 #' 
 #' no_demography_dynamics <- as.demography_dynamics(example_function)
 
@@ -65,13 +73,16 @@ print.demography_dynamics <- function (x, ...) {
 ####################################
 ### pre-defined module functions ###
 ####################################
-
-# @export
+#' @rdname demography_dynamics
+#' 
+#' @export
 no_demographic_dynamics <- function (state, timestep) {
   state
 }
 
-# @export
+#' @rdname demography_dynamics
+#' 
+#' @export
 envstoch_demographic_dynamics <- function (global_transition_matrix, stochasticity=0) {
   
   dim <- nrow(global_transition_matrix)

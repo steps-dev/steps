@@ -25,7 +25,7 @@ r_packages:
 after_success:
   - Rscript -e 'library(covr);codecov()'
 
-warnings_are_errors: false
+warnings_are_errors: true
 notifications:
   on_success: always
   on_failure: always

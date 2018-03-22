@@ -361,7 +361,6 @@ NumericMatrix na_matrix(int nr, int nc){
 // //' @param dispersal_distance The maximum number of cells the species can disperse.
 // //' @param dispersal_kernal a numeric vector of probabilites of dispersing from one to n cells, where n is the dispersal distance.
 // //' @param dispersal_proportion the proportion of species that will disperse from source cell, needs to be between 0 and 1. e.g 0.2 means that 20% of the cell's population disperses. 
-//' @export
 // [[Rcpp::export]]
 List rcpp_dispersal(NumericMatrix starting_population_state, NumericMatrix potential_carrying_capacity,
   NumericMatrix habitat_suitability_map,NumericMatrix barriers_map, int barrier_type, bool use_barrier, int dispersal_steps,

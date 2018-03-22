@@ -31,8 +31,11 @@ export(is.population)
 export(is.population_dynamics)
 export(is.simulation_results)
 export(is.state)
+<<<<<<< HEAD
 export(rcpp_dispersal)
 export(simulation)
+=======
+>>>>>>> fafaad28aaefc7d37d74cd7b119f510e57419919
 importFrom(Rcpp,sourceCpp)
 importFrom(igraph,graph.adjacency)
 importFrom(magrittr,"%<>%")

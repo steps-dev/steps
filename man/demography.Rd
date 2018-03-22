@@ -15,7 +15,7 @@ is.demography(x)
 
 \method{print}{demography}(x, ...)
 
-\method{summary}{demography}(x, ...)
+\method{summary}{demography}(object, ...)
 
 \method{plot}{demography}(x, ...)
 }
@@ -33,6 +33,8 @@ is.demography(x)
 \item{...}{further arguments passed to or from other methods}
 
 \item{x}{a demography object}
+
+\item{object}{a demography object}
 }
 \value{
 An object of class \code{demography}
