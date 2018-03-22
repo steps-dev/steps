@@ -8,7 +8,7 @@
 #' @param state a state object - static habitat, population, and demography in a timestep
 #' @param dynamics a dynamics object - modules that change habitat, population, and demography during and experiment
 #' @param timesteps number of timesteps used in the experiment
-#' @param simulations number of times to simulate the experiment
+# @param simulations number of times to simulate the experiment
 #' @param x an experiment_reults object
 #' @param object the state object to plot - can be 'population' (default), 'habitat_suitability' or 'carrying_capacity'
 #' @param type the plot type - 'graph' (default) or 'raster'

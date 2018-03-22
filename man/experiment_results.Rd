@@ -35,8 +35,6 @@ is.experiment_results(x)
 \item{type}{the plot type - 'graph' (default) or 'raster'}
 
 \item{stage}{life-stage to plot - must be specified for 'raster' plot types; default is NULL and all life-stages will be plotted}
-
-\item{simulations}{number of times to simulate the experiment}
 }
 \value{
 An object of class \code{experiment_results}
