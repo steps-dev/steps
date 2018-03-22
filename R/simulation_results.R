@@ -32,8 +32,7 @@ simulation <- function(state, dynamics, timesteps, simulations, check=TRUE, ...)
                          
                           if(check) {
                             message('running a single test to see if the experiment works, simulation will stop if this fails\n')
-                          stopifnot(is.experiment_results(experiment(state,dynamics,timesteps=1)))
-                            
+                            stopifnot(is.experiment_results(experiment(state,dynamics,timesteps=1)))
                           }
                           
                           future::plan(multiprocess)
@@ -53,7 +52,7 @@ simulation <- function(state, dynamics, timesteps, simulations, check=TRUE, ...)
 #' 
 #' @examples
 #'
-#' # Test if object is of the type 'experiment results'
+#' # Test if object is of the type 'simulation results'
 #'   
 #' is.simulation_results(results)
 
