@@ -184,6 +184,20 @@ test_that('experiment_results classes work', {
                           timesteps = 10)
   )
 
+  ## simulation checks.
+  expect_error(simulation(state = b_state,
+                          dynamics = b_dynamics,
+                          timesteps = 15,
+                          simulations = 5)
+  )
+  
+  expect_error(simulation(state = b_state3,
+                          dynamics = b_dynamics,
+                          timesteps = 10,
+                          simulations = 5)
+  )
+  
+  
   test_experiment <- experiment(state = b_state,
                                 dynamics = b_dynamics,
                                 timesteps = 10)

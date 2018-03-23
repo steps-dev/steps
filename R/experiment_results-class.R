@@ -8,13 +8,14 @@
 #' @param state a state object - static habitat, population, and demography in a timestep
 #' @param dynamics a dynamics object - modules that change habitat, population, and demography during and experiment
 #' @param timesteps number of timesteps used in the experiment
-# @param simulations number of times to simulate the experiment
+#' @param simulations number of times to simulate the experiment
 #' @param x an experiment_reults object
 #' @param object the state object to plot - can be 'population' (default), 'habitat_suitability' or 'carrying_capacity'
 #' @param type the plot type - 'graph' (default) or 'raster'
 #' @param stage life-stage to plot - must be specified for 'raster' plot types; default is NULL and all life-stages will be plotted
 #' @param ... further arguments passed to or from other methods
 #' 
+#' @importFrom future plan multiprocess future
 #' @return An object of class \code{experiment_results}
 #' 
 #' @export
@@ -48,26 +49,40 @@
 #'                                        fast_population_dynamics)
 #' 
 #' results <- experiment(test_state, simple_approximation, timesteps = 10)
-#' #sim_results <- simulation(test_state, simple_approximation, timesteps = 10, simulations=10)
 
 experiment <- function (state, dynamics, timesteps = 100) {
-  # check stuff
   timesteps <- seq_len(timesteps)
   output_states <- iterate_system(state, dynamics, timesteps)
   set_class(output_states, "experiment_results")
 }
 
-# simulation <- function(state, dynamics, timesteps, simulations){
-#   
-#   plan(multiprocess)
-#   simulation_results <- list()
-#   for(sim in seq_len(simulations)){
-#     simulation_results[[sim]] <- future(
-#       experiment(state,dynamics,timesteps)
-#     )
-#   }
-#   set_class(simulation_results, "simulation_results")
-# }
+#' @rdname experiment_results
+#' @name simulation
+#' @export
+#' @importFrom future future value
+#' @return An object of class \code{simulation_results} which 
+#' contains n \code{experiment_results}
+#' @examples 
+#' library(future)
+#' plan(multiprocess) 
+#' sim_results <- simulation(test_state, simple_approximation,
+#'                           timesteps = 10, simulations=10)
+
+simulation <- function(state, dynamics, timesteps, simulations){
+  
+  simulation_results <- list()
+  for(ii in seq_len(simulations)){
+    simulation_results[[ii]] <- future({
+      experiment(state,dynamics,timesteps)
+      }, 
+      globals = list(state = state,
+                     dynamics = dynamics,
+                     timesteps = timesteps,
+                     experiment = steps::experiment)
+    )
+  }
+  set_class(values(simulation_results), "simulation_results")
+}
 
 
 #' @rdname experiment_results

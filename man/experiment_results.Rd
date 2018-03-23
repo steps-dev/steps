@@ -2,6 +2,7 @@
 % Please edit documentation in R/experiment_results-class.R
 \name{experiment}
 \alias{experiment}
+\alias{simulation}
 \alias{print.experiment_results}
 \alias{is.experiment_results}
 \alias{print.experiment_results}
@@ -9,6 +10,8 @@
 \title{Run an experiment to make spatially-explicit population projections}
 \usage{
 experiment(state, dynamics, timesteps = 100)
+
+simulation(state, dynamics, timesteps, simulations)
 
 \method{print}{experiment_results}(x, ...)
 
@@ -26,6 +29,8 @@ is.experiment_results(x)
 
 \item{timesteps}{number of timesteps used in the experiment}
 
+\item{simulations}{number of times to simulate the experiment}
+
 \item{x}{an experiment_reults object}
 
 \item{...}{further arguments passed to or from other methods}
@@ -38,6 +43,9 @@ is.experiment_results(x)
 }
 \value{
 An object of class \code{experiment_results}
+
+An object of class \code{simulation_results} which 
+contains n \code{experiment_results}
 }
 \description{
 A habitat object is used to store spatially-explicit information on habitat suitability and the carrying_capacity of a landscape.
@@ -72,7 +80,10 @@ simple_approximation <- build_dynamics(no_habitat_dynamics,
                                        fast_population_dynamics)
 
 results <- experiment(test_state, simple_approximation, timesteps = 10)
-#sim_results <- simulation(test_state, simple_approximation, timesteps = 10, simulations=10)
+library(future)
+plan(multiprocess) 
+sim_results <- simulation(test_state, simple_approximation,
+                          timesteps = 10, simulations=10)
 
 print(results)
 
