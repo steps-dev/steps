@@ -1,5 +1,5 @@
 ---
-title: "A population simulation example using the Koala"
+title: "A Koala population simulation example"
 author: "Casey Visintin & Skipton Woolley"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -9,9 +9,9 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-Here is a groove example of what this package can do.
+Below is an example using the koala - an arboreal marsupial native to Australia.  
 
-First we are going to setup the stage based transition matricies. The first matrix represents survival and fecundity life-stage transition probabilities for koalas. The second matrix describes the uncertainty around the transition probabilities and is used to simulate environmental stochasticity - zeros indicate no uncertainty. Note, there are four life-stages and the matrix is symmetrical 
+First we setup the stage based transition matricies. The first matrix represents survival and fecundity life-stage transition probabilities for koalas. The second matrix describes the uncertainty around the transition probabilities and is used to simulate environmental stochasticity - zeros indicate no uncertainty. Note, there are four life-stages and the matrix is symmetrical in its row and column numbers. Also, names are added to the columns and rows to identify the different life-stages of the koala.
 
 ```{r}
 koala.trans.mat <- matrix(c(0.000,0.000,0.302,0.302,
@@ -19,29 +19,82 @@ koala.trans.mat <- matrix(c(0.000,0.000,0.302,0.302,
                               0.000,0.884,0.000,0.000,
                               0.000,0.000,0.793,0.793),
                             nrow = 4, ncol = 4, byrow = TRUE)
-colnames(koala.trans.mat) <- rownames(koala.trans.mat) <- c('Juveniles','Sub-Adults','Adults','Super-Adults')
+colnames(koala.trans.mat) <- rownames(koala.trans.mat) <- c('Juveniles','Sub_Adults','Adults','Super_Adults')
 
 koala.trans.mat.es <- matrix(c(0.000,0.000,1,1,
                                  1,0.000,0.000,0.000,
                                  0.000,1,0.000,0.000,
                                  0.000,0.000,1,1),
                                nrow = 4, ncol = 4, byrow = TRUE)
-colnames(koala.trans.mat.es) <- rownames(koala.trans.mat.es) <- c('Juveniles','Sub-Adults','Adults','Super-Adults')
+colnames(koala.trans.mat.es) <- rownames(koala.trans.mat.es) <- c('Juveniles','Sub_Adults','Adults','Super_Adults')
 
 ```    
 
-Read in spatial inputs to be used for the experiment and simulations. For the koala, a 117km x 126km spatial grid with a resolution of 1km2 is used as the landscape for the meta-population of koalas. Each cell represents patches that koalas can move between depending on the attributes of the cell.
+Read in spatial inputs to be used for the experiment and simulations. For the koala, a 117km x 126km spatial grid with a resolution of 1km2 is used as the landscape for the meta-population of koalas. Each cell represents a patch that koalas can move between - dependent upon its unique attributes.  
 
-```{r}
+The habitat suitability layer describes the relative likelihood of the species occuring in each cell and should contain values between 0 (not inhabited) and 1 (inhabited). If original values are ot in this range, they should be rescaled accordningly. The name "Habitat" is assigned to the layer for identification throughout processing and plotting operations.
+
+```{r, message = FALSE}
 library(raster)
+
 # read in spatial habitat suitability raster
 koala.hab.suit <- raster(system.file("extdata","Koala_HabSuit.tif", package="steps"))
 
 # rescale habitat raster to relative suitability (or likelihood of occurrence) between 0 and 1.
 koala.hab.suit <- (koala.hab.suit - cellStats(koala.hab.suit, min)) / (cellStats(koala.hab.suit, max) - cellStats(koala.hab.suit, min))
 
-# rename raster so that it is traked throughout the experiment and simulation
+# rename raster so that it is tracked throughout the experiment and simulation
 names(koala.hab.suit) <- "Habitat"
+
+par(mar=c(0,0,0,0), oma=c(0,0,0,0))
 plot(koala.hab.suit, box = FALSE, axes = FALSE)
+```
+
+The carrying capacity layer describes the total number of species that may occur in each cell and contains either zeros or positive integer values. The name "Carrying Capacity" is assigned to the layer for identification throughout processing and plotting operations.
+
+```{r, message = FALSE}
+
+# create carrying capacity layer using the habitat suitability raster (or provide a custom one)
+koala.hab.k <- ceiling(koala.hab.suit * 60)
+
+# rename raster so that it is tracked throughout the experiment and simulation
+names(koala.hab.k) <- "Carrying Capacity"
+
+par(mar=c(0,0,0,0), oma=c(0,0,0,0))
+plot(koala.hab.k, box = FALSE, axes = FALSE)
+```
+
+Populations are repesented as a stack of rasters that describes the total number of individuals that occur in each cell for each life-stage. In the koala example, there are four life-stages and thus four individual raster layers in the stack. The values are either zeros or positive integers. The life-stage names are assigned to the stack for identification throughout processing and plotting operations.
+
+```{r, message = FALSE}
+
+# create population layers using the carrying capacity raster (or provide a custom ones)
+koala.pop <- stack(replicate(4, ceiling(koala.hab.k * 0.2)))
+
+# rename stack so that the layers are tracked throughout the experiment and simulation
+names(koala.pop) <- colnames(koala.trans.mat)
+
+par(mar=c(0,0,0,0), oma=c(0,0,0,0))
+spplot(koala.pop)
+```
+
+We will need to specify some parameters for the cellular-automata and fast-fourier dispersal engines. Three primary required parameters are dispersal distance, kernel, and proportion - with values for each life-stage expressed in lists. The distance parameter sets the maximum number of cells that a koala can move at each timestep. In the example, only two stages disperse up to 10 kilometers (based on the resolution of the input raster). The dispersal kernel defines the likelihood of dispersal at all distances up to the maximum. These functions define a set of numbers between 0 and 1 equal to the maximum number of cells the koala can disperse (10). The dispersal proportion is a number between 0 and 1 that defines the proportion of cell population that disperses for each life-stage. Only sub-adult and adult koalas disperse.
+
+```{r, message = FALSE}
+
+# define all of the dispersal distances
+dispersal_distance <- list('Juveniles'=0,'Sub_Adults'=10,'Adults'=10,'Super_Adults'=0)
+
+# define the dispersal kernals for each life-stage
+dispersal_kernel <- list('Juveniles'=0,'Sub_Adults'=exp(-c(0:9)^1/3.36),'Adults'=exp(-c(0:9)^1/3.36),'Super_Adults'=0)
+
+# define all of the dispersal proportions
+dispersal_proportion <- list('Juveniles'=0,'Sub_Adults'=0.35,'Adults'=0.35*0.714,'Super_Adults'=0)
+
+# combine all of the parameters in a list 
+koala.disp.param <- list(dispersal_distance=dispersal_distance,
+                                      dispersal_kernel=dispersal_kernel,
+                                      dispersal_proportion=dispersal_proportion
+                         )
 ```
 
