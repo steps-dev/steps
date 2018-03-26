@@ -13,7 +13,10 @@ Below is an example using the koala - an arboreal marsupial native to Australia.
 
 First we setup the stage based transition matricies. The first matrix represents survival and fecundity life-stage transition probabilities for koalas. The second matrix describes the uncertainty around the transition probabilities and is used to simulate environmental stochasticity - zeros indicate no uncertainty. Note, there are four life-stages and the matrix is symmetrical in its row and column numbers. Also, names are added to the columns and rows to identify the different life-stages of the koala.
 
-```{r}
+```{r, message = FALSE}
+library(steps)
+library(raster)
+
 koala.trans.mat <- matrix(c(0.000,0.000,0.302,0.302,
                               0.940,0.000,0.000,0.000,
                               0.000,0.884,0.000,0.000,
@@ -32,10 +35,9 @@ colnames(koala.trans.mat.es) <- rownames(koala.trans.mat.es) <- c('Juveniles','S
 
 Read in spatial inputs to be used for the experiment and simulations. For the koala, a 117km x 126km spatial grid with a resolution of 1km2 is used as the landscape for the meta-population of koalas. Each cell represents a patch that koalas can move between - dependent upon its unique attributes.  
 
-The habitat suitability layer describes the relative likelihood of the species occuring in each cell and should contain values between 0 (not inhabited) and 1 (inhabited). If original values are ot in this range, they should be rescaled accordningly. The name "Habitat" is assigned to the layer for identification throughout processing and plotting operations.
+The habitat suitability layer describes the relative likelihood of the species occurring in each cell and should contain values between 0 (not inhabited) and 1 (inhabited). If the original values are not in this range, they should be rescaled accordingly. The name "Habitat" is assigned to the layer for identification throughout processing and plotting operations.
 
 ```{r, message = FALSE}
-library(raster)
 
 # read in spatial habitat suitability raster
 koala.hab.suit <- raster(system.file("extdata","Koala_HabSuit.tif", package="steps"))
@@ -64,7 +66,7 @@ par(mar=c(0,0,0,0), oma=c(0,0,0,0))
 plot(koala.hab.k, box = FALSE, axes = FALSE)
 ```
 
-Populations are repesented as a stack of rasters that describes the total number of individuals that occur in each cell for each life-stage. In the koala example, there are four life-stages and thus four individual raster layers in the stack. The values are either zeros or positive integers. The life-stage names are assigned to the stack for identification throughout processing and plotting operations.
+Populations are represented as a stack of rasters that describes the total number of individuals that occur in each cell for each life-stage. In the koala example, there are four life-stages and thus four individual raster layers in the stack. The values are either zeros or positive integers. The life-stage names are assigned to the stack for identification throughout processing and plotting operations.
 
 ```{r, message = FALSE}
 
@@ -78,7 +80,7 @@ par(mar=c(0,0,0,0), oma=c(0,0,0,0))
 spplot(koala.pop)
 ```
 
-We will need to specify some parameters for the cellular-automata and fast-fourier dispersal engines. Three primary required parameters are dispersal distance, kernel, and proportion - with values for each life-stage expressed in lists. The distance parameter sets the maximum number of cells that a koala can move at each timestep. In the example, only two stages disperse up to 10 kilometers (based on the resolution of the input raster). The dispersal kernel defines the likelihood of dispersal at all distances up to the maximum. These functions define a set of numbers between 0 and 1 equal to the maximum number of cells the koala can disperse (10). The dispersal proportion is a number between 0 and 1 that defines the proportion of cell population that disperses for each life-stage. Only sub-adult and adult koalas disperse.
+We will need to specify some parameters for the cellular-automata and fast-fourier dispersal engines. Three primary required parameters are dispersal distance, kernel, and proportion - with values for each life-stage expressed in lists. The distance parameter sets the maximum number of cells that a koala can move at each timestep. In the example, only two stages disperse up to 10 kilometers (based on the resolution of the input raster). The dispersal kernel defines the likelihood of dispersal at all distances up to the maximum. These functions define a set of numbers between 0 and 1 equal to the maximum number of cells (10) the koala can disperse. The dispersal proportion is a number between 0 and 1 that defines the proportion of cell population that disperses for each life-stage. Only sub-adult and adult koalas disperse in this example.
 
 ```{r, message = FALSE}
 
@@ -98,3 +100,118 @@ koala.disp.param <- list(dispersal_distance=dispersal_distance,
                          )
 ```
 
+To characterise landscape disturbance, we read in a series of raster layers that map the locations and severity of fires. Note, the number of layers must match the intended number of timesteps in the experiment - in this case twenty. Each fire raster will be multiplied with the habitat suitability layer and thus contain values between zero (intense fire) and one (no fire).
+
+```{r, message = FALSE}
+koala.dist.fire <- stack(list.files(system.file("extdata", package="steps"), full.names = TRUE, pattern = 'Koala_Fire*'))
+```
+
+With all of input components loaded we now construct the objects for the experiment. Two primary objects are required for an experiment - a state object and a dynamic object. Each of these primary objects are made up of several sub-component objects that are constructed from the project inputs. These are detailed below. 
+
+This first sub-component is a habitat object that is constructed from the koala habitat suitability and carrying capacity raster input layers.
+
+```{r, message = FALSE}
+koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit,
+                               carrying_capacity = koala.hab.k)
+```
+
+The second sub-component is a demography object that is constructed from the koala life-stage transition matrix and the list of dispersal parameters.
+
+```{r, message = FALSE}
+koala.demography <- build_demography(transition_matrix = koala.trans.mat,
+                                     dispersal_parameters = koala.disp.param)
+```
+
+The third sub-component is a population object that is constructed from the koala population raster stack.
+
+```{r, message = FALSE}
+koala.population <- build_population(population_raster = koala.pop)
+```
+
+All three sub-components are used to build a state object. The state object is modified at each timestep in an experiment based on dynamic objects (described in subsequent sections below).
+
+```{r, message = FALSE}
+koala.state <- build_state(habitat = koala.habitat,
+                           demography = koala.demography,
+                           population = koala.population)
+```
+
+Dynamic objects are used to modify state objects at each timestep in an experiment. They can be selected as 'off-the-shelf' functions included in the 'steps' package or custom defined functions created by the user.
+
+A habitat dynamics object modifies the habitat sub-component of the state object. We use a pre-defined fire disturbance function to modify the habitat suitability in the experiment at each timestep. The function requires an initial habitat suitability layer, a stack of disturbance layers equal to the intended number of timesteps in the experiment, and an effect time which specifies the number of timesteps that each disturbance layer acts on the habitat suitability. In this example, we provide the koala habitat suitability input, the koala fire disturbance input, and an effect time of three - meaning each fire layer will affect the habitat suitability for three timestep in the experiment.
+
+```{r, message = FALSE}
+koala.habitat.dynamics <- fire_habitat_dynamics(habitat_suitability = koala.hab.suit,
+                                                disturbance_layers = koala.dist.fire,
+                                                effect_time=3)
+```
+
+A demography dynamics object modifies the demography sub-component of the state object. We use a pre-defined environmental stochasticity function to modify the life-stage transition matrix in the experiment at each timestep. This function requires the global life-stage transition matrix and stochasticity matrix inputs for koalas. Note, stochasticity can also be entered as a single positive number rather than a matrix - the function will create a matrix internally and apply the value to all non-zero numbers in the life-stage transition matrix.
+
+```{r, message = FALSE}
+koala.demography.dynamics <- envstoch_demography_dynamics(global_transition_matrix = koala.trans.mat,
+                                                           stochasticity = koala.trans.mat.es)
+```
+
+A population dynamics object modifies the population sub-component of the state object. We use a pre-defined cellular-automata dispersal function to characterise the koala movements at each timestep. Included in this function is also density dependence (ceiling based on carrying capacity) and population changes for each stage based on the life-stage transition matrix.
+
+```{r, message = FALSE}
+koala.population.dynamics <- as.population_dynamics(ca_dispersal_population_dynamics)
+```
+
+All three sub-components are used to build a dynamics object. The dynamics object modifies the state object at each timestep in an experiment. Note, we specify the order in which we would like the dynamics to act on the state object for each timestep. First the koala habitat will be modified by fire, then environmental stochasticity will be applied to the life-stage transition matrix, then the koala population will grow or shrink and disperse.
+
+```{r, message = FALSE}
+koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
+                                 demography_dynamics = koala.demography.dynamics,
+                                 population_dynamics = koala.population.dynamics,
+                                 order = c("habitat_dynamics",
+                                           "demography_dynamics",
+                                           "population_dynamics")
+)
+```
+
+Now that we have defined and built the state and dynamic objects, we can run an experiment. We conduct an experiment on the koala population over twenty timesteps. Runtime will depend on the complexity of the state object and the configuration of the dynamic object.
+
+```{r, message = FALSE,  results='hide'}
+system.time(
+  koala.results <- experiment(koala.state,
+                         koala.dynamics,
+                         timesteps = 20
+                         )
+)
+```
+
+Once an experiment has been run, we can plot temporally-explicit information. 
+
+For this example, we can view the koala population trajectories of each life-stage:
+
+```{r, message = FALSE}
+plot(koala.results)
+```
+
+Or the total koala population trajectory:
+
+```{r, message = FALSE}
+#plot(koala.results, stage = 0)
+```
+
+Or the koala population trajectory for a single life-stage:
+
+```{r, message = FALSE}
+#plot(koala.results, stage = 2, newplot = TRUE)
+```
+
+We can also view the population distribution over the landscape for a single life-stage (only timesteps one through nine shown):
+
+```{r, message = FALSE}
+#plot(koala.results, type = "raster", stage = 2)
+```
+
+The state objects are stored for each timestep so it is possible to also view the habitat suitability and carrying capacity throughout the experiment (only timesteps one through nine shown):
+
+```{r, message = FALSE}
+#plot(koala.results, object = "habitat_suitability")
+
+#plot(koala.results, object = "carrying_capacity")
+```

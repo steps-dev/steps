@@ -143,7 +143,13 @@ test_that('experiment_results classes work', {
                                demography_dynamics = dem_dyn,
                                population_dynamics = pop_dyn3
   )
-  
+
+  expect_true(inherits(experiment(state = b_state,
+                                  dynamics = b_dynamics,
+                                  timesteps = 10)[1],
+                       "experiment_results")
+  )
+    
   expect_true(inherits(experiment(state = b_state,
                                   dynamics = b_dynamics,
                                   timesteps = 10),
