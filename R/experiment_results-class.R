@@ -268,12 +268,18 @@ plot.experiment_results <- function (x, object = "population", type = "graph", s
 }
 
 #' @rdname experiment_results
+#' 
 #' @name simulation
+#' 
 #' @export
+#' 
 #' @importFrom future future value
+#' 
 #' @return An object of class \code{simulation_results} which 
 #' contains n \code{experiment_results}
-#' @examples 
+#' 
+#' @examples
+#'  
 #' library(future)
 #' plan(multiprocess) 
 #' sim_results <- simulation(test_state, simple_approximation,
@@ -292,7 +298,7 @@ simulation <- function(state, dynamics, timesteps, simulations){
                    experiment = steps::experiment)
     )
   }
-  set_class(values(simulation_results), "simulation_results")
+  set_class(future::values(simulation_results), "simulation_results")
 }
 
 
@@ -318,3 +324,23 @@ iterate_system <- function (state, dynamics, timesteps) {
   output_states
   
 }
+
+
+# raster2ggplot_data <- function(raster){
+#   require(raster)
+#   require(magrittr)
+#   raster %>%
+#     raster::getValues() %>%
+#     base::as.data.frame() %>%
+#     utils::stack() %>%
+#     magrittr::set_names(
+#       base::c('value', 'variable')
+#     ) %>%
+#     base::cbind(
+#       raster %>%
+#         raster::ncell() %>%
+#         base::seq_len() %>%
+#         raster::xyFromCell(raster, .)
+#     ) -> dat
+#   return(dat)
+# }

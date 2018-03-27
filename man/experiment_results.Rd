@@ -90,6 +90,7 @@ is.experiment_results(results)
 print(results)
 
 plot(results)
+ 
 library(future)
 plan(multiprocess) 
 sim_results <- simulation(test_state, simple_approximation,

@@ -234,6 +234,10 @@ test_that('experiment_results classes work', {
        object = "habitat_suitability"
   )
   
+  plot(test_experiment[c(1:2)],
+       object = "habitat_suitability"
+  )
+  
   plot(test_experiment,
        object = "carrying_capacity"
   )
@@ -245,4 +249,3 @@ test_that('experiment_results classes work', {
   )
 
 })
- 

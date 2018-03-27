@@ -225,6 +225,15 @@ system.time(
                          )
 )
 
+plan(multiprocess) 
+sim_results <- simulation(koala.state,
+                          koala.dynamics,
+                          timesteps = 20,
+                          simulations = 5
+                          )
+
+
+
 plot(my.results)
 
 plot(my.results, stage = 2)

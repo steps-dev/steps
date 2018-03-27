@@ -37,7 +37,7 @@ Read in spatial inputs to be used for the experiment and simulations. For the ko
 
 The habitat suitability layer describes the relative likelihood of the species occurring in each cell and should contain values between 0 (not inhabited) and 1 (inhabited). If the original values are not in this range, they should be rescaled accordingly. The name "Habitat" is assigned to the layer for identification throughout processing and plotting operations.
 
-```{r, message = FALSE}
+```{r, message = FALSE, fig.align="center"}
 
 # read in spatial habitat suitability raster
 koala.hab.suit <- raster(system.file("extdata","Koala_HabSuit.tif", package="steps"))
@@ -54,7 +54,7 @@ plot(koala.hab.suit, box = FALSE, axes = FALSE)
 
 The carrying capacity layer describes the total number of species that may occur in each cell and contains either zeros or positive integer values. The name "Carrying Capacity" is assigned to the layer for identification throughout processing and plotting operations.
 
-```{r, message = FALSE}
+```{r, message = FALSE, fig.align="center"}
 
 # create carrying capacity layer using the habitat suitability raster (or provide a custom one)
 koala.hab.k <- ceiling(koala.hab.suit * 60)
@@ -68,7 +68,7 @@ plot(koala.hab.k, box = FALSE, axes = FALSE)
 
 Populations are represented as a stack of rasters that describes the total number of individuals that occur in each cell for each life-stage. In the koala example, there are four life-stages and thus four individual raster layers in the stack. The values are either zeros or positive integers. The life-stage names are assigned to the stack for identification throughout processing and plotting operations.
 
-```{r, message = FALSE}
+```{r, message = FALSE, fig.align="center"}
 
 # create population layers using the carrying capacity raster (or provide a custom ones)
 koala.pop <- stack(replicate(4, ceiling(koala.hab.k * 0.2)))
@@ -186,32 +186,32 @@ Once an experiment has been run, we can plot temporally-explicit information.
 
 For this example, we can view the koala population trajectories of each life-stage:
 
-```{r, message = FALSE}
+```{r, message = FALSE, fig.width=7, fig.align="center"}
 plot(koala.results)
 ```
 
 Or the total koala population trajectory:
 
-```{r, message = FALSE}
-#plot(koala.results, stage = 0)
+```{r, message = FALSE, fig.width=4, fig.align="center"}
+plot(koala.results, stage = 0)
 ```
 
 Or the koala population trajectory for a single life-stage:
 
-```{r, message = FALSE}
-#plot(koala.results, stage = 2, newplot = TRUE)
+```{r, message = FALSE, fig.width=4, fig.align="center"}
+plot(koala.results, stage = 2, newplot = TRUE)
 ```
 
 We can also view the population distribution over the landscape for a single life-stage (only timesteps one through nine shown):
 
-```{r, message = FALSE}
-#plot(koala.results, type = "raster", stage = 2)
+```{r, message = FALSE, fig.width=7, fig.align="center"}
+plot(koala.results, type = "raster", stage = 2)
 ```
 
 The state objects are stored for each timestep so it is possible to also view the habitat suitability and carrying capacity throughout the experiment (only timesteps one through nine shown):
 
-```{r, message = FALSE}
-#plot(koala.results, object = "habitat_suitability")
+```{r, message = FALSE, fig.width=7, fig.align="center"}
+plot(koala.results, object = "habitat_suitability")
 
-#plot(koala.results, object = "carrying_capacity")
+plot(koala.results, object = "carrying_capacity")
 ```
