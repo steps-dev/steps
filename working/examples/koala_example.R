@@ -232,7 +232,7 @@ sim_results <- simulation(koala.state,
                           simulations = 5
                           )
 
-
+plot(sim_results[[1]])
 
 plot(my.results)
 
