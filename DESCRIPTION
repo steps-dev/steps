@@ -1,7 +1,7 @@
 Package: steps
 Type: Package
 Title: Spatially- and Temporally-Explicit Population Simulator
-Version: 0.1
+Version: 0.1.0
 Date: 2018-03-01
 Authors@R: person("Skipton", "Woolley", email = "skip.woolley@csiro.au",
   role = c("aut", "cre"))
