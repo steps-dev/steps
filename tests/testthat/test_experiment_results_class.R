@@ -203,14 +203,22 @@ test_that('experiment_results classes work', {
                           simulations = 5)
   )
   
-  
+  expect_true(inherits(simulation(state = b_state,
+                                dynamics = b_dynamics,
+                                timesteps = 10,
+                                simulations = 5),
+                       "simulation_results")
+  )
+   
   test_experiment <- experiment(state = b_state,
                                 dynamics = b_dynamics,
                                 timesteps = 10)
-   
+  
   print(test_experiment)
 
   plot(test_experiment)
+  
+  plot(test_experiment[c(2:5)])
   
   plot(test_experiment,
        object = "population",
