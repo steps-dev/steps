@@ -24,7 +24,7 @@ koala.trans.mat.es <- matrix(c(0.000,0.000,1,1,
 colnames(koala.trans.mat.es) <- rownames(koala.trans.mat.es) <- c('Stage_0_1','Stage_1_2','Stage_2_3','Stage_3_')
 
 
-koala.hab.suit <- raster("inst/extdata/koala/habitat/HS_crop_aggregate.tif") # read in spatial habitat suitability raster
+koala.hab.suit <- raster("inst/extdata/Koala_HabSuit.tif") # read in spatial habitat suitability raster
 koala.hab.suit <- (koala.hab.suit - cellStats(koala.hab.suit, min)) / (cellStats(koala.hab.suit, max) - cellStats(koala.hab.suit, min))
 names(koala.hab.suit) <- "Habitat"
 plot(koala.hab.suit, box = FALSE, axes = FALSE)
@@ -64,7 +64,7 @@ koala.disp.param3 <- list(dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=10,'
                           use_barriers=TRUE
 )
 
-koala.dist.fire <- stack(list.files("inst/extdata/koala/fire", full = TRUE, pattern = '*agg'))
+koala.dist.fire <- stack(list.files("inst/extdata", full = TRUE, pattern = 'Koala_Fire*'))
 
 ####### Permutation 1 ########
 
@@ -122,7 +122,7 @@ koala.state <- build_state(habitat = koala.habitat,
                            population = koala.population)
 
 koala.habitat.dynamics <- as.habitat_dynamics(no_habitat_dynamics)
-koala.demography.dynamics <- envstoch_demographic_dynamics(global_transition_matrix = koala.trans.mat,
+koala.demography.dynamics <- envstoch_demography_dynamics(global_transition_matrix = koala.trans.mat,
                                                            stochasticity = koala.trans.mat.es)
 koala.population.dynamics <- as.population_dynamics(ca_dispersal_population_dynamics)
 koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
@@ -148,7 +148,7 @@ koala.state <- build_state(habitat = koala.habitat,
                            population = koala.population)
 
 koala.habitat.dynamics <- as.habitat_dynamics(no_habitat_dynamics)
-koala.demography.dynamics <- envstoch_demographic_dynamics(global_transition_matrix = koala.trans.mat,
+koala.demography.dynamics <- envstoch_demography_dynamics(global_transition_matrix = koala.trans.mat,
                                                            stochasticity = koala.trans.mat.es)
 koala.population.dynamics <- as.population_dynamics(ca_dispersal_population_dynamics)
 koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
@@ -176,7 +176,7 @@ koala.state <- build_state(habitat = koala.habitat,
 koala.habitat.dynamics <- fire_habitat_dynamics(habitat_suitability = koala.hab.suit,
                                                 disturbance_layers = koala.dist.fire,
                                                 effect_time=3)
-koala.demography.dynamics <- envstoch_demographic_dynamics(global_transition_matrix = koala.trans.mat,
+koala.demography.dynamics <- envstoch_demography_dynamics(global_transition_matrix = koala.trans.mat,
                                                            stochasticity = koala.trans.mat.es)
 koala.population.dynamics <- as.population_dynamics(ca_dispersal_population_dynamics)
 koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
@@ -204,7 +204,7 @@ koala.state <- build_state(habitat = koala.habitat,
 koala.habitat.dynamics <- fire_habitat_dynamics(habitat_suitability = koala.hab.suit,
                                                 disturbance_layers = koala.dist.fire,
                                                 effect_time=3)
-koala.demography.dynamics <- envstoch_demographic_dynamics(global_transition_matrix = koala.trans.mat,
+koala.demography.dynamics <- envstoch_demography_dynamics(global_transition_matrix = koala.trans.mat,
                                                            stochasticity = koala.trans.mat.es)
 koala.population.dynamics <- as.population_dynamics(fft_dispersal_population_dynamics)
 koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
@@ -224,6 +224,15 @@ system.time(
                          timesteps = 20
                          )
 )
+
+plan(multiprocess) 
+sim_results <- simulation(koala.state,
+                          koala.dynamics,
+                          timesteps = 20,
+                          simulations = 5
+                          )
+
+plot(sim_results[[1]])
 
 plot(my.results)
 
