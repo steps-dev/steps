@@ -29,11 +29,7 @@ simulation(state, dynamics, timesteps, simulations)
 
 \item{timesteps}{number of timesteps used in the experiment}
 
-<<<<<<< HEAD
-\item{x}{an experiment_reults object}
-=======
 \item{x}{an experiment_results or simulation object}
->>>>>>> 0c658dceac27458edc977c7ac955ddcd66f683c1
 
 \item{...}{further arguments passed to or from other methods}
 
@@ -48,7 +44,7 @@ simulation(state, dynamics, timesteps, simulations)
 \value{
 An object of class \code{experiment_results}
 
-An object of class \code{simulation_results} which 
+An object of class \code{simulation_results} which
 contains n \code{experiment_results}
 }
 \description{
@@ -88,15 +84,15 @@ results <- experiment(test_state, simple_approximation, timesteps = 10)
 print(results)
 
 # Test if object is of the type 'experiment results'
-  
+
 is.experiment_results(results)
 
 print(results)
 
 plot(results)
- 
+
 library(future)
-plan(multiprocess) 
+plan(multiprocess)
 sim_results <- simulation(test_state, simple_approximation,
                           timesteps = 10, simulations=10)
 }

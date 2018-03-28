@@ -56,6 +56,13 @@ experiment <- function (state, dynamics, timesteps = 100) {
 }
 
 
+#' @export
+#' @noRd
+`[.experiment_results` <- function(x, ..., drop=TRUE) {
+  structure(NextMethod(), class=class(x))
+}
+
+
 #' @rdname experiment_results
 #'
 #' @export
@@ -219,7 +226,7 @@ plot.experiment_results <- function (x, object = "population", type = "graph", s
         for (i in seq_along(groups)) {
 
           group <- groups[[i]]
-          print(levelplot(rasters[[group]],
+          print(rasterVis::levelplot(rasters[[group]],
                           scales = list(draw = FALSE),
                           at = breaks,
                           col.regions = ras.pal(length(breaks)-1),
@@ -253,7 +260,7 @@ plot.experiment_results <- function (x, object = "population", type = "graph", s
       for (i in seq_along(groups)) {
 
         group <- groups[[i]]
-        print(levelplot(rasters[[group]],
+        print(rasterVis::levelplot(rasters[[group]],
                         scales = list(draw = FALSE),
                         at = breaks,
                         col.regions = ras.pal(length(breaks)-1),
@@ -285,7 +292,7 @@ plot.experiment_results <- function (x, object = "population", type = "graph", s
       for (i in seq_along(groups)) {
 
         group <- groups[[i]]
-        print(levelplot(rasters[[group]],
+        print(rasterVis::levelplot(rasters[[group]],
                         scales = list(draw = FALSE),
                         at = breaks,
                         col.regions = ras.pal(length(breaks)-1),

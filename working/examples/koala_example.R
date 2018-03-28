@@ -1,7 +1,6 @@
 library(steps)
 library(raster)
 library(future)
-library(rasterVis)
 
 #system('rm /home/casey/Research/Github/steps/src/*.so /home/casey/Research/Github/steps/src/*.o')
 

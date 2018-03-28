@@ -216,19 +216,19 @@ plot(koala.results, object = "habitat_suitability")
 plot(koala.results, object = "carrying_capacity")
 ```
 
-We can also perform a simulation which runs an experiment multiple times. For the koala, we specified ten simulations of a twenty timestep experiment. As with the experiment, a simulation requires both a state and a dynamic object. To improve computation time, we have opted to use multiple processors by specifying a parameter to the 'future' package in the plan() call.
+We can also perform a simulation which runs an experiment multiple times. For the koala, we specified five simulations of a twenty timestep experiment. As with the experiment, a simulation requires both a state and a dynamic object. To improve computation time, we have opted to use multiple processors by specifying a parameter to the 'future' package in the plan() call.
 
 ```{r, message = FALSE}
 plan(multiprocess)
 koala.sim.results <- simulation(koala.state,
                                 koala.dynamics,
                                 timesteps = 20,
-                                simulations = 10
+                                simulations = 5
                                 )
 ```
 
-Because a simulation object is comprised of multiple experiment result objects, we can subset and plot with similar methods. Here, we plot the population projections for the tenth iteration of the simulation:
+Because a simulation object is comprised of multiple experiment result objects, we can subset and plot with similar methods. Here, we plot the population projections for the fifth iteration of the simulation:
 
 ```{r, message = FALSE, fig.width=4, fig.align="center"}
-plot(koala.sim.results[[10]], stage = 0)
+plot(koala.sim.results[[5]], stage = 0)
 ```
