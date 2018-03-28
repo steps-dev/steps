@@ -124,7 +124,7 @@ koala.state <- build_state(habitat = koala.habitat,
                            population = koala.population)
 
 koala.habitat.dynamics <- as.habitat_dynamics(no_habitat_dynamics)
-koala.demography.dynamics <- envstoch_demographic_dynamics(global_transition_matrix = koala.trans.mat,
+koala.demography.dynamics <- envstoch_demography_dynamics(global_transition_matrix = koala.trans.mat,
                                                            stochasticity = koala.trans.mat.es)
 koala.population.dynamics <- as.population_dynamics(ca_dispersal_population_dynamics)
 koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
@@ -150,7 +150,7 @@ koala.state <- build_state(habitat = koala.habitat,
                            population = koala.population)
 
 koala.habitat.dynamics <- as.habitat_dynamics(no_habitat_dynamics)
-koala.demography.dynamics <- envstoch_demographic_dynamics(global_transition_matrix = koala.trans.mat,
+koala.demography.dynamics <- envstoch_demography_dynamics(global_transition_matrix = koala.trans.mat,
                                                            stochasticity = koala.trans.mat.es)
 koala.population.dynamics <- as.population_dynamics(ca_dispersal_population_dynamics)
 koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
@@ -178,7 +178,7 @@ koala.state <- build_state(habitat = koala.habitat,
 koala.habitat.dynamics <- fire_habitat_dynamics(habitat_suitability = koala.hab.suit,
                                                 disturbance_layers = koala.dist.fire,
                                                 effect_time=3)
-koala.demography.dynamics <- envstoch_demographic_dynamics(global_transition_matrix = koala.trans.mat,
+koala.demography.dynamics <- envstoch_demography_dynamics(global_transition_matrix = koala.trans.mat,
                                                            stochasticity = koala.trans.mat.es)
 koala.population.dynamics <- as.population_dynamics(ca_dispersal_population_dynamics)
 koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
@@ -206,7 +206,7 @@ koala.state <- build_state(habitat = koala.habitat,
 koala.habitat.dynamics <- fire_habitat_dynamics(habitat_suitability = koala.hab.suit,
                                                 disturbance_layers = koala.dist.fire,
                                                 effect_time=3)
-koala.demography.dynamics <- envstoch_demographic_dynamics(global_transition_matrix = koala.trans.mat,
+koala.demography.dynamics <- envstoch_demography_dynamics(global_transition_matrix = koala.trans.mat,
                                                            stochasticity = koala.trans.mat.es)
 koala.population.dynamics <- as.population_dynamics(fft_dispersal_population_dynamics)
 koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
@@ -227,7 +227,7 @@ system.time(
                          )
 )
 
-plan(multiprocess) 
+plan(multiprocess)
 sim_results <- simulation(koala.state,
                           koala.dynamics,
                           timesteps = 20,
@@ -271,7 +271,7 @@ stage_names <- unlist(dimnames(sim_results[[1]][[1]]$demography$global_transitio
 graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,stages))
 
 for (i in seq_len(stages)) {
-  
+
   graphics::plot(unlist(lapply(pop_sums, function(y) lapply(y, function(x) x[[i]]))),
                  type='l',
                  ylab=paste("Total Population: ",stage_names[i]),
@@ -282,5 +282,5 @@ for (i in seq_len(stages)) {
   graphics::abline(h=raster::cellStats(x[[1]]$habitat$carrying_capacity,sum)/stages,
                    lwd=1,
                    lty=2)
-  
+
 }

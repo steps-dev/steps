@@ -67,9 +67,8 @@ dispersal_kernel <- list('Juveniles'=0,'Sub_Adults'=exp(-c(0:9)^1/3.36),'Adults'
 # define all of the dispersal proportions
 dispersal_proportion <- list('Juveniles'=0,'Sub_Adults'=0.35,'Adults'=0.35*0.714,'Super_Adults'=0)
 
-# combine all of the parameters in a list 
+# combine all of the parameters in a list
 koala.disp.param <- list(dispersal_distance=dispersal_distance,
                                       dispersal_kernel=dispersal_kernel,
                                       dispersal_proportion=dispersal_proportion
                          )
-
