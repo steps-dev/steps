@@ -1,5 +1,7 @@
 library(steps)
 library(raster)
+library(future)
+library(rasterVis)
 
 #system('rm /home/casey/Research/Github/steps/src/*.so /home/casey/Research/Github/steps/src/*.o')
 
@@ -183,8 +185,8 @@ koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
                                  demography_dynamics = koala.demography.dynamics,
                                  population_dynamics = koala.population.dynamics,
                                  order = c("habitat_dynamics",
-                                           "demography_dynamics",
-                                           "population_dynamics")
+                                           "population_dynamics",
+                                           "demography_dynamics")
 )
 
 
@@ -219,7 +221,7 @@ koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
 #####################################
 
 system.time(
-  my.results <- experiment(koala.state,
+  exp_results <- experiment(koala.state,
                          koala.dynamics,
                          timesteps = 20
                          )
@@ -234,14 +236,51 @@ sim_results <- simulation(koala.state,
 
 plot(sim_results[[1]])
 
-plot(my.results)
+plot(exp_results)
 
-plot(my.results, stage = 2)
+plot(exp_results, stage = 2)
 
-plot(my.results, stage = 0)
+plot(exp_results, stage = 0)
 
-plot(my.results, type = "raster", stage = 2)
+plot(exp_results, type = "raster", stage = 2)
 
-plot(my.results, object = "habitat_suitability")
+plot(exp_results, object = "habitat_suitability")
 
-plot(my.results, object = "carrying_capacity")
+plot(exp_results, object = "carrying_capacity")
+
+stages <- raster::nlayers(sim_results[[1]][[1]]$population$population_raster)
+
+graph.pal <- c("#94d1c7",
+               "#cccc2b",
+               "#bebada",
+               "#fb8072",
+               "#80b1d3",
+               "#fdb462",
+               "#b3de69",
+               "#fccde5",
+               "#969696",
+               "#bc80bd"
+)
+
+idx <- which(!is.na(raster::getValues(sim_results[[1]][[1]]$population$population_raster[[1]])))
+pops <- lapply(sim_results, function(y) lapply(y, function(x) raster::extract(x$population$population_raster, idx)))
+pop_sums <- lapply(pops, function(y) lapply(y, function(x) colSums(x)))
+
+stage_names <- unlist(dimnames(sim_results[[1]][[1]]$demography$global_transition_matrix)[1])
+
+graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,stages))
+
+for (i in seq_len(stages)) {
+  
+  graphics::plot(unlist(lapply(pop_sums, function(y) lapply(y, function(x) x[[i]]))),
+                 type='l',
+                 ylab=paste("Total Population: ",stage_names[i]),
+                 xlab="Time (years)",
+                 lwd=2,
+                 col=graph.pal[i]
+  )
+  graphics::abline(h=raster::cellStats(x[[1]]$habitat$carrying_capacity,sum)/stages,
+                   lwd=1,
+                   lty=2)
+  
+}

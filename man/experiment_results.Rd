@@ -29,7 +29,7 @@ simulation(state, dynamics, timesteps, simulations)
 
 \item{timesteps}{number of timesteps used in the experiment}
 
-\item{x}{an experiment_reults object}
+\item{x}{an experiment_results or simulation object}
 
 \item{...}{further arguments passed to or from other methods}
 

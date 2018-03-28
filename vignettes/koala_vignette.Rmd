@@ -17,6 +17,7 @@ First we setup the stage based transition matricies. The first matrix represents
 library(steps)
 library(raster)
 library(future)
+library(rasterVis)
 
 koala.trans.mat <- matrix(c(0.000,0.000,0.302,0.302,
                               0.940,0.000,0.000,0.000,

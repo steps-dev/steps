@@ -1,6 +1,7 @@
 ## ---- message = FALSE----------------------------------------------------
 library(steps)
 library(raster)
+library(future)
 
 koala.trans.mat <- matrix(c(0.000,0.000,0.302,0.302,
                               0.940,0.000,0.000,0.000,
@@ -17,7 +18,7 @@ koala.trans.mat.es <- matrix(c(0.000,0.000,1,1,
 colnames(koala.trans.mat.es) <- rownames(koala.trans.mat.es) <- c('Juveniles','Sub_Adults','Adults','Super_Adults')
 
 
-## ---- message = FALSE----------------------------------------------------
+## ---- message = FALSE, fig.align="center"--------------------------------
 
 # read in spatial habitat suitability raster
 koala.hab.suit <- raster(system.file("extdata","Koala_HabSuit.tif", package="steps"))
@@ -31,7 +32,7 @@ names(koala.hab.suit) <- "Habitat"
 par(mar=c(0,0,0,0), oma=c(0,0,0,0))
 plot(koala.hab.suit, box = FALSE, axes = FALSE)
 
-## ---- message = FALSE----------------------------------------------------
+## ---- message = FALSE, fig.align="center"--------------------------------
 
 # create carrying capacity layer using the habitat suitability raster (or provide a custom one)
 koala.hab.k <- ceiling(koala.hab.suit * 60)
@@ -42,7 +43,7 @@ names(koala.hab.k) <- "Carrying Capacity"
 par(mar=c(0,0,0,0), oma=c(0,0,0,0))
 plot(koala.hab.k, box = FALSE, axes = FALSE)
 
-## ---- message = FALSE----------------------------------------------------
+## ---- message = FALSE, fig.align="center"--------------------------------
 
 # create population layers using the carrying capacity raster (or provide a custom ones)
 koala.pop <- stack(replicate(4, ceiling(koala.hab.k * 0.2)))
@@ -111,27 +112,17 @@ koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
 )
 
 ## ---- message = FALSE,  results='hide'-----------------------------------
-system.time(
-  koala.results <- experiment(koala.state,
-                         koala.dynamics,
-                         timesteps = 20
-                         )
-)
+koala.results <- experiment(koala.state,
+                       koala.dynamics,
+                       timesteps = 20
+                       )
 
-## ---- message = FALSE----------------------------------------------------
-#plot(koala.results)
+## ---- message = FALSE, fig.width=7, fig.align="center"-------------------
+plot(koala.results)
 
-## ---- message = FALSE----------------------------------------------------
-#plot(koala.results, stage = 0)
+## ---- message = FALSE, fig.width=4, fig.align="center"-------------------
+plot(koala.results, stage = 0)
 
-## ---- message = FALSE----------------------------------------------------
-#plot(koala.results, stage = 2, newplot = TRUE)
-
-## ---- message = FALSE----------------------------------------------------
-#plot(koala.results, type = "raster", stage = 2)
-
-## ---- message = FALSE----------------------------------------------------
-#plot(koala.results, object = "habitat_suitability")
-
-#plot(koala.results, object = "carrying_capacity")
+## ---- message = FALSE, fig.width=4, fig.align="center"-------------------
+plot(koala.results, stage = 2, newplot = TRUE)
 
