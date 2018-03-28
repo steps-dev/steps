@@ -15,7 +15,7 @@
 #' @param stage life-stage to plot - must be specified for 'raster' plot types; default is NULL and all life-stages will be plotted
 #' @param ... further arguments passed to or from other methods
 #' 
-#' @importFrom future plan multiprocess future
+#' @importFrom future plan multiprocess future values
 #' @return An object of class \code{experiment_results}
 #' 
 #' @export
@@ -56,11 +56,6 @@ experiment <- function (state, dynamics, timesteps = 100) {
   set_class(output_states, "experiment_results")
 }
 
-#' @export
-#' @noRd
-`[.experiment_results` <- function(x, ..., drop=TRUE) {
-  structure(NextMethod(), class=class(x))
-}
 
 #' @rdname experiment_results
 #' 

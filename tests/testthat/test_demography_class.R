@@ -81,11 +81,6 @@ test_that('demography classes work', {
                        "demography")
               )
   
-  expect_error(build_demography(transition_matrix=mat,
-                                        type='local',
-                                        dispersal_parameters=params)
-               )
-  
   mat2 <- mat
   mat2[1,2] <- NA
   expect_error(build_demography(mat2,dispersal_parameters=params3))

@@ -143,13 +143,7 @@ test_that('experiment_results classes work', {
                                demography_dynamics = dem_dyn,
                                population_dynamics = pop_dyn3
   )
-
-  expect_true(inherits(experiment(state = b_state,
-                                  dynamics = b_dynamics,
-                                  timesteps = 10)[1],
-                       "experiment_results")
-  )
-    
+  
   expect_true(inherits(experiment(state = b_state,
                                   dynamics = b_dynamics,
                                   timesteps = 10),
@@ -203,22 +197,14 @@ test_that('experiment_results classes work', {
                           simulations = 5)
   )
   
-  expect_true(inherits(simulation(state = b_state,
-                                dynamics = b_dynamics,
-                                timesteps = 10,
-                                simulations = 5),
-                       "simulation_results")
-  )
-   
+  
   test_experiment <- experiment(state = b_state,
                                 dynamics = b_dynamics,
                                 timesteps = 10)
-  
+   
   print(test_experiment)
 
   plot(test_experiment)
-  
-  plot(test_experiment[c(2:5)])
   
   plot(test_experiment,
        object = "population",
@@ -242,10 +228,6 @@ test_that('experiment_results classes work', {
        object = "habitat_suitability"
   )
   
-  plot(test_experiment[c(1:2)],
-       object = "habitat_suitability"
-  )
-  
   plot(test_experiment,
        object = "carrying_capacity"
   )
@@ -257,3 +239,4 @@ test_that('experiment_results classes work', {
   )
 
 })
+ 
