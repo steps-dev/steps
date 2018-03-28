@@ -314,7 +314,7 @@ plot.experiment_results <- function (x, object = "population", type = "graph", s
 #' 
 #' @export
 #' 
-#' @importFrom future future value
+#' @importFrom future plan multiprocess future values
 #' 
 #' @return An object of class \code{simulation_results} which 
 #' contains n \code{experiment_results}
