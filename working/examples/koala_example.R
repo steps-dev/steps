@@ -12,21 +12,21 @@ library(rasterVis)
 
 #Note, this is an age-structured matrix and is not generic
 koala.trans.mat <- matrix(c(0.000,0.000,0.302,0.302,
-                              0.940,0.000,0.000,0.000,
-                              0.000,0.884,0.000,0.000,
-                              0.000,0.000,0.793,0.793),
-                            nrow = 4, ncol = 4, byrow = TRUE)
+                            0.940,0.000,0.000,0.000,
+                            0.000,0.884,0.000,0.000,
+                            0.000,0.000,0.793,0.793),
+                          nrow = 4, ncol = 4, byrow = TRUE)
 colnames(koala.trans.mat) <- rownames(koala.trans.mat) <- c('Stage_0_1','Stage_1_2','Stage_2_3','Stage_3_')
 
 koala.trans.mat.es <- matrix(c(0.000,0.000,1,1,
-                                 1,0.000,0.000,0.000,
-                                 0.000,1,0.000,0.000,
-                                 0.000,0.000,1,1),
-                               nrow = 4, ncol = 4, byrow = TRUE)
+                               1,0.000,0.000,0.000,
+                               0.000,1,0.000,0.000,
+                               0.000,0.000,1,1),
+                             nrow = 4, ncol = 4, byrow = TRUE)
 colnames(koala.trans.mat.es) <- rownames(koala.trans.mat.es) <- c('Stage_0_1','Stage_1_2','Stage_2_3','Stage_3_')
 
 
-koala.hab.suit <- raster("inst/extdata/koala/habitat/HS_crop_aggregate.tif") # read in spatial habitat suitability raster
+koala.hab.suit <- raster("inst/extdata/Koala_HabSuit.tif") # read in spatial habitat suitability raster
 koala.hab.suit <- (koala.hab.suit - cellStats(koala.hab.suit, min)) / (cellStats(koala.hab.suit, max) - cellStats(koala.hab.suit, min))
 names(koala.hab.suit) <- "Habitat"
 plot(koala.hab.suit, box = FALSE, axes = FALSE)
@@ -39,20 +39,20 @@ koala.pop <- stack(replicate(4, (koala.hab.k)*0.05))
 names(koala.pop) <- colnames(koala.trans.mat)
 
 koala.disp.param <- list(dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=10,'Stage_2-3'=10,'Stage_3+'=0),
-                                      dispersal_kernel=list('Stage_0-1'=0,'Stage_1-2'=exp(-c(0:9)^1/3.36),'Stage_2-3'=exp(-c(0:9)^1/3.36),'Stage_3+'=0),
-                                      dispersal_proportion=list('Stage_0-1'=0,'Stage_1-2'=0.35,'Stage_2-3'=0.35*0.714,'Stage_3+'=0)
-                         )
+                         dispersal_kernel=list('Stage_0-1'=0,'Stage_1-2'=exp(-c(0:9)^1/3.36),'Stage_2-3'=exp(-c(0:9)^1/3.36),'Stage_3+'=0),
+                         dispersal_proportion=list('Stage_0-1'=0,'Stage_1-2'=0.35,'Stage_2-3'=0.35*0.714,'Stage_3+'=0)
+)
 
 koala.disp.bar <- koala.hab.suit*0
 koala.disp.bar[cellFromRow(koala.disp.bar,nrow(koala.disp.bar)/2)] <- 1
 plot(koala.disp.bar, box = FALSE, axes = FALSE)
 
 koala.disp.param2 <- list(dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=10,'Stage_2-3'=10,'Stage_3+'=0),
-                         dispersal_kernel=list('Stage_0-1'=0,'Stage_1-2'=exp(-c(0:9)^1/3.36),'Stage_2-3'=exp(-c(0:9)^1/3.36),'Stage_3+'=0),
-                         dispersal_proportion=list('Stage_0-1'=0,'Stage_1-2'=0.35,'Stage_2-3'=0.35*0.714,'Stage_3+'=0),
-                         barrier_type=1,
-                         barriers_map=koala.disp.bar,
-                         use_barriers=TRUE
+                          dispersal_kernel=list('Stage_0-1'=0,'Stage_1-2'=exp(-c(0:9)^1/3.36),'Stage_2-3'=exp(-c(0:9)^1/3.36),'Stage_3+'=0),
+                          dispersal_proportion=list('Stage_0-1'=0,'Stage_1-2'=0.35,'Stage_2-3'=0.35*0.714,'Stage_3+'=0),
+                          barrier_type=1,
+                          barriers_map=koala.disp.bar,
+                          use_barriers=TRUE
 )
 
 koala.disp.bar2 <- koala.hab.suit*0
@@ -66,7 +66,7 @@ koala.disp.param3 <- list(dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=10,'
                           use_barriers=TRUE
 )
 
-koala.dist.fire <- stack(list.files("inst/extdata/koala/fire", full = TRUE, pattern = '*agg'))
+koala.dist.fire <- stack(list.files("inst/extdata", full = TRUE, pattern = 'Koala_Fire*'))
 
 ####### Permutation 1 ########
 
