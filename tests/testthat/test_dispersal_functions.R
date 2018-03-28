@@ -5,7 +5,7 @@ test_that('dispersal functions work', {
   library(raster)
   library(rgdal)
 
-  r <- raster(vals=1, nrows=150, ncols=150, res=c(5,5), crs=('+proj=aea +lat_1=-18 +lat_2=-36 +lat_0=0 +lon_0=132 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'))
+  r <- raster(vals=1, nrows=75, ncols=75, crs=('+proj=aea +lat_1=-18 +lat_2=-36 +lat_0=0 +lon_0=132 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'))
 
   hab.suit <- r*sample(seq(0,1,.01), ncell(r), replace=TRUE)
 

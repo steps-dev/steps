@@ -15,7 +15,6 @@
 #' @param stage life-stage to plot - must be specified for 'raster' plot types; default is NULL and all life-stages will be plotted
 #' @param ... further arguments passed to or from other methods
 #' 
-#' @importFrom future plan multiprocess future values
 #' @return An object of class \code{experiment_results}
 #' 
 #' @export
@@ -57,36 +56,9 @@ experiment <- function (state, dynamics, timesteps = 100) {
 }
 
 #' @export
-# <<<<<<< HEAD
-#' @importFrom future future value
-#' @return An object of class \code{simulation_results} which 
-#' contains n \code{experiment_results}
-#' @examples 
-#' library(future)
-#' plan(multiprocess) 
-#' sim_results <- simulation(test_state, simple_approximation,
-#'                           timesteps = 10, simulations=5)
-
-simulation <- function(state, dynamics, timesteps, simulations){
-  
-  simulation_results <- list()
-  for(ii in seq_len(simulations)){
-    simulation_results[[ii]] <- future({
-      experiment(state,dynamics,timesteps)
-      }, 
-      globals = list(state = state,
-                     dynamics = dynamics,
-                     timesteps = timesteps,
-                     experiment = steps::experiment)
-    )
-  }
-  set_class(values(simulation_results), "simulation_results")
-  
-# =======
-# #' @noRd
-# `[.experiment_results` <- function(x, ..., drop=TRUE) {
-#   structure(NextMethod(), class=class(x))
-# >>>>>>> 15f5dd0008cd35b041d6c9be1771f9a49074a854
+#' @noRd
+  `[.experiment_results` <- function(x, ..., drop=TRUE) {
+structure(NextMethod(), class=class(x))
 }
 
 #' @rdname experiment_results
@@ -300,7 +272,7 @@ plot.experiment_results <- function (x, object = "population", type = "graph", s
 #' 
 #' @export
 #' 
-#' @importFrom future future value
+#' @importFrom future plan multiprocess future values
 #' 
 #' @return An object of class \code{simulation_results} which 
 #' contains n \code{experiment_results}
