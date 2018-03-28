@@ -17,6 +17,7 @@ First we setup the stage based transition matricies. The first matrix represents
 library(steps)
 library(raster)
 library(future)
+library(rasterVis)
 
 koala.trans.mat <- matrix(c(0.000,0.000,0.302,0.302,
                               0.940,0.000,0.000,0.000,
@@ -94,7 +95,7 @@ dispersal_kernel <- list('Juveniles'=0,'Sub_Adults'=exp(-c(0:9)^1/3.36),'Adults'
 # define all of the dispersal proportions
 dispersal_proportion <- list('Juveniles'=0,'Sub_Adults'=0.35,'Adults'=0.35*0.714,'Super_Adults'=0)
 
-# combine all of the parameters in a list 
+# combine all of the parameters in a list
 koala.disp.param <- list(dispersal_distance=dispersal_distance,
                                       dispersal_kernel=dispersal_kernel,
                                       dispersal_proportion=dispersal_proportion
@@ -107,7 +108,7 @@ To characterise landscape disturbance, we read in a series of raster layers that
 koala.dist.fire <- stack(list.files(system.file("extdata", package="steps"), full.names = TRUE, pattern = 'Koala_Fire*'))
 ```
 
-With all of input components loaded we now construct the objects for the experiment. Two primary objects are required for an experiment - a state object and a dynamic object. Each of these primary objects are made up of several sub-component objects that are constructed from the project inputs. These are detailed below. 
+With all of input components loaded we now construct the objects for the experiment. Two primary objects are required for an experiment - a state object and a dynamic object. Each of these primary objects are made up of several sub-component objects that are constructed from the project inputs. These are detailed below.
 
 This first sub-component is a habitat object that is constructed from the koala habitat suitability and carrying capacity raster input layers.
 
@@ -181,7 +182,7 @@ koala.results <- experiment(koala.state,
                        )
 ```
 
-Once an experiment has been run, we can plot temporally-explicit information. 
+Once an experiment has been run, we can plot temporally-explicit information.
 
 For this example, we can view the koala population trajectories of each life-stage:
 

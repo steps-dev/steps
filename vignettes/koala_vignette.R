@@ -1,6 +1,8 @@
 ## ---- message = FALSE----------------------------------------------------
 library(steps)
 library(raster)
+library(future)
+library(rasterVis)
 
 koala.trans.mat <- matrix(c(0.000,0.000,0.302,0.302,
                               0.940,0.000,0.000,0.000,
@@ -18,6 +20,7 @@ colnames(koala.trans.mat.es) <- rownames(koala.trans.mat.es) <- c('Juveniles','S
 
 
 ## ---- message = FALSE----------------------------------------------------
+library(raster)
 
 # read in spatial habitat suitability raster
 koala.hab.suit <- raster(system.file("extdata","Koala_HabSuit.tif", package="steps"))
@@ -64,74 +67,8 @@ dispersal_kernel <- list('Juveniles'=0,'Sub_Adults'=exp(-c(0:9)^1/3.36),'Adults'
 # define all of the dispersal proportions
 dispersal_proportion <- list('Juveniles'=0,'Sub_Adults'=0.35,'Adults'=0.35*0.714,'Super_Adults'=0)
 
-# combine all of the parameters in a list 
+# combine all of the parameters in a list
 koala.disp.param <- list(dispersal_distance=dispersal_distance,
                                       dispersal_kernel=dispersal_kernel,
                                       dispersal_proportion=dispersal_proportion
                          )
-
-## ---- message = FALSE----------------------------------------------------
-koala.dist.fire <- stack(list.files(system.file("extdata", package="steps"), full.names = TRUE, pattern = 'Koala_Fire*'))
-
-## ---- message = FALSE----------------------------------------------------
-koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit,
-                               carrying_capacity = koala.hab.k)
-
-## ---- message = FALSE----------------------------------------------------
-koala.demography <- build_demography(transition_matrix = koala.trans.mat,
-                                     dispersal_parameters = koala.disp.param)
-
-## ---- message = FALSE----------------------------------------------------
-koala.population <- build_population(population_raster = koala.pop)
-
-## ---- message = FALSE----------------------------------------------------
-koala.state <- build_state(habitat = koala.habitat,
-                           demography = koala.demography,
-                           population = koala.population)
-
-## ---- message = FALSE----------------------------------------------------
-koala.habitat.dynamics <- fire_habitat_dynamics(habitat_suitability = koala.hab.suit,
-                                                disturbance_layers = koala.dist.fire,
-                                                effect_time=3)
-
-## ---- message = FALSE----------------------------------------------------
-koala.demography.dynamics <- envstoch_demography_dynamics(global_transition_matrix = koala.trans.mat,
-                                                           stochasticity = koala.trans.mat.es)
-
-## ---- message = FALSE----------------------------------------------------
-koala.population.dynamics <- as.population_dynamics(ca_dispersal_population_dynamics)
-
-## ---- message = FALSE----------------------------------------------------
-koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
-                                 demography_dynamics = koala.demography.dynamics,
-                                 population_dynamics = koala.population.dynamics,
-                                 order = c("habitat_dynamics",
-                                           "demography_dynamics",
-                                           "population_dynamics")
-)
-
-## ---- message = FALSE,  results='hide'-----------------------------------
-system.time(
-  koala.results <- experiment(koala.state,
-                         koala.dynamics,
-                         timesteps = 20
-                         )
-)
-
-## ---- message = FALSE----------------------------------------------------
-#plot(koala.results)
-
-## ---- message = FALSE----------------------------------------------------
-#plot(koala.results, stage = 0)
-
-## ---- message = FALSE----------------------------------------------------
-#plot(koala.results, stage = 2, newplot = TRUE)
-
-## ---- message = FALSE----------------------------------------------------
-#plot(koala.results, type = "raster", stage = 2)
-
-## ---- message = FALSE----------------------------------------------------
-#plot(koala.results, object = "habitat_suitability")
-
-#plot(koala.results, object = "carrying_capacity")
-
