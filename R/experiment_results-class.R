@@ -66,7 +66,7 @@ experiment <- function (state, dynamics, timesteps = 100) {
 #' library(future)
 #' plan(multiprocess) 
 #' sim_results <- simulation(test_state, simple_approximation,
-#'                           timesteps = 10, simulations=10)
+#'                           timesteps = 10, simulations=5)
 
 simulation <- function(state, dynamics, timesteps, simulations){
   
