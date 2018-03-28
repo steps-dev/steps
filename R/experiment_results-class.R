@@ -56,9 +56,8 @@ experiment <- function (state, dynamics, timesteps = 100) {
   set_class(output_states, "experiment_results")
 }
 
-#' @rdname experiment_results
-#' @name simulation
 #' @export
+<<<<<<< HEAD
 #' @importFrom future future value
 #' @return An object of class \code{simulation_results} which 
 #' contains n \code{experiment_results}
@@ -82,8 +81,12 @@ simulation <- function(state, dynamics, timesteps, simulations){
     )
   }
   set_class(values(simulation_results), "simulation_results")
+=======
+#' @noRd
+`[.experiment_results` <- function(x, ..., drop=TRUE) {
+  structure(NextMethod(), class=class(x))
+>>>>>>> 15f5dd0008cd35b041d6c9be1771f9a49074a854
 }
-
 
 #' @rdname experiment_results
 #' 
@@ -136,7 +139,7 @@ plot.experiment_results <- function (x, object = "population", type = "graph", s
 
   stages <- raster::nlayers(x[[1]]$population$population_raster)
   
-  pal <- grDevices::colorRampPalette(
+  ras.pal <- grDevices::colorRampPalette(
     c(
       '#440154', # dark purple
       '#472c7a', # purple
@@ -150,6 +153,18 @@ plot.experiment_results <- function (x, object = "population", type = "graph", s
     )
   )
   
+  graph.pal <- c("#94d1c7",
+                 "#cccc2b",
+                 "#bebada",
+                 "#fb8072",
+                 "#80b1d3",
+                 "#fdb462",
+                 "#b3de69",
+                 "#fccde5",
+                 "#969696",
+                 "#bc80bd"
+                 )
+  
     if (object == "population") {
 
       if (type == "graph") {
@@ -160,8 +175,6 @@ plot.experiment_results <- function (x, object = "population", type = "graph", s
         
         stage_names <- unlist(dimnames(x[[1]]$demography$global_transition_matrix)[1])
         
-        colours <- c("#94d1c7", "#cccc2b", "#bebada", "#fb8072", "#80b1d3", "#fdb462", "#b3de69", "#fccde5", "#969696", "#bc80bd")
-
         if (is.null(stage)) {
           
           graphics::par(mfrow=c(1,stages))
@@ -173,7 +186,7 @@ plot.experiment_results <- function (x, object = "population", type = "graph", s
                  ylab=paste("Total Population: ",stage_names[i]),
                  xlab="Time (years)",
                  lwd=2,
-                 col=colours[i]
+                 col=graph.pal[i]
             )
             graphics::abline(h=raster::cellStats(x[[1]]$habitat$carrying_capacity,sum)/stages,
                   lwd=1,
@@ -208,7 +221,7 @@ plot.experiment_results <- function (x, object = "population", type = "graph", s
                ylab=paste("Total Population: ",stage_names[stage]),
                xlab="Time (years)",
                lwd=2,
-               col=colours[stage]
+               col=graph.pal[stage]
           )
           graphics::abline(h=raster::cellStats(x[[1]]$habitat$carrying_capacity,sum)/stages,
                  lwd=1,
@@ -237,7 +250,7 @@ plot.experiment_results <- function (x, object = "population", type = "graph", s
           
           graphics::par(mar = c(0, 0, 0, 0), mfrow = c(3,3))
           group <- groups[[i]]
-          raster::plot(rasters[[group]], breaks = breaks, col = pal(length(breaks)), axes = FALSE, box = FALSE)
+          raster::plot(rasters[[group]], breaks = breaks, col = ras.pal(length(breaks)), axes = FALSE, box = FALSE)
         
         }
       }
@@ -280,6 +293,41 @@ plot.experiment_results <- function (x, object = "population", type = "graph", s
   
 }
 
+#' @rdname experiment_results
+#' 
+#' @name simulation
+#' 
+#' @export
+#' 
+#' @importFrom future future value
+#' 
+#' @return An object of class \code{simulation_results} which 
+#' contains n \code{experiment_results}
+#' 
+#' @examples
+#'  
+#' library(future)
+#' plan(multiprocess) 
+#' sim_results <- simulation(test_state, simple_approximation,
+#'                           timesteps = 10, simulations=10)
+
+simulation <- function(state, dynamics, timesteps, simulations){
+  
+  simulation_results <- list()
+  for(ii in seq_len(simulations)){
+    simulation_results[[ii]] <- future({
+      experiment(state,dynamics,timesteps)
+    }, 
+    globals = list(state = state,
+                   dynamics = dynamics,
+                   timesteps = timesteps,
+                   experiment = steps::experiment)
+    )
+  }
+  set_class(future::values(simulation_results), "simulation_results")
+}
+
+
 
 ##########################
 ### internal functions ###
@@ -302,3 +350,23 @@ iterate_system <- function (state, dynamics, timesteps) {
   output_states
   
 }
+
+
+# raster2ggplot_data <- function(raster){
+#   require(raster)
+#   require(magrittr)
+#   raster %>%
+#     raster::getValues() %>%
+#     base::as.data.frame() %>%
+#     utils::stack() %>%
+#     magrittr::set_names(
+#       base::c('value', 'variable')
+#     ) %>%
+#     base::cbind(
+#       raster %>%
+#         raster::ncell() %>%
+#         base::seq_len() %>%
+#         raster::xyFromCell(raster, .)
+#     ) -> dat
+#   return(dat)
+# }
