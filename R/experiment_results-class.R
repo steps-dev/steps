@@ -142,13 +142,9 @@ plot.experiment_results <- function (x, object = "population", type = "graph", s
 
     if (object == "population") {
 
+      pop <- get_pop_experiment(x)
+      
       if (type == "graph") {
-
-        idx <- which(!is.na(raster::getValues(x[[1]]$population$population_raster[[1]])))
-        pops <- lapply(x, function(x) raster::extract(x$population$population_raster, idx))
-        pop_sums <- lapply(pops, function(x) colSums(x))
-
-        stage_names <- unlist(dimnames(x[[1]]$demography$global_transition_matrix)[1])
 
         if (is.null(stage)) {
 
@@ -156,7 +152,7 @@ plot.experiment_results <- function (x, object = "population", type = "graph", s
 
           for (i in seq_len(stages)) {
 
-            graphics::plot(unlist(lapply(pop_sums, function(x) x[[i]])),
+            graphics::plot(pop[ , i],
                  type='l',
                  ylab=paste("Total Population: ",stage_names[i]),
                  xlab="Time (years)",
@@ -175,7 +171,7 @@ plot.experiment_results <- function (x, object = "population", type = "graph", s
 
           graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
 
-          graphics::plot(unlist(lapply(pop_sums, function(x) sum(x))),
+          graphics::plot(rowSums(pop),
                type='l',
                ylab="Total Population (all stages)",
                xlab="Time (years)",
@@ -192,7 +188,7 @@ plot.experiment_results <- function (x, object = "population", type = "graph", s
 
           graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
 
-          graphics::plot(unlist(lapply(pop_sums, function(x) x[[stage]])),
+          graphics::plot(pop[, stage],
                type='l',
                ylab=paste("Total Population: ",stage_names[stage]),
                xlab="Time (years)",
@@ -343,92 +339,108 @@ simulation <- function(state, dynamics, timesteps, simulations){
   set_class(future::values(simulation_results), "simulation_results")
 }
 
-# @rdname experiment_results
-#
-# @export
-#
-# @examples
-#
-# plot(sim_results)
+#' @rdname experiment_results
+#'
+#' @export
+#'
+#' @examples
+#'
+#' plot(sim_results)
 
-# plot.simulation_results <- function (x, stage = NULL, sim_iteration = NULL, ...){
-#
-#   stages <- raster::nlayers(x[[1]][[1]]$population$population_raster)
-#
-#   graph.pal <- c("#94d1c7",
-#                  "#cccc2b",
-#                  "#bebada",
-#                  "#fb8072",
-#                  "#80b1d3",
-#                  "#fdb462",
-#                  "#b3de69",
-#                  "#fccde5",
-#                  "#969696",
-#                  "#bc80bd"
-#   )
-#
-#   idx <- which(!is.na(raster::getValues(x[[1]][[1]]$population$population_raster[[1]])))
-#   pops <- lapply(x, function(x) raster::extract(x$population$population_raster, idx))
-#   pop_sums <- lapply(pops, function(x) colSums(x))
-#
-#   stage_names <- unlist(dimnames(x[[1]]$demography$global_transition_matrix)[1])
-#
-#   if (is.null(stage) && is.null(sim_iteration)) {
-#
-#     graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,stages))
-#
-#     for (i in seq_len(stages)) {
-#
-#       graphics::plot(unlist(lapply(pop_sums, function(x) x[[i]])),
-#                      type='l',
-#                      ylab=paste("Total Population: ",stage_names[i]),
-#                      xlab="Time (years)",
-#                      lwd=2,
-#                      col=graph.pal[i]
-#       )
-#       graphics::abline(h=raster::cellStats(x[[1]]$habitat$carrying_capacity,sum)/stages,
-#                        lwd=1,
-#                        lty=2)
-#
-#     }
-#
-#   }
-#
-#   if(!is.null(stage) && stage == 0 && is.null(sim_iteration)) {
-#
-#     graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
-#
-#     graphics::plot(unlist(lapply(pop_sums, function(x) sum(x))),
-#                    type='l',
-#                    ylab="Total Population (all stages)",
-#                    xlab="Time (years)",
-#                    lwd=2,
-#                    col="black"
-#     )
-#     graphics::abline(h=raster::cellStats(x[[1]]$habitat$carrying_capacity,sum),
-#                      lwd=1,
-#                      lty=2)
-#
-#   }
-#
-#   if (!is.null(stage) && stage > 0 && is.null(sim_iteration)) {
-#
-#     graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
-#
-#     graphics::plot(unlist(lapply(pop_sums, function(x) x[[stage]])),
-#                    type='l',
-#                    ylab=paste("Total Population: ",stage_names[stage]),
-#                    xlab="Time (years)",
-#                    lwd=2,
-#                    col=graph.pal[stage]
-#     )
-#     graphics::abline(h=raster::cellStats(x[[1]]$habitat$carrying_capacity,sum)/stages,
-#                      lwd=1,
-#                      lty=2)
-#
-#   }
-#
-# }
+plot.simulation_results <- function (x, stage = NULL, ...){
+  
+  stages <- raster::nlayers(x[[1]][[1]]$population$population_raster)
+  
+  graph.pal <- c("#94d1c7",
+                 "#cccc2b",
+                 "#bebada",
+                 "#fb8072",
+                 "#80b1d3",
+                 "#fdb462",
+                 "#b3de69",
+                 "#fccde5",
+                 "#969696",
+                 "#bc80bd"
+  )
+  
+  pop <- get_pop_simulation(x)
+  
+  if (is.null(stage)) {
+    
+    graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,stages))
+    
+    for (i in seq_len(stages)) {
+      graphics::plot(pop[ , i, 1],
+                     type = 'l',
+                     ylab = paste("Total Population: ",stage_names[i]),
+                     xlab = "Time (years)",
+                     lwd = 2,
+                     col = graph.pal[i]
+      )
+      
+      for (j in seq_along(x)[-1]) {
+        graphics::lines(pop[ , i, j],
+                        col = graph.pal[i]
+        )
+      }
+      
+      graphics::abline(h=raster::cellStats(x[[1]][[1]]$habitat$carrying_capacity,sum)/stages,
+                       lwd=1,
+                       lty=2)
+      
+    }
+    
+  }
+  
+  if(!is.null(stage) && stage == 0) {
+    
+    graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
+    
+    graphics::plot(rowSums(pop[ , , 1]),
+                   type = 'l',
+                   ylab = paste("Total Population: ",stage_names[i]),
+                   xlab = "Time (years)",
+                   lwd = 2,
+                   col = 'black'
+    )
+    
+    for (j in seq_along(x)[-1]) {
+      graphics::lines(rowSums(pop[ , , j]),
+                      col = 'black'
+      )
+    }
+    
+    graphics::abline(h=raster::cellStats(x[[1]][[1]]$habitat$carrying_capacity,sum),
+                     lwd=1,
+                     lty=2)
+    
+  }
+  
+  if (!is.null(stage) && stage > 0) {
+    
+    graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
+    
+    graphics::plot(pop[ , stage, 1],
+                   type = 'l',
+                   ylab = paste("Total Population: ",stage_names[i]),
+                   xlab = "Time (years)",
+                   lwd = 2,
+                   col = graph.pal[stage]
+    )
+    
+    for (j in seq_along(x)[-1]) {
+      graphics::lines(pop[ , stage, j],
+                      col = graph.pal[stage]
+      )
+    }
+    
+    graphics::abline(h=raster::cellStats(x[[1]][[1]]$habitat$carrying_capacity,sum)/stages,
+                     lwd=1,
+                     lty=2)
+    
+  }
+  
+}
 
 ##########################
 ### internal functions ###
@@ -450,4 +462,27 @@ iterate_system <- function (state, dynamics, timesteps) {
 
   output_states
 
+}
+
+# extract populations from an experiment
+get_pop_experiment <- function(x, ...) {
+  idx <- which(!is.na(raster::getValues(x[[1]]$population$population_raster[[1]])))
+  pops <- lapply(x, function(x) raster::extract(x$population$population_raster, idx))
+  pop_sums <- lapply(pops, function(x) colSums(x))
+  pop_matrix <- matrix(unlist(pop_sums), ncol = 4, byrow = TRUE)
+  return(pop_matrix)
+}
+
+get_pop_simulation <- function(x, ...) {
+  stages <- raster::nlayers(x[[1]][[1]]$population$population_raster)
+  timesteps <- length(x[[1]])
+  sims <- length(x)
+  
+  pop_array <- array(dim=c(timesteps,stages,sims))
+  
+  for(i in seq_len(sims)) {
+    pop_array[, , i] <- get_pop_experiment(x[[i]])
+  }
+  
+  return(pop_array)
 }

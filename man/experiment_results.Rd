@@ -7,6 +7,7 @@
 \alias{print.experiment_results}
 \alias{plot.experiment_results}
 \alias{simulation}
+\alias{plot.simulation_results}
 \title{Run an experiment to make spatially-explicit population projections}
 \usage{
 experiment(state, dynamics, timesteps = 100)
@@ -21,6 +22,8 @@ is.experiment_results(x)
   stage = NULL, ...)
 
 simulation(state, dynamics, timesteps, simulations)
+
+\method{plot}{simulation_results}(x, stage = NULL, ...)
 }
 \arguments{
 \item{state}{a state object - static habitat, population, and demography in a timestep}
@@ -95,4 +98,6 @@ library(future)
 plan(multiprocess)
 sim_results <- simulation(test_state, simple_approximation,
                           timesteps = 10, simulations=10)
+
+plot(sim_results)
 }

@@ -9,6 +9,7 @@ set_class <- function (x, class) {
   x
 }
 
+# create a transition matrix for testing
 fake_transition_matrix <- function (n_stages) {
   
   survival <- stats::runif(n_stages, 0.7, 0.9)

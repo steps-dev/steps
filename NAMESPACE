@@ -3,6 +3,7 @@
 S3method("[",experiment_results)
 S3method(plot,demography)
 S3method(plot,experiment_results)
+S3method(plot,simulation_results)
 S3method(print,demography)
 S3method(print,demography_dynamics)
 S3method(print,dynamics)

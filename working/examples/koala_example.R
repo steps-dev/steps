@@ -247,7 +247,21 @@ plot(exp_results, object = "habitat_suitability")
 
 plot(exp_results, object = "carrying_capacity")
 
-stages <- raster::nlayers(sim_results[[1]][[1]]$population$population_raster)
+stages <- raster::nlayers(x[[1]][[1]]$population$population_raster)
+
+ras.pal <- grDevices::colorRampPalette(
+  c(
+    '#440154', # dark purple
+    '#472c7a', # purple
+    '#3b518b', # blue
+    '#2c718e', # blue
+    '#21908d', # blue-green
+    '#27ad81', # green
+    '#5cc863', # green
+    '#aadc32', # lime green
+    '#fde725' # yellow
+  )
+)
 
 graph.pal <- c("#94d1c7",
                "#cccc2b",
@@ -261,25 +275,125 @@ graph.pal <- c("#94d1c7",
                "#bc80bd"
 )
 
-idx <- which(!is.na(raster::getValues(sim_results[[1]][[1]]$population$population_raster[[1]])))
-pops <- lapply(sim_results, function(y) lapply(y, function(x) raster::extract(x$population$population_raster, idx)))
-pop_sums <- lapply(pops, function(y) lapply(y, function(x) colSums(x)))
+  pop <- get_pop_simulation(x)
 
-stage_names <- unlist(dimnames(sim_results[[1]][[1]]$demography$global_transition_matrix)[1])
+    if (is.null(stage)) {
+      
+      graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,stages))
+      
+      for (i in seq_len(stages)) {
+        graphics::plot(pop[ , i, 1],
+                       type = 'l',
+                       ylab = paste("Total Population: ",stage_names[i]),
+                       xlab = "Time (years)",
+                       lwd = 2,
+                       col = graph.pal[i]
+        )
+        
+        for (j in seq_along(x)[-1]) {
+          graphics::lines(pop[ , i, j],
+                         col = graph.pal[i]
+          )
+        }
 
-graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,stages))
+        graphics::abline(h=raster::cellStats(x[[1]][[1]]$habitat$carrying_capacity,sum)/stages,
+                         lwd=1,
+                         lty=2)
+        
+      }
+      
+    }
+    
+    if(!is.null(stage) && stage == 0) {
+      
+      graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
+      
+      graphics::plot(rowSums(pop[ , , 1]),
+                     type = 'l',
+                     ylab = paste("Total Population: ",stage_names[i]),
+                     xlab = "Time (years)",
+                     lwd = 2,
+                     col = 'black'
+      )
+      
+      for (j in seq_along(x)[-1]) {
+        graphics::lines(rowSums(pop[ , , j]),
+                        col = 'black'
+        )
+      }
 
-for (i in seq_len(stages)) {
+      graphics::abline(h=raster::cellStats(x[[1]][[1]]$habitat$carrying_capacity,sum),
+                       lwd=1,
+                       lty=2)
+      
+    }
+    
+    if (!is.null(stage) && stage > 0) {
+      
+      graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
+      
+      graphics::plot(pop[ , stage, 1],
+                     type = 'l',
+                     ylab = paste("Total Population: ",stage_names[i]),
+                     xlab = "Time (years)",
+                     lwd = 2,
+                     col = graph.pal[stage]
+      )
+      
+      for (j in seq_along(x)[-1]) {
+        graphics::lines(pop[ , stage, j],
+                        col = graph.pal[stage]
+        )
+      }
+      
+      graphics::abline(h=raster::cellStats(x[[1]][[1]]$habitat$carrying_capacity,sum)/stages,
+                       lwd=1,
+                       lty=2)
+      
+    }
 
-  graphics::plot(unlist(lapply(pop_sums, function(y) lapply(y, function(x) x[[i]]))),
-                 type='l',
-                 ylab=paste("Total Population: ",stage_names[i]),
-                 xlab="Time (years)",
-                 lwd=2,
-                 col=graph.pal[i]
-  )
-  graphics::abline(h=raster::cellStats(x[[1]]$habitat$carrying_capacity,sum)/stages,
-                   lwd=1,
-                   lty=2)
+  
 
-}
+# function (x, states = NULL, patches = 1, ...) 
+# {
+#   if (is.null(states)) 
+#     states <- states(x$dynamic)
+#   n_states <- length(states(x$dynamic))
+#   n_patches <- nrow(landscape(x$dynamic))
+#   stopifnot(states %in% states(x$dynamic))
+#   stopifnot(all(patches %in% seq_len(n_patches)))
+#   result <- list()
+#   for (patch in patches) {
+#     for (state in states) {
+#       if (n_patches == 1) {
+#         title <- state
+#       }
+#       else {
+#         title <- sprintf("%s in patch %i", state, patch)
+#       }
+#       idx <- (patch - 1) * n_states + match(state, states(x$dynamic))
+#       sims <- lapply(x$simulations, function(x) x[, idx])
+#       if (length(sims) > 1) {
+#         sims_mat <- do.call(cbind, sims)
+#         quants <- t(apply(sims_mat, 1, quantile, c(0.025, 
+#                                                    0.5, 0.975)))
+#       }
+#       else {
+#         quants <- cbind(rep(NA, length(sims[[1]])), sims[[1]], 
+#                         rep(NA, length(sims[[1]])))
+#       }
+#       colnames(quants) <- c("lower_95_CI", "median", "upper_95_CI")
+#       rownames(quants) <- names(sims[[1]])
+#       ylim = range(quants, na.rm = TRUE)
+#       xaxs <- as.numeric(names(sims[[1]]))
+#       plot(sims[[1]] ~ xaxs, type = "n", ylim = ylim, ylab = "population", 
+#            xlab = "time", main = title)
+#       polygon(x = c(xaxs, rev(xaxs)), y = c(quants[, 1], 
+#                                             rev(quants[, 3])), col = grey(0.9), border = NA)
+#       lines(quants[, 2] ~ xaxs, lwd = 2, col = grey(0.4))
+#       result[[title]] <- quants
+#     }
+#   }
+#   names(result) <- states
+#   return(invisible(result))
+# }
