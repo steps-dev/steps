@@ -113,6 +113,8 @@ print.experiment_results <- function (x, ...) {
 plot.experiment_results <- function (x, object = "population", type = "graph", stage = NULL, ...){
 
   stages <- raster::nlayers(x[[1]]$population$population_raster)
+  
+  stage_names <- colnames(x[[1]]$demography$global_transition_matrix)
 
   ras.pal <- grDevices::colorRampPalette(
     c(
@@ -149,7 +151,7 @@ plot.experiment_results <- function (x, object = "population", type = "graph", s
         if (is.null(stage)) {
 
           graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,stages))
-
+          
           for (i in seq_len(stages)) {
 
             graphics::plot(pop[ , i],
@@ -351,6 +353,8 @@ plot.simulation_results <- function (x, stage = NULL, ...){
   
   stages <- raster::nlayers(x[[1]][[1]]$population$population_raster)
   
+  stage_names <- colnames(x[[1]]$demography$global_transition_matrix)
+  
   graph.pal <- c("#94d1c7",
                  "#cccc2b",
                  "#bebada",
@@ -380,7 +384,7 @@ plot.simulation_results <- function (x, stage = NULL, ...){
       
       for (j in seq_along(x)[-1]) {
         graphics::lines(pop[ , i, j],
-                        col = graph.pal[i]
+                        col = 'gray'
         )
       }
       
@@ -430,7 +434,7 @@ plot.simulation_results <- function (x, stage = NULL, ...){
     
     for (j in seq_along(x)[-1]) {
       graphics::lines(pop[ , stage, j],
-                      col = graph.pal[stage]
+                      col = 'gray'
       )
     }
     

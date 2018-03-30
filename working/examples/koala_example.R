@@ -166,9 +166,11 @@ koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
 ####### Permutation 5 ########
 
 koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit,
-                               carrying_capacity = koala.hab.k)
+                               carrying_capacity = koala.hab.k*0.1,
+                               misc = koala.dist.fire)
 koala.demography <- build_demography(transition_matrix = koala.trans.mat,
-                                     dispersal_parameters = koala.disp.param)
+                                     dispersal_parameters = koala.disp.param,
+                                     misc = NA)
 koala.population <- build_population(population_raster = koala.pop)
 koala.state <- build_state(habitat = koala.habitat,
                            demography = koala.demography,
@@ -233,7 +235,7 @@ sim_results <- simulation(koala.state,
                           simulations = 5
                           )
 
-plot(sim_results[[1]])
+plot(sim_results)
 
 plot(exp_results)
 
