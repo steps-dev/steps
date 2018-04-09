@@ -30,12 +30,19 @@ koala.hab.suit <- (koala.hab.suit - cellStats(koala.hab.suit, min)) / (cellStats
 names(koala.hab.suit) <- "Habitat"
 plot(koala.hab.suit, box = FALSE, axes = FALSE)
 
+koala.hab.suit2 <- koala.hab.suit
+koala.hab.suit2[] <- 1
+
 koala.hab.k <- koala.hab.suit*60
 names(koala.hab.k) <- "Carrying Capacity"
 plot(koala.hab.k, box = FALSE, axes = FALSE)
 
+koala.hab.k2 <- koala.hab.suit2*8
+
 koala.pop <- stack(replicate(4, (koala.hab.k)*0.05))
 names(koala.pop) <- colnames(koala.trans.mat)
+
+koala.pop2 <- stack(replicate(4, koala.hab.suit2*3))
 
 koala.disp.param <- list(dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=10,'Stage_2-3'=10,'Stage_3+'=0),
                          dispersal_kernel=list('Stage_0-1'=0,'Stage_1-2'=exp(-c(0:9)^1/3.36),'Stage_2-3'=exp(-c(0:9)^1/3.36),'Stage_3+'=0),
@@ -62,6 +69,21 @@ koala.disp.param3 <- list(dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=10,'
                           dispersal_proportion=list('Stage_0-1'=0,'Stage_1-2'=0.35,'Stage_2-3'=0.35*0.714,'Stage_3+'=0),
                           barrier_type=1,
                           barriers_map=koala.disp.bar2,
+                          use_barriers=TRUE
+)
+
+koala.disp.bar3 <- koala.hab.suit*0
+koala.disp.bar3[cellFromRow(koala.disp.bar3,nrow(koala.disp.bar3)/2+0.5)] <- seq(0,1,length.out=length(koala.disp.bar3[cellFromRow(koala.disp.bar3,nrow(koala.disp.bar3)/2)]))
+koala.disp.bar3[cellFromRow(koala.disp.bar3,nrow(koala.disp.bar3)/2+1.5)] <- seq(0,1,length.out=length(koala.disp.bar3[cellFromRow(koala.disp.bar3,nrow(koala.disp.bar3)/2)]))
+koala.disp.bar3[cellFromRow(koala.disp.bar3,nrow(koala.disp.bar3)/2-0.5)] <- seq(0,1,length.out=length(koala.disp.bar3[cellFromRow(koala.disp.bar3,nrow(koala.disp.bar3)/2)]))
+
+plot(koala.disp.bar3, box = FALSE, axes = FALSE)
+
+koala.disp.param4 <- list(dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=10,'Stage_2-3'=10,'Stage_3+'=0),
+                          dispersal_kernel=list('Stage_0-1'=0,'Stage_1-2'=exp(-c(0:9)^1/3.36),'Stage_2-3'=exp(-c(0:9)^1/3.36),'Stage_3+'=0),
+                          dispersal_proportion=list('Stage_0-1'=0,'Stage_1-2'=0.35,'Stage_2-3'=0.35*0.714,'Stage_3+'=0),
+                          barrier_type=1,
+                          barriers_map=koala.disp.bar3,
                           use_barriers=TRUE
 )
 
@@ -216,6 +238,36 @@ koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
                                  order = c("habitat_dynamics",
                                            "demography_dynamics",
                                            "population_dynamics")
+)
+
+
+#####################################
+
+####### Permutation 7 ########
+
+koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit2,
+                               carrying_capacity = koala.hab.k2,
+                               misc = koala.dist.fire)
+koala.demography <- build_demography(transition_matrix = koala.trans.mat,
+                                     dispersal_parameters = koala.disp.param4,
+                                     misc = NA)
+koala.population <- build_population(population_raster = koala.pop2)
+koala.state <- build_state(habitat = koala.habitat,
+                           demography = koala.demography,
+                           population = koala.population)
+
+#koala.habitat.dynamics <- fire_habitat_dynamics(habitat_suitability = koala.hab.suit2,
+#                                                disturbance_layers = koala.dist.fire,
+#                                                effect_time=3)
+koala.demography.dynamics <- envstoch_demography_dynamics(global_transition_matrix = koala.trans.mat,
+                                                          stochasticity = koala.trans.mat.es)
+koala.population.dynamics <- as.population_dynamics(ca_dispersal_population_dynamics)
+koala.dynamics <- build_dynamics(habitat_dynamics = no_habitat_dynamics,
+                                 demography_dynamics = koala.demography.dynamics,
+                                 population_dynamics = koala.population.dynamics,
+                                 order = c("habitat_dynamics",
+                                           "population_dynamics",
+                                           "demography_dynamics")
 )
 
 

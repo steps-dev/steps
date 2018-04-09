@@ -159,7 +159,8 @@ plot.experiment_results <- function (x, object = "population", type = "graph", s
                  ylab=paste("Total Population: ",stage_names[i]),
                  xlab="Time (years)",
                  lwd=2,
-                 col=graph.pal[i]
+                 col=graph.pal[i],
+                 ylim=c(0,pretty(ceiling(max(pop)))[2])
             )
             graphics::abline(h=raster::cellStats(x[[1]]$habitat$carrying_capacity,sum)/stages,
                   lwd=1,
@@ -178,7 +179,8 @@ plot.experiment_results <- function (x, object = "population", type = "graph", s
                ylab="Total Population (all stages)",
                xlab="Time (years)",
                lwd=2,
-               col="black"
+               col="black",
+               ylim=c(0,pretty(ceiling(max(rowSums(pop))))[2])
           )
           graphics::abline(h=raster::cellStats(x[[1]]$habitat$carrying_capacity,sum),
                  lwd=1,
@@ -195,7 +197,8 @@ plot.experiment_results <- function (x, object = "population", type = "graph", s
                ylab=paste("Total Population: ",stage_names[stage]),
                xlab="Time (years)",
                lwd=2,
-               col=graph.pal[stage]
+               col=graph.pal[stage],
+               ylim=c(0,pretty(ceiling(max(pop[, stage])))[2])
           )
           graphics::abline(h=raster::cellStats(x[[1]]$habitat$carrying_capacity,sum)/stages,
                  lwd=1,

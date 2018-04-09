@@ -40,7 +40,7 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatrix 
     for (i = 1; i <= distance_max; i++){
       pxlX = round(snkX + (1.0 * i / distance_max * dstX));
       pxlY = round(snkY + (1.0 * i / distance_max * dstY));
-      if (barriers_map(pxlX,pxlY) == 1) {
+      if (R::rbinom(1, barriers_map(pxlX,pxlY)) == 1) {
 		  barrier_found = true;
 		  break;
       }
@@ -55,7 +55,7 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatrix 
     for (i = 1; i <= distance_max; i++){
       pxlX = round(snkX - 0.49 + (1.0 * i / distance_max * dstX));
       pxlY = round(snkY - 0.49 + (1.0 * i / distance_max * dstY));
-      if (barriers_map(pxlX,pxlY) == 1){
+      if (R::rbinom(1, barriers_map(pxlX,pxlY)) == 1){
 		barrier_found = true;
 		break;
       }
@@ -70,7 +70,7 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatrix 
     for (i = 1; i <= distance_max; i++){
       pxlX = round(snkX + 0.49 + (1.0 * i / distance_max * dstX));
       pxlY = round(snkY - 0.49 + (1.0 * i / distance_max * dstY));
-      if (barriers_map(pxlX,pxlY) == 1){
+      if (R::rbinom(1, barriers_map(pxlX,pxlY)) == 1){
 	barrier_found = true;
 	break;
       }
@@ -86,7 +86,7 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatrix 
     for (i = 1; i <= distance_max; i++){
       pxlX = round(snkX - 0.49 + (1.0 * i / distance_max * dstX));
       pxlY = round(snkY + 0.49 + (1.0 * i / distance_max * dstY));
-      if (barriers_map(pxlX,pxlY) == 1){
+      if (R::rbinom(1, barriers_map(pxlX,pxlY)) == 1){
 	barrier_found = true;
 	break;
       }
@@ -101,7 +101,7 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatrix 
     for (i = 1; i <= distance_max; i++){
       pxlX = round(snkX + 0.49 + (1.0 * i / distance_max * dstX));
       pxlY = round(snkY + 0.49 + (1.0 * i / distance_max * dstY));
-      if (barriers_map(pxlX,pxlY) == 1){
+      if (R::rbinom(1, barriers_map(pxlX,pxlY)) == 1){
 	barrier_found = true;
 	break;
       }
@@ -123,7 +123,7 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatrix 
     for (i = 1; i <= distance_max; i++){
       pxlX = round(snkX + (1.0 * i / distance_max * dstX));
       pxlY = round(snkY + (1.0 * i / distance_max * dstY));
-      if (barriers_map(pxlX,pxlY) == 1){
+      if (R::rbinom(1, barriers_map(pxlX,pxlY)) == 1){
 	barrier_counter++;
 	break;
       }
@@ -136,7 +136,7 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatrix 
 					((1.0 / distance_max * dstX) / 2.0)));
       pxlY = round(snkY - 0.49 + (((i-1.0) / distance_max * dstY) +
 					((1.0 / distance_max * dstY) / 2.0)));
-      if (barriers_map(pxlX,pxlY) == 1){
+      if (R::rbinom(1, barriers_map(pxlX,pxlY)) == 1){
 	barrier_counter++;
 	break;
       }
@@ -153,7 +153,7 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatrix 
 					((1.0 / distance_max * dstX) / 2.0)));
       pxlY = round(snkY - 0.49 + (((i-1.0) / distance_max * dstY) +
 					((1.0 / distance_max * dstY) / 2.0)));
-      if (barriers_map(pxlX,pxlY) == 1){
+      if (R::rbinom(1, barriers_map(pxlX,pxlY)) == 1){
 	barrier_counter++;
 	break;
       }
@@ -170,7 +170,7 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatrix 
 					((1.0 / distance_max * dstX) / 2.0)));
       pxlY = round (snkY + 0.49 + (((i-1.0) / distance_max * dstY) +
 					((1.0 / distance_max * dstY) / 2.0)));
-      if (barriers_map(pxlX,pxlY) == 1){
+      if (R::rbinom(1, barriers_map(pxlX,pxlY)) == 1){
 		barrier_counter++;
 		break;
       }
@@ -187,7 +187,7 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatrix 
 					((1.0 / distance_max * dstX) / 2.0)));
       pxlY = round (snkY + 0.49 + (((i-1.0) / distance_max * dstY) +
 					((1.0 / distance_max * dstY) / 2.0)));
-      if (barriers_map(pxlX,pxlY) == 1){
+      if (R::rbinom(1, barriers_map(pxlX,pxlY)) == 1){
 	barrier_counter++;
 	break;
       }
