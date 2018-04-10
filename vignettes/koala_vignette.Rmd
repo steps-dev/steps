@@ -173,12 +173,12 @@ koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
 )
 ```
 
-Now that we have defined and built the state and dynamic objects, we can run an experiment. We conduct an experiment on the koala population over twenty timesteps. Runtime will depend on the complexity of the state object and the configuration of the dynamic object.
+Now that we have defined and built the state and dynamic objects, we can run an experiment. We conduct an experiment on the koala population over ten timesteps. Runtime will depend on the complexity of the state object and the configuration of the dynamic object.
 
 ```{r, message = FALSE,  results='hide'}
 koala.results <- experiment(koala.state,
                        koala.dynamics,
-                       timesteps = 20
+                       timesteps = 10
                        )
 ```
 
@@ -216,13 +216,13 @@ plot(koala.results, object = "habitat_suitability")
 plot(koala.results, object = "carrying_capacity")
 ```
 
-We can also perform a simulation which runs an experiment multiple times. For the koala, we specified five simulations of a twenty timestep experiment. As with the experiment, a simulation requires both a state and a dynamic object. To improve computation time, we have opted to use multiple processors by specifying a parameter to the 'future' package in the plan() call.
+We can also perform a simulation which runs an experiment multiple times. For the koala, we specified five simulations of a ten timestep experiment. As with the experiment, a simulation requires both a state and a dynamic object. To improve computation time, we have opted to use multiple processors by specifying a parameter to the 'future' package in the plan() call.
 
 ```{r, message = FALSE}
 plan(multiprocess)
 koala.sim.results <- simulation(koala.state,
                                 koala.dynamics,
-                                timesteps = 20,
+                                timesteps = 10,
                                 simulations = 5
                                 )
 ```
