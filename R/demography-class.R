@@ -57,8 +57,11 @@ build_demography <- function (transition_matrix,
     ncells <- length(habitat_suitability)
     
     # set up a matrix of (ncell)(rows)*(nstage*nstage)(cols) and fill with original stage matrix
-    all_stage_matrices <- matrix(rep(c(x),ncells),ncells,length(c(x)),byrow = TRUE)
-    colnames(all_stage_matrices)<-paste0(rep(m.names,each=di),1:di)
+    #all_stage_matrices <- matrix(rep(c(x),ncells),ncells,length(c(x)),byrow = TRUE)
+    #colnames(all_stage_matrices)<-paste0(rep(m.names,each=di),1:di)
+    
+    # setup an array of matrices that is nstage*nstage*ncells:
+    all_stage_matrices <- sapply(replicate(ncells, x, simplify = FALSE), identity, simplify="array")
     
     demography <- list(global_transition_matrix = x,
                        local_transition_matrix = all_stage_matrices,

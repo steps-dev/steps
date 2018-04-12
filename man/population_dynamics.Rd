@@ -94,6 +94,15 @@ example_function <- function (state, timestep) {
 
 no_population_dynamics <- as.population_dynamics(example_function)
 
+# Alternatively, embedded in the function:
+
+example_function <- function(...) {
+  int.func <- function (state, timestep) {
+    state
+   }
+as.population_dynamics(int.func)
+}
+
 # Test if object is of the type 'population dynamics'
   
 is.population_dynamics(no_population_dynamics)

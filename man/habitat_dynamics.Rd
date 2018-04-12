@@ -77,6 +77,15 @@ state
 
 no_habitat_dynamics <- as.habitat_dynamics(example_function)
 
+# Alternatively, embedded in the function:
+
+example_function <- function(...) {
+  int.func <- function (state, timestep) {
+    state
+   }
+as.habitat_dynamics(int.func)
+}
+
 # Test if object is of the type 'habitat dynamics'
   
 is.habitat_dynamics(no_habitat_dynamics)

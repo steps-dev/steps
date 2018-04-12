@@ -82,6 +82,15 @@ state
 
 no_demography_dynamics <- as.demography_dynamics(example_function)
 
+# Alternatively, embedded in the function:
+
+example_function <- function(...) {
+  int.func <- function (state, timestep) {
+    state
+   }
+as.demography_dynamics(int.func)
+}
+
 # Test if object is of the type 'demography dynamics'
   
 is.demography_dynamics(no_demography_dynamics)

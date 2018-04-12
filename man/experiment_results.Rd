@@ -2,7 +2,6 @@
 % Please edit documentation in R/experiment_results-class.R
 \name{experiment}
 \alias{experiment}
-\alias{print.experiment_results}
 \alias{is.experiment_results}
 \alias{print.experiment_results}
 \alias{plot.experiment_results}
@@ -11,8 +10,6 @@
 \title{Run an experiment to make spatially-explicit population projections}
 \usage{
 experiment(state, dynamics, timesteps = 100)
-
-\method{print}{experiment_results}(x, ...)
 
 is.experiment_results(x)
 
@@ -83,8 +80,6 @@ simple_approximation <- build_dynamics(no_habitat_dynamics,
                                        fast_population_dynamics)
 
 results <- experiment(test_state, simple_approximation, timesteps = 10)
-
-print(results)
 
 # Test if object is of the type 'experiment results'
 

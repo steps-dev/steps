@@ -230,5 +230,5 @@ koala.sim.results <- simulation(koala.state,
 Because a simulation object is comprised of multiple experiment result objects, we can subset and plot with similar methods. Here, we plot the population projections for the fifth iteration of the simulation:
 
 ```{r, message = FALSE, fig.width=4, fig.align="center"}
-plot(koala.sim.results[[5]], stage = 0)
+#plot(koala.sim.results[[5]], stage = 0)
 ```

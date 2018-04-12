@@ -69,19 +69,6 @@ experiment <- function (state, dynamics, timesteps = 100) {
 #'
 #' @examples
 #'
-#' print(results)
-
-print.experiment_results <- function (x, ...) {
-  cat("This is an experiment results object, for", length(x), "timesteps")
-}
-
-
-#' @rdname experiment_results
-#'
-#' @export
-#'
-#' @examples
-#'
 #' # Test if object is of the type 'experiment results'
 #'
 #' is.experiment_results(results)
@@ -160,7 +147,7 @@ plot.experiment_results <- function (x, object = "population", type = "graph", s
                  xlab="Time (years)",
                  lwd=2,
                  col=graph.pal[i],
-                 ylim=c(0,pretty(ceiling(max(pop)))[2])
+                 ylim=c(pretty(floor(min(pop)))[1], pretty(ceiling(max(pop)))[2])
             )
             graphics::abline(h=raster::cellStats(x[[1]]$habitat$carrying_capacity,sum)/stages,
                   lwd=1,
@@ -180,7 +167,7 @@ plot.experiment_results <- function (x, object = "population", type = "graph", s
                xlab="Time (years)",
                lwd=2,
                col="black",
-               ylim=c(0,pretty(ceiling(max(rowSums(pop))))[2])
+               ylim=c(pretty(floor(min(rowSums(pop))))[1], pretty(ceiling(max(rowSums(pop))))[2])
           )
           graphics::abline(h=raster::cellStats(x[[1]]$habitat$carrying_capacity,sum),
                  lwd=1,
@@ -198,7 +185,7 @@ plot.experiment_results <- function (x, object = "population", type = "graph", s
                xlab="Time (years)",
                lwd=2,
                col=graph.pal[stage],
-               ylim=c(0,pretty(ceiling(max(pop[, stage])))[2])
+               ylim=c(pretty(floor(min(pop[, stage])))[1], pretty(ceiling(max(pop[, stage])))[2])
           )
           graphics::abline(h=raster::cellStats(x[[1]]$habitat$carrying_capacity,sum)/stages,
                  lwd=1,
@@ -405,7 +392,7 @@ plot.simulation_results <- function (x, stage = NULL, ...){
     
     graphics::plot(rowSums(pop[ , , 1]),
                    type = 'l',
-                   ylab = paste("Total Population: ",stage_names[i]),
+                   ylab = "Total Population (all stages)",
                    xlab = "Time (years)",
                    lwd = 2,
                    col = 'black'
@@ -429,7 +416,7 @@ plot.simulation_results <- function (x, stage = NULL, ...){
     
     graphics::plot(pop[ , stage, 1],
                    type = 'l',
-                   ylab = paste("Total Population: ",stage_names[i]),
+                   ylab = paste("Total Population: ",stage_names[stage]),
                    xlab = "Time (years)",
                    lwd = 2,
                    col = graph.pal[stage]

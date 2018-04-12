@@ -58,6 +58,15 @@
 #' # Define the function as a demography_dynamics object
 #' 
 #' no_demography_dynamics <- as.demography_dynamics(example_function)
+#' 
+#' # Alternatively, embedded in the function:
+#' 
+#' example_function <- function(...) {
+#'   int.func <- function (state, timestep) {
+#'     state
+#'    }
+#' as.demography_dynamics(int.func)
+#' }
 
 as.demography_dynamics <- function (demography_dynamics_function) {
   stopifnot(inherits(demography_dynamics_function,"function"))
@@ -116,9 +125,20 @@ print.demography_dynamics <- function (x, ...) {
 #' 
 #' identical(test_state, test_state2)
  
+# no_demography_dynamics <- function (...) {
+# 
+#     demographic_dynamics <- function (state, timestep) {
+#     state
+#     }
+#   
+#   as.demography_dynamics(demographic_dynamics)
+# 
+# }
+
 no_demography_dynamics <- function (state, timestep) {
-  state
-}
+    state
+  }
+
 
 #' @rdname demography_dynamics
 #' 

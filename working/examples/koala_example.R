@@ -245,24 +245,22 @@ koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
 
 ####### Permutation 7 ########
 
-koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit2,
-                               carrying_capacity = koala.hab.k2,
+koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit,
+                               carrying_capacity = koala.hab.k,
                                misc = koala.dist.fire)
 koala.demography <- build_demography(transition_matrix = koala.trans.mat,
                                      dispersal_parameters = koala.disp.param4,
                                      misc = NA)
-koala.population <- build_population(population_raster = koala.pop2)
+koala.population <- build_population(population_raster = koala.pop)
 koala.state <- build_state(habitat = koala.habitat,
                            demography = koala.demography,
                            population = koala.population)
 
-#koala.habitat.dynamics <- fire_habitat_dynamics(habitat_suitability = koala.hab.suit2,
-#                                                disturbance_layers = koala.dist.fire,
-#                                                effect_time=3)
+koala.habitat.dynamics <- no_habitat_dynamics
 koala.demography.dynamics <- envstoch_demography_dynamics(global_transition_matrix = koala.trans.mat,
                                                           stochasticity = koala.trans.mat.es)
-koala.population.dynamics <- as.population_dynamics(ca_dispersal_population_dynamics)
-koala.dynamics <- build_dynamics(habitat_dynamics = no_habitat_dynamics,
+koala.population.dynamics <- ca_dispersal_population_dynamics
+koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
                                  demography_dynamics = koala.demography.dynamics,
                                  population_dynamics = koala.population.dynamics,
                                  order = c("habitat_dynamics",
@@ -272,6 +270,27 @@ koala.dynamics <- build_dynamics(habitat_dynamics = no_habitat_dynamics,
 
 
 #####################################
+
+####### Permutation 8 ########
+
+koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit,
+                               carrying_capacity = koala.hab.k)
+koala.demography <- build_demography(transition_matrix = koala.trans.mat,
+                                     type = 'local',
+                                     habitat_suitability = koala.hab.suit,
+                                     dispersal_parameters = rlnorm(1))
+koala.population <- build_population(population_raster = koala.pop)
+koala.state <- build_state(koala.habitat, koala.demography, koala.population)
+
+koala.habitat.dynamics <- as.habitat_dynamics(no_habitat_dynamics())
+koala.demography.dynamics <- as.demography_dynamics(no_demography_dynamics())
+koala.population.dynamics <- as.population_dynamics(fast_population_dynamics)
+koala.dynamics <- build_dynamics(koala.habitat.dynamics,
+                                 koala.demography.dynamics,
+                                 koala.population.dynamics
+)
+
+######################################
 
 system.time(
   exp_results <- experiment(koala.state,
@@ -300,154 +319,3 @@ plot(exp_results, type = "raster", stage = 2)
 plot(exp_results, object = "habitat_suitability")
 
 plot(exp_results, object = "carrying_capacity")
-
-stages <- raster::nlayers(x[[1]][[1]]$population$population_raster)
-
-ras.pal <- grDevices::colorRampPalette(
-  c(
-    '#440154', # dark purple
-    '#472c7a', # purple
-    '#3b518b', # blue
-    '#2c718e', # blue
-    '#21908d', # blue-green
-    '#27ad81', # green
-    '#5cc863', # green
-    '#aadc32', # lime green
-    '#fde725' # yellow
-  )
-)
-
-graph.pal <- c("#94d1c7",
-               "#cccc2b",
-               "#bebada",
-               "#fb8072",
-               "#80b1d3",
-               "#fdb462",
-               "#b3de69",
-               "#fccde5",
-               "#969696",
-               "#bc80bd"
-)
-
-  pop <- get_pop_simulation(x)
-
-    if (is.null(stage)) {
-      
-      graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,stages))
-      
-      for (i in seq_len(stages)) {
-        graphics::plot(pop[ , i, 1],
-                       type = 'l',
-                       ylab = paste("Total Population: ",stage_names[i]),
-                       xlab = "Time (years)",
-                       lwd = 2,
-                       col = graph.pal[i]
-        )
-        
-        for (j in seq_along(x)[-1]) {
-          graphics::lines(pop[ , i, j],
-                         col = graph.pal[i]
-          )
-        }
-
-        graphics::abline(h=raster::cellStats(x[[1]][[1]]$habitat$carrying_capacity,sum)/stages,
-                         lwd=1,
-                         lty=2)
-        
-      }
-      
-    }
-    
-    if(!is.null(stage) && stage == 0) {
-      
-      graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
-      
-      graphics::plot(rowSums(pop[ , , 1]),
-                     type = 'l',
-                     ylab = paste("Total Population: ",stage_names[i]),
-                     xlab = "Time (years)",
-                     lwd = 2,
-                     col = 'black'
-      )
-      
-      for (j in seq_along(x)[-1]) {
-        graphics::lines(rowSums(pop[ , , j]),
-                        col = 'black'
-        )
-      }
-
-      graphics::abline(h=raster::cellStats(x[[1]][[1]]$habitat$carrying_capacity,sum),
-                       lwd=1,
-                       lty=2)
-      
-    }
-    
-    if (!is.null(stage) && stage > 0) {
-      
-      graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
-      
-      graphics::plot(pop[ , stage, 1],
-                     type = 'l',
-                     ylab = paste("Total Population: ",stage_names[i]),
-                     xlab = "Time (years)",
-                     lwd = 2,
-                     col = graph.pal[stage]
-      )
-      
-      for (j in seq_along(x)[-1]) {
-        graphics::lines(pop[ , stage, j],
-                        col = graph.pal[stage]
-        )
-      }
-      
-      graphics::abline(h=raster::cellStats(x[[1]][[1]]$habitat$carrying_capacity,sum)/stages,
-                       lwd=1,
-                       lty=2)
-      
-    }
-
-  
-
-# function (x, states = NULL, patches = 1, ...) 
-# {
-#   if (is.null(states)) 
-#     states <- states(x$dynamic)
-#   n_states <- length(states(x$dynamic))
-#   n_patches <- nrow(landscape(x$dynamic))
-#   stopifnot(states %in% states(x$dynamic))
-#   stopifnot(all(patches %in% seq_len(n_patches)))
-#   result <- list()
-#   for (patch in patches) {
-#     for (state in states) {
-#       if (n_patches == 1) {
-#         title <- state
-#       }
-#       else {
-#         title <- sprintf("%s in patch %i", state, patch)
-#       }
-#       idx <- (patch - 1) * n_states + match(state, states(x$dynamic))
-#       sims <- lapply(x$simulations, function(x) x[, idx])
-#       if (length(sims) > 1) {
-#         sims_mat <- do.call(cbind, sims)
-#         quants <- t(apply(sims_mat, 1, quantile, c(0.025, 
-#                                                    0.5, 0.975)))
-#       }
-#       else {
-#         quants <- cbind(rep(NA, length(sims[[1]])), sims[[1]], 
-#                         rep(NA, length(sims[[1]])))
-#       }
-#       colnames(quants) <- c("lower_95_CI", "median", "upper_95_CI")
-#       rownames(quants) <- names(sims[[1]])
-#       ylim = range(quants, na.rm = TRUE)
-#       xaxs <- as.numeric(names(sims[[1]]))
-#       plot(sims[[1]] ~ xaxs, type = "n", ylim = ylim, ylab = "population", 
-#            xlab = "time", main = title)
-#       polygon(x = c(xaxs, rev(xaxs)), y = c(quants[, 1], 
-#                                             rev(quants[, 3])), col = grey(0.9), border = NA)
-#       lines(quants[, 2] ~ xaxs, lwd = 2, col = grey(0.4))
-#       result[[title]] <- quants
-#     }
-#   }
-#   names(result) <- states
-#   return(invisible(result))
-# }

@@ -72,6 +72,16 @@ NULL
 #' }
 #' 
 #' no_population_dynamics <- as.population_dynamics(example_function)
+#'
+#' # Alternatively, embedded in the function:
+#' 
+#' example_function <- function(...) {
+#'   int.func <- function (state, timestep) {
+#'     state
+#'    }
+#' as.population_dynamics(int.func)
+#' }
+
 
 as.population_dynamics <- function (population_dynamics_function) {
   stopifnot(inherits(population_dynamics_function,"function"))
@@ -376,34 +386,69 @@ dispersal_core_fft <- function(params, pop){
 #' plot(test_state$population$population_raster[[2]])
 #' plot(test_state2$population$population_raster[[2]])
 
-fast_population_dynamics <- function (state, timestep) {
-  
-  population_raster <- state$population$population_raster
-  dispersal_parameters <- state$demography$dispersal_parameters
-  transition_matrix <- state$demography$global_transition_matrix
-  
-  # get population as a matrix
-  idx <- which(!is.na(raster::getValues(population_raster[[1]])))
-  population <- raster::extract(population_raster, idx)
-  
-  # do population change
-  population <- population %*% transition_matrix
-  
-  # do dispersal
-  locations <- raster::xyFromCell(population_raster, idx)
-  resolution <- mean(raster::res(population_raster))
-  dispersal_decay <- dispersal_parameters * resolution
-  
-  dispersal <- dispersal_matrix(locations, dispersal_decay)
-  population <- dispersal %*% population
-  
-  # put back in the raster
-  population_raster[idx] <- population
-  
-  state$population$population_raster <- population_raster
-  state
-}
+# fast_population_dynamics <- function (...) {
+#   
+#   population_dynamics <- function (state, timestep) {
+#     
+#     population_raster <- state$population$population_raster
+#     dispersal_parameters <- state$demography$dispersal_parameters
+#     transition_matrix <- state$demography$global_transition_matrix
+#     
+#     # get population as a matrix
+#     idx <- which(!is.na(raster::getValues(population_raster[[1]])))
+#     population <- raster::extract(population_raster, idx)
+#     
+#     # do population change
+#     population <- population %*% transition_matrix
+#     
+#     # do dispersal
+#     locations <- raster::xyFromCell(population_raster, idx)
+#     resolution <- mean(raster::res(population_raster))
+#     dispersal_decay <- dispersal_parameters * resolution
+#     
+#     dispersal <- dispersal_matrix(locations, dispersal_decay)
+#     population <- dispersal %*% population
+#     
+#     # put back in the raster
+#     population_raster[idx] <- population
+#     
+#     state$population$population_raster <- population_raster
+#     state
+#   }
+#   
+#   as.population_dynamics(population_dynamics)
+#   
+# }
 
+fast_population_dynamics <- function (state, timestep) {
+    
+    population_raster <- state$population$population_raster
+    dispersal_parameters <- state$demography$dispersal_parameters
+    transition_matrix <- state$demography$global_transition_matrix
+    
+    # get population as a matrix
+    idx <- which(!is.na(raster::getValues(population_raster[[1]])))
+    population <- raster::extract(population_raster, idx)
+    
+    # do population change
+    population <- population %*% transition_matrix
+    
+    # do dispersal
+    locations <- raster::xyFromCell(population_raster, idx)
+    resolution <- mean(raster::res(population_raster))
+    dispersal_decay <- dispersal_parameters * resolution
+    
+    dispersal <- dispersal_matrix(locations, dispersal_decay)
+    population <- dispersal %*% population
+    
+    # put back in the raster
+    population_raster[idx] <- population
+    
+    state$population$population_raster <- population_raster
+    state
+  }
+
+  
 #' @rdname population_dynamics
 #' 
 #' @export
@@ -420,38 +465,76 @@ fast_population_dynamics <- function (state, timestep) {
 #' plot(test_state_dp$population$population_raster[[2]])
 #' plot(test_state_dp2$population$population_raster[[2]])
 
-ca_dispersal_population_dynamics <- function (state, timestep) {
-  
-  population_raster <- state$population$population_raster
-  dispersal_parameters <- state$demography$dispersal_parameters
-  transition_matrix <- state$demography$global_transition_matrix
-  transition_matrix_sd <- state$demography$transition_matrix_sd
-  habitat_suitability <- state$habitat$habitat_suitability
-  carrying_capacity <- state$habitat$carrying_capacity
-  
-  # get population as a matrix
-  idx <- which(!is.na(raster::getValues(population_raster[[1]])))
-  population <- raster::extract(population_raster, idx)
-  
-  # do population change
-  population <- population %*% transition_matrix
-  
-  # check density dependence
-  population <- cap_population(population, carrying_capacity)
-  
-  # put back in the raster
-  population_raster[idx] <- population
-   
-  # do dispersal
-  state$population$population_raster <- dispersal(params = dispersal_parameters,
-                                                  pop = population_raster,
-                                                  hsm = habitat_suitability,
-                                                  cc = carrying_capacity,
-                                                  method = "ca"
-                                                  )
-  state
-} 
+# ca_dispersal_population_dynamics <- function (...) {
+#   
+#   population_dynamics <- function (state, timestep) {
+#     
+#     population_raster <- state$population$population_raster
+#     dispersal_parameters <- state$demography$dispersal_parameters
+#     transition_matrix <- state$demography$global_transition_matrix
+#     transition_matrix_sd <- state$demography$transition_matrix_sd
+#     habitat_suitability <- state$habitat$habitat_suitability
+#     carrying_capacity <- state$habitat$carrying_capacity
+#     
+#     # get population as a matrix
+#     idx <- which(!is.na(raster::getValues(population_raster[[1]])))
+#     population <- raster::extract(population_raster, idx)
+#     
+#     # do population change
+#     population <- population %*% transition_matrix
+#     
+#     # check density dependence
+#     population <- cap_population(population, carrying_capacity)
+#     
+#     # put back in the raster
+#     population_raster[idx] <- population
+#     
+#     # do dispersal
+#     state$population$population_raster <- dispersal(params = dispersal_parameters,
+#                                                     pop = population_raster,
+#                                                     hsm = habitat_suitability,
+#                                                     cc = carrying_capacity,
+#                                                     method = "ca"
+#     )
+#     state
+#   } 
+#   
+#   as.population_dynamics(population_dynamics)
+#   
+# }
 
+ca_dispersal_population_dynamics <- function (state, timestep) {
+    
+    population_raster <- state$population$population_raster
+    dispersal_parameters <- state$demography$dispersal_parameters
+    transition_matrix <- state$demography$global_transition_matrix
+    transition_matrix_sd <- state$demography$transition_matrix_sd
+    habitat_suitability <- state$habitat$habitat_suitability
+    carrying_capacity <- state$habitat$carrying_capacity
+    
+    # get population as a matrix
+    idx <- which(!is.na(raster::getValues(population_raster[[1]])))
+    population <- raster::extract(population_raster, idx)
+    
+    # do population change
+    population <- population %*% transition_matrix
+    
+    # check density dependence
+    population <- cap_population(population, carrying_capacity)
+    
+    # put back in the raster
+    population_raster[idx] <- population
+    
+    # do dispersal
+    state$population$population_raster <- dispersal(params = dispersal_parameters,
+                                                    pop = population_raster,
+                                                    hsm = habitat_suitability,
+                                                    cc = carrying_capacity,
+                                                    method = "ca"
+    )
+    state
+  } 
+  
 #' @rdname population_dynamics
 #' 
 #' @export
@@ -464,28 +547,60 @@ ca_dispersal_population_dynamics <- function (state, timestep) {
 #' plot(test_state_dp$population$population_raster[[2]])
 #' plot(test_state_dp2$population$population_raster[[2]])
 
+# fft_dispersal_population_dynamics <- function (...) {
+#   
+#   population_dynamics <- function (state, timestep) {
+#     
+#     population_raster <- state$population$population_raster
+#     dispersal_parameters <- state$demography$dispersal_parameters
+#     transition_matrix <- state$demography$global_transition_matrix
+#     habitat_suitability <- state$habitat$habitat_suitability
+#     carrying_capacity <- state$habitat$carrying_capacity
+#     
+#     # get population as a matrix
+#     idx <- which(!is.na(raster::getValues(population_raster[[1]])))
+#     population <- raster::extract(population_raster, idx)
+#     
+#     # do population change
+#     population <- population %*% transition_matrix
+#     
+#     # put back in the raster
+#     population_raster[idx] <- population
+#     
+#     # do dispersal
+#     state$population$population_raster <- dispersal(params = dispersal_parameters,
+#                                                     pop = population_raster,
+#                                                     method = "fft"
+#     )
+#     state
+#   }
+#   
+#   as.population_dynamics(population_dynamics)
+#   
+# }
+
 fft_dispersal_population_dynamics <- function (state, timestep) {
-  
-  population_raster <- state$population$population_raster
-  dispersal_parameters <- state$demography$dispersal_parameters
-  transition_matrix <- state$demography$global_transition_matrix
-  habitat_suitability <- state$habitat$habitat_suitability
-  carrying_capacity <- state$habitat$carrying_capacity
-  
-  # get population as a matrix
-  idx <- which(!is.na(raster::getValues(population_raster[[1]])))
-  population <- raster::extract(population_raster, idx)
-  
-  # do population change
-  population <- population %*% transition_matrix
-  
-  # put back in the raster
-  population_raster[idx] <- population
-  
-  # do dispersal
-  state$population$population_raster <- dispersal(params = dispersal_parameters,
-                                                  pop = population_raster,
-                                                  method = "fft"
-  )
-  state
-}
+    
+    population_raster <- state$population$population_raster
+    dispersal_parameters <- state$demography$dispersal_parameters
+    transition_matrix <- state$demography$global_transition_matrix
+    habitat_suitability <- state$habitat$habitat_suitability
+    carrying_capacity <- state$habitat$carrying_capacity
+    
+    # get population as a matrix
+    idx <- which(!is.na(raster::getValues(population_raster[[1]])))
+    population <- raster::extract(population_raster, idx)
+    
+    # do population change
+    population <- population %*% transition_matrix
+    
+    # put back in the raster
+    population_raster[idx] <- population
+    
+    # do dispersal
+    state$population$population_raster <- dispersal(params = dispersal_parameters,
+                                                    pop = population_raster,
+                                                    method = "fft"
+    )
+    state
+  }

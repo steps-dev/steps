@@ -51,6 +51,15 @@
 #' }
 #' 
 #' no_habitat_dynamics <- as.habitat_dynamics(example_function)
+#' 
+#' # Alternatively, embedded in the function:
+#' 
+#' example_function <- function(...) {
+#'   int.func <- function (state, timestep) {
+#'     state
+#'    }
+#' as.habitat_dynamics(int.func)
+#' }
 
 as.habitat_dynamics <- function (habitat_dynamics_function) {
   stopifnot(inherits(habitat_dynamics_function,"function"))
@@ -107,9 +116,20 @@ print.habitat_dynamics <- function (x, ...) {
 #' 
 #' identical(test_state, test_state2)
 
+# no_habitat_dynamics <- function (...) {
+#   
+#   habitat_dynamics <- function (state, timestep) {
+#     state
+#   }
+#   
+#   as.habitat_dynamics(habitat_dynamics)
+#   
+# }
+
 no_habitat_dynamics <- function (state, timestep) {
-  state
-}
+    state
+  }
+
 
 #' @rdname habitat_dynamics
 #'

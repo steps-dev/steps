@@ -213,7 +213,12 @@ test_that('experiment_results classes work', {
   test_experiment <- experiment(state = b_state,
                                 dynamics = b_dynamics,
                                 timesteps = 10)
-  
+
+  test_simulation <- simulation(state = b_state,
+                                dynamics = b_dynamics,
+                                timesteps = 10,
+                                simulations = 5)
+    
   print(test_experiment)
 
   plot(test_experiment)
@@ -256,4 +261,14 @@ test_that('experiment_results classes work', {
                     )
   )
 
+  plot(test_simulation)
+       
+  plot(test_simulation,
+       stage = 2
+  )
+  
+  plot(test_simulation,
+       stage = 0
+  )
+  
 })
