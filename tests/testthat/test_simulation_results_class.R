@@ -1,6 +1,6 @@
-context('experiment_results-class')
+context('simulation_results-class')
 
-test_that('experiment_results classes work', {
+test_that('simulation_results classes work', {
   library(raster)
   library(rgdal)
 
@@ -144,48 +144,48 @@ test_that('experiment_results classes work', {
                                population_dynamics = pop_dyn3
   )
 
-  expect_true(inherits(experiment(state = b_state,
+  expect_true(inherits(simulation(state = b_state,
                                   dynamics = b_dynamics,
                                   timesteps = 10)[1],
-                       "experiment_results")
+                       "simulation_results")
   )
     
-  expect_true(inherits(experiment(state = b_state,
+  expect_true(inherits(simulation(state = b_state,
                                   dynamics = b_dynamics,
                                   timesteps = 10),
-                       "experiment_results")
+                       "simulation_results")
   )
   
-  expect_true(is.experiment_results(experiment(state = b_state,
+  expect_true(is.simulation_results(simulation(state = b_state,
                                   dynamics = b_dynamics,
                                   timesteps = 10)
                                   )
               )
   
-  expect_true(inherits(experiment(state = b_state2,
+  expect_true(inherits(simulation(state = b_state2,
                                   dynamics = b_dynamics2,
                                   timesteps = 10),
-                       "experiment_results")
+                       "simulation_results")
   )
   
-  expect_true(inherits(experiment(state = b_state4,
+  expect_true(inherits(simulation(state = b_state4,
                                   dynamics = b_dynamics3,
                                   timesteps = 10),
-                       "experiment_results")
+                       "simulation_results")
   )
   
-  expect_true(inherits(experiment(state = b_state,
+  expect_true(inherits(simulation(state = b_state,
                                   dynamics = b_dynamics4,
                                   timesteps = 10),
-                       "experiment_results")
+                       "simulation_results")
   )
   
-  expect_error(experiment(state = b_state,
+  expect_error(simulation(state = b_state,
                                   dynamics = b_dynamics,
                                   timesteps = 15)
               )
   
-  expect_error(experiment(state = b_state3,
+  expect_error(simulation(state = b_state3,
                           dynamics = b_dynamics,
                           timesteps = 10)
   )
@@ -210,65 +210,51 @@ test_that('experiment_results classes work', {
                        "simulation_results")
   )
    
-  test_experiment <- experiment(state = b_state,
-                                dynamics = b_dynamics,
-                                timesteps = 10)
-
   test_simulation <- simulation(state = b_state,
                                 dynamics = b_dynamics,
                                 timesteps = 10,
                                 simulations = 5)
     
-  print(test_experiment)
+  print(test_simulation)
 
-  plot(test_experiment)
+  plot(test_simulation)
   
-  plot(test_experiment[c(2:5)])
+  plot(test_simulation[c(2:5)])
   
-  plot(test_experiment,
+  plot(test_simulation,
        object = "population",
        type = "raster",
        stage = 2
   )
   
-  plot(test_experiment,
+  plot(test_simulation,
        object = "population",
        type = "graph",
        stage = 0
   )
   
-  plot(test_experiment,
+  plot(test_simulation,
        object = "population",
        type = "graph",
        stage = 2
   )
   
-  plot(test_experiment,
+  plot(test_simulation,
        object = "habitat_suitability"
   )
   
-  plot(test_experiment[c(1:2)],
+  plot(test_simulation[c(1:2)],
        object = "habitat_suitability"
   )
   
-  plot(test_experiment,
+  plot(test_simulation,
        object = "carrying_capacity"
   )
     
-  expect_error(plot(test_experiment,
+  expect_error(plot(test_simulation,
                     object = "population",
                     type = "raster"
                     )
-  )
-
-  plot(test_simulation)
-       
-  plot(test_simulation,
-       stage = 2
-  )
-  
-  plot(test_simulation,
-       stage = 0
   )
   
 })

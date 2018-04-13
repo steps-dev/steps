@@ -256,9 +256,8 @@ koala.state <- build_state(habitat = koala.habitat,
                            demography = koala.demography,
                            population = koala.population)
 
-koala.habitat.dynamics <- no_habitat_dynamics
-koala.demography.dynamics <- envstoch_demography_dynamics(global_transition_matrix = koala.trans.mat,
-                                                          stochasticity = koala.trans.mat.es)
+koala.habitat.dynamics <- no_habitat_dynamics()
+koala.demography.dynamics <- no_demography_dynamics()
 koala.population.dynamics <- ca_dispersal_population_dynamics
 koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
                                  demography_dynamics = koala.demography.dynamics,
@@ -282,40 +281,32 @@ koala.demography <- build_demography(transition_matrix = koala.trans.mat,
 koala.population <- build_population(population_raster = koala.pop)
 koala.state <- build_state(koala.habitat, koala.demography, koala.population)
 
-koala.habitat.dynamics <- as.habitat_dynamics(no_habitat_dynamics())
-koala.demography.dynamics <- as.demography_dynamics(no_demography_dynamics())
-koala.population.dynamics <- as.population_dynamics(fast_population_dynamics)
+koala.habitat.dynamics <- no_habitat_dynamics()
+koala.demography.dynamics <- no_demography_dynamics()
+koala.population.dynamics <- fast_population_dynamics()
 koala.dynamics <- build_dynamics(koala.habitat.dynamics,
                                  koala.demography.dynamics,
-                                 koala.population.dynamics
-)
+                                 koala.population.dynamics)
 
 ######################################
-
-system.time(
-  exp_results <- experiment(koala.state,
-                         koala.dynamics,
-                         timesteps = 20
-                         )
-)
 
 plan(multiprocess)
 sim_results <- simulation(koala.state,
                           koala.dynamics,
-                          timesteps = 20,
-                          simulations = 5
+                          timesteps = 5,
+                          replicates = 1
                           )
 
 plot(sim_results)
 
-plot(exp_results)
+plot(sim_results[1])
 
-plot(exp_results, stage = 2)
+plot(sim_results, stage = 2)
 
-plot(exp_results, stage = 0)
+plot(sim_results, stage = 0)
 
-plot(exp_results, type = "raster", stage = 2)
+plot(sim_results, type = "raster", stage = 2)
 
-plot(exp_results, object = "habitat_suitability")
+plot(sim_results, object = "habitat_suitability")
 
-plot(exp_results, object = "carrying_capacity")
+plot(sim_results, object = "carrying_capacity")

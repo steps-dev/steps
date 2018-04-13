@@ -125,19 +125,15 @@ print.demography_dynamics <- function (x, ...) {
 #' 
 #' identical(test_state, test_state2)
  
-# no_demography_dynamics <- function (...) {
-# 
-#     demographic_dynamics <- function (state, timestep) {
-#     state
-#     }
-#   
-#   as.demography_dynamics(demographic_dynamics)
-# 
-# }
+no_demography_dynamics <- function () {
 
-no_demography_dynamics <- function (state, timestep) {
+    demographic_dynamics <- function (state, timestep) {
     state
-  }
+    }
+
+  as.demography_dynamics(demographic_dynamics)
+
+}
 
 
 #' @rdname demography_dynamics

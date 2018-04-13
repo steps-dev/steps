@@ -35,7 +35,7 @@ colnames(koala.trans.mat.es) <- rownames(koala.trans.mat.es) <- c('Juveniles','S
 
 ```    
 
-Read in spatial inputs to be used for the experiment and simulations. For the koala, a 117km x 126km spatial grid with a resolution of 1km2 is used as the landscape for the meta-population of koalas. Each cell represents a patch that koalas can move between - dependent upon its unique attributes.  
+Read in spatial inputs to be used for the simulations. For the koala, a 117km x 126km spatial grid with a resolution of 1km2 is used as the landscape for the meta-population of koalas. Each cell represents a patch that koalas can move between - dependent upon its unique attributes.  
 
 The habitat suitability layer describes the relative likelihood of the species occurring in each cell and should contain values between 0 (not inhabited) and 1 (inhabited). If the original values are not in this range, they should be rescaled accordingly. The name "Habitat" is assigned to the layer for identification throughout processing and plotting operations.
 
@@ -47,7 +47,7 @@ koala.hab.suit <- raster(system.file("extdata","Koala_HabSuit.tif", package="ste
 # rescale habitat raster to relative suitability (or likelihood of occurrence) between 0 and 1.
 koala.hab.suit <- (koala.hab.suit - cellStats(koala.hab.suit, min)) / (cellStats(koala.hab.suit, max) - cellStats(koala.hab.suit, min))
 
-# rename raster so that it is tracked throughout the experiment and simulation
+# rename raster so that it is tracked throughout the simulations
 names(koala.hab.suit) <- "Habitat"
 
 par(mar=c(0,0,0,0), oma=c(0,0,0,0))
@@ -61,7 +61,7 @@ The carrying capacity layer describes the total number of species that may occur
 # create carrying capacity layer using the habitat suitability raster (or provide a custom one)
 koala.hab.k <- ceiling(koala.hab.suit * 60)
 
-# rename raster so that it is tracked throughout the experiment and simulation
+# rename raster so that it is tracked throughout the simulations
 names(koala.hab.k) <- "Carrying Capacity"
 
 par(mar=c(0,0,0,0), oma=c(0,0,0,0))
@@ -75,7 +75,7 @@ Populations are represented as a stack of rasters that describes the total numbe
 # create population layers using the carrying capacity raster (or provide a custom ones)
 koala.pop <- stack(replicate(4, ceiling(koala.hab.k * 0.2)))
 
-# rename stack so that the layers are tracked throughout the experiment and simulation
+# rename stack so that the layers are tracked throughout the simulations
 names(koala.pop) <- colnames(koala.trans.mat)
 
 par(mar=c(0,0,0,0), oma=c(0,0,0,0))
@@ -102,13 +102,13 @@ koala.disp.param <- list(dispersal_distance=dispersal_distance,
                          )
 ```
 
-To characterise landscape disturbance, we read in a series of raster layers that map the locations and severity of fires. Note, the number of layers must match the intended number of timesteps in the experiment - in this case twenty. Each fire raster will be multiplied with the habitat suitability layer and thus contain values between zero (intense fire) and one (no fire).
+To characterise landscape disturbance, we read in a series of raster layers that map the locations and severity of fires. Note, the number of layers must match the intended number of timesteps in a single simulation - in this case twenty. Each fire raster will be multiplied with the habitat suitability layer and thus contain values between zero (intense fire) and one (no fire).
 
 ```{r, message = FALSE}
 koala.dist.fire <- stack(list.files(system.file("extdata", package="steps"), full.names = TRUE, pattern = 'Koala_Fire*'))
 ```
 
-With all of input components loaded we now construct the objects for the experiment. Two primary objects are required for an experiment - a state object and a dynamic object. Each of these primary objects are made up of several sub-component objects that are constructed from the project inputs. These are detailed below.
+With all of input components loaded we now construct the objects for a single simulation. Two primary objects are required for a single simulation - a state object and a dynamic object. Each of these primary objects are made up of several sub-component objects that are constructed from the project inputs. These are detailed below.
 
 This first sub-component is a habitat object that is constructed from the koala habitat suitability and carrying capacity raster input layers.
 
@@ -130,7 +130,7 @@ The third sub-component is a population object that is constructed from the koal
 koala.population <- build_population(population_raster = koala.pop)
 ```
 
-All three sub-components are used to build a state object. The state object is modified at each timestep in an experiment based on dynamic objects (described in subsequent sections below).
+All three sub-components are used to build a state object. The state object is modified at each timestep in a single simulation based on dynamic objects (described in subsequent sections below).
 
 ```{r, message = FALSE}
 koala.state <- build_state(habitat = koala.habitat,
@@ -138,9 +138,9 @@ koala.state <- build_state(habitat = koala.habitat,
                            population = koala.population)
 ```
 
-Dynamic objects are used to modify state objects at each timestep in an experiment. They can be selected as 'off-the-shelf' functions included in the 'steps' package or custom defined functions created by the user.
+Dynamic objects are used to modify state objects at each timestep in a single simulation. They can be selected as 'off-the-shelf' functions included in the 'steps' package or custom defined functions created by the user.
 
-A habitat dynamics object modifies the habitat sub-component of the state object. We use a pre-defined fire disturbance function to modify the habitat suitability in the experiment at each timestep. The function requires an initial habitat suitability layer, a stack of disturbance layers equal to the intended number of timesteps in the experiment, and an effect time which specifies the number of timesteps that each disturbance layer acts on the habitat suitability. In this example, we provide the koala habitat suitability input, the koala fire disturbance input, and an effect time of three - meaning each fire layer will affect the habitat suitability for three timestep in the experiment.
+A habitat dynamics object modifies the habitat sub-component of the state object. We use a pre-defined fire disturbance function to modify the habitat suitability in the simulation at each timestep. The function requires an initial habitat suitability layer, a stack of disturbance layers equal to the intended number of timesteps in a single simulation, and an effect time which specifies the number of timesteps that each disturbance layer acts on the habitat suitability. In this example, we provide the koala habitat suitability input, the koala fire disturbance input, and an effect time of three - meaning each fire layer will affect the habitat suitability for three timestep in each simulation replicate.
 
 ```{r, message = FALSE}
 koala.habitat.dynamics <- fire_habitat_dynamics(habitat_suitability = koala.hab.suit,
@@ -148,7 +148,7 @@ koala.habitat.dynamics <- fire_habitat_dynamics(habitat_suitability = koala.hab.
                                                 effect_time=3)
 ```
 
-A demography dynamics object modifies the demography sub-component of the state object. We use a pre-defined environmental stochasticity function to modify the life-stage transition matrix in the experiment at each timestep. This function requires the global life-stage transition matrix and stochasticity matrix inputs for koalas. Note, stochasticity can also be entered as a single positive number rather than a matrix - the function will create a matrix internally and apply the value to all non-zero numbers in the life-stage transition matrix.
+A demography dynamics object modifies the demography sub-component of the state object. We use a pre-defined environmental stochasticity function to modify the life-stage transition matrix at each timestep in a single simulation. This function requires the global life-stage transition matrix and stochasticity matrix inputs for koalas. Note, stochasticity can also be entered as a single positive number rather than a matrix - the function will create a matrix internally and apply the value to all non-zero numbers in the life-stage transition matrix.
 
 ```{r, message = FALSE}
 koala.demography.dynamics <- envstoch_demography_dynamics(global_transition_matrix = koala.trans.mat,
@@ -161,7 +161,7 @@ A population dynamics object modifies the population sub-component of the state 
 koala.population.dynamics <- as.population_dynamics(ca_dispersal_population_dynamics)
 ```
 
-All three sub-components are used to build a dynamics object. The dynamics object modifies the state object at each timestep in an experiment. Note, we specify the order in which we would like the dynamics to act on the state object for each timestep. First the koala habitat will be modified by fire, then environmental stochasticity will be applied to the life-stage transition matrix, then the koala population will grow or shrink and disperse.
+All three sub-components are used to build a dynamics object. The dynamics object modifies the state object at each timestep in a single simulation. Note, we specify the order in which we would like the dynamics to act on the state object for each timestep. First the koala habitat will be modified by fire, then environmental stochasticity will be applied to the life-stage transition matrix, then the koala population will grow or shrink and disperse.
 
 ```{r, message = FALSE}
 koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
@@ -173,16 +173,17 @@ koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
 )
 ```
 
-Now that we have defined and built the state and dynamic objects, we can run an experiment. We conduct an experiment on the koala population over ten timesteps. Runtime will depend on the complexity of the state object and the configuration of the dynamic object.
+Now that we have defined and built the state and dynamic objects, we can run a simulation. We simulate changes to the koala population over ten timesteps. Runtime will depend on the complexity of the state object and the configuration of the dynamic object.
 
 ```{r, message = FALSE,  results='hide'}
-koala.results <- experiment(koala.state,
+koala.results <- simulation(koala.state,
                        koala.dynamics,
-                       timesteps = 10
+                       timesteps = 10,
+                       replicates = 1
                        )
 ```
 
-Once an experiment has been run, we can plot temporally-explicit information.
+Once a single simulation has been run, we can plot temporally-explicit information.
 
 For this example, we can view the koala population trajectories of each life-stage:
 
@@ -208,7 +209,7 @@ We can also view the population distribution over the landscape for a single lif
 plot(koala.results, type = "raster", stage = 2)
 ```
 
-The state objects are stored for each timestep so it is possible to also view the habitat suitability and carrying capacity throughout the experiment (only timesteps one through nine shown):
+The state objects are stored for each timestep so it is possible to also view the habitat suitability and carrying capacity throughout the single simulation (only timesteps one through nine shown):
 
 ```{r, message = FALSE, fig.width=7, fig.align="center"}
 plot(koala.results, object = "habitat_suitability")
@@ -216,18 +217,18 @@ plot(koala.results, object = "habitat_suitability")
 plot(koala.results, object = "carrying_capacity")
 ```
 
-We can also perform a simulation which runs an experiment multiple times. For the koala, we specified five simulations of a ten timestep experiment. As with the experiment, a simulation requires both a state and a dynamic object. To improve computation time, we have opted to use multiple processors by specifying a parameter to the 'future' package in the plan() call.
+We can also perform multiple simulations. For the koala, we specified five replicates of a ten timestep simulation. To improve computation time, we have opted to use multiple processors by specifying a parameter to the 'future' package in the plan() call.
 
 ```{r, message = FALSE}
 plan(multiprocess)
 koala.sim.results <- simulation(koala.state,
                                 koala.dynamics,
                                 timesteps = 10,
-                                simulations = 5
+                                replicates = 5
                                 )
 ```
 
-Because a simulation object is comprised of multiple experiment result objects, we can subset and plot with similar methods. Here, we plot the population projections for the fifth iteration of the simulation:
+Because a simulation object is comprised of single or multiple replicates, we can subset and plot individual replicates. Here, we plot the population projections for the fifth replicate of the simulation:
 
 ```{r, message = FALSE, fig.width=4, fig.align="center"}
 #plot(koala.sim.results[[5]], stage = 0)
