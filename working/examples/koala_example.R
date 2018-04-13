@@ -258,7 +258,7 @@ koala.state <- build_state(habitat = koala.habitat,
 
 koala.habitat.dynamics <- no_habitat_dynamics()
 koala.demography.dynamics <- no_demography_dynamics()
-koala.population.dynamics <- ca_dispersal_population_dynamics
+koala.population.dynamics <- ca_dispersal_population_dynamics()
 koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
                                  demography_dynamics = koala.demography.dynamics,
                                  population_dynamics = koala.population.dynamics,
@@ -291,15 +291,12 @@ koala.dynamics <- build_dynamics(koala.habitat.dynamics,
 ######################################
 
 plan(multiprocess)
-sim_results <- simulation(koala.state,
-                          koala.dynamics,
+sim_results <- simulation(state = koala.state,
+                          dynamics = koala.dynamics,
                           timesteps = 5,
-                          replicates = 1
-                          )
+                          replicates = 3)
 
 plot(sim_results)
-
-plot(sim_results[1])
 
 plot(sim_results, stage = 2)
 
@@ -310,3 +307,9 @@ plot(sim_results, type = "raster", stage = 2)
 plot(sim_results, object = "habitat_suitability")
 
 plot(sim_results, object = "carrying_capacity")
+
+plot(sim_results[1], type = "raster", stage = 2)
+
+plot(sim_results[2], object = "habitat_suitability")
+
+plot(sim_results[3], object = "carrying_capacity")

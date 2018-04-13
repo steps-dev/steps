@@ -15,11 +15,11 @@ is.population_dynamics(x)
 
 \method{print}{population_dynamics}(x, ...)
 
-fast_population_dynamics(state, timestep)
+fast_population_dynamics()
 
-ca_dispersal_population_dynamics(state, timestep)
+ca_dispersal_population_dynamics()
 
-fft_dispersal_population_dynamics(state, timestep)
+fft_dispersal_population_dynamics()
 }
 \arguments{
 \item{population_dynamics_function}{A function that operates on a state object to change population at specified timesteps. User may enter a custom function or select a pre-defined module - see documentation.}
@@ -27,10 +27,6 @@ fft_dispersal_population_dynamics(state, timestep)
 \item{x}{a population_dynamic object}
 
 \item{...}{further arguments passed to or from other methods}
-
-\item{state}{a state object to apply the population function to}
-
-\item{timestep}{the timestep in the experiment to apply the population function to the state object}
 }
 \value{
 An object of class \code{population_dynamics}
@@ -89,30 +85,22 @@ test_state_dp <- build_state(test_habitat,
                              test_population)
                              
 example_function <- function (state, timestep) {
- state
+  state
 }
 
-no_population_dynamics <- as.population_dynamics(example_function)
-
-# Alternatively, embedded in the function:
-
-example_function <- function(...) {
-  int.func <- function (state, timestep) {
-    state
-   }
-as.population_dynamics(int.func)
-}
+example_function <- as.population_dynamics(example_function)
 
 # Test if object is of the type 'population dynamics'
   
-is.population_dynamics(no_population_dynamics)
+is.population_dynamics(example_function)
 
-print(no_population_dynamics)
+print(example_function)
 
 # Use the fast_population_dynamics object to modify the  
 # population using life-stage transitions and dispersal:
 
-test_state2 <- fast_population_dynamics(test_state, 1)
+population_dynamics <- fast_population_dynamics()
+test_state2 <- population_dynamics(test_state, 1)
 
 par(mfrow=c(1,2))
 plot(test_state$population$population_raster[[2]])

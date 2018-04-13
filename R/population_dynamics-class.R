@@ -11,8 +11,8 @@ NULL
 #' @param population_dynamics_function A function that operates on a state object to change population at specified timesteps. User may enter a custom function or select a pre-defined module - see documentation. 
 #' @param x a population_dynamic object
 #' @param ... further arguments passed to or from other methods
-#' @param state a state object to apply the population function to
-#' @param timestep the timestep in the experiment to apply the population function to the state object
+# @param state a state object to apply the population function to
+# @param timestep the timestep in the experiment to apply the population function to the state object
 #'
 #' @return An object of class \code{population_dynamics}
 #' 
@@ -68,19 +68,10 @@ NULL
 #'                              test_population)
 #'                              
 #' example_function <- function (state, timestep) {
-#'  state
+#'   state
 #' }
 #' 
-#' no_population_dynamics <- as.population_dynamics(example_function)
-#'
-#' # Alternatively, embedded in the function:
-#' 
-#' example_function <- function(...) {
-#'   int.func <- function (state, timestep) {
-#'     state
-#'    }
-#' as.population_dynamics(int.func)
-#' }
+#' example_function <- as.population_dynamics(example_function)
 
 
 as.population_dynamics <- function (population_dynamics_function) {
@@ -96,7 +87,7 @@ as.population_dynamics <- function (population_dynamics_function) {
 #'
 #' # Test if object is of the type 'population dynamics'
 #'   
-#' is.population_dynamics(no_population_dynamics)
+#' is.population_dynamics(example_function)
 
 is.population_dynamics <- function (x) {
   inherits(x, 'population_dynamics')
@@ -108,7 +99,7 @@ is.population_dynamics <- function (x) {
 #'
 #' @examples
 #' 
-#' print(no_population_dynamics)
+#' print(example_function)
 
 print.population_dynamics <- function (x, ...) {
   cat("This is a population_dynamics object")
@@ -379,8 +370,9 @@ dispersal_core_fft <- function(params, pop){
 #' 
 #' # Use the fast_population_dynamics object to modify the  
 #' # population using life-stage transitions and dispersal:
-#' 
-#' test_state2 <- fast_population_dynamics(test_state, 1)
+#'
+#' population_dynamics <- fast_population_dynamics()
+#' test_state2 <- population_dynamics(test_state, 1)
 #' 
 #' par(mfrow=c(1,2))
 #' plot(test_state$population$population_raster[[2]])

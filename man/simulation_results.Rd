@@ -79,5 +79,5 @@ is.simulation_results(results)
 
 print(results)
 
-plot(sim_results)
+plot(results)
 }

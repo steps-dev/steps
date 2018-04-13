@@ -57,10 +57,7 @@ test_that('simulation_results classes work', {
   params <- list(
     dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=1,'Stage_2-3'=1,'Stage_3+'=0),
     dispersal_kernel=list('Stage_0-1'=0,'Stage_1-2'=exp(-c(0:9)^1/3.36),'Stage_2-3'=exp(-c(0:9)^1/3.36),'Stage_3+'=0),
-    dispersal_proportion=list('Stage_0-1'=0,'Stage_1-2'=0.35,'Stage_2-3'=0.35*0.714,'Stage_3+'=0)#,
-    #barriers_map=disp.bar,
-    #use_barriers=TRUE
-  )
+    dispersal_proportion=list('Stage_0-1'=0,'Stage_1-2'=0.35,'Stage_2-3'=0.35*0.714,'Stage_3+'=0))
   
   params2 <- list(
     dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=10,'Stage_2-3'=10,'Stage_3+'=0),
@@ -68,8 +65,7 @@ test_that('simulation_results classes work', {
     dispersal_proportion=list('Stage_0-1'=0,'Stage_1-2'=0.35,'Stage_2-3'=0.35*0.714,'Stage_3+'=0),
     barriers_map=disp.bar,
     use_barriers=TRUE,
-    barrier_type=1
-  )
+    barrier_type=1)
   
   params3 <- list(
     dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=10,'Stage_2-3'=10,'Stage_3+'=0),
@@ -77,8 +73,7 @@ test_that('simulation_results classes work', {
     dispersal_proportion=list('Stage_0-1'=0,'Stage_1-2'=0.35,'Stage_2-3'=0.35*0.714,'Stage_3+'=0),
     barriers_map=disp.bar2,
     use_barriers=TRUE,
-    barrier_type=1
-  )
+    barrier_type=1)
   
   b_hab <- build_habitat(habitat_suitability = hab.suit,
                        carrying_capacity = hab.k)
@@ -97,123 +92,106 @@ test_that('simulation_results classes work', {
   
   b_state <- build_state(habitat = b_hab,
               population = b_pop,
-              demography = b_dem
-              )
+              demography = b_dem)
   
   b_state2 <- build_state(habitat = b_hab,
                          population = b_pop,
-                         demography = b_dem2
-  )
+                         demography = b_dem2)
   
   b_state3 <- build_state(habitat = b_hab2,
                           population = b_pop,
-                          demography = b_dem
-  )
+                          demography = b_dem)
   
   b_state4 <- build_state(habitat = b_hab,
                           population = b_pop,
-                          demography = b_dem3
-  )
+                          demography = b_dem3)
   
   hab_dyn <- fire_habitat_dynamics(habitat_suitability = hab.suit,
                                                   disturbance_layers = dist.s,
                                                   effect_time = 2)
   dem_dyn <- envstoch_demography_dynamics(global_transition_matrix = mat,
                                            stochasticity = mat_sd)
-  pop_dyn <- as.population_dynamics(ca_dispersal_population_dynamics)
-  pop_dyn2 <- as.population_dynamics(fast_population_dynamics)
-  pop_dyn3 <- as.population_dynamics(fft_dispersal_population_dynamics)
+  pop_dyn <- ca_dispersal_population_dynamics()
+  pop_dyn2 <- fast_population_dynamics()
+  pop_dyn3 <- fft_dispersal_population_dynamics()
   
   b_dynamics <- build_dynamics(habitat_dynamics = hab_dyn,
                                demography_dynamics = dem_dyn,
-                               population_dynamics = pop_dyn
-                               )
+                               population_dynamics = pop_dyn)
   
-  b_dynamics2 <- build_dynamics(habitat_dynamics = as.habitat_dynamics(no_habitat_dynamics),
-                               demography_dynamics = as.demography_dynamics(no_demography_dynamics),
-                               population_dynamics = pop_dyn
-  )
+  b_dynamics2 <- build_dynamics(habitat_dynamics = no_habitat_dynamics(),
+                               demography_dynamics = no_demography_dynamics(),
+                               population_dynamics = pop_dyn)
   
-  b_dynamics3 <- build_dynamics(habitat_dynamics = as.habitat_dynamics(no_habitat_dynamics),
-                                demography_dynamics = as.demography_dynamics(no_demography_dynamics),
-                                population_dynamics = pop_dyn2
-  )
+  b_dynamics3 <- build_dynamics(habitat_dynamics = no_habitat_dynamics(),
+                                demography_dynamics = no_demography_dynamics(),
+                                population_dynamics = pop_dyn2)
   
   b_dynamics4 <- build_dynamics(habitat_dynamics = hab_dyn,
                                demography_dynamics = dem_dyn,
-                               population_dynamics = pop_dyn3
-  )
+                               population_dynamics = pop_dyn3)
 
   expect_true(inherits(simulation(state = b_state,
                                   dynamics = b_dynamics,
-                                  timesteps = 10)[1],
-                       "simulation_results")
-  )
+                                  timesteps = 5)[1],
+                       "simulation_results"))
     
   expect_true(inherits(simulation(state = b_state,
                                   dynamics = b_dynamics,
-                                  timesteps = 10),
-                       "simulation_results")
-  )
+                                  timesteps = 5),
+                       "simulation_results"))
   
   expect_true(is.simulation_results(simulation(state = b_state,
                                   dynamics = b_dynamics,
-                                  timesteps = 10)
-                                  )
-              )
+                                  timesteps = 10)))
   
   expect_true(inherits(simulation(state = b_state2,
                                   dynamics = b_dynamics2,
                                   timesteps = 10),
-                       "simulation_results")
-  )
+                       "simulation_results"))
   
   expect_true(inherits(simulation(state = b_state4,
                                   dynamics = b_dynamics3,
                                   timesteps = 10),
-                       "simulation_results")
-  )
+                       "simulation_results"))
   
   expect_true(inherits(simulation(state = b_state,
                                   dynamics = b_dynamics4,
                                   timesteps = 10),
-                       "simulation_results")
-  )
+                       "simulation_results"))
   
   expect_error(simulation(state = b_state,
                                   dynamics = b_dynamics,
-                                  timesteps = 15)
-              )
+                                  timesteps = 15))
   
   expect_error(simulation(state = b_state3,
                           dynamics = b_dynamics,
                           timesteps = 10)
   )
 
-  ## simulation checks.
   expect_error(simulation(state = b_state,
                           dynamics = b_dynamics,
                           timesteps = 15,
-                          simulations = 5)
+                          replicates = 5)
   )
   
   expect_error(simulation(state = b_state3,
                           dynamics = b_dynamics,
                           timesteps = 10,
-                          simulations = 5)
+                          replicates = 5)
   )
   
   expect_true(inherits(simulation(state = b_state,
                                 dynamics = b_dynamics,
                                 timesteps = 10,
-                                simulations = 5),
+                                replicates = 5),
                        "simulation_results")
   )
    
   test_simulation <- simulation(state = b_state,
                                 dynamics = b_dynamics,
                                 timesteps = 10,
-                                simulations = 5)
+                                replicates = 5)
     
   print(test_simulation)
 
@@ -221,40 +199,35 @@ test_that('simulation_results classes work', {
   
   plot(test_simulation[c(2:5)])
   
-  plot(test_simulation,
+  plot(test_simulation[1],
        object = "population",
        type = "raster",
-       stage = 2
-  )
+       stage = 2)
   
-  plot(test_simulation,
+  plot(test_simulation[1],
        object = "population",
        type = "graph",
-       stage = 0
-  )
+       stage = 0)
   
-  plot(test_simulation,
+  plot(test_simulation[1],
        object = "population",
        type = "graph",
-       stage = 2
-  )
+       stage = 2)
   
-  plot(test_simulation,
-       object = "habitat_suitability"
-  )
+  plot(test_simulation[1],
+       object = "habitat_suitability")
   
-  plot(test_simulation[c(1:2)],
-       object = "habitat_suitability"
-  )
-  
-  plot(test_simulation,
-       object = "carrying_capacity"
-  )
+  plot(test_simulation[1],
+       object = "carrying_capacity")
     
   expect_error(plot(test_simulation,
                     object = "population",
-                    type = "raster"
-                    )
-  )
+                    type = "raster"))
+  
+  expect_error(plot(test_simulation,
+                    object = "habitat_suitability"))
+  
+  expect_error(plot(test_simulation,
+                    object = "carrying_capacity"))
   
 })

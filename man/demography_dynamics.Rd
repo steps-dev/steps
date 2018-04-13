@@ -14,7 +14,7 @@ is.demography_dynamics(x)
 
 \method{print}{demography_dynamics}(x, ...)
 
-no_demography_dynamics(state, timestep)
+no_demography_dynamics()
 
 envstoch_demography_dynamics(global_transition_matrix, stochasticity = 0)
 }
@@ -24,10 +24,6 @@ envstoch_demography_dynamics(global_transition_matrix, stochasticity = 0)
 \item{x}{an object to print or test as an demography_dynamic object}
 
 \item{...}{further arguments passed to or from other methods}
-
-\item{state}{a state object to apply the demographic function to}
-
-\item{timestep}{the timestep in the experiment to apply the demographic function to the state object}
 
 \item{global_transition_matrix}{a life-stage transition matrix}
 
@@ -75,34 +71,26 @@ test_state <- build_state(test_habitat, test_demography, test_population)
 # object at each timestep
 
 example_function <- function (state, timestep) {
-state
+  state
 }
 
 # Define the function as a demography_dynamics object
 
-no_demography_dynamics <- as.demography_dynamics(example_function)
-
-# Alternatively, embedded in the function:
-
-example_function <- function(...) {
-  int.func <- function (state, timestep) {
-    state
-   }
-as.demography_dynamics(int.func)
-}
+example_function <- as.demography_dynamics(example_function)
 
 # Test if object is of the type 'demography dynamics'
   
-is.demography_dynamics(no_demography_dynamics)
+is.demography_dynamics(example_function)
 
 # Print details about the demography_dynamics object
 
-print(no_demography_dynamics)
+print(example_function)
 
 # Use the no_demography_dynamics object as a placeholder as it 
 # does not modify the demography object:
 
-test_state2 <- no_demography_dynamics(test_state, 1)
+demography_dynamics <- no_demography_dynamics()
+test_state2 <- demography_dynamics(test_state, 1)
 
 identical(test_state, test_state2)
 

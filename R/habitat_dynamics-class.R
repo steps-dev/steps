@@ -8,8 +8,8 @@
 #' @param habitat_dynamics_function A function that operates on a state object to change habitat at specified timesteps. User may enter a custom function or select a pre-defined module - see documentation. 
 #' @param x an object to print or test as an habitat_dynamic object
 #' @param ... further arguments passed to or from other methods
-#' @param state a state object to apply the habitat function to
-#' @param timestep the timestep in the experiment to apply the habitat function to the state object
+# @param state a state object to apply the habitat function to
+# @param timestep the timestep in the experiment to apply the habitat function to the state object
 #' @param habitat_suitability a raster layer or stack containing habitat suitability for each cell
 #' @param disturbance_layers a raster stack with fire disturbances used to alter the habitat object in the experiment (number of layers must match the intended timesteps in the experiment)
 #' @param effect_time the number of timesteps that the disturbance layer will act on the habitat object
@@ -47,19 +47,11 @@
 #' test_state <- build_state(test_habitat, test_demography, test_population)
 #'
 #' example_function <- function (state, timestep) {
-#' state
+#'   state
 #' }
 #' 
-#' no_habitat_dynamics <- as.habitat_dynamics(example_function)
-#' 
-#' # Alternatively, embedded in the function:
-#' 
-#' example_function <- function(...) {
-#'   int.func <- function (state, timestep) {
-#'     state
-#'    }
-#' as.habitat_dynamics(int.func)
-#' }
+#' example_function <- as.habitat_dynamics(example_function)
+
 
 as.habitat_dynamics <- function (habitat_dynamics_function) {
   stopifnot(inherits(habitat_dynamics_function,"function"))
@@ -74,7 +66,7 @@ as.habitat_dynamics <- function (habitat_dynamics_function) {
 #'
 #' # Test if object is of the type 'habitat dynamics'
 #'   
-#' is.habitat_dynamics(no_habitat_dynamics)
+#' is.habitat_dynamics(example_function)
 
 is.habitat_dynamics <- function (x) {
   inherits(x, 'habitat_dynamics')
@@ -86,7 +78,7 @@ is.habitat_dynamics <- function (x) {
 #'
 #' @examples
 #'
-#' print(no_habitat_dynamics)
+#' print(example_function)
 
 print.habitat_dynamics <- function (x, ...) {
   cat("This is a habitat_dynamics object")
@@ -111,8 +103,9 @@ print.habitat_dynamics <- function (x, ...) {
 #' 
 #' # Use the no_habitat_dynamics object as a placeholder as it 
 #' # does not modify the habitat object:
-#' 
-#' test_state2 <- no_habitat_dynamics(test_state, 1)
+#'
+#' habitat_dynamics <- no_habitat_dynamics()
+#' test_state2 <- habitat_dynamics(test_state, 1)
 #' 
 #' identical(test_state, test_state2)
 

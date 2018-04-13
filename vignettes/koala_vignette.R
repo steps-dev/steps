@@ -101,7 +101,7 @@ koala.demography.dynamics <- envstoch_demography_dynamics(global_transition_matr
                                                            stochasticity = koala.trans.mat.es)
 
 ## ---- message = FALSE----------------------------------------------------
-koala.population.dynamics <- as.population_dynamics(ca_dispersal_population_dynamics)
+koala.population.dynamics <- ca_dispersal_population_dynamics()
 
 ## ---- message = FALSE----------------------------------------------------
 koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
@@ -118,4 +118,32 @@ koala.results <- simulation(koala.state,
                        timesteps = 10,
                        replicates = 1
                        )
+
+## ---- message = FALSE, fig.width=7, fig.align="center"-------------------
+plot(koala.results)
+
+## ---- message = FALSE, fig.width=4, fig.align="center"-------------------
+plot(koala.results, stage = 0)
+
+## ---- message = FALSE, fig.width=4, fig.align="center"-------------------
+plot(koala.results, stage = 2, newplot = TRUE)
+
+## ---- message = FALSE, fig.width=7, fig.align="center"-------------------
+plot(koala.results, type = "raster", stage = 2)
+
+## ---- message = FALSE, fig.width=7, fig.align="center"-------------------
+plot(koala.results, object = "habitat_suitability")
+
+plot(koala.results, object = "carrying_capacity")
+
+## ---- message = FALSE----------------------------------------------------
+plan(multiprocess)
+koala.sim.results <- simulation(koala.state,
+                                koala.dynamics,
+                                timesteps = 10,
+                                replicates = 3
+                                )
+
+## ---- message = FALSE, fig.width=4, fig.align="center"-------------------
+plot(koala.sim.results[3], stage = 0)
 

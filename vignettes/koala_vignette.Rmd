@@ -158,7 +158,7 @@ koala.demography.dynamics <- envstoch_demography_dynamics(global_transition_matr
 A population dynamics object modifies the population sub-component of the state object. We use a pre-defined cellular-automata dispersal function to characterise the koala movements at each timestep. Included in this function is also density dependence (ceiling based on carrying capacity) and population changes for each stage based on the life-stage transition matrix.
 
 ```{r, message = FALSE}
-koala.population.dynamics <- as.population_dynamics(ca_dispersal_population_dynamics)
+koala.population.dynamics <- ca_dispersal_population_dynamics()
 ```
 
 All three sub-components are used to build a dynamics object. The dynamics object modifies the state object at each timestep in a single simulation. Note, we specify the order in which we would like the dynamics to act on the state object for each timestep. First the koala habitat will be modified by fire, then environmental stochasticity will be applied to the life-stage transition matrix, then the koala population will grow or shrink and disperse.
@@ -217,19 +217,19 @@ plot(koala.results, object = "habitat_suitability")
 plot(koala.results, object = "carrying_capacity")
 ```
 
-We can also perform multiple simulations. For the koala, we specified five replicates of a ten timestep simulation. To improve computation time, we have opted to use multiple processors by specifying a parameter to the 'future' package in the plan() call.
+We can also perform multiple simulations. For the koala, we specified three replicates of a ten timestep simulation. To improve computation time, we have opted to use multiple processors by specifying a parameter to the 'future' package in the plan() call.
 
 ```{r, message = FALSE}
 plan(multiprocess)
 koala.sim.results <- simulation(koala.state,
                                 koala.dynamics,
                                 timesteps = 10,
-                                replicates = 5
+                                replicates = 3
                                 )
 ```
 
-Because a simulation object is comprised of single or multiple replicates, we can subset and plot individual replicates. Here, we plot the population projections for the fifth replicate of the simulation:
+Because a simulation object is comprised of single or multiple replicates, we can subset and plot individual replicates. Here, we plot the population projections for the third replicate of the simulation:
 
 ```{r, message = FALSE, fig.width=4, fig.align="center"}
-#plot(koala.sim.results[[5]], stage = 0)
+plot(koala.sim.results[3], stage = 0)
 ```

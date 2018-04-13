@@ -14,7 +14,7 @@ is.habitat_dynamics(x)
 
 \method{print}{habitat_dynamics}(x, ...)
 
-no_habitat_dynamics(state, timestep)
+no_habitat_dynamics()
 
 fire_habitat_dynamics(habitat_suitability, disturbance_layers,
   effect_time = 1)
@@ -25,10 +25,6 @@ fire_habitat_dynamics(habitat_suitability, disturbance_layers,
 \item{x}{an object to print or test as an habitat_dynamic object}
 
 \item{...}{further arguments passed to or from other methods}
-
-\item{state}{a state object to apply the habitat function to}
-
-\item{timestep}{the timestep in the experiment to apply the habitat function to the state object}
 
 \item{habitat_suitability}{a raster layer or stack containing habitat suitability for each cell}
 
@@ -72,30 +68,22 @@ test_population <- build_population(pop)
 test_state <- build_state(test_habitat, test_demography, test_population)
 
 example_function <- function (state, timestep) {
-state
+  state
 }
 
-no_habitat_dynamics <- as.habitat_dynamics(example_function)
-
-# Alternatively, embedded in the function:
-
-example_function <- function(...) {
-  int.func <- function (state, timestep) {
-    state
-   }
-as.habitat_dynamics(int.func)
-}
+example_function <- as.habitat_dynamics(example_function)
 
 # Test if object is of the type 'habitat dynamics'
   
-is.habitat_dynamics(no_habitat_dynamics)
+is.habitat_dynamics(example_function)
 
-print(no_habitat_dynamics)
+print(example_function)
 
 # Use the no_habitat_dynamics object as a placeholder as it 
 # does not modify the habitat object:
 
-test_state2 <- no_habitat_dynamics(test_state, 1)
+habitat_dynamics <- no_habitat_dynamics()
+test_state2 <- habitat_dynamics(test_state, 1)
 
 identical(test_state, test_state2)
 
