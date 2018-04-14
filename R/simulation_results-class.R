@@ -12,6 +12,7 @@
 #' @param object the state object to plot - can be 'population' (default), 'habitat_suitability' or 'carrying_capacity'
 #' @param type the plot type - 'graph' (default) or 'raster'
 #' @param stage life-stage to plot - must be specified for 'raster' plot types; default is NULL and all life-stages will be plotted
+#' @param animate if plotting type 'raster' would you like to animate the rasters as a gif?
 #' @param ... further arguments passed to or from other methods
 #'
 #' @return An object of class \code{simulation_results}
@@ -19,6 +20,8 @@
 #' @export
 #' 
 #' @importFrom future plan multiprocess future values
+#' @importFrom raster animate
+#' @importFrom viridis viridis
 #'
 #' @examples
 #'
@@ -118,7 +121,7 @@ print.simulation_results <- function (x, ...) {
 #'
 #' plot(results)
 
-plot.simulation_results <- function (x, object = "population", type = "graph", stage = NULL, ...){
+plot.simulation_results <- function (x, object = "population", type = "graph", stage = NULL, animate = FALSE, ...){
   
   stages <- raster::nlayers(x[[1]][[1]]$population$population_raster)
   stage_names <- colnames(x[[1]][[1]]$demography$global_transition_matrix)
@@ -218,9 +221,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
       }
       
       if (type == "raster") {
-        
         if (is.null(stage)) stop("Please provide a life-stage when plotting population rasters")
-        
         rasters <- raster::stack(lapply(x[[1]], function (state) state$population$population_raster[[stage]]))
         
         # Find maximum and minimum population value in raster cells for all timesteps for life-stage
@@ -229,6 +230,10 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
         
         # Produce scale of values
         breaks <- seq(scale_min, scale_max, (scale_max-scale_min)/100)
+        
+        if (animate==TRUE){
+          raster::animate(rasters,col=viridis::viridis(20,direction = -1))
+        } else {
         
         ts <- seq_len(raster::nlayers(rasters))
         groups <- split(ts, ceiling(seq_along(ts)/9))
@@ -245,8 +250,8 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                                                      title = "individuals",
                                                      width = 0.6),
                                      main="population"))
+          }
         }
-        
       }
       
     }

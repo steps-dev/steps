@@ -14,7 +14,7 @@ is.simulation_results(x)
 \method{print}{simulation_results}(x, ...)
 
 \method{plot}{simulation_results}(x, object = "population", type = "graph",
-  stage = NULL, ...)
+  stage = NULL, animate = FALSE, ...)
 }
 \arguments{
 \item{state}{a state object - static habitat, population, and demography in a timestep}
@@ -34,6 +34,8 @@ is.simulation_results(x)
 \item{type}{the plot type - 'graph' (default) or 'raster'}
 
 \item{stage}{life-stage to plot - must be specified for 'raster' plot types; default is NULL and all life-stages will be plotted}
+
+\item{animate}{if plotting type 'raster' would you like to animate the rasters as a gif?}
 }
 \value{
 An object of class \code{simulation_results}
