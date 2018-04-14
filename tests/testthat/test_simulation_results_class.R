@@ -3,6 +3,8 @@ context('simulation_results-class')
 test_that('simulation_results classes work', {
   library(raster)
   library(rgdal)
+  library(future)
+  plan(multiprocess)
 
   # the types of demography
   mat <- matrix(c(0.000,0.000,0.302,0.302,

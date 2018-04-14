@@ -67,9 +67,9 @@ test_population <- build_population(pop)
 
 test_state <- build_state(test_habitat, test_demography, test_population)
 
-simple_approximation <- build_dynamics(no_habitat_dynamics,
-                                       no_demography_dynamics,
-                                       fast_population_dynamics)
+simple_approximation <- build_dynamics(no_habitat_dynamics(),
+                                       no_demography_dynamics(),
+                                       fast_population_dynamics())
 
 results <- simulation(test_state, simple_approximation, timesteps = 10, replicates = 2)
 

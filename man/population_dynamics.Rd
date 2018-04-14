@@ -110,13 +110,15 @@ plot(test_state2$population$population_raster[[2]])
 # population using life-stage transitions, density-dependence,
 # and cellular-automata based dispersal:
 
-test_state_dp2 <- ca_dispersal_population_dynamics(test_state_dp, 1)
+population_dynamics <- ca_dispersal_population_dynamics()
+test_state_dp2 <- population_dynamics(test_state_dp, 1)
 
 par(mfrow=c(1,2))
 plot(test_state_dp$population$population_raster[[2]])
 plot(test_state_dp2$population$population_raster[[2]])
 
-test_state_dp2 <- fft_dispersal_population_dynamics(test_state_dp, 1)
+population_dynamics <- fft_dispersal_population_dynamics()
+test_state_dp2 <- population_dynamics(test_state_dp, 1)
 
 par(mfrow=c(1,2))
 plot(test_state_dp$population$population_raster[[2]])
