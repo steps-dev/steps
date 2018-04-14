@@ -304,6 +304,8 @@ plot(sim_results, stage = 0)
 
 plot(sim_results, type = "raster", stage = 2)
 
+plot(sim_results[1], type = "raster", stage = 2, animate = TRUE)
+
 plot(sim_results, object = "habitat_suitability")
 
 plot(sim_results, object = "carrying_capacity")

@@ -21,7 +21,7 @@
 #' 
 #' @importFrom future plan multiprocess future values
 #' @importFrom raster animate
-#' @importFrom viridis viridis
+#' @importFrom viridisLite viridis
 #'
 #' @examples
 #'
@@ -63,18 +63,7 @@ simulation <- function(state, dynamics, timesteps, replicates=1){
                                       dynamics = dynamics,
                                       timesteps = timesteps,
                                       future.seed = FALSE)
-    
-  # simulation_results <- list()
-  # for(ii in seq_len(replicates)){
-  #   simulation_results[[ii]] <- future({
-  #     simulate(state,dynamics,timesteps)
-  #   },
-  #   globals = list(state = state,
-  #                  dynamics = dynamics,
-  #                  timesteps = timesteps,
-  #                  simulate = steps::simulate)
-  #   )
-  # }
+
   set_class(simulation_results, "simulation_results")
 }
 
@@ -126,19 +115,19 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
   stages <- raster::nlayers(x[[1]][[1]]$population$population_raster)
   stage_names <- colnames(x[[1]][[1]]$demography$global_transition_matrix)
 
-  ras.pal <- grDevices::colorRampPalette(
-    c(
-      '#440154', # dark purple
-      '#472c7a', # purple
-      '#3b518b', # blue
-      '#2c718e', # blue
-      '#21908d', # blue-green
-      '#27ad81', # green
-      '#5cc863', # green
-      '#aadc32', # lime green
-      '#fde725' # yellow
-    )
-  )
+  # ras.pal <- grDevices::colorRampPalette(
+  #   c(
+  #     '#440154', # dark purple
+  #     '#472c7a', # purple
+  #     '#3b518b', # blue
+  #     '#2c718e', # blue
+  #     '#21908d', # blue-green
+  #     '#27ad81', # green
+  #     '#5cc863', # green
+  #     '#aadc32', # lime green
+  #     '#fde725' # yellow
+  #   )
+  # )
     
   graph.pal <- c("#94d1c7",
                  "#cccc2b",
@@ -221,7 +210,9 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
       }
       
       if (type == "raster") {
+        
         if (is.null(stage)) stop("Please provide a life-stage when plotting population rasters")
+        
         rasters <- raster::stack(lapply(x[[1]], function (state) state$population$population_raster[[stage]]))
         
         # Find maximum and minimum population value in raster cells for all timesteps for life-stage
@@ -231,8 +222,8 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
         # Produce scale of values
         breaks <- seq(scale_min, scale_max, (scale_max-scale_min)/100)
         
-        if (animate==TRUE){
-          raster::animate(rasters,col=viridis::viridis(20,direction = -1))
+        if (animate == TRUE) {
+          raster::animate(rasters,col=viridisLite::viridis(20,direction = -1))
         } else {
         
         ts <- seq_len(raster::nlayers(rasters))
@@ -245,7 +236,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                                      scales = list(draw = FALSE),
                                      margin = list(draw = FALSE),
                                      at = breaks,
-                                     col.regions = ras.pal(length(breaks)-1),
+                                     col.regions = viridisLite::viridis(length(breaks)-1),
                                      colorkey = list(space = "bottom",
                                                      title = "individuals",
                                                      width = 0.6),
@@ -277,7 +268,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                                    scales = list(draw = FALSE),
                                    margin = list(draw = FALSE),
                                    at = breaks,
-                                   col.regions = ras.pal(length(breaks)-1),
+                                   col.regions = viridisLite::viridis(length(breaks)-1),
                                    colorkey = list(space = "bottom",
                                                    title = "index",
                                                    width = 0.6),
@@ -307,7 +298,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                                    scales = list(draw = FALSE),
                                    margin = list(draw = FALSE),
                                    at = breaks,
-                                   col.regions = ras.pal(length(breaks)-1),
+                                   col.regions = viridisLite::viridis(length(breaks)-1),
                                    colorkey = list(space = "bottom",
                                                    title = "individuals",
                                                    width = 0.6),
@@ -448,205 +439,3 @@ get_pop_simulation <- function(x, ...) {
   
   return(pop_array)
 }
-
-
-
-# plot.simulation_results <- function (x, object = "population", type = "graph", stage = NULL, ...){
-#   
-#   stages <- raster::nlayers(x[[1]]$population$population_raster)
-#   
-#   stage_names <- colnames(x[[1]]$demography$global_transition_matrix)
-#   
-#   ras.pal <- grDevices::colorRampPalette(
-#     c(
-#       '#440154', # dark purple
-#       '#472c7a', # purple
-#       '#3b518b', # blue
-#       '#2c718e', # blue
-#       '#21908d', # blue-green
-#       '#27ad81', # green
-#       '#5cc863', # green
-#       '#aadc32', # lime green
-#       '#fde725' # yellow
-#     )
-#   )
-#   
-#   graph.pal <- c("#94d1c7",
-#                  "#cccc2b",
-#                  "#bebada",
-#                  "#fb8072",
-#                  "#80b1d3",
-#                  "#fdb462",
-#                  "#b3de69",
-#                  "#fccde5",
-#                  "#969696",
-#                  "#bc80bd"
-#   )
-#   
-#   if (object == "population") {
-#     
-#     pop <- get_pop_replicate(x)
-#     
-#     if (type == "graph") {
-#       
-#       if (is.null(stage)) {
-#         
-#         graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,stages))
-#         
-#         for (i in seq_len(stages)) {
-#           
-#           graphics::plot(pop[ , i],
-#                          type='l',
-#                          ylab=paste("Total Population: ",stage_names[i]),
-#                          xlab="Time (years)",
-#                          lwd=2,
-#                          col=graph.pal[i],
-#                          ylim=c(pretty(floor(min(pop)))[1], pretty(ceiling(max(pop)))[2])
-#           )
-#           graphics::abline(h=raster::cellStats(x[[1]]$habitat$carrying_capacity,sum)/stages,
-#                            lwd=1,
-#                            lty=2)
-#           
-#         }
-#         
-#       }
-#       
-#       if(!is.null(stage) && stage == 0) {
-#         
-#         graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
-#         
-#         graphics::plot(rowSums(pop),
-#                        type='l',
-#                        ylab="Total Population (all stages)",
-#                        xlab="Time (years)",
-#                        lwd=2,
-#                        col="black",
-#                        ylim=c(pretty(floor(min(rowSums(pop))))[1], pretty(ceiling(max(rowSums(pop))))[2])
-#         )
-#         graphics::abline(h=raster::cellStats(x[[1]]$habitat$carrying_capacity,sum),
-#                          lwd=1,
-#                          lty=2)
-#         
-#       }
-#       
-#       if (!is.null(stage) && stage > 0) {
-#         
-#         graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
-#         
-#         graphics::plot(pop[, stage],
-#                        type='l',
-#                        ylab=paste("Total Population: ",stage_names[stage]),
-#                        xlab="Time (years)",
-#                        lwd=2,
-#                        col=graph.pal[stage],
-#                        ylim=c(pretty(floor(min(pop[, stage])))[1], pretty(ceiling(max(pop[, stage])))[2])
-#         )
-#         graphics::abline(h=raster::cellStats(x[[1]]$habitat$carrying_capacity,sum)/stages,
-#                          lwd=1,
-#                          lty=2)
-#         
-#       }
-#       
-#     }
-#     
-#     if (type == "raster") {
-#       
-#       if (is.null(stage)) stop("Please provide a life-stage when plotting population rasters")
-#       
-#       rasters <- raster::stack(lapply(x, function (state) state$population$population_raster[[stage]]))
-#       
-#       # Find maximum and minimum population value in raster cells for all timesteps for life-stage
-#       scale_max <- ceiling(max(raster::cellStats(rasters, max)))
-#       scale_min <- floor(min(raster::cellStats(rasters, min)))
-#       
-#       # Produce scale of values
-#       breaks <- seq(scale_min, scale_max, (scale_max-scale_min)/100)
-#       
-#       ts <- seq_len(raster::nlayers(rasters))
-#       groups <- split(ts, ceiling(seq_along(ts)/9))
-#       
-#       for (i in seq_along(groups)) {
-#         
-#         group <- groups[[i]]
-#         print(rasterVis::levelplot(rasters[[group]],
-#                                    scales = list(draw = FALSE),
-#                                    at = breaks,
-#                                    col.regions = ras.pal(length(breaks)-1),
-#                                    colorkey = list(space = "bottom",
-#                                                    title = "individuals",
-#                                                    width = 0.6
-#                                    ),
-#                                    main="population"
-#         )
-#         )
-#       }
-#       
-#     }
-#     
-#   }
-#   
-#   if (object == "habitat_suitability") {
-#     
-#     rasters <- raster::stack(lapply(x, function (state) state$habitat$habitat_suitability))
-#     
-#     # Find maximum and minimum population value in raster cells for all timesteps for life-stage
-#     scale_max <- ceiling(max(raster::cellStats(rasters, max)))
-#     scale_min <- floor(min(raster::cellStats(rasters, min)))
-#     
-#     # Produce scale of values
-#     breaks <- seq(scale_min, scale_max, (scale_max-scale_min)/100)
-#     
-#     ts <- seq_len(raster::nlayers(rasters))
-#     groups <- split(ts, ceiling(seq_along(ts)/9))
-#     
-#     for (i in seq_along(groups)) {
-#       
-#       group <- groups[[i]]
-#       print(rasterVis::levelplot(rasters[[group]],
-#                                  scales = list(draw = FALSE),
-#                                  at = breaks,
-#                                  col.regions = ras.pal(length(breaks)-1),
-#                                  colorkey = list(space = "bottom",
-#                                                  title = "index",
-#                                                  width = 0.6
-#                                  ),
-#                                  main="habitat"
-#       )
-#       )
-#     }
-#     
-#   }
-#   
-#   if (object == "carrying_capacity") {
-#     
-#     rasters <- raster::stack(lapply(x, function (state) state$habitat$carrying_capacity))
-#     
-#     # Find maximum and minimum population value in raster cells for all timesteps for life-stage
-#     scale_max <- ceiling(max(raster::cellStats(rasters, max)))
-#     scale_min <- floor(min(raster::cellStats(rasters, min)))
-#     
-#     # Produce scale of values
-#     breaks <- seq(scale_min, scale_max, (scale_max-scale_min)/100)
-#     
-#     ts <- seq_len(raster::nlayers(rasters))
-#     groups <- split(ts, ceiling(seq_along(ts)/9))
-#     
-#     for (i in seq_along(groups)) {
-#       
-#       group <- groups[[i]]
-#       print(rasterVis::levelplot(rasters[[group]],
-#                                  scales = list(draw = FALSE),
-#                                  at = breaks,
-#                                  col.regions = ras.pal(length(breaks)-1),
-#                                  colorkey = list(space = "bottom",
-#                                                  title = "individuals",
-#                                                  width = 0.6
-#                                  ),
-#                                  main="k"
-#       )
-#       )
-#     }
-#     
-#   }
-#   
-# }
