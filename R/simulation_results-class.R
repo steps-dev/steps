@@ -223,7 +223,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
         breaks <- seq(scale_min, scale_max, (scale_max-scale_min)/100)
         
         if (animate == TRUE) {
-          raster::animate(rasters,col=viridisLite::viridis(20,direction = -1))
+          raster::animate(rasters,col=viridisLite::viridis(length(breaks)-1))
         } else {
         
         ts <- seq_len(raster::nlayers(rasters))

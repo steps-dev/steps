@@ -207,6 +207,11 @@ test_that('simulation_results classes work', {
        stage = 2)
   
   plot(test_simulation[1],
+       type = "raster",
+       stage = 2,
+       animate = TRUE)
+  
+  plot(test_simulation[1],
        object = "population",
        type = "graph",
        stage = 0)

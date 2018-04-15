@@ -136,6 +136,27 @@ dispersal_matrix <- function (locations, distance_decay = 0.5) {
   dispersal_matrix
 }
 
+demographic_stochasticity <- function (population_matrix, transition_matrix) {
+  
+  population_matrix_out <- population_matrix
+  n <- nrow(population_matrix)
+  
+  for (i in seq_len(ncol(population_matrix))) {
+    
+    #fecundity
+    newborns <- stats::rpois(n,
+                      transition_matrix[1, i] * population_matrix[ , i]) 
+    #survival
+    survivors <- stats::rbinom(n,
+                        round(as.vector(population_matrix[ , i]), 0),
+                        transition_matrix[which(transition_matrix[ , i] > 0) != 1 & transition_matrix[ , i] > 0, i])
+    
+    population_matrix_out[ , i] <- newborns + survivors
+  
+  }
+  return(population_matrix_out)
+}
+
 
 extend <- function (x, factor = 2) {
   # given an evenly-spaced vector `x` of cell centre locations, extend it to the
@@ -447,6 +468,9 @@ ca_dispersal_population_dynamics <- function () {
 
     # do population change
     population <- population %*% transition_matrix
+    
+    # perform demographic stochasticity
+    population <- demographic_stochasticity(population, transition_matrix)
 
     # check density dependence
     population <- cap_population(population, carrying_capacity)
