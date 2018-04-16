@@ -134,6 +134,11 @@ pop_sink[sample(which(getValues(pop[[1]]) == 0 &
                                                 stages = NULL,
                                                 effect_timesteps = c(2,4))
   
+  pop_dyn5 <- translocation_population_dynamics(source_layer = pop_source,
+                                                sink_layer = pop_sink,
+                                                stages = 2,
+                                                effect_timesteps = c(2,4))
+  
   b_dynamics <- build_dynamics(habitat_dynamics = hab_dyn,
                                demography_dynamics = dem_dyn,
                                population_dynamics = pop_dyn)
@@ -153,6 +158,10 @@ pop_sink[sample(which(getValues(pop[[1]]) == 0 &
   b_dynamics5 <- build_dynamics(habitat_dynamics = hab_dyn,
                                 demography_dynamics = dem_dyn,
                                 population_dynamics = pop_dyn4)
+  
+  b_dynamics6 <- build_dynamics(habitat_dynamics = hab_dyn,
+                                demography_dynamics = dem_dyn,
+                                population_dynamics = pop_dyn5)
 
   expect_true(inherits(simulation(state = b_state,
                                   dynamics = b_dynamics,
@@ -185,6 +194,11 @@ pop_sink[sample(which(getValues(pop[[1]]) == 0 &
   
   expect_true(inherits(simulation(state = b_state,
                                   dynamics = b_dynamics5,
+                                  timesteps = 10),
+                       "simulation_results"))
+  
+  expect_true(inherits(simulation(state = b_state,
+                                  dynamics = b_dynamics6,
                                   timesteps = 10),
                        "simulation_results"))
   
