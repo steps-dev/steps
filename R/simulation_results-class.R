@@ -99,6 +99,7 @@ is.simulation_results <- function (x) {
 
 print.simulation_results <- function (x, ...) {
   cat("This is an simulation results object, for", length(x), "replicates")
+  
 }
 
 

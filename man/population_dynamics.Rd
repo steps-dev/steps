@@ -7,6 +7,7 @@
 \alias{fast_population_dynamics}
 \alias{ca_dispersal_population_dynamics}
 \alias{fft_dispersal_population_dynamics}
+\alias{translocation_population_dynamics}
 \title{Change the population in a state object}
 \usage{
 as.population_dynamics(population_dynamics_function)
@@ -20,6 +21,9 @@ fast_population_dynamics()
 ca_dispersal_population_dynamics()
 
 fft_dispersal_population_dynamics()
+
+translocation_population_dynamics(source_layer, sink_layer, stages = NULL,
+  effect_timesteps = NULL)
 }
 \arguments{
 \item{population_dynamics_function}{A function that operates on a state object to change population at specified timesteps. User may enter a custom function or select a pre-defined module - see documentation.}
@@ -27,6 +31,14 @@ fft_dispersal_population_dynamics()
 \item{x}{a population_dynamic object}
 
 \item{...}{further arguments passed to or from other methods}
+
+\item{source_layer}{a spatial layer with the locations and number of individuals to translocate from - note, this layer will only have zero values if individuals are being introduced from outside the study area}
+
+\item{sink_layer}{a spatial layer with the locations and number of individuals to translocate to}
+
+\item{stages}{which life-stages are affected by the translocations - note, default is all}
+
+\item{effect_timesteps}{which timesteps in a single simulation do the translocations take place}
 }
 \value{
 An object of class \code{population_dynamics}
@@ -50,6 +62,15 @@ mat <- matrix(c(0.000,0.000,0.302,0.302,
 colnames(mat) <- rownames(mat) <- c('Stage_1','Stage_2','Stage_3','Stage_4')
 
 pop <- stack(replicate(4, ceiling(r * 0.2)))
+
+pop_source <- r
+pop_source[!is.na(r)] <- 0
+pop_source[!is.na(r) & r >= 1200] <- 100
+
+pop_sink <- r
+pop_sink[!is.na(r)] <- 0
+pop_sink[sample(which(!is.na(getValues(r)) & getValues(r) < 200),
+                length(pop_source[!is.na(r) & r >= 1200]))] <- 100
 
 hab_suit <- r / cellStats(r, "max")
 
@@ -118,6 +139,19 @@ plot(test_state_dp$population$population_raster[[2]])
 plot(test_state_dp2$population$population_raster[[2]])
 
 population_dynamics <- fft_dispersal_population_dynamics()
+test_state_dp2 <- population_dynamics(test_state_dp, 1)
+
+par(mfrow=c(1,2))
+plot(test_state_dp$population$population_raster[[2]])
+plot(test_state_dp2$population$population_raster[[2]])
+
+# Use the translocation_population_dynamics object to modify the  
+# population using translocations:
+
+population_dynamics <- translocation_population_dynamics(source_layer = pop_source,
+                                                         sink_layer = pop_sink,
+                                                         stages = NULL,
+                                                         effect_timesteps = 1)
 test_state_dp2 <- population_dynamics(test_state_dp, 1)
 
 par(mfrow=c(1,2))

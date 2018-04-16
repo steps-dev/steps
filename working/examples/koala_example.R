@@ -293,7 +293,7 @@ koala.dynamics <- build_dynamics(koala.habitat.dynamics,
 plan(multiprocess)
 sim_results <- simulation(state = koala.state,
                           dynamics = koala.dynamics,
-                          timesteps = 5,
+                          timesteps = 20,
                           replicates = 3)
 
 plot(sim_results)
