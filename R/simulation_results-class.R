@@ -224,6 +224,8 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
         breaks <- seq(scale_min, scale_max, (scale_max-scale_min)/100)
         
         if (animate == TRUE) {
+          graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
+          
           raster::animate(rasters,col=viridisLite::viridis(length(breaks)-1))
         } else {
         
