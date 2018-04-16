@@ -11,8 +11,10 @@ NULL
 #' @param population_dynamics_function A function that operates on a state object to change population at specified timesteps. User may enter a custom function or select a pre-defined module - see documentation. 
 #' @param x a population_dynamic object
 #' @param ... further arguments passed to or from other methods
-# @param state a state object to apply the population function to
-# @param timestep the timestep in the experiment to apply the population function to the state object
+#' @param source_layer a spatial layer with the locations and number of individuals to translocate from - note, this layer will only have zero values if individuals are being introduced from outside the study area
+#' @param sink_layer a spatial layer with the locations and number of individuals to translocate to
+#' @param stages which life-stages are affected by the translocations - note, default is all
+#' @param effect_timesteps which timesteps in a single simulation do the translocations take place
 #'
 #' @return An object of class \code{population_dynamics}
 #' 
@@ -33,6 +35,15 @@ NULL
 #' colnames(mat) <- rownames(mat) <- c('Stage_1','Stage_2','Stage_3','Stage_4')
 #' 
 #' pop <- stack(replicate(4, ceiling(r * 0.2)))
+#' 
+#' pop_source <- r
+#' pop_source[!is.na(r)] <- 0
+#' pop_source[!is.na(r) & r >= 1200] <- 100
+#' 
+#' pop_sink <- r
+#' pop_sink[!is.na(r)] <- 0
+#' pop_sink[sample(which(!is.na(getValues(r)) & getValues(r) < 200),
+#'                 length(pop_source[!is.na(r) & r >= 1200]))] <- 100
 #' 
 #' hab_suit <- r / cellStats(r, "max")
 #' 
@@ -134,6 +145,27 @@ dispersal_matrix <- function (locations, distance_decay = 0.5) {
   sums <- colSums(dispersal_matrix)
   dispersal_matrix <- sweep(dispersal_matrix, 2, sums, "/")
   dispersal_matrix
+}
+
+demographic_stochasticity <- function (population_matrix, transition_matrix) {
+  
+  population_matrix_out <- population_matrix
+  n <- nrow(population_matrix)
+  
+  for (i in seq_len(ncol(population_matrix))) {
+    
+    #fecundity
+    newborns <- stats::rpois(n,
+                      transition_matrix[1, i] * population_matrix[ , i]) 
+    #survival
+    survivors <- stats::rbinom(n,
+                        round(as.vector(population_matrix[ , i]), 0),
+                        transition_matrix[which(transition_matrix[ , i] > 0) != 1 & transition_matrix[ , i] > 0, i])
+    
+    population_matrix_out[ , i] <- newborns + survivors
+  
+  }
+  return(population_matrix_out)
 }
 
 
@@ -447,6 +479,9 @@ ca_dispersal_population_dynamics <- function () {
 
     # do population change
     population <- population %*% transition_matrix
+    
+    # perform demographic stochasticity
+    population <- demographic_stochasticity(population, transition_matrix)
 
     # check density dependence
     population <- cap_population(population, carrying_capacity)
@@ -511,4 +546,77 @@ fft_dispersal_population_dynamics <- function () {
 
   as.population_dynamics(population_dynamics)
 
+}
+
+
+#' @rdname population_dynamics
+#'
+#' @export
+#' 
+#' @examples
+#' 
+#' # Use the translocation_population_dynamics object to modify the  
+#' # population using translocations:
+#' 
+#' population_dynamics <- translocation_population_dynamics(source_layer = pop_source,
+#'                                                          sink_layer = pop_sink,
+#'                                                          stages = NULL,
+#'                                                          effect_timesteps = 1)
+#' test_state_dp2 <- population_dynamics(test_state_dp, 1)
+#' 
+#' par(mfrow=c(1,2))
+#' plot(test_state_dp$population$population_raster[[2]])
+#' plot(test_state_dp2$population$population_raster[[2]])
+
+translocation_population_dynamics <- function (source_layer, sink_layer, stages = NULL, effect_timesteps = NULL) {
+  
+  population_dynamics <- function (state, timestep) {
+    
+    if (timestep %in% effect_timesteps) {
+      
+      population_raster <- state$population$population_raster
+      nstages <- ncol(state$demography$global_transition_matrix)
+      
+      # get population as a matrix
+      idx <- which(!is.na(raster::getValues(population_raster[[1]])))
+      population_matrix <- raster::extract(population_raster, idx)
+      
+      source<- raster::extract(source_layer, idx)
+      sink <- raster::extract(sink_layer, idx)
+      
+      if (is.null(stages)) {
+        
+        for (i in seq_len(ncol(population_matrix))) {
+
+          population_matrix[ , i] <- population_matrix[ , i] + (sink/nstages) - (source/nstages)
+
+        }
+
+      } else {
+        
+        for (i in stages) {
+          
+          population_matrix[ , i] <- population_matrix[ , i] + (sink/length(stages)) - (source/length(stages))
+
+        }
+        
+      }
+
+      # put back in the raster
+      population_raster[idx] <- population_matrix
+
+      state$population$population_raster <- population_raster
+      
+      state
+      
+    } else {
+      
+      state
+    
+    }
+    
+  }
+  
+  as.population_dynamics(population_dynamics)
+  
 }

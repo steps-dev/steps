@@ -1,10 +1,11 @@
 context('simulation_results-class')
 
 test_that('simulation_results classes work', {
+  
   library(raster)
   library(rgdal)
   library(future)
-  plan(multiprocess)
+  plan(sequential)
 
   # the types of demography
   mat <- matrix(c(0.000,0.000,0.302,0.302,
@@ -33,7 +34,7 @@ test_that('simulation_results classes work', {
   r2[c(adjacent(hab.suit, cells, directions=8, pairs=FALSE),cells)]  <- 10
   r3 <- r2#*hab.suit
   
-  pop <- stack(r3*2,r3*2,r3*2,r3*2)
+  pop <- stack(r3*1,r3*2,r3*3,r3*2)
   
   hab.k <- hab.suit*10
   
@@ -55,7 +56,19 @@ test_that('simulation_results classes work', {
   }
   
   dist.s <- stack(dist_list)
-  
+
+pop_source <- pop[[3]]
+pop_source[pop[[3]] < 30] <- 0
+pop_source[pop[[3]] == 30] <- 5
+
+pop_sink <- pop[[1]]
+pop_sink[] <- 0
+pop_sink[sample(which(getValues(pop[[1]]) == 0 &
+                        getValues(pop[[2]]) == 0 &
+                        getValues(pop[[3]]) == 0 &
+                        getValues(pop[[4]]) == 0),
+                      length(pop_source[pop[[3]] == 30]))] <- 5
+    
   params <- list(
     dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=1,'Stage_2-3'=1,'Stage_3+'=0),
     dispersal_kernel=list('Stage_0-1'=0,'Stage_1-2'=exp(-c(0:9)^1/3.36),'Stage_2-3'=exp(-c(0:9)^1/3.36),'Stage_3+'=0),
@@ -116,6 +129,15 @@ test_that('simulation_results classes work', {
   pop_dyn <- ca_dispersal_population_dynamics()
   pop_dyn2 <- fast_population_dynamics()
   pop_dyn3 <- fft_dispersal_population_dynamics()
+  pop_dyn4 <- translocation_population_dynamics(source_layer = pop_source,
+                                                sink_layer = pop_sink,
+                                                stages = NULL,
+                                                effect_timesteps = c(2,4))
+  
+  pop_dyn5 <- translocation_population_dynamics(source_layer = pop_source,
+                                                sink_layer = pop_sink,
+                                                stages = 2,
+                                                effect_timesteps = c(2,4))
   
   b_dynamics <- build_dynamics(habitat_dynamics = hab_dyn,
                                demography_dynamics = dem_dyn,
@@ -132,6 +154,14 @@ test_that('simulation_results classes work', {
   b_dynamics4 <- build_dynamics(habitat_dynamics = hab_dyn,
                                demography_dynamics = dem_dyn,
                                population_dynamics = pop_dyn3)
+  
+  b_dynamics5 <- build_dynamics(habitat_dynamics = hab_dyn,
+                                demography_dynamics = dem_dyn,
+                                population_dynamics = pop_dyn4)
+  
+  b_dynamics6 <- build_dynamics(habitat_dynamics = hab_dyn,
+                                demography_dynamics = dem_dyn,
+                                population_dynamics = pop_dyn5)
 
   expect_true(inherits(simulation(state = b_state,
                                   dynamics = b_dynamics,
@@ -159,6 +189,16 @@ test_that('simulation_results classes work', {
   
   expect_true(inherits(simulation(state = b_state,
                                   dynamics = b_dynamics4,
+                                  timesteps = 10),
+                       "simulation_results"))
+  
+  expect_true(inherits(simulation(state = b_state,
+                                  dynamics = b_dynamics5,
+                                  timesteps = 10),
+                       "simulation_results"))
+  
+  expect_true(inherits(simulation(state = b_state,
+                                  dynamics = b_dynamics6,
                                   timesteps = 10),
                        "simulation_results"))
   
@@ -199,12 +239,25 @@ test_that('simulation_results classes work', {
 
   plot(test_simulation)
   
+  plot(test_simulation,
+       stage = 0)
+  
+  plot(test_simulation,
+       stage = 2)
+  
+  plot(test_simulation[1])
+  
   plot(test_simulation[c(2:5)])
   
   plot(test_simulation[1],
        object = "population",
        type = "raster",
        stage = 2)
+  
+  plot(test_simulation[1],
+       type = "raster",
+       stage = 2,
+       animate = TRUE)
   
   plot(test_simulation[1],
        object = "population",
