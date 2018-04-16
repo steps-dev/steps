@@ -200,22 +200,6 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatrix 
 }
 
 // [[Rcpp::export]]
-int total_dispersal_cells(NumericMatrix habitat_suitability_map){  
-	int i, j, count;
-	int ncols = habitat_suitability_map.ncol();
-	int nrows = habitat_suitability_map.nrow();
-
-   // Count the number of dispersable pixels.
-	  count = 0;
-	  for (i = 0; i < nrows; i++){
-		for (j = 0; j < ncols; j++){
-		  if (habitat_suitability_map(i,j) > 0) count++;
-		  }
-	  }
-  return (count);
-}
-
-// [[Rcpp::export]]
 IntegerVector can_source_cell_disperse(int i, int j, NumericMatrix carrying_capacity_available, 
                                        NumericMatrix tracking_population_state, NumericMatrix habitat_suitability_map,
                                        NumericMatrix barriers_map, bool use_barrier, int barrier_type, int loopID, 

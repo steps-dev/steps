@@ -21,17 +21,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// total_dispersal_cells
-int total_dispersal_cells(NumericMatrix habitat_suitability_map);
-RcppExport SEXP _steps_total_dispersal_cells(SEXP habitat_suitability_mapSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type habitat_suitability_map(habitat_suitability_mapSEXP);
-    rcpp_result_gen = Rcpp::wrap(total_dispersal_cells(habitat_suitability_map));
-    return rcpp_result_gen;
-END_RCPP
-}
 // can_source_cell_disperse
 IntegerVector can_source_cell_disperse(int i, int j, NumericMatrix carrying_capacity_available, NumericMatrix tracking_population_state, NumericMatrix habitat_suitability_map, NumericMatrix barriers_map, bool use_barrier, int barrier_type, int loopID, int dispersal_distance, NumericVector dispersal_kernel);
 RcppExport SEXP _steps_can_source_cell_disperse(SEXP iSEXP, SEXP jSEXP, SEXP carrying_capacity_availableSEXP, SEXP tracking_population_stateSEXP, SEXP habitat_suitability_mapSEXP, SEXP barriers_mapSEXP, SEXP use_barrierSEXP, SEXP barrier_typeSEXP, SEXP loopIDSEXP, SEXP dispersal_distanceSEXP, SEXP dispersal_kernelSEXP) {
@@ -120,7 +109,6 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_steps_barrier_to_dispersal", (DL_FUNC) &_steps_barrier_to_dispersal, 6},
-    {"_steps_total_dispersal_cells", (DL_FUNC) &_steps_total_dispersal_cells, 1},
     {"_steps_can_source_cell_disperse", (DL_FUNC) &_steps_can_source_cell_disperse, 11},
     {"_steps_clean_matrix", (DL_FUNC) &_steps_clean_matrix, 5},
     {"_steps_proportion_of_population_to_disperse", (DL_FUNC) &_steps_proportion_of_population_to_disperse, 7},
