@@ -151,8 +151,10 @@ koala.habitat.dynamics <- fire_habitat_dynamics(habitat_suitability = koala.hab.
 A demography dynamics object modifies the demography sub-component of the state object. We use a pre-defined environmental stochasticity function to modify the life-stage transition matrix at each timestep in a single simulation. This function requires the global life-stage transition matrix and stochasticity matrix inputs for koalas. Note, stochasticity can also be entered as a single positive number rather than a matrix - the function will create a matrix internally and apply the value to all non-zero numbers in the life-stage transition matrix.
 
 ```{r, message = FALSE}
-koala.demography.dynamics <- envstoch_demography_dynamics(global_transition_matrix = koala.trans.mat,
-                                                           stochasticity = koala.trans.mat.es)
+koala.demography.dynamics <- demography_dynamics(env_stoch = demo_environmental_stochasticity(global_transition_matrix = koala.trans.mat,
+                                                                                          stochasticity = koala.trans.mat.es),
+                                                 demo_dens_dep =  demo_density_dependence())
+
 ```
 
 A population dynamics object modifies the population sub-component of the state object. We use a pre-defined cellular-automata dispersal function to characterise the koala movements at each timestep. Included in this function is also density dependence (ceiling based on carrying capacity) and population changes for each stage based on the life-stage transition matrix.

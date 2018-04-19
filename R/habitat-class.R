@@ -41,7 +41,7 @@ build_habitat <- function (habitat_suitability, carrying_capacity, misc=NULL, ..
   habitat <- list(habitat_suitability = habitat_suitability,
                   carrying_capacity = carrying_capacity,
                   misc = misc)
-  set_class(habitat, "habitat")
+  as.habitat(habitat)
 }
 
 #' @rdname habitat
@@ -70,4 +70,13 @@ is.habitat <- function (x) {
 
 print.habitat <- function (x, ...) {
   cat("This is a habitat object")
+}
+
+
+##########################
+### internal functions ###
+##########################
+
+as.habitat <- function (habitat) {
+  as_class(habitat, "habitat", "list")
 }

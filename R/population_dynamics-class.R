@@ -84,11 +84,10 @@ NULL
 #' 
 #' example_function <- as.population_dynamics(example_function)
 
-
 as.population_dynamics <- function (population_dynamics_function) {
-  stopifnot(inherits(population_dynamics_function,"function"))
-  set_class(population_dynamics_function, "population_dynamics")
+  as_class(population_dynamics_function, "population_dynamics", "function")
 }
+
 
 #' @rdname population_dynamics
 #'

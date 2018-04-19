@@ -39,7 +39,7 @@ library(steps)
 library(raster)
 
 test_dynamics <- build_dynamics(no_habitat_dynamics,
-                                no_demography_dynamics,
+                                demography_dynamics,
                                 fast_population_dynamics)
 
 # Test if object is of the type 'dynamics'

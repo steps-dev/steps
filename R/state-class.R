@@ -45,7 +45,7 @@ build_state <- function (habitat, demography, population) {
   state <- list(habitat = habitat,
                 demography = demography,
                 population = population)
-  set_class(state, "state")
+  as.state(state)
 }
 
 #' @rdname state
@@ -77,6 +77,10 @@ print.state <- function (x, ...) {
 ##########################
 ### internal functions ###
 ##########################
+
+as.state <- function (state) {
+  as_class(state, "state", "list")
+}
 
 check_habitat_matches_population <- function (habitat, population) {
   hab_ras <- habitat$habitat_suitability

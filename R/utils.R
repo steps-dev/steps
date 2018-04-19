@@ -4,9 +4,16 @@
 utils::globalVariables(".")
 
 # to set object classes
-set_class <- function (x, class) {
-  class(x) <- c(class, class(x))
-  x
+# set_class <- function (x, class) {
+#   class(x) <- c(class, class(x))
+#   x
+# }
+
+as_class <- function (object, name, type = c("function", "list")) {
+  type <- match.arg(type)
+  stopifnot(inherits(object, type))
+  class(object) <- c(name, class(object))
+  object
 }
 
 # create a transition matrix for testing
