@@ -52,10 +52,8 @@
 #' 
 #' example_function <- as.habitat_dynamics(example_function)
 
-
 as.habitat_dynamics <- function (habitat_dynamics_function) {
-  stopifnot(inherits(habitat_dynamics_function,"function"))
-  set_class(habitat_dynamics_function, "habitat_dynamics")
+  as_class(habitat_dynamics_function, "habitat_dynamics", "function")
 }
 
 #' @rdname habitat_dynamics

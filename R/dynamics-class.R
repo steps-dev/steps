@@ -22,7 +22,7 @@
 #' library(raster)
 #' 
 #' test_dynamics <- build_dynamics(no_habitat_dynamics,
-#'                                 no_demography_dynamics,
+#'                                 demography_dynamics,
 #'                                 fast_population_dynamics)
 
 build_dynamics <- function (habitat_dynamics,
@@ -40,7 +40,7 @@ build_dynamics <- function (habitat_dynamics,
   # get all the functions in a list, in the required order
   check_dynamics_order(order)
   dynamics <- lapply(order, get, envir = environment())
-  set_class(dynamics, "dynamics")
+  as.dynamics(dynamics)
 }
 
 #' @rdname dynamics
@@ -73,6 +73,10 @@ print.dynamics <- function(x, ...) {
 ##########################
 ### internal functions ###
 ##########################
+
+as.dynamics <- function (dynamics) {
+  as_class(dynamics, "dynamics", "list")
+}
 
 check_dynamics_order <- function (order) {
   sorted_order <- sort(order)

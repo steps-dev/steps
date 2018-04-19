@@ -73,7 +73,7 @@ build_demography <- function (transition_matrix,
                        misc = misc)    
   }
 
-  set_class(demography, "demography")
+  as.demography(demography)
 }
 
 #' @rdname demography
@@ -189,6 +189,10 @@ plot.demography <- function (x, ...) {
 ##########################
 ### internal functions ###
 ##########################
+
+as.demography <- function (demography) {
+  as_class(demography, "demography", "list")
+}
 
 stage_matrixCheck <- function (x) {
   if (!is.matrix(x)) {

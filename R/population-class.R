@@ -34,7 +34,7 @@
 build_population <- function (population_raster) {
   #ADD CHECKS AND OBJECT CONVERSIONS
   population <- list(population_raster = population_raster)
-  set_class(population, "population")
+  as.population(population)
 }
 
 #' @rdname population
@@ -63,4 +63,13 @@ is.population <- function (x) {
 
 print.population <- function (x, ...) {
   cat("This is a population object")
+}
+
+
+##########################
+### internal functions ###
+##########################
+
+as.population <- function (population) {
+  as_class(population, "population", "list")
 }

@@ -50,7 +50,7 @@
 #' test_state <- build_state(test_habitat, test_demography, test_population)
 #'
 #' simple_approximation <- build_dynamics(no_habitat_dynamics(),
-#'                                        no_demography_dynamics(),
+#'                                        demography_dynamics(),
 #'                                        fast_population_dynamics())
 #'
 #' results <- simulation(test_state, simple_approximation, timesteps = 10, replicates = 2)
@@ -64,7 +64,7 @@ simulation <- function(state, dynamics, timesteps, replicates=1){
                                       timesteps = timesteps,
                                       future.seed = FALSE)
 
-  set_class(simulation_results, "simulation_results")
+  as.simulation_results(simulation_results)
 }
 
 
@@ -395,10 +395,14 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
 ### internal functions ###
 ##########################
 
+as.simulation_results <- function (simulation_results) {
+  as_class(simulation_results, "simulation_results", "list")
+}
+
 simulate <- function (i, state, dynamics, timesteps = 100) {
   timesteps <- seq_len(timesteps)
   output_states <- iterate_system(state, dynamics, timesteps)
-  set_class(output_states, "replicate")
+  as_class(output_states, "replicate", "list")
 }
 
 iterate_system <- function (state, dynamics, timesteps) {

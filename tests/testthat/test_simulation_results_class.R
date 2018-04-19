@@ -124,8 +124,11 @@ pop_sink[sample(which(getValues(pop[[1]]) == 0 &
   hab_dyn <- fire_habitat_dynamics(habitat_suitability = hab.suit,
                                                   disturbance_layers = dist.s,
                                                   effect_time = 2)
-  dem_dyn <- envstoch_demography_dynamics(global_transition_matrix = mat,
-                                           stochasticity = mat_sd)
+  
+  dem_dyn <- demography_dynamics(env_stoch = demo_environmental_stochasticity(global_transition_matrix = mat,
+                                                                         stochasticity = mat_sd),
+                                 demo_dens_dep = demo_density_dependence())
+
   pop_dyn <- ca_dispersal_population_dynamics()
   pop_dyn2 <- fast_population_dynamics()
   pop_dyn3 <- fft_dispersal_population_dynamics()
@@ -138,17 +141,17 @@ pop_sink[sample(which(getValues(pop[[1]]) == 0 &
                                                 sink_layer = pop_sink,
                                                 stages = 2,
                                                 effect_timesteps = c(2,4))
-  
+
   b_dynamics <- build_dynamics(habitat_dynamics = hab_dyn,
                                demography_dynamics = dem_dyn,
                                population_dynamics = pop_dyn)
   
   b_dynamics2 <- build_dynamics(habitat_dynamics = no_habitat_dynamics(),
-                               demography_dynamics = no_demography_dynamics(),
+                               demography_dynamics = demography_dynamics(),
                                population_dynamics = pop_dyn)
   
   b_dynamics3 <- build_dynamics(habitat_dynamics = no_habitat_dynamics(),
-                                demography_dynamics = no_demography_dynamics(),
+                                demography_dynamics = demography_dynamics(),
                                 population_dynamics = pop_dyn2)
   
   b_dynamics4 <- build_dynamics(habitat_dynamics = hab_dyn,

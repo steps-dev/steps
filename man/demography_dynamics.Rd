@@ -4,8 +4,9 @@
 \alias{as.demography_dynamics}
 \alias{is.demography_dynamics}
 \alias{print.demography_dynamics}
-\alias{no_demography_dynamics}
-\alias{envstoch_demography_dynamics}
+\alias{demography_dynamics}
+\alias{demo_environmental_stochasticity}
+\alias{demo_density_dependence}
 \title{Change the demography in a state object}
 \usage{
 as.demography_dynamics(demography_dynamics_function)
@@ -14,9 +15,11 @@ is.demography_dynamics(x)
 
 \method{print}{demography_dynamics}(x, ...)
 
-no_demography_dynamics()
+demography_dynamics(env_stoch = NULL, demo_dens_dep = NULL)
 
-envstoch_demography_dynamics(global_transition_matrix, stochasticity = 0)
+demo_environmental_stochasticity(global_transition_matrix, stochasticity = 0)
+
+demo_density_dependence(fecundity_fraction = 1, survival_fraction = 1)
 }
 \arguments{
 \item{demography_dynamics_function}{A function that operates on a state object to change demography at specified timesteps. User may enter a custom function or select a pre-defined module - see examples.}
@@ -25,9 +28,17 @@ envstoch_demography_dynamics(global_transition_matrix, stochasticity = 0)
 
 \item{...}{further arguments passed to or from other methods}
 
+\item{env_stoch}{a function for adding environmental stochasticity to the global transition matrix at each timestep}
+
+\item{demo_dens_dep}{a function for modifying the transition matrix at each timestep when carrying capacity is reached}
+
 \item{global_transition_matrix}{a life-stage transition matrix}
 
 \item{stochasticity}{a matrix with standard deviations (consistent or varying) around the transition means with matching dimensions as the life-stage transition matrix or a number representing a consitent standard deviation to apply to all transitions (default is 0)}
+
+\item{fecundity_fraction}{a multiplier value between 0 and 1 for fecundity values in the transitiopn matrix}
+
+\item{survival_fraction}{a multiplier value between 0 and 1 for fecundity values in the transitiopn matrix}
 }
 \value{
 An object of class \code{demography_dynamics}
@@ -86,17 +97,24 @@ is.demography_dynamics(example_function)
 
 print(example_function)
 
-# Use the no_demography_dynamics object as a placeholder as it 
-# does not modify the demography object:
+# Use the demography_dynamics function to modify the transition
+# matrix:
 
-demography_dynamics <- no_demography_dynamics()
-test_state2 <- demography_dynamics(test_state, 1)
+env_stoch <- demo_environmental_stochasticity(global_transition_matrix = mat,
+                                             stochasticity = mat_sd)
 
-identical(test_state, test_state2)
+example_function <- demography_dynamics(env_stoch,
+                                        demo_dens_dep =  demo_density_dependence())
 
-# Use the envstoch_demography_dynamics function to modify the transition
+# Use the demo_environmental_stochasticity function to modify the transition
 # matrix with specified environmental stochasticity:
 
-test_state2 <- envstoch_demography_dynamics(global_transition_matrix = mat,
+test_demo_es <- demo_environmental_stochasticity(global_transition_matrix = mat,
                                     stochasticity = mat_sd)
+
+# Use the demo_density_dependence function to modify the transition
+# matrix once carrying capacity is reached:
+
+test_demo_dd <- demo_density_dependence(fecundity_fraction = 1,
+                                                survival_fraction = 0.5)
 }

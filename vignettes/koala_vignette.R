@@ -97,8 +97,10 @@ koala.habitat.dynamics <- fire_habitat_dynamics(habitat_suitability = koala.hab.
                                                 effect_time=3)
 
 ## ---- message = FALSE----------------------------------------------------
-koala.demography.dynamics <- envstoch_demography_dynamics(global_transition_matrix = koala.trans.mat,
-                                                           stochasticity = koala.trans.mat.es)
+koala.demography.dynamics <- demography_dynamics(env_stoch = demo_environmental_stochasticity(global_transition_matrix = koala.trans.mat,
+                                                                                          stochasticity = koala.trans.mat.es),
+                                                 demo_dens_dep =  demo_density_dependence())
+
 
 ## ---- message = FALSE----------------------------------------------------
 koala.population.dynamics <- ca_dispersal_population_dynamics()
