@@ -5,10 +5,6 @@ barrier_to_dispersal <- function(snkX, snkY, srcX, srcY, barriers_map, barrier_t
     .Call('_steps_barrier_to_dispersal', PACKAGE = 'steps', snkX, snkY, srcX, srcY, barriers_map, barrier_type)
 }
 
-total_dispersal_cells <- function(habitat_suitability_map) {
-    .Call('_steps_total_dispersal_cells', PACKAGE = 'steps', habitat_suitability_map)
-}
-
 can_source_cell_disperse <- function(i, j, carrying_capacity_available, tracking_population_state, habitat_suitability_map, barriers_map, use_barrier, barrier_type, loopID, dispersal_distance, dispersal_kernel) {
     .Call('_steps_can_source_cell_disperse', PACKAGE = 'steps', i, j, carrying_capacity_available, tracking_population_state, habitat_suitability_map, barriers_map, use_barrier, barrier_type, loopID, dispersal_distance, dispersal_kernel)
 }
