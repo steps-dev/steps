@@ -5,7 +5,7 @@
 \alias{is.habitat_dynamics}
 \alias{print.habitat_dynamics}
 \alias{habitat_dynamics}
-\alias{determistic_fires}
+\alias{deterministic_fires}
 \title{Change the habitat in a state object}
 \usage{
 as.habitat_dynamics(habitat_dynamics_function)
@@ -16,7 +16,7 @@ is.habitat_dynamics(x)
 
 habitat_dynamics(determ_dist = NULL, stoch_dist = NULL)
 
-determistic_fires(habitat_suitability, disturbance_layers, effect_time = 1)
+deterministic_fires(habitat_suitability, disturbance_layers, effect_time = 1)
 }
 \arguments{
 \item{habitat_dynamics_function}{A function that operates on a state object to change habitat at specified timesteps. User may enter a custom function or select a pre-defined module - see documentation.}

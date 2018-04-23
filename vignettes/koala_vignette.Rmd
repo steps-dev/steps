@@ -143,7 +143,7 @@ Dynamic objects are used to modify state objects at each timestep in a single si
 A habitat dynamics object modifies the habitat sub-component of the state object. We use a pre-defined fire disturbance function to modify the habitat suitability in the simulation at each timestep. The function requires an initial habitat suitability layer, a stack of disturbance layers equal to the intended number of timesteps in a single simulation, and an effect time which specifies the number of timesteps that each disturbance layer acts on the habitat suitability. In this example, we provide the koala habitat suitability input, the koala fire disturbance input, and an effect time of three - meaning each fire layer will affect the habitat suitability for three timestep in each simulation replicate.
 
 ```{r, message = FALSE}
-koala.habitat.dynamics <- habitat_dynamics(determ_dist = determistic_fires(habitat_suitability = koala.hab.suit,
+koala.habitat.dynamics <- habitat_dynamics(determ_dist = deterministic_fires(habitat_suitability = koala.hab.suit,
                                                 disturbance_layers = koala.dist.fire,
                                                 effect_time=3))
 ```

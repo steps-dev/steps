@@ -196,32 +196,6 @@ as.population_density_dependence <- function (population_density_dependence) {
   as_class(population_density_dependence, "population_dynamics", "function")
 }
 
-# cap_population <- function (new_population, carrying_capacity) {
-#   
-#   #carrying_capacity <- state$habitat$carrying_capacity
-#   
-#   if (is.null(carrying_capacity)) {
-#     stop ("carrying capacity must be specified",
-#           call. = FALSE)
-#   }
-#   
-#   # get degree of overpopulation, and shrink accordingly
-#   overpopulation <- as.vector(carrying_capacity) / rowSums(new_population)
-#   overpopulation[is.nan(overpopulation)] <- 0
-#   overpopulation <- pmin(overpopulation, 1)
-#   new_population <- sweep(new_population, 1, overpopulation, "*")
-#   
-#   new_population
-# }
-
-
-# dispersal_matrix <- function (locations, distance_decay = 0.5) {
-#   D <- as.matrix(stats::dist(locations))
-#   dispersal_matrix <- exp(-D / distance_decay)
-#   sums <- colSums(dispersal_matrix)
-#   dispersal_matrix <- sweep(dispersal_matrix, 2, sums, "/")
-#   dispersal_matrix
-# }
 
 ###### DISPERSAL FUNCTIONS ######
 
@@ -681,7 +655,7 @@ pop_translocation <- function (source_layer, sink_layer, stages = NULL, effect_t
       idx <- which(!is.na(raster::getValues(population_raster[[1]])))
       population_matrix <- raster::extract(population_raster, idx)
       
-      source<- raster::extract(source_layer, idx)
+      source <- raster::extract(source_layer, idx)
       sink <- raster::extract(sink_layer, idx)
       
       if (is.null(stages)) {
@@ -699,6 +673,8 @@ pop_translocation <- function (source_layer, sink_layer, stages = NULL, effect_t
           population_matrix[ , i] <- population_matrix[ , i] + (sink/length(stages)) - (source/length(stages))
 
         }
+        
+      population_matrix[population_matrix < 0] <- 0 
         
       }
 
