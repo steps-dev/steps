@@ -4,8 +4,8 @@
 \alias{as.habitat_dynamics}
 \alias{is.habitat_dynamics}
 \alias{print.habitat_dynamics}
-\alias{no_habitat_dynamics}
-\alias{fire_habitat_dynamics}
+\alias{habitat_dynamics}
+\alias{determistic_fires}
 \title{Change the habitat in a state object}
 \usage{
 as.habitat_dynamics(habitat_dynamics_function)
@@ -14,10 +14,9 @@ is.habitat_dynamics(x)
 
 \method{print}{habitat_dynamics}(x, ...)
 
-no_habitat_dynamics()
+habitat_dynamics(determ_dist = NULL, stoch_dist = NULL)
 
-fire_habitat_dynamics(habitat_suitability, disturbance_layers,
-  effect_time = 1)
+determistic_fires(habitat_suitability, disturbance_layers, effect_time = 1)
 }
 \arguments{
 \item{habitat_dynamics_function}{A function that operates on a state object to change habitat at specified timesteps. User may enter a custom function or select a pre-defined module - see documentation.}
@@ -25,6 +24,10 @@ fire_habitat_dynamics(habitat_suitability, disturbance_layers,
 \item{x}{an object to print or test as an habitat_dynamic object}
 
 \item{...}{further arguments passed to or from other methods}
+
+\item{determ_dist}{a function for disturbing the landscape habitat with user supplied spatial layers at each timestep}
+
+\item{stoch_dist}{a function for applying stochastic disturbance to the landscape habitat at each timestep}
 
 \item{habitat_suitability}{a raster layer or stack containing habitat suitability for each cell}
 
@@ -79,18 +82,19 @@ is.habitat_dynamics(example_function)
 
 print(example_function)
 
-# Use the no_habitat_dynamics object as a placeholder as it 
-# does not modify the habitat object:
+# Use the habitat_dynamics function to modify the transition
+# matrix:
 
-habitat_dynamics <- no_habitat_dynamics()
-test_state2 <- habitat_dynamics(test_state, 1)
+determ_dist <- determistic_fires(habitat_suitability = r / cellStats(r, "max"),
+                                    disturbance_layers = dist,
+                                    effect_time = 1)
 
-identical(test_state, test_state2)
+example_function <- habitat_dynamics(determ_dist)
 
-# Use the fire_habitat_dynamics object to modify the  
-# habitat using spatial fire history:
+# Use the determistic_fires function to modify the  
+# habitat using spatial fire history layers:
 
-test_state2 <- fire_habitat_dynamics(habitat_suitability = r / cellStats(r, "max"),
+test_fires <- determistic_fires(habitat_suitability = r / cellStats(r, "max"),
                                     disturbance_layers = dist,
                                     effect_time = 1)
 }

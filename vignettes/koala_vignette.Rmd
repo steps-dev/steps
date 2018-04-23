@@ -143,9 +143,9 @@ Dynamic objects are used to modify state objects at each timestep in a single si
 A habitat dynamics object modifies the habitat sub-component of the state object. We use a pre-defined fire disturbance function to modify the habitat suitability in the simulation at each timestep. The function requires an initial habitat suitability layer, a stack of disturbance layers equal to the intended number of timesteps in a single simulation, and an effect time which specifies the number of timesteps that each disturbance layer acts on the habitat suitability. In this example, we provide the koala habitat suitability input, the koala fire disturbance input, and an effect time of three - meaning each fire layer will affect the habitat suitability for three timestep in each simulation replicate.
 
 ```{r, message = FALSE}
-koala.habitat.dynamics <- fire_habitat_dynamics(habitat_suitability = koala.hab.suit,
+koala.habitat.dynamics <- habitat_dynamics(determ_dist = determistic_fires(habitat_suitability = koala.hab.suit,
                                                 disturbance_layers = koala.dist.fire,
-                                                effect_time=3)
+                                                effect_time=3))
 ```
 
 A demography dynamics object modifies the demography sub-component of the state object. We use a pre-defined environmental stochasticity function to modify the life-stage transition matrix at each timestep in a single simulation. This function requires the global life-stage transition matrix and stochasticity matrix inputs for koalas. Note, stochasticity can also be entered as a single positive number rather than a matrix - the function will create a matrix internally and apply the value to all non-zero numbers in the life-stage transition matrix.
@@ -160,7 +160,10 @@ koala.demography.dynamics <- demography_dynamics(env_stoch = demo_environmental_
 A population dynamics object modifies the population sub-component of the state object. We use a pre-defined cellular-automata dispersal function to characterise the koala movements at each timestep. Included in this function is also density dependence (ceiling based on carrying capacity) and population changes for each stage based on the life-stage transition matrix.
 
 ```{r, message = FALSE}
-koala.population.dynamics <- ca_dispersal_population_dynamics()
+koala.population.dynamics <- population_dynamics(pop_change = linear_growth(),
+                                                 pop_disp = cellular_automata_dispersal(),
+                                                 pop_mod = NULL,
+                                                 pop_dens_dep = pop_density_dependence())
 ```
 
 All three sub-components are used to build a dynamics object. The dynamics object modifies the state object at each timestep in a single simulation. Note, we specify the order in which we would like the dynamics to act on the state object for each timestep. First the koala habitat will be modified by fire, then environmental stochasticity will be applied to the life-stage transition matrix, then the koala population will grow or shrink and disperse.

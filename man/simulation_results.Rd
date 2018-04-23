@@ -69,11 +69,11 @@ test_population <- build_population(pop)
 
 test_state <- build_state(test_habitat, test_demography, test_population)
 
-simple_approximation <- build_dynamics(no_habitat_dynamics(),
+test_dynamics <- build_dynamics(habitat_dynamics(),
                                        demography_dynamics(),
-                                       fast_population_dynamics())
+                                       population_dynamics())
 
-results <- simulation(test_state, simple_approximation, timesteps = 10, replicates = 2)
+results <- simulation(test_state, test_dynamics, timesteps = 10, replicates = 2)
 
 # Test if object is of the type 'simulation_results'
 

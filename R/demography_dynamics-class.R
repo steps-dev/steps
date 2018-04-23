@@ -118,32 +118,7 @@ demography_dynamics <- function (env_stoch = NULL, demo_dens_dep = NULL) {
     
     if (!is.null(demo_dens_dep))
       state <- demo_dens_dep(state, timestep)
-    
-    # 
-    #     if (!is.null(env_stoch) & is.null(dens_dep)) {
-    #       
-    #       transition_matrix <- env_stoch(global_transition_matrix,
-    #                                      stochasticity)
-    #       
-    #       state$demography$transition_matrix <- transition_matrix
-    #     
-    #     }
-    #       
-    #     if (is.null(env_stoch) & !is.null(dens_dep)) {
-    #         
-    #       state <- dens_dep(state, timestep)
-    # 
-    #     }
-    #     
-    #     if (!is.null(env_stoch) & !is.null(dens_dep)) {
-    #       
-    #       state$demography$transition_matrix <- env_stoch(global_transition_matrix,
-    #                                                       stochasticity)
-    #       
-    #       state <- dens_dep(state, timestep)
-    #       
-    #     }
-    
+
     state
     
   }

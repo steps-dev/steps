@@ -21,9 +21,9 @@
 #' library(steps)
 #' library(raster)
 #' 
-#' test_dynamics <- build_dynamics(no_habitat_dynamics,
-#'                                 demography_dynamics,
-#'                                 fast_population_dynamics)
+#' test_dynamics <- build_dynamics(habitat_dynamics(),
+#'                                 demography_dynamics(),
+#'                                 population_dynamics())
 
 build_dynamics <- function (habitat_dynamics,
                             demography_dynamics,
