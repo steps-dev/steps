@@ -8,12 +8,12 @@
 #' @param habitat_dynamics_function A function that operates on a state object to change habitat at specified timesteps. User may enter a custom function or select a pre-defined module - see documentation. 
 #' @param x an object to print or test as an habitat_dynamic object
 #' @param ... further arguments passed to or from other methods
-# @param state a state object to apply the habitat function to
-# @param timestep the timestep in the experiment to apply the habitat function to the state object
+#' @param determ_dist a function for disturbing the landscape habitat with user supplied spatial layers at each timestep
+#' @param stoch_dist a function for applying stochastic disturbance to the landscape habitat at each timestep
 #' @param habitat_suitability a raster layer or stack containing habitat suitability for each cell
 #' @param disturbance_layers a raster stack with fire disturbances used to alter the habitat object in the experiment (number of layers must match the intended timesteps in the experiment)
 #' @param effect_time the number of timesteps that the disturbance layer will act on the habitat object
-#'
+#' 
 #' @return An object of class \code{habitat_dynamics}
 #' 
 #' @export
@@ -82,12 +82,53 @@ print.habitat_dynamics <- function (x, ...) {
   cat("This is a habitat_dynamics object")
 }
 
+
+#' @rdname habitat_dynamics
+#' 
+#' @export
+#' 
+#' @examples
+#' 
+#' # Use the habitat_dynamics function to modify the transition
+#' # matrix:
+#' 
+#' determ_dist <- determistic_fires(habitat_suitability = r / cellStats(r, "max"),
+#'                                     disturbance_layers = dist,
+#'                                     effect_time = 1)
+#' 
+#' example_function <- habitat_dynamics(determ_dist)
+
+habitat_dynamics <- function (determ_dist = NULL, stoch_dist = NULL) {
+  
+  hab_dynamics <- function (state, timestep) {
+    
+    if (!is.null(determ_dist))
+      state <- determ_dist(state, timestep)
+    
+    if (!is.null(stoch_dist))
+      state <- stoch_dist(state, timestep)
+    
+    state
+    
+  }
+  
+  as.habitat_dynamics(hab_dynamics)
+  
+}
+
+
+
 ##########################
 ### internal functions ###
 ##########################
 
+as.habitat_deterministic_disturbance <- function (habitat_deterministic_disturbance) {
+  as_class(habitat_deterministic_disturbance, "habitat_dynamics", "function")
+}
 
-
+as.habitat_stochastic_disturbance <- function (habitat_stochastic_disturbance) {
+  as_class(habitat_stochastic_disturbance, "habitat_dynamics", "function")
+}
 
 ####################################
 ### pre-defined module functions ###
@@ -99,41 +140,16 @@ print.habitat_dynamics <- function (x, ...) {
 #' 
 #' @examples
 #' 
-#' # Use the no_habitat_dynamics object as a placeholder as it 
-#' # does not modify the habitat object:
-#'
-#' habitat_dynamics <- no_habitat_dynamics()
-#' test_state2 <- habitat_dynamics(test_state, 1)
+#' # Use the determistic_fires function to modify the  
+#' # habitat using spatial fire history layers:
 #' 
-#' identical(test_state, test_state2)
-
-no_habitat_dynamics <- function () {
-
-  habitat_dynamics <- function (state, timestep) {
-    state
-  }
-
-  as.habitat_dynamics(habitat_dynamics)
-
-}
-
-
-#' @rdname habitat_dynamics
-#'
-#' @export
-#' 
-#' @examples
-#' 
-#' # Use the fire_habitat_dynamics object to modify the  
-#' # habitat using spatial fire history:
-#' 
-#' test_state2 <- fire_habitat_dynamics(habitat_suitability = r / cellStats(r, "max"),
+#' test_fires <- determistic_fires(habitat_suitability = r / cellStats(r, "max"),
 #'                                     disturbance_layers = dist,
 #'                                     effect_time = 1)
 
-fire_habitat_dynamics <- function (habitat_suitability, disturbance_layers, effect_time=1) {
+determistic_fires <- function (habitat_suitability, disturbance_layers, effect_time=1) {
   
-  habitat_dynamics <- function (state, timestep) {
+  det_fire_fun <- function (state, timestep) {
     
     original_habitat <- habitat_suitability
     
@@ -150,6 +166,6 @@ fire_habitat_dynamics <- function (habitat_suitability, disturbance_layers, effe
     
   }
   
-  as.habitat_dynamics(habitat_dynamics)
+  as.habitat_deterministic_disturbance(det_fire_fun)
   
 }

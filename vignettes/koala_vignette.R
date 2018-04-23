@@ -92,9 +92,9 @@ koala.state <- build_state(habitat = koala.habitat,
                            population = koala.population)
 
 ## ---- message = FALSE----------------------------------------------------
-koala.habitat.dynamics <- fire_habitat_dynamics(habitat_suitability = koala.hab.suit,
+koala.habitat.dynamics <- habitat_dynamics(determ_dist = determistic_fires(habitat_suitability = koala.hab.suit,
                                                 disturbance_layers = koala.dist.fire,
-                                                effect_time=3)
+                                                effect_time=3))
 
 ## ---- message = FALSE----------------------------------------------------
 koala.demography.dynamics <- demography_dynamics(env_stoch = demo_environmental_stochasticity(global_transition_matrix = koala.trans.mat,
@@ -103,7 +103,10 @@ koala.demography.dynamics <- demography_dynamics(env_stoch = demo_environmental_
 
 
 ## ---- message = FALSE----------------------------------------------------
-koala.population.dynamics <- ca_dispersal_population_dynamics()
+koala.population.dynamics <- population_dynamics(pop_change = linear_growth(),
+                                                 pop_disp = cellular_automata_dispersal(),
+                                                 pop_mod = NULL,
+                                                 pop_dens_dep = pop_density_dependence())
 
 ## ---- message = FALSE----------------------------------------------------
 koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,

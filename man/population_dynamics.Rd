@@ -4,10 +4,14 @@
 \alias{as.population_dynamics}
 \alias{is.population_dynamics}
 \alias{print.population_dynamics}
-\alias{fast_population_dynamics}
-\alias{ca_dispersal_population_dynamics}
-\alias{fft_dispersal_population_dynamics}
-\alias{translocation_population_dynamics}
+\alias{population_dynamics}
+\alias{linear_growth}
+\alias{demographic_stochasticity}
+\alias{simple_dispersal}
+\alias{cellular_automata_dispersal}
+\alias{fast_fourier_dispersal}
+\alias{pop_translocation}
+\alias{pop_density_dependence}
 \title{Change the population in a state object}
 \usage{
 as.population_dynamics(population_dynamics_function)
@@ -16,14 +20,23 @@ is.population_dynamics(x)
 
 \method{print}{population_dynamics}(x, ...)
 
-fast_population_dynamics()
+population_dynamics(pop_change = linear_growth(), pop_disp = NULL,
+  pop_mod = NULL, pop_dens_dep = NULL)
 
-ca_dispersal_population_dynamics()
+linear_growth()
 
-fft_dispersal_population_dynamics()
+demographic_stochasticity()
 
-translocation_population_dynamics(source_layer, sink_layer, stages = NULL,
+simple_dispersal(distribution = stats::rlnorm(1), distance_decay = 0.5)
+
+cellular_automata_dispersal()
+
+fast_fourier_dispersal()
+
+pop_translocation(source_layer, sink_layer, stages = NULL,
   effect_timesteps = NULL)
+
+pop_density_dependence()
 }
 \arguments{
 \item{population_dynamics_function}{A function that operates on a state object to change population at specified timesteps. User may enter a custom function or select a pre-defined module - see documentation.}
@@ -31,6 +44,18 @@ translocation_population_dynamics(source_layer, sink_layer, stages = NULL,
 \item{x}{a population_dynamic object}
 
 \item{...}{further arguments passed to or from other methods}
+
+\item{pop_change}{a function to define how population growth occurs (default is linear) at each timestep}
+
+\item{pop_disp}{a function to define how the population disperses at each timestep}
+
+\item{pop_mod}{a function to define any deterministic changes to the population - such as translocation - at each timestep}
+
+\item{pop_dens_dep}{a function to control density dependence effects on the population at each timestep}
+
+\item{distribution}{the distribution function to use when dispersing a population}
+
+\item{distance_decay}{controls the distance at which the population disperses}
 
 \item{source_layer}{a spatial layer with the locations and number of individuals to translocate from - note, this layer will only have zero values if individuals are being introduced from outside the study area}
 
@@ -117,44 +142,52 @@ is.population_dynamics(example_function)
 
 print(example_function)
 
-# Use the fast_population_dynamics object to modify the  
-# population using life-stage transitions and dispersal:
+# Use the population_dynamics object to modify the  
+# population with population change, dispersal, density dependence,
+# and population modification functions:
 
-population_dynamics <- fast_population_dynamics()
-test_state2 <- population_dynamics(test_state, 1)
+example_function <- population_dynamics()
+test_state2 <- example_function(test_state, 1)
 
 par(mfrow=c(1,2))
 plot(test_state$population$population_raster[[2]])
 plot(test_state2$population$population_raster[[2]])
 
-# Use the ca_population_dynamics object to modify the  
-# population using life-stage transitions, density-dependence,
-# and cellular-automata based dispersal:
+# Use the linear growth function to modify the  
+# population using life-stage transitions:
 
-population_dynamics <- ca_dispersal_population_dynamics()
-test_state_dp2 <- population_dynamics(test_state_dp, 1)
+test_lin_growth <- linear_growth()
 
-par(mfrow=c(1,2))
-plot(test_state_dp$population$population_raster[[2]])
-plot(test_state_dp2$population$population_raster[[2]])
+# Use the demographic stochasticity function to modify the  
+# population using random variation:
 
-population_dynamics <- fft_dispersal_population_dynamics()
-test_state_dp2 <- population_dynamics(test_state_dp, 1)
+test_dem_stoch <- demographic_stochasticity()
 
-par(mfrow=c(1,2))
-plot(test_state_dp$population$population_raster[[2]])
-plot(test_state_dp2$population$population_raster[[2]])
+# Use the simple dispersal function to modify the  
+# population using a diffusion kernel:
+
+test_sim_dispersal <- simple_dispersal()
+
+# Use the cellular automata dispersal function to modify  
+# the population using rule-based cell movements:
+
+test_ca_dispersal <- cellular_automata_dispersal()
+
+# Use the fast fourier dispersal function to modify the  
+# population using rule-based cell movements:
+
+test_fft_dispersal <- fast_fourier_dispersal()
 
 # Use the translocation_population_dynamics object to modify the  
 # population using translocations:
 
-population_dynamics <- translocation_population_dynamics(source_layer = pop_source,
-                                                         sink_layer = pop_sink,
-                                                         stages = NULL,
-                                                         effect_timesteps = 1)
-test_state_dp2 <- population_dynamics(test_state_dp, 1)
+test_ca_dispersal <- pop_translocation(source_layer = pop_source,
+                                       sink_layer = pop_sink,
+                                       stages = NULL,
+                                       effect_timesteps = 1)
 
-par(mfrow=c(1,2))
-plot(test_state_dp$population$population_raster[[2]])
-plot(test_state_dp2$population$population_raster[[2]])
+# Use the translocation_population_dynamics object to modify the  
+# population using translocations:
+
+test_pop_dd <- pop_density_dependence()
 }

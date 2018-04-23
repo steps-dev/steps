@@ -102,9 +102,6 @@ pop_sink[sample(which(getValues(pop[[1]]) == 0 &
   b_dem2 <- build_demography(transition_matrix = fake_transition_matrix(4),
                              dispersal_parameters = params3)
   
-  b_dem3 <- build_demography(transition_matrix = mat,
-                            dispersal_parameters = rlnorm(1))
-  
   b_state <- build_state(habitat = b_hab,
               population = b_pop,
               demography = b_dem)
@@ -117,55 +114,57 @@ pop_sink[sample(which(getValues(pop[[1]]) == 0 &
                           population = b_pop,
                           demography = b_dem)
   
-  b_state4 <- build_state(habitat = b_hab,
-                          population = b_pop,
-                          demography = b_dem3)
-  
-  hab_dyn <- fire_habitat_dynamics(habitat_suitability = hab.suit,
+  hab_dyn <- habitat_dynamics(determ_dist = determistic_fires(habitat_suitability = hab.suit,
                                                   disturbance_layers = dist.s,
-                                                  effect_time = 2)
+                                                  effect_time = 2))
   
   dem_dyn <- demography_dynamics(env_stoch = demo_environmental_stochasticity(global_transition_matrix = mat,
                                                                          stochasticity = mat_sd),
                                  demo_dens_dep = demo_density_dependence())
 
-  pop_dyn <- ca_dispersal_population_dynamics()
-  pop_dyn2 <- fast_population_dynamics()
-  pop_dyn3 <- fft_dispersal_population_dynamics()
-  pop_dyn4 <- translocation_population_dynamics(source_layer = pop_source,
-                                                sink_layer = pop_sink,
-                                                stages = NULL,
-                                                effect_timesteps = c(2,4))
-  
-  pop_dyn5 <- translocation_population_dynamics(source_layer = pop_source,
-                                                sink_layer = pop_sink,
-                                                stages = 2,
-                                                effect_timesteps = c(2,4))
+  pop_dyn <- population_dynamics(pop_change = linear_growth(),
+                                 pop_disp = cellular_automata_dispersal(),
+                                 pop_mod = pop_translocation(source_layer = pop_source,
+                                                             sink_layer = pop_sink,
+                                                             stages = NULL,
+                                                             effect_timesteps = c(2,4)),
+                                 pop_dens_dep = pop_density_dependence())
+  pop_dyn2 <- population_dynamics(pop_change = demographic_stochasticity(),
+                                  pop_disp = simple_dispersal(),
+                                  pop_mod = NULL,
+                                  pop_dens_dep = NULL)
+  pop_dyn3 <- population_dynamics(pop_change = demographic_stochasticity(),
+                                  pop_disp = fast_fourier_dispersal(),
+                                  pop_mod = NULL,
+                                  pop_dens_dep = NULL)
+  pop_dyn4 <- population_dynamics(pop_change = linear_growth(),
+                                 pop_disp = cellular_automata_dispersal(),
+                                 pop_mod = pop_translocation(source_layer = pop_source,
+                                                             sink_layer = pop_sink,
+                                                             stages = 2,
+                                                             effect_timesteps = c(2,4)),
+                                 pop_dens_dep = pop_density_dependence())
 
   b_dynamics <- build_dynamics(habitat_dynamics = hab_dyn,
                                demography_dynamics = dem_dyn,
                                population_dynamics = pop_dyn)
   
-  b_dynamics2 <- build_dynamics(habitat_dynamics = no_habitat_dynamics(),
+  b_dynamics2 <- build_dynamics(habitat_dynamics = habitat_dynamics(),
                                demography_dynamics = demography_dynamics(),
                                population_dynamics = pop_dyn)
   
-  b_dynamics3 <- build_dynamics(habitat_dynamics = no_habitat_dynamics(),
+  b_dynamics3 <- build_dynamics(habitat_dynamics = habitat_dynamics(),
                                 demography_dynamics = demography_dynamics(),
                                 population_dynamics = pop_dyn2)
   
-  b_dynamics4 <- build_dynamics(habitat_dynamics = hab_dyn,
-                               demography_dynamics = dem_dyn,
-                               population_dynamics = pop_dyn3)
+  b_dynamics4 <- build_dynamics(habitat_dynamics = habitat_dynamics(),
+                                demography_dynamics = demography_dynamics(),
+                                population_dynamics = pop_dyn3)
   
   b_dynamics5 <- build_dynamics(habitat_dynamics = hab_dyn,
                                 demography_dynamics = dem_dyn,
                                 population_dynamics = pop_dyn4)
   
-  b_dynamics6 <- build_dynamics(habitat_dynamics = hab_dyn,
-                                demography_dynamics = dem_dyn,
-                                population_dynamics = pop_dyn5)
-
   expect_true(inherits(simulation(state = b_state,
                                   dynamics = b_dynamics,
                                   timesteps = 5)[1],
@@ -185,7 +184,7 @@ pop_sink[sample(which(getValues(pop[[1]]) == 0 &
                                   timesteps = 10),
                        "simulation_results"))
   
-  expect_true(inherits(simulation(state = b_state4,
+  expect_true(inherits(simulation(state = b_state,
                                   dynamics = b_dynamics3,
                                   timesteps = 10),
                        "simulation_results"))
@@ -197,11 +196,6 @@ pop_sink[sample(which(getValues(pop[[1]]) == 0 &
   
   expect_true(inherits(simulation(state = b_state,
                                   dynamics = b_dynamics5,
-                                  timesteps = 10),
-                       "simulation_results"))
-  
-  expect_true(inherits(simulation(state = b_state,
-                                  dynamics = b_dynamics6,
                                   timesteps = 10),
                        "simulation_results"))
   
