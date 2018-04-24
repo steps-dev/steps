@@ -34,6 +34,8 @@ deterministic_surv_fec(global_transition_matrix, surv_layers, fec_layers)
 
 \item{env_stoch}{a function for adding environmental stochasticity to the global transition matrix at each timestep}
 
+\item{determ_surv_fec}{a function for altering a life-stage transition matrix with user supplied spatial layers at each timestep}
+
 \item{demo_dens_dep}{a function for modifying the transition matrix at each timestep when carrying capacity is reached}
 
 \item{global_transition_matrix}{a life-stage transition matrix}
@@ -121,8 +123,7 @@ is.demography_dynamics(example_function)
 
 print(example_function)
 
-# Use the demography_dynamics function to modify the transition
-# matrix:
+# Use the demography_dynamics function to modify a demography object:
 
 env_stoch <- demo_environmental_stochasticity(global_transition_matrix = mat,
                                              stochasticity = mat_sd)

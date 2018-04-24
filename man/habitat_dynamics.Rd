@@ -82,19 +82,18 @@ is.habitat_dynamics(example_function)
 
 print(example_function)
 
-# Use the habitat_dynamics function to modify the transition
-# matrix:
+# Use the habitat_dynamics function to modify a habitat object:
 
-determ_dist <- determistic_fires(habitat_suitability = r / cellStats(r, "max"),
+determ_dist <- deterministic_fires(habitat_suitability = r / cellStats(r, "max"),
                                     disturbance_layers = dist,
                                     effect_time = 1)
 
 example_function <- habitat_dynamics(determ_dist)
 
-# Use the determistic_fires function to modify the  
+# Use the deterministic_fires function to modify the  
 # habitat using spatial fire history layers:
 
-test_fires <- determistic_fires(habitat_suitability = r / cellStats(r, "max"),
+test_fires <- deterministic_fires(habitat_suitability = r / cellStats(r, "max"),
                                     disturbance_layers = dist,
                                     effect_time = 1)
 }

@@ -9,6 +9,7 @@
 #' @param x an object to print or test as an demography_dynamic object
 #' @param ... further arguments passed to or from other methods
 #' @param env_stoch a function for adding environmental stochasticity to the global transition matrix at each timestep
+#' @param determ_surv_fec a function for altering a life-stage transition matrix with user supplied spatial layers at each timestep
 #' @param demo_dens_dep a function for modifying the transition matrix at each timestep when carrying capacity is reached
 #' @param global_transition_matrix a life-stage transition matrix
 #' @param stochasticity a matrix with standard deviations (consistent or varying) around the transition means with matching dimensions as the life-stage transition matrix or a number representing a consitent standard deviation to apply to all transitions (default is 0)
@@ -118,8 +119,7 @@ print.demography_dynamics <- function (x, ...) {
 #' 
 #' @examples
 #' 
-#' # Use the demography_dynamics function to modify the transition
-#' # matrix:
+#' # Use the demography_dynamics function to modify a demography object:
 #' 
 #' env_stoch <- demo_environmental_stochasticity(global_transition_matrix = mat,
 #'                                              stochasticity = mat_sd)

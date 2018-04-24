@@ -114,7 +114,7 @@ pop_sink[sample(which(getValues(pop[[1]]) == 0 &
                           population = b_pop,
                           demography = b_dem)
   
-  hab_dyn <- habitat_dynamics(determ_dist = determistic_fires(habitat_suitability = hab.suit,
+  hab_dyn <- habitat_dynamics(determ_dist = deterministic_fires(habitat_suitability = hab.suit,
                                                   disturbance_layers = dist.s,
                                                   effect_time = 2))
   
