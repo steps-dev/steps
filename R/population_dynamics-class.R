@@ -436,13 +436,24 @@ linear_growth <- function () {
     
     population_raster <- state$population$population_raster
     transition_matrix <- state$demography$global_transition_matrix
+    nstages <- ncol(state$demography$global_transition_matrix)
     
     # get population as a matrix
     idx <- which(!is.na(raster::getValues(population_raster[[1]])))
     population <- raster::extract(population_raster, idx)
     
     # do population change
-    population <- population %*% transition_matrix
+    if (!is.null(state$demography$local_transition_matrix)) {
+      
+      local_mat <-  state$demography$local_transition_matrix
+
+      for (i in seq_len(nrow(population))) {
+        population[i, ] <- population[i, ] %*% local_mat[ , , i]
+      }
+      
+    } else {
+      population <- population %*% transition_matrix
+    }
 
     # put back in the raster
     population_raster[idx] <- population
@@ -478,20 +489,43 @@ demographic_stochasticity <- function () {
     idx <- which(!is.na(raster::getValues(population_raster[[1]])))
     population <- raster::extract(population_raster, idx)
 
-    n <- nrow(population)
+    if (!is.null(state$demography$local_transition_matrix)) {
+      
+      local_mat <-  state$demography$local_transition_matrix
+      
+      for (i in seq_len(nrow(population))) {
+        for (j in seq_len(ncol(population))) {
+          
+          #fecundity
+          newborns <- stats::rpois(1, local_mat[1, j, i] * population[i , j]) 
+          
+          #survival
+          survivors <- stats::rbinom(1,
+                                     round(as.vector(population[i , j]), 0),
+                                     local_mat[which(local_mat[ , j, i] > 0) != 1 & local_mat[ , j, i] > 0, j, i])
+          
+          population[i, j] <- newborns + survivors
+          
+        }
+      }
+
+    } else {
     
-    for (i in seq_len(ncol(population))) {
+      n <- nrow(population)
       
-      #fecundity
-      newborns <- stats::rpois(n,
-                               transition_matrix[1, i] * population[ , i]) 
-      #survival
-      survivors <- stats::rbinom(n,
-                                 round(as.vector(population[ , i]), 0),
-                                 transition_matrix[which(transition_matrix[ , i] > 0) != 1 & transition_matrix[ , i] > 0, i])
-      
-      population[ , i] <- newborns + survivors
-      
+      for (i in seq_len(ncol(population))) {
+        
+        #fecundity
+        newborns <- stats::rpois(n,
+                                 transition_matrix[1, i] * population[ , i]) 
+        #survival
+        survivors <- stats::rbinom(n,
+                                   round(as.vector(population[ , i]), 0),
+                                   transition_matrix[which(transition_matrix[ , i] > 0) != 1 & transition_matrix[ , i] > 0, i])
+        
+        population[ , i] <- newborns + survivors
+        
+      }
     }
     
     population_raster[idx] <- population

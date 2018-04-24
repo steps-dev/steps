@@ -69,6 +69,7 @@ build_demography <- function (transition_matrix,
                        misc = misc)
   }else{
     demography <- list(global_transition_matrix = x,
+                       local_transition_matrix = NULL,
                        dispersal_parameters = dispersal_parameters,
                        misc = misc)    
   }

@@ -7,6 +7,7 @@
 \alias{demography_dynamics}
 \alias{demo_environmental_stochasticity}
 \alias{demo_density_dependence}
+\alias{deterministic_surv_fec}
 \title{Change the demography in a state object}
 \usage{
 as.demography_dynamics(demography_dynamics_function)
@@ -15,11 +16,14 @@ is.demography_dynamics(x)
 
 \method{print}{demography_dynamics}(x, ...)
 
-demography_dynamics(env_stoch = NULL, demo_dens_dep = NULL)
+demography_dynamics(env_stoch = NULL, determ_surv_fec = NULL,
+  demo_dens_dep = NULL)
 
 demo_environmental_stochasticity(global_transition_matrix, stochasticity = 0)
 
 demo_density_dependence(fecundity_fraction = 1, survival_fraction = 1)
+
+deterministic_surv_fec(global_transition_matrix, surv_layers, fec_layers)
 }
 \arguments{
 \item{demography_dynamics_function}{A function that operates on a state object to change demography at specified timesteps. User may enter a custom function or select a pre-defined module - see examples.}
@@ -36,9 +40,13 @@ demo_density_dependence(fecundity_fraction = 1, survival_fraction = 1)
 
 \item{stochasticity}{a matrix with standard deviations (consistent or varying) around the transition means with matching dimensions as the life-stage transition matrix or a number representing a consitent standard deviation to apply to all transitions (default is 0)}
 
-\item{fecundity_fraction}{a multiplier value between 0 and 1 for fecundity values in the transitiopn matrix}
+\item{fecundity_fraction}{a multiplier value between 0 and 1 for fecundity values in the transition matrix}
 
-\item{survival_fraction}{a multiplier value between 0 and 1 for fecundity values in the transitiopn matrix}
+\item{survival_fraction}{a multiplier value between 0 and 1 for fecundity values in the transition matrix}
+
+\item{surv_layers}{a list of raster stacks with multipliers for survival equal to the number of life-stages}
+
+\item{fec_layers}{a list of raster stacks with multipliers for fecundities equal to the number of life-stages. Note, life-stages that do not reproduce will have NULL in place of the raster stack}
 }
 \value{
 An object of class \code{demography_dynamics}
@@ -69,6 +77,22 @@ mat_sd <- matrix(c(0.000,0.000,1,1,
 colnames(mat_sd) <- rownames(mat_sd) <- c('Stage_1','Stage_2','Stage_3','Stage_4')
 
 pop <- stack(replicate(4, ceiling(r * 0.2)))
+
+r2 <- r
+r2[na.omit(r2)] <- sample(r[na.omit(r)])
+
+r3 <- r
+r3[na.omit(r3)] <- sample(r[na.omit(r)])
+
+surv <- list(stack(r2, r2, r2),
+             stack(r2, r2, r2),
+             stack(r2, r2, r2),
+             stack(r2, r2, r2))
+             
+fec <- list(NULL,
+            NULL,
+            stack(r3, r3, r3),
+            stack(r3, r3, r3))
 
 test_habitat <- build_habitat(habitat_suitability = r / cellStats(r, "max"),
                               carrying_capacity = ceiling(r * 0.1))
@@ -117,4 +141,11 @@ test_demo_es <- demo_environmental_stochasticity(global_transition_matrix = mat,
 
 test_demo_dd <- demo_density_dependence(fecundity_fraction = 1,
                                                 survival_fraction = 0.5)
+
+# Use the deterministic_surv_fec function to modify the  
+# demography using explicit survival and fecundity layers:
+
+test_survfec <- deterministic_surv_fec(global_transition_matrix = mat,
+                                    surv_layers = surv,
+                                    fec_layers = fec)
 }

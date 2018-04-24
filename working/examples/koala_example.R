@@ -66,14 +66,26 @@ koala.pop.sink[sample(which(getValues(koala.pop[[1]]) == 1 &
                       cellStats(koala.pop.source, sum))] <- 1
 plot(koala.pop.sink, box = FALSE, axes = FALSE)
 
+koala.surv <- list(stack(list.files("inst/extdata", full = TRUE, pattern = 'Koala_Sur_F03R+')),
+                   stack(list.files("inst/extdata", full = TRUE, pattern = 'Koala_Sur_F01+')),
+                   stack(list.files("inst/extdata", full = TRUE, pattern = 'Koala_Sur_F02NR+')),
+                   stack(list.files("inst/extdata", full = TRUE, pattern = 'Koala_Sur_F03NR+')))
+
+koala.fec <- list(NULL,
+                  NULL,
+                  stack(list.files("inst/extdata", full = TRUE, pattern = 'Koala_Sur_F02R+')),
+                  stack(list.files("inst/extdata", full = TRUE, pattern = 'Koala_Sur_F03R+')))
+
 ######################################
 
 koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit,
                                carrying_capacity = koala.hab.k,
-                               misc = koala.dist.fire)
+                               misc = NULL)
 koala.demography <- build_demography(transition_matrix = koala.trans.mat,
+                                     type = 'local', 
+                                     habitat_suitability = koala.hab.suit,
                                      dispersal_parameters = koala.disp.param,
-                                     misc = NA)
+                                     misc = NULL)
 koala.population <- build_population(population_raster = koala.pop)
 koala.state <- build_state(habitat = koala.habitat,
                            demography = koala.demography,
@@ -84,15 +96,18 @@ koala.habitat.dynamics <- habitat_dynamics(determ_dist = deterministic_fires(hab
                                                             effect_time = 3))
 
 koala.demography.dynamics <- demography_dynamics(env_stoch = demo_environmental_stochasticity(global_transition_matrix = koala.trans.mat,
-                                                                            stochasticity = koala.trans.mat.es),
-                               demo_dens_dep = demo_density_dependence())
+                                                                                              stochasticity = koala.trans.mat.es),
+                                                 determ_surv_fec = deterministic_surv_fec(global_transition_matrix = koala.trans.mat,
+                                                                                       surv_layers = koala.surv,
+                                                                                       fec_layers = koala.fec),
+                                                 demo_dens_dep = demo_density_dependence())
 koala.population.dynamics <- population_dynamics(pop_change = demographic_stochasticity(),
-                    pop_disp = cellular_automata_dispersal(),
-                    pop_mod = pop_translocation(source_layer = koala.pop.source,
-                                                sink_layer = koala.pop.sink,
-                                                stages = 4,
-                                                effect_timesteps = c(3,6)),
-                    pop_dens_dep = pop_density_dependence())
+                                                 pop_disp = cellular_automata_dispersal(),
+                                                 pop_mod = pop_translocation(source_layer = koala.pop.source,
+                                                                             sink_layer = koala.pop.sink,
+                                                                             stages = 4,
+                                                                             effect_timesteps = c(3,6)),
+                                                 pop_dens_dep = pop_density_dependence())
 koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
                                  demography_dynamics = koala.demography.dynamics,
                                  population_dynamics = koala.population.dynamics,

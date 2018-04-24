@@ -12,8 +12,10 @@
 #' @param demo_dens_dep a function for modifying the transition matrix at each timestep when carrying capacity is reached
 #' @param global_transition_matrix a life-stage transition matrix
 #' @param stochasticity a matrix with standard deviations (consistent or varying) around the transition means with matching dimensions as the life-stage transition matrix or a number representing a consitent standard deviation to apply to all transitions (default is 0)
-#' @param fecundity_fraction a multiplier value between 0 and 1 for fecundity values in the transitiopn matrix
-#' @param survival_fraction a multiplier value between 0 and 1 for fecundity values in the transitiopn matrix 
+#' @param fecundity_fraction a multiplier value between 0 and 1 for fecundity values in the transition matrix
+#' @param survival_fraction a multiplier value between 0 and 1 for fecundity values in the transition matrix 
+#' @param surv_layers a list of raster stacks with multipliers for survival equal to the number of life-stages
+#' @param fec_layers a list of raster stacks with multipliers for fecundities equal to the number of life-stages. Note, life-stages that do not reproduce will have NULL in place of the raster stack
 #'
 #' @return An object of class \code{demography_dynamics}
 #' 
@@ -41,6 +43,22 @@
 #' colnames(mat_sd) <- rownames(mat_sd) <- c('Stage_1','Stage_2','Stage_3','Stage_4')
 #' 
 #' pop <- stack(replicate(4, ceiling(r * 0.2)))
+#' 
+#' r2 <- r
+#' r2[na.omit(r2)] <- sample(r[na.omit(r)])
+#' 
+#' r3 <- r
+#' r3[na.omit(r3)] <- sample(r[na.omit(r)])
+#' 
+#' surv <- list(stack(r2, r2, r2),
+#'              stack(r2, r2, r2),
+#'              stack(r2, r2, r2),
+#'              stack(r2, r2, r2))
+#'              
+#' fec <- list(NULL,
+#'             NULL,
+#'             stack(r3, r3, r3),
+#'             stack(r3, r3, r3))
 #' 
 #' test_habitat <- build_habitat(habitat_suitability = r / cellStats(r, "max"),
 #'                               carrying_capacity = ceiling(r * 0.1))
@@ -109,12 +127,15 @@ print.demography_dynamics <- function (x, ...) {
 #' example_function <- demography_dynamics(env_stoch,
 #'                                         demo_dens_dep =  demo_density_dependence())
 
-demography_dynamics <- function (env_stoch = NULL, demo_dens_dep = NULL) {
+demography_dynamics <- function (env_stoch = NULL, determ_surv_fec = NULL, demo_dens_dep = NULL) {
   
   demographic_dynamics <- function (state, timestep) {
     
     if (!is.null(env_stoch))
       state <- env_stoch(state, timestep)
+    
+    if (!is.null(determ_surv_fec))
+      state <- determ_surv_fec(state, timestep)
     
     if (!is.null(demo_dens_dep))
       state <- demo_dens_dep(state, timestep)
@@ -139,6 +160,9 @@ as.demography_density_dependence <- function (demography_density_dependence) {
   as_class(demography_density_dependence, "demography_dynamics", "function")
 }
 
+as.demography_deterministic_surv_fec <- function (demography_deterministic_surv_fec) {
+  as_class(demography_deterministic_surv_fec, "demography_dynamics", "function")
+}
 
 ####################################
 ### pre-defined module functions ###
@@ -237,3 +261,60 @@ demo_density_dependence <- function (fecundity_fraction = 1,
 }
 
 
+#' @rdname demography_dynamics
+#'
+#' @export
+#' 
+#' @examples
+#' 
+#' # Use the deterministic_surv_fec function to modify the  
+#' # demography using explicit survival and fecundity layers:
+#' 
+#' test_survfec <- deterministic_surv_fec(global_transition_matrix = mat,
+#'                                     surv_layers = surv,
+#'                                     fec_layers = fec)
+
+deterministic_surv_fec <- function (global_transition_matrix, surv_layers, fec_layers) {
+  
+  determ_surv_fec <- function (state, timestep) {
+    
+    if (is.null(state$demography$local_transition_matrix)) {
+      stop("Local cell-based transition matrices are required \nfor this function - none have been specified")
+    }
+    
+    global_demography <- global_transition_matrix
+    nstages <- dim(global_transition_matrix)[[1]]
+    
+    if (any(unlist(lapply(surv_layers, function (x) raster::nlayers(x))) < timestep)) {
+      stop("The number of survival/fecundity layers must match \nthe number of timesteps in the simulation run")
+    }
+    
+    local_demography <- state$demography$local_transition_matrix
+    
+    for (i in seq_len(nstages)) {
+      
+      if (any(lapply(surv_layers, function (x) is.null(x)) == TRUE)) {
+        stop("Survival layers must be provided for all life-stages")
+      }
+      
+      matrix_idx <- which(global_demography != 0 & row(global_demography) != 1 & col(global_demography) == i, arr.ind = TRUE)
+      local_demography[matrix_idx[1], matrix_idx[2], ] <- global_demography[matrix_idx] * surv_layers[[i]][[timestep]][]
+    }
+    
+    for (i in seq_len(nstages)) {
+      
+      if (!is.null(fec_layers[[i]])) {
+        local_demography[1, i, ] <- global_demography[1, i] * fec_layers[[i]][[timestep]][]
+      }
+
+    }
+    
+    state$demography$local_transition_matrix <- local_demography
+    
+    state
+    
+  }
+  
+  as.demography_deterministic_surv_fec(determ_surv_fec)
+  
+}
