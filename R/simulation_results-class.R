@@ -358,7 +358,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
       
       for (j in seq_along(x)[-1]) {
         graphics::lines(rowSums(pop[ , , j]),
-                        col = 'black')
+                        col = 'gray')
       }
       
       graphics::abline(h=raster::cellStats(x[[1]][[1]]$habitat$carrying_capacity,sum),

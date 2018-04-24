@@ -24,17 +24,18 @@ koala.trans.mat.es <- matrix(c(0.000,0.000,1,1,
                              nrow = 4, ncol = 4, byrow = TRUE)
 colnames(koala.trans.mat.es) <- rownames(koala.trans.mat.es) <- c('Stage_0_1','Stage_1_2','Stage_2_3','Stage_3_')
 
+koala.stable.states <- abs(eigen(koala.trans.mat)$vectors[,1]/base::sum(eigen(koala.trans.mat)$vectors[,1]) ) 
 
 koala.hab.suit <- raster("inst/extdata/Koala_HabSuit.tif") # read in spatial habitat suitability raster
 koala.hab.suit <- (koala.hab.suit - cellStats(koala.hab.suit, min)) / (cellStats(koala.hab.suit, max) - cellStats(koala.hab.suit, min))
 names(koala.hab.suit) <- "Habitat"
 plot(koala.hab.suit, box = FALSE, axes = FALSE)
 
-koala.hab.k <- koala.hab.suit*10
+koala.hab.k <- ceiling(koala.hab.suit*10)
 names(koala.hab.k) <- "Carrying Capacity"
 plot(koala.hab.k, box = FALSE, axes = FALSE)
 
-koala.pop <- stack(replicate(4, ceiling((koala.hab.k)*0.2)))
+koala.pop <- floor(stack(replicate(4, koala.hab.k)) * koala.stable.states)
 names(koala.pop) <- colnames(koala.trans.mat)
 plot(koala.pop, box = FALSE, axes = FALSE)
 
@@ -52,16 +53,16 @@ koala.disp.param <- list(dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=10,'S
 
 koala.dist.fire <- stack(list.files("inst/extdata", full = TRUE, pattern = 'Koala_Fire*'))
 
-koala.pop.source <- koala.pop[[3]]
+koala.pop.source <- koala.pop[[4]]
 koala.pop.source[] <- 0
-koala.pop.source[sample(which(getValues(koala.pop[[3]]) == 2), 25)] <- 1
+koala.pop.source[sample(which(getValues(koala.pop[[4]]) >= 3), 25)] <- 1
 plot(koala.pop.source, box = FALSE, axes = FALSE)
 
-koala.pop.sink <- koala.pop[[3]]
+koala.pop.sink <- koala.pop[[4]]
 koala.pop.sink[] <- 0
-koala.pop.sink[sample(which(getValues(koala.pop[[1]]) == 1 &
-                            getValues(koala.pop[[2]]) == 1 &
-                            getValues(koala.pop[[3]]) == 1 &
+koala.pop.sink[sample(which(getValues(koala.pop[[1]]) == 1 |
+                            getValues(koala.pop[[2]]) == 1 |
+                            getValues(koala.pop[[3]]) == 1 |
                             getValues(koala.pop[[4]]) == 1),
                       cellStats(koala.pop.source, sum))] <- 1
 plot(koala.pop.sink, box = FALSE, axes = FALSE)
@@ -121,7 +122,7 @@ koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
 plan(multiprocess)
 sim_results <- simulation(state = koala.state,
                           dynamics = koala.dynamics,
-                          timesteps = 10,
+                          timesteps = 20,
                           replicates = 5)
 
 plot(sim_results)
@@ -132,7 +133,7 @@ plot(sim_results, stage = 0)
 
 plot(sim_results[1], type = "raster", stage = 2)
 
-#plot(sim_results[1], type = "raster", stage =4, animate = TRUE)
+plot(sim_results[1], type = "raster", stage =4, animate = TRUE)
 
 plot(sim_results[1], object = "habitat_suitability")
 
