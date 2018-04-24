@@ -60,9 +60,9 @@ plot(koala.pop.source, box = FALSE, axes = FALSE)
 koala.pop.sink <- koala.pop[[3]]
 koala.pop.sink[] <- 0
 koala.pop.sink[sample(which(getValues(koala.pop[[1]]) == 1 &
-                              getValues(koala.pop[[2]]) == 1 &
-                              getValues(koala.pop[[3]]) == 1 &
-                              getValues(koala.pop[[4]]) == 1),
+                            getValues(koala.pop[[2]]) == 1 &
+                            getValues(koala.pop[[3]]) == 1 &
+                            getValues(koala.pop[[4]]) == 1),
                       cellStats(koala.pop.source, sum))] <- 1
 plot(koala.pop.sink, box = FALSE, axes = FALSE)
 
