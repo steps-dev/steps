@@ -3,7 +3,6 @@ library(raster)
 library(future)
 
 #system('rm /home/casey/Research/Github/steps/src/*.so /home/casey/Research/Github/steps/src/*.o')
-
 #.pardefault <- par()
 #par(mar=c(0.5,0.5,0.5,0.5))
 
