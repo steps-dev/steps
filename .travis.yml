@@ -1,34 +1,21 @@
 # Sample .travis.yml for R projects
 language: r
-sudo: required
+sudo: false
+cache: packages
 
-##
-# code to get gdal working #
-addons:
-  apt:
-    packages:
-      - libgdal-dev
-      - libproj-dev
-      - r-cran-rjava
-      - libv8-dev 
-      - libmagick++-dev
-      
-r_binary_packages:
- - rgdal
-###
 
 r_packages:
-  - covr
+ - covr
 
 after_success:
-  - Rscript -e 'library(covr);codecov()'
+ - Rscript -e 'covr::codecov()'
 
-warnings_are_errors: true
+warnings_are_errors: false
 notifications:
-  on_success: always
-  on_failure: always
-  
+ on_success: change
+ on_failure: change
+
 env:
-  global:
-    - R_BUILD_ARGS="--no-build-vignettes"
-    - R_CHECK_ARGS="--no-build-vignettes --as-cran"
+ global:
+   - R_BUILD_ARGS="--no-build-vignettes"
+   - R_CHECK_ARGS="--no-build-vignettes --as-cran"
