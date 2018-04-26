@@ -1,6 +1,5 @@
 # Sample .travis.yml for R projects
 language: r
-cache: packages
 sudo: required
 
 ##
@@ -21,6 +20,7 @@ r_binary_packages:
 r_packages:
   - covr
   - raster
+  - sp
 
 after_success:
   - Rscript -e 'library(covr);codecov()'
