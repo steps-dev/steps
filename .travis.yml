@@ -1,6 +1,7 @@
 # Sample .travis.yml for R projects
 language: r
 sudo: false
+cache: packages
 
 ##
 # code to get gdal working #
