@@ -1,7 +1,5 @@
 # Sample .travis.yml for R projects
 language: r
-r: devel
-
 cache: packages
 sudo: required
 
