@@ -226,7 +226,9 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
         if (animate == TRUE) {
           graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
           
-          raster::animate(rasters,col=viridisLite::viridis(length(breaks)-1))
+          raster::animate(rasters,
+                          col=viridisLite::viridis(length(breaks)-1),
+                          n = 1)
         } else {
         
         ts <- seq_len(raster::nlayers(rasters))
@@ -356,7 +358,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
       
       for (j in seq_along(x)[-1]) {
         graphics::lines(rowSums(pop[ , , j]),
-                        col = 'black')
+                        col = 'gray')
       }
       
       graphics::abline(h=raster::cellStats(x[[1]][[1]]$habitat$carrying_capacity,sum),

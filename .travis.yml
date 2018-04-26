@@ -1,6 +1,5 @@
 # Sample .travis.yml for R projects
 language: r
-cache: packages
 sudo: required
 
 ##
@@ -9,10 +8,6 @@ addons:
   apt:
     packages:
       - libgdal-dev
-      - libproj-dev
-      - r-cran-rjava
-      - libv8-dev 
-      - libmagick++-dev
       
 r_binary_packages:
  - rgdal
@@ -20,7 +15,6 @@ r_binary_packages:
 
 r_packages:
   - covr
-  - raster
 
 after_success:
   - Rscript -e 'library(covr);codecov()'

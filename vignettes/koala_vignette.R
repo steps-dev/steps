@@ -92,7 +92,7 @@ koala.state <- build_state(habitat = koala.habitat,
                            population = koala.population)
 
 ## ---- message = FALSE----------------------------------------------------
-koala.habitat.dynamics <- habitat_dynamics(determ_dist = determistic_fires(habitat_suitability = koala.hab.suit,
+koala.habitat.dynamics <- habitat_dynamics(determ_dist = deterministic_fires(habitat_suitability = koala.hab.suit,
                                                 disturbance_layers = koala.dist.fire,
                                                 effect_time=3))
 
