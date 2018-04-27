@@ -349,17 +349,32 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
       
       graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
       
-      graphics::plot(rowSums(pop[ , , 1]),
+      # draw the 95% CI polygon (if available) and median line
+      quants <- t(apply(apply(pop, 3, rowSums),1, quantile, c(0.025, 0.5, 0.975)))
+      
+      xaxs <- seq_len(nrow(pop[,,1]))
+      
+      graphics::plot(quants[,2],#rowSums(pop[ , , 1]),
                      type = 'l',
                      ylab = "Total Population (all stages)",
                      xlab = "Time (years)",
                      lwd = 2,
                      col = 'black')
       
-      for (j in seq_along(x)[-1]) {
-        graphics::lines(rowSums(pop[ , , j]),
-                        col = 'gray')
-      }
+      # for (j in seq_along(x)[-1]) {
+      #   graphics::lines(rowSums(pop[ , , j]),
+      #                   col = 'gray')
+      # }
+      
+      polygon(x = c(xaxs, rev(xaxs)),
+              y = c(quants[, 1], rev(quants[, 3])),
+              col = grey(0.9),
+              border = NA)
+      
+      lines(quants[, 2] ~ xaxs,
+            lwd = 2,
+            col = grey(0.4))
+      
       
       graphics::abline(h=raster::cellStats(x[[1]][[1]]$habitat$carrying_capacity,sum),
                        lwd=1,
