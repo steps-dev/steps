@@ -9,8 +9,8 @@ using namespace Rcpp;
 */
 
 // [[Rcpp::export]]
-bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatrix barriers_map, int barrier_type){
-  int  dstX, dstY, i, pxlX, pxlY, distance_max, barrier_counter;
+bool barrier_to_dispersal(int sink_x, int sink_y, int source_x, int source_y, NumericMatrix barriers_map, int barrier_type){
+  int  dist_x, dist_y, i, pixel_x, pixel_y, distance_max, barrier_counter;
   bool barrier_found;
   barrier_found = false;
 
@@ -18,12 +18,12 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatrix 
   ** Calculate the distance in both dimensions between the source and sink
   ** pixels and take the largest of the two.
   */
-  dstX = srcX - snkX;
-  dstY = srcY - snkY;
-  if (abs (dstX) >= abs (dstY)){
-    distance_max = abs(dstX);
+  dist_x = source_x - sink_x;
+  dist_y = source_y - sink_y;
+  if (abs (dist_x) >= abs (dist_y)){
+    distance_max = abs(dist_x);
   } else {
-    distance_max = abs(dstY);
+    distance_max = abs(dist_y);
   }
 
   /*
@@ -38,9 +38,9 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatrix 
     */
     barrier_found = false;
     for (i = 1; i <= distance_max; i++){
-      pxlX = round(snkX + (1.0 * i / distance_max * dstX));
-      pxlY = round(snkY + (1.0 * i / distance_max * dstY));
-      if (R::rbinom(1, barriers_map(pxlX,pxlY)) == 1) {
+      pixel_x = round(sink_x + (1.0 * i / distance_max * dist_x));
+      pixel_y = round(sink_y + (1.0 * i / distance_max * dist_y));
+      if (R::rbinom(1, barriers_map(pixel_x,pixel_y)) == 1) {
 		  barrier_found = true;
 		  break;
       }
@@ -53,9 +53,9 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatrix 
     */
     barrier_found = false;
     for (i = 1; i <= distance_max; i++){
-      pxlX = round(snkX - 0.49 + (1.0 * i / distance_max * dstX));
-      pxlY = round(snkY - 0.49 + (1.0 * i / distance_max * dstY));
-      if (R::rbinom(1, barriers_map(pxlX,pxlY)) == 1){
+      pixel_x = round(sink_x - 0.49 + (1.0 * i / distance_max * dist_x));
+      pixel_y = round(sink_y - 0.49 + (1.0 * i / distance_max * dist_y));
+      if (R::rbinom(1, barriers_map(pixel_x,pixel_y)) == 1){
 		barrier_found = true;
 		break;
       }
@@ -68,9 +68,9 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatrix 
     */
     barrier_found = false;
     for (i = 1; i <= distance_max; i++){
-      pxlX = round(snkX + 0.49 + (1.0 * i / distance_max * dstX));
-      pxlY = round(snkY - 0.49 + (1.0 * i / distance_max * dstY));
-      if (R::rbinom(1, barriers_map(pxlX,pxlY)) == 1){
+      pixel_x = round(sink_x + 0.49 + (1.0 * i / distance_max * dist_x));
+      pixel_y = round(sink_y - 0.49 + (1.0 * i / distance_max * dist_y));
+      if (R::rbinom(1, barriers_map(pixel_x,pixel_y)) == 1){
 	barrier_found = true;
 	break;
       }
@@ -84,9 +84,9 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatrix 
     */
     barrier_found = false;
     for (i = 1; i <= distance_max; i++){
-      pxlX = round(snkX - 0.49 + (1.0 * i / distance_max * dstX));
-      pxlY = round(snkY + 0.49 + (1.0 * i / distance_max * dstY));
-      if (R::rbinom(1, barriers_map(pxlX,pxlY)) == 1){
+      pixel_x = round(sink_x - 0.49 + (1.0 * i / distance_max * dist_x));
+      pixel_y = round(sink_y + 0.49 + (1.0 * i / distance_max * dist_y));
+      if (R::rbinom(1, barriers_map(pixel_x,pixel_y)) == 1){
 	barrier_found = true;
 	break;
       }
@@ -99,9 +99,9 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatrix 
     */
     barrier_found = false;
     for (i = 1; i <= distance_max; i++){
-      pxlX = round(snkX + 0.49 + (1.0 * i / distance_max * dstX));
-      pxlY = round(snkY + 0.49 + (1.0 * i / distance_max * dstY));
-      if (R::rbinom(1, barriers_map(pxlX,pxlY)) == 1){
+      pixel_x = round(sink_x + 0.49 + (1.0 * i / distance_max * dist_x));
+      pixel_y = round(sink_y + 0.49 + (1.0 * i / distance_max * dist_y));
+      if (R::rbinom(1, barriers_map(pixel_x,pixel_y)) == 1){
 	barrier_found = true;
 	break;
       }
@@ -121,9 +121,9 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatrix 
     ** BARRIER MIDDLE
     */
     for (i = 1; i <= distance_max; i++){
-      pxlX = round(snkX + (1.0 * i / distance_max * dstX));
-      pxlY = round(snkY + (1.0 * i / distance_max * dstY));
-      if (R::rbinom(1, barriers_map(pxlX,pxlY)) == 1){
+      pixel_x = round(sink_x + (1.0 * i / distance_max * dist_x));
+      pixel_y = round(sink_y + (1.0 * i / distance_max * dist_y));
+      if (R::rbinom(1, barriers_map(pixel_x,pixel_y)) == 1){
 	barrier_counter++;
 	break;
       }
@@ -132,11 +132,11 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatrix 
     ** BARRIER TOP_LEFT
     */
     for (i = 1; i <= distance_max; i++){
-	  pxlX = round(snkX - 0.49 + (((i-1.0) / distance_max * dstX) +
-					((1.0 / distance_max * dstX) / 2.0)));
-      pxlY = round(snkY - 0.49 + (((i-1.0) / distance_max * dstY) +
-					((1.0 / distance_max * dstY) / 2.0)));
-      if (R::rbinom(1, barriers_map(pxlX,pxlY)) == 1){
+	  pixel_x = round(sink_x - 0.49 + (((i-1.0) / distance_max * dist_x) +
+					((1.0 / distance_max * dist_x) / 2.0)));
+      pixel_y = round(sink_y - 0.49 + (((i-1.0) / distance_max * dist_y) +
+					((1.0 / distance_max * dist_y) / 2.0)));
+      if (R::rbinom(1, barriers_map(pixel_x,pixel_y)) == 1){
 	barrier_counter++;
 	break;
       }
@@ -149,11 +149,11 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatrix 
     ** BARRIER TOP_RIGHT
     */
     for (i = 1; i <= distance_max; i++){
-      pxlX = round(snkX + 0.49 + (((i-1.0) / distance_max * dstX) +
-					((1.0 / distance_max * dstX) / 2.0)));
-      pxlY = round(snkY - 0.49 + (((i-1.0) / distance_max * dstY) +
-					((1.0 / distance_max * dstY) / 2.0)));
-      if (R::rbinom(1, barriers_map(pxlX,pxlY)) == 1){
+      pixel_x = round(sink_x + 0.49 + (((i-1.0) / distance_max * dist_x) +
+					((1.0 / distance_max * dist_x) / 2.0)));
+      pixel_y = round(sink_y - 0.49 + (((i-1.0) / distance_max * dist_y) +
+					((1.0 / distance_max * dist_y) / 2.0)));
+      if (R::rbinom(1, barriers_map(pixel_x,pixel_y)) == 1){
 	barrier_counter++;
 	break;
       }
@@ -166,11 +166,11 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatrix 
     ** BARRIER DOWN_LEFT
     */
     for (i = 1; i <= distance_max; i++){
-      pxlX = round (snkX - 0.49 + (((i-1.0) / distance_max * dstX) +
-					((1.0 / distance_max * dstX) / 2.0)));
-      pxlY = round (snkY + 0.49 + (((i-1.0) / distance_max * dstY) +
-					((1.0 / distance_max * dstY) / 2.0)));
-      if (R::rbinom(1, barriers_map(pxlX,pxlY)) == 1){
+      pixel_x = round (sink_x - 0.49 + (((i-1.0) / distance_max * dist_x) +
+					((1.0 / distance_max * dist_x) / 2.0)));
+      pixel_y = round (sink_y + 0.49 + (((i-1.0) / distance_max * dist_y) +
+					((1.0 / distance_max * dist_y) / 2.0)));
+      if (R::rbinom(1, barriers_map(pixel_x,pixel_y)) == 1){
 		barrier_counter++;
 		break;
       }
@@ -183,11 +183,11 @@ bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatrix 
     ** BARRIER DOWN_RIGHT
     */
     for (i = 1; i <= distance_max; i++){
-      pxlX = round (snkX + 0.49 + (((i-1.0) / distance_max * dstX) +
-					((1.0 / distance_max * dstX) / 2.0)));
-      pxlY = round (snkY + 0.49 + (((i-1.0) / distance_max * dstY) +
-					((1.0 / distance_max * dstY) / 2.0)));
-      if (R::rbinom(1, barriers_map(pxlX,pxlY)) == 1){
+      pixel_x = round (sink_x + 0.49 + (((i-1.0) / distance_max * dist_x) +
+					((1.0 / distance_max * dist_x) / 2.0)));
+      pixel_y = round (sink_y + 0.49 + (((i-1.0) / distance_max * dist_y) +
+					((1.0 / distance_max * dist_y) / 2.0)));
+      if (R::rbinom(1, barriers_map(pixel_x,pixel_y)) == 1){
 	barrier_counter++;
 	break;
       }
@@ -237,7 +237,7 @@ IntegerVector can_source_cell_disperse(int i, int j, NumericMatrix carrying_capa
           	    real_distance = round(sqrt((k-i)*(k-i) + (l-j)*(l-j)));
 	              if ((real_distance > 0) && (real_distance <= dispersal_distance)){
         	      /*
-        	      ** 3. Compute the probability of colonization of the sink pixel.
+        	      ** 3. Compute the probability of colonisation of the sink pixel.
         	      **    This probability depends on several factors:
         	      **    - Disance between source and sink cells.
         	      */
@@ -311,8 +311,10 @@ NumericMatrix clean_matrix(NumericMatrix in_matrix,
 }
 
 // [[Rcpp::export]]
-int proportion_of_population_to_disperse(int source_x, int source_y, int sink_x, int sink_y, NumericMatrix starting_population_state,
-                                         NumericMatrix current_carrying_capacity, double dispersal_proportion){
+int proportion_of_population_to_disperse(int source_x, int source_y, int sink_x, int sink_y, 
+                                         NumericMatrix starting_population_state,
+                                         NumericMatrix current_carrying_capacity, 
+                                         double dispersal_proportion){
   	        double source_pop, source_pop_dispersed;
             source_pop = round(starting_population_state(source_x,source_y));
             if(source_pop<1)source_pop=0;

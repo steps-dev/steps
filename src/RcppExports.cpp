@@ -6,18 +6,18 @@
 using namespace Rcpp;
 
 // barrier_to_dispersal
-bool barrier_to_dispersal(int snkX, int snkY, int srcX, int srcY, NumericMatrix barriers_map, int barrier_type);
-RcppExport SEXP _steps_barrier_to_dispersal(SEXP snkXSEXP, SEXP snkYSEXP, SEXP srcXSEXP, SEXP srcYSEXP, SEXP barriers_mapSEXP, SEXP barrier_typeSEXP) {
+bool barrier_to_dispersal(int sink_x, int sink_y, int source_x, int source_y, NumericMatrix barriers_map, int barrier_type);
+RcppExport SEXP _steps_barrier_to_dispersal(SEXP sink_xSEXP, SEXP sink_ySEXP, SEXP source_xSEXP, SEXP source_ySEXP, SEXP barriers_mapSEXP, SEXP barrier_typeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type snkX(snkXSEXP);
-    Rcpp::traits::input_parameter< int >::type snkY(snkYSEXP);
-    Rcpp::traits::input_parameter< int >::type srcX(srcXSEXP);
-    Rcpp::traits::input_parameter< int >::type srcY(srcYSEXP);
+    Rcpp::traits::input_parameter< int >::type sink_x(sink_xSEXP);
+    Rcpp::traits::input_parameter< int >::type sink_y(sink_ySEXP);
+    Rcpp::traits::input_parameter< int >::type source_x(source_xSEXP);
+    Rcpp::traits::input_parameter< int >::type source_y(source_ySEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type barriers_map(barriers_mapSEXP);
     Rcpp::traits::input_parameter< int >::type barrier_type(barrier_typeSEXP);
-    rcpp_result_gen = Rcpp::wrap(barrier_to_dispersal(snkX, snkY, srcX, srcY, barriers_map, barrier_type));
+    rcpp_result_gen = Rcpp::wrap(barrier_to_dispersal(sink_x, sink_y, source_x, source_y, barriers_map, barrier_type));
     return rcpp_result_gen;
 END_RCPP
 }
