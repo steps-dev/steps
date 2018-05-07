@@ -212,9 +212,9 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
       
       if (type == "raster") {
         
-        if (is.null(stage)) stop("Please provide a life-stage when plotting population rasters")
+        if (is.null(stage)) stop("Please provide a life-stage when plotting \npopulation rasters or specify zero (0) for a sum of all life-stages")
         
-        rasters <- raster::stack(lapply(x[[1]], function (state) state$population$population_raster[[stage]]))
+        rasters <- raster::stack(lapply(x, function (state) state$population$population_raster[[stage]]))
         
         # Find maximum and minimum population value in raster cells for all timesteps for life-stage
         scale_max <- ceiling(max(raster::cellStats(rasters, max)))
@@ -223,33 +223,65 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
         # Produce scale of values
         breaks <- seq(scale_min, scale_max, (scale_max-scale_min)/100)
         
-        if (animate == TRUE) {
-          graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
+        if(stage == 0) {
           
-          raster::animate(rasters,
-                          col=viridisLite::viridis(length(breaks)-1),
-                          n = 1)
+          rasters_sum <- raster::stack(lapply(x[[1]], function (state) sum(state$population$population_raster)))
+          
+          if (animate == TRUE) {
+            graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
+            
+            raster::animate(rasters_sum,
+                            col=viridisLite::viridis(length(breaks)-1),
+                            n = 1)
+          } else {
+            
+            ts <- seq_len(raster::nlayers(rasters_sum))
+            groups <- split(ts, ceiling(seq_along(ts)/9))
+            
+            for (i in seq_along(groups)) {
+              
+              group <- groups[[i]]
+              print(rasterVis::levelplot(rasters_sum[[group]],
+                                         scales = list(draw = FALSE),
+                                         margin = list(draw = FALSE),
+                                         at = breaks,
+                                         col.regions = viridisLite::viridis(length(breaks)-1),
+                                         colorkey = list(space = "bottom",
+                                                         title = "individuals",
+                                                         width = 0.6),
+                                         main="population"))
+            }
+          }
+
         } else {
-        
-        ts <- seq_len(raster::nlayers(rasters))
-        groups <- split(ts, ceiling(seq_along(ts)/9))
-        
-        for (i in seq_along(groups)) {
           
-          group <- groups[[i]]
-          print(rasterVis::levelplot(rasters[[group]],
-                                     scales = list(draw = FALSE),
-                                     margin = list(draw = FALSE),
-                                     at = breaks,
-                                     col.regions = viridisLite::viridis(length(breaks)-1),
-                                     colorkey = list(space = "bottom",
-                                                     title = "individuals",
-                                                     width = 0.6),
-                                     main="population"))
+          if (animate == TRUE) {
+            graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
+            
+            raster::animate(rasters,
+                            col=viridisLite::viridis(length(breaks)-1),
+                            n = 1)
+          } else {
+            
+            ts <- seq_len(raster::nlayers(rasters))
+            groups <- split(ts, ceiling(seq_along(ts)/9))
+            
+            for (i in seq_along(groups)) {
+              
+              group <- groups[[i]]
+              print(rasterVis::levelplot(rasters[[group]],
+                                         scales = list(draw = FALSE),
+                                         margin = list(draw = FALSE),
+                                         at = breaks,
+                                         col.regions = viridisLite::viridis(length(breaks)-1),
+                                         colorkey = list(space = "bottom",
+                                                         title = "individuals",
+                                                         width = 0.6),
+                                         main="population"))
+            }
           }
         }
       }
-      
     }
     
     if (object == "habitat_suitability") {

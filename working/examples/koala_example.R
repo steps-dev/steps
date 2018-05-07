@@ -93,14 +93,13 @@ koala.state <- build_state(habitat = koala.habitat,
 
 koala.habitat.dynamics <- habitat_dynamics(determ_dist = deterministic_fires(habitat_suitability = koala.hab.suit,
                                                             disturbance_layers = koala.dist.fire,
-                                                            effect_time = 3))
+                                                            effect_time = 1))
 
 koala.demography.dynamics <- demography_dynamics(env_stoch = demo_environmental_stochasticity(global_transition_matrix = koala.trans.mat,
                                                                                               stochasticity = koala.trans.mat.es),
                                                  determ_surv_fec = deterministic_surv_fec(global_transition_matrix = koala.trans.mat,
                                                                                        surv_layers = koala.surv,
-                                                                                       fec_layers = koala.fec),
-                                                 demo_dens_dep = demo_density_dependence())
+                                                                                       fec_layers = koala.fec))
 koala.population.dynamics <- population_dynamics(pop_change = demographic_stochasticity(),
                                                  pop_disp = cellular_automata_dispersal(),
                                                  pop_mod = pop_translocation(source_layer = koala.pop.source,
@@ -121,14 +120,16 @@ koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
 plan(multiprocess)
 sim_results <- simulation(state = koala.state,
                           dynamics = koala.dynamics,
-                          timesteps = 20,
-                          replicates = 5)
+                          timesteps = 10,
+                          replicates = 3)
 
 plot(sim_results)
 
 plot(sim_results, stage = 2)
 
 plot(sim_results, stage = 0)
+
+plot(sim_results[1], type = "raster", stage = 0)
 
 plot(sim_results[1], type = "raster", stage = 2)
 
