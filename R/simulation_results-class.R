@@ -160,7 +160,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                            type='l',
                            ylab=paste("Total Population: ",stage_names[i]),
                            xlab="Time (years)",
-                           lwd=2,
+                           lwd=3,
                            col=graph.pal[i],
                            ylim=c(pretty(floor(min(pop)))[1], pretty(ceiling(max(pop)))[2]))
             
@@ -180,7 +180,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                          type='l',
                          ylab="Total Population (all stages)",
                          xlab="Time (years)",
-                         lwd=2,
+                         lwd=3,
                          col="black",
                          ylim=c(pretty(floor(min(rowSums(pop))))[1], pretty(ceiling(max(rowSums(pop))))[2]))
           
@@ -198,7 +198,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                          type='l',
                          ylab=paste("Total Population: ",stage_names[stage]),
                          xlab="Time (years)",
-                         lwd=2,
+                         lwd=3,
                          col=graph.pal[stage],
                          ylim=c(pretty(floor(min(pop[, stage])))[1], pretty(ceiling(max(pop[, stage])))[2]))
           
@@ -212,8 +212,10 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
       
       if (type == "raster") {
         
-        if (is.null(stage)) stop("Please provide a life-stage when plotting \npopulation rasters or specify zero (0) for a sum of all life-stages")
-        
+        if (is.null(stage)) {
+          stop("Please provide a life-stage when plotting \npopulation rasters or specify zero (0) for a sum of all life-stages")
+        }
+          
         rasters <- raster::stack(lapply(x, function (state) state$population$population_raster[[stage]]))
         
         # Find maximum and minimum population value in raster cells for all timesteps for life-stage
@@ -350,7 +352,9 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
     
     pop <- get_pop_simulation(x)
     
-    if (type == "raster" | object == "habitat_suitability" | object == "carrying_capacity") stop("Raster plotting is only available for single simulations")
+    if (type == "raster" | object == "habitat_suitability" | object == "carrying_capacity") {
+      stop("Raster plotting is only available for single simulations")
+    }
     
     if (is.null(stage)) {
       
@@ -361,7 +365,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                        type = 'l',
                        ylab = paste("Total Population: ",stage_names[i]),
                        xlab = "Time (years)",
-                       lwd = 2,
+                       lwd = 3,
                        col = graph.pal[i])
         
         for (j in seq_along(x)[-1]) {
@@ -390,7 +394,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                      type = 'l',
                      ylab = "Total Population (all stages)",
                      xlab = "Time (years)",
-                     lwd = 2,
+                     lwd = 3,
                      col = 'black')
       
       # for (j in seq_along(x)[-1]) {
@@ -422,7 +426,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                      type = 'l',
                      ylab = paste("Total Population: ",stage_names[stage]),
                      xlab = "Time (years)",
-                     lwd = 2,
+                     lwd = 3,
                      col = graph.pal[stage])
       
       for (j in seq_along(x)[-1]) {
@@ -492,6 +496,5 @@ get_pop_simulation <- function(x, ...) {
   for(i in seq_len(sims)) {
     pop_array[, , i] <- get_pop_replicate(x[[i]])
   }
-  
   return(pop_array)
 }
