@@ -19,7 +19,7 @@ is.demography_dynamics(x)
 demography_dynamics(env_stoch = NULL, determ_surv_fec = NULL,
   demo_dens_dep = NULL)
 
-demo_environmental_stochasticity(global_transition_matrix, stochasticity = 0)
+demo_environmental_stochasticity(transition_matrix, stochasticity = 0)
 
 demo_density_dependence(fecundity_fraction = 1, survival_fraction = 1)
 
@@ -38,7 +38,7 @@ deterministic_surv_fec(global_transition_matrix, surv_layers, fec_layers)
 
 \item{demo_dens_dep}{a function for modifying the transition matrix at each timestep when carrying capacity is reached}
 
-\item{global_transition_matrix}{a life-stage transition matrix}
+\item{transition_matrix}{a life-stage transition matrix}
 
 \item{stochasticity}{a matrix with standard deviations (consistent or varying) around the transition means with matching dimensions as the life-stage transition matrix or a number representing a consitent standard deviation to apply to all transitions (default is 0)}
 

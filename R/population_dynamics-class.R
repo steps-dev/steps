@@ -448,11 +448,11 @@ linear_growth <- function () {
       local_mat <-  state$demography$local_transition_matrix
 
       for (i in seq_len(nrow(population))) {
-        population[i, ] <- population[i, ] %*% local_mat[ , , i]
+        population[i, ] <- local_mat[ , , i] %*% population[i, ]
       }
       
     } else {
-      population <- population %*% transition_matrix
+      population <- transition_matrix %*% population
     }
 
     # put back in the raster

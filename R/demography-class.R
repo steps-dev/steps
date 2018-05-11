@@ -61,7 +61,8 @@ build_demography <- function (transition_matrix,
     #colnames(all_stage_matrices)<-paste0(rep(m.names,each=di),1:di)
     
     # setup an array of matrices that is nstage*nstage*ncells:
-    all_stage_matrices <- sapply(replicate(ncells, x, simplify = FALSE), identity, simplify="array")
+    all_stage_matrices <- array(NA, dim = c(di, di, ncells))
+    all_stage_matrices[ , , ncells] <- transition_matrix
     
     demography <- list(global_transition_matrix = x,
                        local_transition_matrix = all_stage_matrices,

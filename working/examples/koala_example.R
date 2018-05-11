@@ -1,6 +1,7 @@
 library(steps)
 library(raster)
 library(future)
+plan(multiprocess)
 
 #system('rm /home/casey/Research/Github/steps/src/*.so /home/casey/Research/Github/steps/src/*.o')
 #.pardefault <- par()
@@ -34,7 +35,7 @@ koala.hab.k <- ceiling(koala.hab.suit*10)
 names(koala.hab.k) <- "Carrying Capacity"
 plot(koala.hab.k, box = FALSE, axes = FALSE)
 
-koala.pop <- floor(stack(replicate(4, koala.hab.k)) * koala.stable.states)
+koala.pop <- ceiling(stack(replicate(4, koala.hab.k)) * koala.stable.states)
 names(koala.pop) <- colnames(koala.trans.mat)
 plot(koala.pop, box = FALSE, axes = FALSE)
 
@@ -76,7 +77,7 @@ koala.fec <- list(NULL,
                   stack(list.files("inst/extdata", full = TRUE, pattern = 'Koala_Sur_F02R+')),
                   stack(list.files("inst/extdata", full = TRUE, pattern = 'Koala_Sur_F03R+')))
 
-######################################
+################# BASIC DETERMINISTIC GROWTH #####################
 
 koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit,
                                carrying_capacity = koala.hab.k,
@@ -91,22 +92,9 @@ koala.state <- build_state(habitat = koala.habitat,
                            demography = koala.demography,
                            population = koala.population)
 
-koala.habitat.dynamics <- habitat_dynamics(determ_dist = deterministic_fires(habitat_suitability = koala.hab.suit,
-                                                            disturbance_layers = koala.dist.fire,
-                                                            effect_time = 1))
-
-koala.demography.dynamics <- demography_dynamics(env_stoch = demo_environmental_stochasticity(global_transition_matrix = koala.trans.mat,
-                                                                                              stochasticity = koala.trans.mat.es),
-                                                 determ_surv_fec = deterministic_surv_fec(global_transition_matrix = koala.trans.mat,
-                                                                                       surv_layers = koala.surv,
-                                                                                       fec_layers = koala.fec))
-koala.population.dynamics <- population_dynamics(pop_change = demographic_stochasticity(),
-                                                 pop_disp = cellular_automata_dispersal(),
-                                                 pop_mod = pop_translocation(source_layer = koala.pop.source,
-                                                                             sink_layer = koala.pop.sink,
-                                                                             stages = 4,
-                                                                             effect_timesteps = c(3,6)),
-                                                 pop_dens_dep = pop_density_dependence())
+koala.habitat.dynamics <- habitat_dynamics()
+koala.demography.dynamics <- demography_dynamics()
+koala.population.dynamics <- population_dynamics()
 koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
                                  demography_dynamics = koala.demography.dynamics,
                                  population_dynamics = koala.population.dynamics,
@@ -115,13 +103,114 @@ koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
                                            "demography_dynamics")
 )
 
-######################################
+sim_results <- simulation(state = koala.state,
+                          dynamics = koala.dynamics,
+                          timesteps = 100,
+                          replicates = 5)
 
-plan(multiprocess)
+########################################################################
+
+################# WITH ENVIRONMENTAL STOCHASTICITY #####################
+
+koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit,
+                               carrying_capacity = koala.hab.k,
+                               misc = NULL)
+koala.demography <- build_demography(transition_matrix = koala.trans.mat,
+                                     type = 'local', 
+                                     habitat_suitability = koala.hab.suit,
+                                     dispersal_parameters = koala.disp.param,
+                                     misc = NULL)
+koala.population <- build_population(population_raster = koala.pop)
+koala.state <- build_state(habitat = koala.habitat,
+                           demography = koala.demography,
+                           population = koala.population)
+
+koala.habitat.dynamics <- habitat_dynamics()
+koala.demography.dynamics <- demography_dynamics(env_stoch = demo_environmental_stochasticity(transition_matrix = koala.trans.mat,
+                                                                                              stochasticity = koala.trans.mat.es))
+koala.population.dynamics <- population_dynamics()
+koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
+                                 demography_dynamics = koala.demography.dynamics,
+                                 population_dynamics = koala.population.dynamics,
+                                 order = c("habitat_dynamics",
+                                           "population_dynamics",
+                                           "demography_dynamics")
+)
+
 sim_results <- simulation(state = koala.state,
                           dynamics = koala.dynamics,
                           timesteps = 10,
-                          replicates = 3)
+                          replicates = 5)
+
+########################################################################
+
+################# WITH DEMOGRAPHIC STOCHASTICITY IN POPULATION #####################
+
+koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit,
+                               carrying_capacity = koala.hab.k,
+                               misc = NULL)
+koala.demography <- build_demography(transition_matrix = koala.trans.mat,
+                                     type = 'local', 
+                                     habitat_suitability = koala.hab.suit,
+                                     dispersal_parameters = koala.disp.param,
+                                     misc = NULL)
+koala.population <- build_population(population_raster = koala.pop)
+koala.state <- build_state(habitat = koala.habitat,
+                           demography = koala.demography,
+                           population = koala.population)
+
+koala.habitat.dynamics <- habitat_dynamics()
+koala.demography.dynamics <- demography_dynamics()
+koala.population.dynamics <- population_dynamics(pop_change = demographic_stochasticity())
+koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
+                                 demography_dynamics = koala.demography.dynamics,
+                                 population_dynamics = koala.population.dynamics,
+                                 order = c("habitat_dynamics",
+                                           "population_dynamics",
+                                           "demography_dynamics")
+)
+
+sim_results <- simulation(state = koala.state,
+                          dynamics = koala.dynamics,
+                          timesteps = 10,
+                          replicates = 5)
+
+########################################################################
+
+################# WITH DEMOGRAPHIC DENSITY DEPENDENCE #####################
+
+koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit,
+                               carrying_capacity = koala.hab.k*0.1,
+                               misc = NULL)
+koala.demography <- build_demography(transition_matrix = as.matrix(0.75),
+                                     type = 'local', 
+                                     habitat_suitability = koala.hab.suit,
+                                     dispersal_parameters = koala.disp.param,
+                                     misc = NULL)
+koala.population <- build_population(population_raster = koala.pop[[4]])
+koala.state <- build_state(habitat = koala.habitat,
+                           demography = koala.demography,
+                           population = koala.population)
+
+koala.habitat.dynamics <- habitat_dynamics()
+koala.demography.dynamics <- demography_dynamics(demo_dens_dep = demo_density_dependence(as.matrix(0.75),
+                                                                                         fecundity_fraction = 0.8,
+                                                                                         survival_fraction = 0.8))
+koala.population.dynamics <- population_dynamics()
+koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
+                                 demography_dynamics = koala.demography.dynamics,
+                                 population_dynamics = koala.population.dynamics,
+                                 order = c("habitat_dynamics",
+                                           "population_dynamics",
+                                           "demography_dynamics")
+)
+
+sim_results <- simulation(state = koala.state,
+                          dynamics = koala.dynamics,
+                          timesteps = 100,
+                          replicates = 5)
+
+########################################################################
 
 plot(sim_results)
 

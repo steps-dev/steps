@@ -90,6 +90,6 @@ check_habitat_matches_population <- function (habitat, population) {
 }
 
 check_demography_matches_population <- function (demography, population) {
-  stopifnot(identical(ncol(demography$global_transition_matrix),
-                      raster::nlayers(population$population_raster)))
+  stopifnot(ncol(demography$global_transition_matrix) ==
+                      raster::nlayers(population$population_raster))
 }

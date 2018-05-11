@@ -11,7 +11,7 @@
 #' @param env_stoch a function for adding environmental stochasticity to the global transition matrix at each timestep
 #' @param determ_surv_fec a function for altering a life-stage transition matrix with user supplied spatial layers at each timestep
 #' @param demo_dens_dep a function for modifying the transition matrix at each timestep when carrying capacity is reached
-#' @param global_transition_matrix a life-stage transition matrix
+#' @param transition_matrix a life-stage transition matrix
 #' @param stochasticity a matrix with standard deviations (consistent or varying) around the transition means with matching dimensions as the life-stage transition matrix or a number representing a consitent standard deviation to apply to all transitions (default is 0)
 #' @param fecundity_fraction a multiplier value between 0 and 1 for fecundity values in the transition matrix
 #' @param survival_fraction a multiplier value between 0 and 1 for fecundity values in the transition matrix 
@@ -180,33 +180,64 @@ as.demography_deterministic_surv_fec <- function (demography_deterministic_surv_
 #' test_demo_es <- demo_environmental_stochasticity(global_transition_matrix = mat,
 #'                                     stochasticity = mat_sd)
 
-demo_environmental_stochasticity <- function (global_transition_matrix,
+demo_environmental_stochasticity <- function (transition_matrix,
                                               stochasticity=0) {
   
-  dim <- nrow(global_transition_matrix)
-  idx <- which(global_transition_matrix != 0)
-  recruitment_mask <- idx == ((dim ^ 2) - dim + 1)
+  idx <- which(transition_matrix != 0)
+  is_recruitment <- upper.tri(transition_matrix)[idx]
   lower <- 0
-  upper <- ifelse(recruitment_mask, 1, Inf)
-  vals <- global_transition_matrix[idx]
+  upper <- ifelse(is_recruitment, Inf, 1)
+  vals <- transition_matrix[idx]
   
   if (is.matrix(stochasticity)) {
-    stopifnot(identical(dim(global_transition_matrix), dim(stochasticity)))
+    stopifnot(identical(dim(transition_matrix), dim(stochasticity)))
     stopifnot(identical(which(stochasticity != 0), idx))
     stochasticity <- stochasticity[idx]
   }
   
   env_stoch_fun <- function (state, timestep) {
     
-    transition_matrix <- global_transition_matrix
+    # if (!is.null(state$demography$local_transition_matrix) & is.null(local_transition_matrix)) {
+    #   stop("Local cell-based transition matrices are required \nfor this function - none have been specified")
+    # }
+    # global_demography <- global_transition_matrix
+    # nstages <- dim(global_transition_matrix)[[1]]
     
-    transition_matrix[idx] <- extraDistr::rtnorm(length(idx),
-                                                 vals,
-                                                 stochasticity,
-                                                 a = lower,
-                                                 b = upper)
     
-    state$demography$transition_matrix <- transition_matrix
+    # demography_obj <- state$demography$demography_obj
+    
+    local <- !is.null(state$demography$local_transition_matrix)
+    
+    if (local) {
+      demography_obj <- state$demography$local_transition_matrix
+    } else {
+      demography_obj <- state$demography$global_transition_matrix
+    }
+
+    # change to:
+    # demography_obj <- state$demography$demography_obj
+    
+    # expand these values if demography_obj is an array (otherwise leave them as they are)
+    idx <- replicate_values(idx, demography_obj, index = TRUE)
+    vals <- replicate_values(vals, demography_obj)
+    lower <- replicate_values(lower, demography_obj)
+    upper <- replicate_values(upper, demography_obj)
+    stochasticity <- replicate_values(stochasticity, demography_obj)
+
+    demography_obj[idx] <- extraDistr::rtnorm(length(idx),
+                                              vals,
+                                              stochasticity,
+                                              a = lower,
+                                              b = upper)
+    
+    if (local) {
+      state$demography$local_transition_matrix <- demography_obj
+    } else {
+      state$demography$global_transition_matrix <- demography_obj
+    }
+    
+    # change to:
+    # state$demography$demography_obj <- demography_obj
     
     state
     
@@ -229,27 +260,49 @@ demo_environmental_stochasticity <- function (global_transition_matrix,
 #' test_demo_dd <- demo_density_dependence(fecundity_fraction = 1,
 #'                                                 survival_fraction = 0.5)
 
-demo_density_dependence <- function (fecundity_fraction = 1,
-                               survival_fraction = 1) {
+demo_density_dependence <- function (transition_matrix,
+                                     fecundity_fraction = 1,
+                                     survival_fraction = 1) {
+  
+  idm <- which(transition_matrix != 0)
+  fecundity <- which(transition_matrix != 0 & upper.tri(transition_matrix))
+  survival <- setdiff(idm, fecundity)
+  vals_fecundity <- transition_matrix[fecundity]
+  vals_survival <- transition_matrix[survival]
   
   dens_dep_fun <- function (state, timestep) {
     
-    idx <- which(!is.na(raster::getValues(state$population$population_raster[[1]])))
-    population <- raster::extract(state$population$population_raster, idx)
-    
-    transition_matrix <- state$demography$transition_matrix
-    
-    if (any(rowSums(population) > as.vector(state$habitat$carrying_capacity))) {
+    idr <- which(!is.na(raster::getValues(state$population$population_raster[[1]])))
+    population <- raster::extract(state$population$population_raster, idr)
 
-      ids <- which(transition_matrix != 0 & row(transition_matrix) == 1)
-      transition_matrix[ids] <- transition_matrix[ids] * fecundity_fraction
-      
-      
-      ids <- which(transition_matrix != 0 & row(transition_matrix) != 1)
-      transition_matrix[ids] <- transition_matrix[ids] * survival_fraction
+    local <- !is.null(state$demography$local_transition_matrix)
 
-      state$demography$transition_matrix <- transition_matrix
+    if (local) {
+      demography_obj <- state$demography$local_transition_matrix
+    } else {
+      demography_obj <- state$demography$global_transition_matrix
+    }
+    
+    if (any(rowSums(population) > raster::extract(state$habitat$carrying_capacity, idr))) {
+
+      idk <- which(rowSums(population) <= raster::extract(state$habitat$carrying_capacity, idr))
       
+      vals_fecundity <- replicate_values(vals_fecundity, demography_obj)
+      vals_survival <- replicate_values(vals_survival, demography_obj)
+      fecundity <- replicate_values(fecundity, demography_obj, index = TRUE)
+      survival <- replicate_values(survival, demography_obj, index = TRUE)
+
+      demography_obj[fecundity] <- vals.fecundity * fecundity_fraction
+      demography_obj[survival] <- vals.survival * survival_fraction
+      
+      demography_obj[, , idk] <- transition_matrix
+      
+    }
+
+    if (local) {
+      state$demography$local_transition_matrix <- demography_obj
+    } else {
+      state$demography$global_transition_matrix <- demography_obj
     }
     
     state
