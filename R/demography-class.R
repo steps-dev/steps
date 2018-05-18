@@ -49,8 +49,8 @@ build_demography <- function (transition_matrix,
   if(base::is.null(m.names)) m.names <- base::paste0("stage.",1:di)
   base::dimnames(x) <- base::list(m.names, m.names)
   
-  if (type == 'local' ) {
-    if (!inherits(habitat_suitability,c("RasterLayer"))) {
+  if ( type == 'local' ) {
+    if ( !inherits(habitat_suitability,c("RasterLayer")) ) {
       stop("A raster layer must be specified if storing local (cell-based) transition matrices")
     }
     
@@ -62,7 +62,7 @@ build_demography <- function (transition_matrix,
     
     # setup an array of matrices that is nstage*nstage*ncells:
     all_stage_matrices <- array(NA, dim = c(di, di, ncells))
-    all_stage_matrices[ , , ncells] <- transition_matrix
+    all_stage_matrices[ , , seq_len(ncells)] <- transition_matrix
     
     demography <- list(global_transition_matrix = x,
                        local_transition_matrix = all_stage_matrices,

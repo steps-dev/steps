@@ -16,12 +16,12 @@ is.demography_dynamics(x)
 
 \method{print}{demography_dynamics}(x, ...)
 
-demography_dynamics(env_stoch = NULL, determ_surv_fec = NULL,
-  demo_dens_dep = NULL)
+demography_dynamics(...)
 
 demo_environmental_stochasticity(transition_matrix, stochasticity = 0)
 
-demo_density_dependence(fecundity_fraction = 1, survival_fraction = 1)
+demo_density_dependence(transition_matrix, fecundity_fraction = 1,
+  survival_fraction = 1)
 
 deterministic_surv_fec(global_transition_matrix, surv_layers, fec_layers)
 }
@@ -31,12 +31,6 @@ deterministic_surv_fec(global_transition_matrix, surv_layers, fec_layers)
 \item{x}{an object to print or test as an demography_dynamic object}
 
 \item{...}{further arguments passed to or from other methods}
-
-\item{env_stoch}{a function for adding environmental stochasticity to the global transition matrix at each timestep}
-
-\item{determ_surv_fec}{a function for altering a life-stage transition matrix with user supplied spatial layers at each timestep}
-
-\item{demo_dens_dep}{a function for modifying the transition matrix at each timestep when carrying capacity is reached}
 
 \item{transition_matrix}{a life-stage transition matrix}
 

@@ -8,9 +8,9 @@
 #' @param demography_dynamics_function A function that operates on a state object to change demography at specified timesteps. User may enter a custom function or select a pre-defined module - see examples. 
 #' @param x an object to print or test as an demography_dynamic object
 #' @param ... further arguments passed to or from other methods
-#' @param env_stoch a function for adding environmental stochasticity to the global transition matrix at each timestep
-#' @param determ_surv_fec a function for altering a life-stage transition matrix with user supplied spatial layers at each timestep
-#' @param demo_dens_dep a function for modifying the transition matrix at each timestep when carrying capacity is reached
+# @param env_stoch a function for adding environmental stochasticity to the global transition matrix at each timestep
+# @param determ_surv_fec a function for altering a life-stage transition matrix with user supplied spatial layers at each timestep
+# @param demo_dens_dep a function for modifying the transition matrix at each timestep when carrying capacity is reached
 #' @param transition_matrix a life-stage transition matrix
 #' @param stochasticity a matrix with standard deviations (consistent or varying) around the transition means with matching dimensions as the life-stage transition matrix or a number representing a consitent standard deviation to apply to all transitions (default is 0)
 #' @param fecundity_fraction a multiplier value between 0 and 1 for fecundity values in the transition matrix
@@ -121,32 +121,56 @@ print.demography_dynamics <- function (x, ...) {
 #' 
 #' # Use the demography_dynamics function to modify a demography object:
 #' 
-#' env_stoch <- demo_environmental_stochasticity(global_transition_matrix = mat,
+#' env_stoch <- demo_environmental_stochasticity(transition_matrix = mat,
 #'                                              stochasticity = mat_sd)
 #' 
 #' example_function <- demography_dynamics(env_stoch,
 #'                                         demo_dens_dep =  demo_density_dependence())
 
-demography_dynamics <- function (env_stoch = NULL, determ_surv_fec = NULL, demo_dens_dep = NULL) {
+demography_dynamics <- function (...) {
   
-  demographic_dynamics <- function (state, timestep) {
+  dots <- list(...)
+  
+  # run checks on the functions they've passed in, make sure they are legit
+  
+  demo_dynamics <- function (state, timestep) {
     
-    if (!is.null(env_stoch))
-      state <- env_stoch(state, timestep)
+    if (!is.null(unlist(dots))){
+      for (fun in dots) {
+        state <- fun(state, timestep)
+      }
+    }
     
-    if (!is.null(determ_surv_fec))
-      state <- determ_surv_fec(state, timestep)
-    
-    if (!is.null(demo_dens_dep))
-      state <- demo_dens_dep(state, timestep)
-
     state
     
   }
   
-  as.demography_dynamics(demographic_dynamics)
+  as.demography_dynamics(demo_dynamics)
   
 }
+
+# demography_dynamics <- function (env_stoch = NULL,
+#                                  determ_surv_fec = NULL,
+#                                  demo_dens_dep = NULL) {
+#   
+#   demographic_dynamics <- function (state, timestep) {
+#     
+#     if (!is.null(env_stoch))
+#       state <- env_stoch(state, timestep)
+#     
+#     if (!is.null(determ_surv_fec))
+#       state <- determ_surv_fec(state, timestep)
+#     
+#     if (!is.null(demo_dens_dep))
+#       state <- demo_dens_dep(state, timestep)
+# 
+#     state
+#     
+#   }
+#   
+#   as.demography_dynamics(demographic_dynamics)
+#   
+# }
 
 ##########################
 ### internal functions ###
@@ -177,7 +201,7 @@ as.demography_deterministic_surv_fec <- function (demography_deterministic_surv_
 #' # Use the demo_environmental_stochasticity function to modify the transition
 #' # matrix with specified environmental stochasticity:
 #' 
-#' test_demo_es <- demo_environmental_stochasticity(global_transition_matrix = mat,
+#' test_demo_es <- demo_environmental_stochasticity(transition_matrix = mat,
 #'                                     stochasticity = mat_sd)
 
 demo_environmental_stochasticity <- function (transition_matrix,
@@ -200,8 +224,8 @@ demo_environmental_stochasticity <- function (transition_matrix,
     # if (!is.null(state$demography$local_transition_matrix) & is.null(local_transition_matrix)) {
     #   stop("Local cell-based transition matrices are required \nfor this function - none have been specified")
     # }
-    # global_demography <- global_transition_matrix
-    # nstages <- dim(global_transition_matrix)[[1]]
+    # global_demography <- transition_matrix
+    # nstages <- dim(transition_matrix)[[1]]
     
     
     # demography_obj <- state$demography$demography_obj
@@ -292,8 +316,8 @@ demo_density_dependence <- function (transition_matrix,
       fecundity <- replicate_values(fecundity, demography_obj, index = TRUE)
       survival <- replicate_values(survival, demography_obj, index = TRUE)
 
-      demography_obj[fecundity] <- vals.fecundity * fecundity_fraction
-      demography_obj[survival] <- vals.survival * survival_fraction
+      demography_obj[fecundity] <- vals_fecundity * fecundity_fraction
+      demography_obj[survival] <- vals_survival * survival_fraction
       
       demography_obj[, , idk] <- transition_matrix
       
@@ -323,11 +347,11 @@ demo_density_dependence <- function (transition_matrix,
 #' # Use the deterministic_surv_fec function to modify the  
 #' # demography using explicit survival and fecundity layers:
 #' 
-#' test_survfec <- deterministic_surv_fec(global_transition_matrix = mat,
+#' test_survfec <- deterministic_surv_fec(transition_matrix = mat,
 #'                                     surv_layers = surv,
 #'                                     fec_layers = fec)
 
-deterministic_surv_fec <- function (global_transition_matrix, surv_layers, fec_layers) {
+deterministic_surv_fec <- function (transition_matrix, surv_layers, fec_layers) {
   
   determ_surv_fec <- function (state, timestep) {
     
@@ -335,8 +359,8 @@ deterministic_surv_fec <- function (global_transition_matrix, surv_layers, fec_l
       stop("Local cell-based transition matrices are required \nfor this function - none have been specified")
     }
     
-    global_demography <- global_transition_matrix
-    nstages <- dim(global_transition_matrix)[[1]]
+    global_demography <- transition_matrix
+    nstages <- dim(transition_matrix)[[1]]
     
     if (any(unlist(lapply(surv_layers, function (x) raster::nlayers(x))) < timestep)) {
       stop("The number of survival/fecundity layers must match \nthe number of timesteps in the simulation run")

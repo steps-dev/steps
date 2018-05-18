@@ -14,7 +14,7 @@ is.habitat_dynamics(x)
 
 \method{print}{habitat_dynamics}(x, ...)
 
-habitat_dynamics(determ_dist = NULL, stoch_dist = NULL)
+habitat_dynamics(...)
 
 deterministic_fires(habitat_suitability, disturbance_layers, effect_time = 1)
 }
@@ -24,10 +24,6 @@ deterministic_fires(habitat_suitability, disturbance_layers, effect_time = 1)
 \item{x}{an object to print or test as an habitat_dynamic object}
 
 \item{...}{further arguments passed to or from other methods}
-
-\item{determ_dist}{a function for disturbing the landscape habitat with user supplied spatial layers at each timestep}
-
-\item{stoch_dist}{a function for applying stochastic disturbance to the landscape habitat at each timestep}
 
 \item{habitat_suitability}{a raster layer or stack containing habitat suitability for each cell}
 

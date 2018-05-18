@@ -144,6 +144,109 @@ sim_results <- simulation(state = koala.state,
 
 ########################################################################
 
+################# WITH DETERMINISTIC CHANGES TO HABITAT #####################
+
+koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit,
+                               carrying_capacity = koala.hab.k,
+                               misc = NULL)
+koala.demography <- build_demography(transition_matrix = koala.trans.mat,
+                                     type = 'local', 
+                                     habitat_suitability = koala.hab.suit,
+                                     dispersal_parameters = koala.disp.param,
+                                     misc = NULL)
+koala.population <- build_population(population_raster = koala.pop)
+koala.state <- build_state(habitat = koala.habitat,
+                           demography = koala.demography,
+                           population = koala.population)
+
+koala.habitat.dynamics <- habitat_dynamics()
+koala.demography.dynamics <- demography_dynamics()
+koala.population.dynamics <- population_dynamics()
+koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
+                                 demography_dynamics = koala.demography.dynamics,
+                                 population_dynamics = koala.population.dynamics,
+                                 order = c("habitat_dynamics",
+                                           "population_dynamics",
+                                           "demography_dynamics")
+)
+
+sim_results <- simulation(state = koala.state,
+                          dynamics = koala.dynamics,
+                          timesteps = 100,
+                          replicates = 5)
+
+########################################################################
+
+################# WITH DEMOGRAPHIC DENSITY DEPENDENCE #####################
+
+koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit,
+                               carrying_capacity = koala.hab.k*0.1,
+                               misc = NULL)
+koala.demography <- build_demography(transition_matrix = koala.trans.mat,
+                                     type = 'local', 
+                                     habitat_suitability = koala.hab.suit,
+                                     dispersal_parameters = koala.disp.param,
+                                     misc = NULL)
+koala.population <- build_population(population_raster = koala.pop)
+koala.state <- build_state(habitat = koala.habitat,
+                           demography = koala.demography,
+                           population = koala.population)
+
+koala.habitat.dynamics <- habitat_dynamics()
+koala.demography.dynamics <- demography_dynamics(demo_dens_dep = demo_density_dependence(koala.trans.mat,
+                                                                                         fecundity_fraction = 0.8,
+                                                                                         survival_fraction = 0.8))
+koala.population.dynamics <- population_dynamics()
+koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
+                                 demography_dynamics = koala.demography.dynamics,
+                                 population_dynamics = koala.population.dynamics,
+                                 order = c("habitat_dynamics",
+                                           "population_dynamics",
+                                           "demography_dynamics")
+)
+
+sim_results <- simulation(state = koala.state,
+                          dynamics = koala.dynamics,
+                          timesteps = 100,
+                          replicates = 5)
+
+########################################################################
+
+################# WITH DETERMINISTIC CHANGES IN DEMOGRAPHICS #####################
+
+koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit,
+                               carrying_capacity = koala.hab.k,
+                               misc = NULL)
+koala.demography <- build_demography(transition_matrix = koala.trans.mat,
+                                     type = 'local', 
+                                     habitat_suitability = koala.hab.suit,
+                                     dispersal_parameters = koala.disp.param,
+                                     misc = NULL)
+koala.population <- build_population(population_raster = koala.pop)
+koala.state <- build_state(habitat = koala.habitat,
+                           demography = koala.demography,
+                           population = koala.population)
+
+koala.habitat.dynamics <- habitat_dynamics()
+koala.demography.dynamics <- demography_dynamics(demo_dens_dep = demo_density_dependence(koala.trans.mat,
+                                                                                         fecundity_fraction = 0.8,
+                                                                                         survival_fraction = 0.8))
+koala.population.dynamics <- population_dynamics()
+koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
+                                 demography_dynamics = koala.demography.dynamics,
+                                 population_dynamics = koala.population.dynamics,
+                                 order = c("habitat_dynamics",
+                                           "population_dynamics",
+                                           "demography_dynamics")
+)
+
+sim_results <- simulation(state = koala.state,
+                          dynamics = koala.dynamics,
+                          timesteps = 100,
+                          replicates = 5)
+
+##################################################################################
+
 ################# WITH DEMOGRAPHIC STOCHASTICITY IN POPULATION #####################
 
 koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit,
@@ -173,41 +276,6 @@ koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
 sim_results <- simulation(state = koala.state,
                           dynamics = koala.dynamics,
                           timesteps = 10,
-                          replicates = 5)
-
-########################################################################
-
-################# WITH DEMOGRAPHIC DENSITY DEPENDENCE #####################
-
-koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit,
-                               carrying_capacity = koala.hab.k*0.1,
-                               misc = NULL)
-koala.demography <- build_demography(transition_matrix = as.matrix(0.75),
-                                     type = 'local', 
-                                     habitat_suitability = koala.hab.suit,
-                                     dispersal_parameters = koala.disp.param,
-                                     misc = NULL)
-koala.population <- build_population(population_raster = koala.pop[[4]])
-koala.state <- build_state(habitat = koala.habitat,
-                           demography = koala.demography,
-                           population = koala.population)
-
-koala.habitat.dynamics <- habitat_dynamics()
-koala.demography.dynamics <- demography_dynamics(demo_dens_dep = demo_density_dependence(as.matrix(0.75),
-                                                                                         fecundity_fraction = 0.8,
-                                                                                         survival_fraction = 0.8))
-koala.population.dynamics <- population_dynamics()
-koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
-                                 demography_dynamics = koala.demography.dynamics,
-                                 population_dynamics = koala.population.dynamics,
-                                 order = c("habitat_dynamics",
-                                           "population_dynamics",
-                                           "demography_dynamics")
-)
-
-sim_results <- simulation(state = koala.state,
-                          dynamics = koala.dynamics,
-                          timesteps = 100,
                           replicates = 5)
 
 ########################################################################

@@ -8,8 +8,8 @@
 #' @param habitat_dynamics_function A function that operates on a state object to change habitat at specified timesteps. User may enter a custom function or select a pre-defined module - see documentation. 
 #' @param x an object to print or test as an habitat_dynamic object
 #' @param ... further arguments passed to or from other methods
-#' @param determ_dist a function for disturbing the landscape habitat with user supplied spatial layers at each timestep
-#' @param stoch_dist a function for applying stochastic disturbance to the landscape habitat at each timestep
+# @param determ_dist a function for disturbing the landscape habitat with user supplied spatial layers at each timestep
+# @param stoch_dist a function for applying stochastic disturbance to the landscape habitat at each timestep
 #' @param habitat_suitability a raster layer or stack containing habitat suitability for each cell
 #' @param disturbance_layers a raster stack with fire disturbances used to alter the habitat object in the experiment (number of layers must match the intended timesteps in the experiment)
 #' @param effect_time the number of timesteps that the disturbance layer will act on the habitat object
@@ -97,16 +97,20 @@ print.habitat_dynamics <- function (x, ...) {
 #' 
 #' example_function <- habitat_dynamics(determ_dist)
 
-habitat_dynamics <- function (determ_dist = NULL, stoch_dist = NULL) {
+habitat_dynamics <- function (...) {
+  
+  dots <- list(...)
+  
+  # run checks on the functions they've passed in, make sure they are legit
   
   hab_dynamics <- function (state, timestep) {
     
-    if (!is.null(determ_dist))
-      state <- determ_dist(state, timestep)
-    
-    if (!is.null(stoch_dist))
-      state <- stoch_dist(state, timestep)
-    
+    if (!is.null(unlist(dots))){
+      for (fun in dots) {
+        state <- fun(state, timestep)
+      }
+    }
+
     state
     
   }
@@ -114,6 +118,24 @@ habitat_dynamics <- function (determ_dist = NULL, stoch_dist = NULL) {
   as.habitat_dynamics(hab_dynamics)
   
 }
+
+# habitat_dynamics <- function (determ_dist = NULL, stoch_dist = NULL) {
+#   
+#   hab_dynamics <- function (state, timestep) {
+#     
+#     if (!is.null(determ_dist))
+#       state <- determ_dist(state, timestep)
+#     
+#     if (!is.null(stoch_dist))
+#       state <- stoch_dist(state, timestep)
+#     
+#     state
+#     
+#   }
+#   
+#   as.habitat_dynamics(hab_dynamics)
+#   
+# }
 
 
 
