@@ -17,6 +17,7 @@ NULL
 #' @param pop_dens_dep a function to control density dependence effects on the population at each timestep
 #' @param distribution the distribution function to use when dispersing a population
 #' @param distance_decay controls the distance at which the population disperses
+#' @param kernel_fun a user-defined distance dispersal kernal function
 #' @param source_layer a spatial layer with the locations and number of individuals to translocate from - note, this layer will only have zero values if individuals are being introduced from outside the study area
 #' @param sink_layer a spatial layer with the locations and number of individuals to translocate to
 #' @param stages which life-stages are affected by the translocations - note, default is all
@@ -305,7 +306,6 @@ dispersalFFT <- function (popmat, fs) {
   
   # project population dispersal on the torus by fft
   # get spectral representations of the matrix & vector & compute the spectral
-  
   # representation of their product
   pop_fft <- stats::fft(t(fs$pop_torus))
   bcb_fft <- stats::fft(fs$bcb_vec)
@@ -328,15 +328,15 @@ dispersalFFT <- function (popmat, fs) {
 
 seq_range <- function (range, by = 1) seq(range[1], range[2], by = by)
 
-dispersal <- function(params, pop, hsm, cc, method){
-  #stopifnot(is.dispersal(params))
-  if(!any(method==c('ca','fft')))stop('method must be either "ca" (cellular automata) or\n "fft" (fast fourier transformation).')
-  #stopifnot(is.habitat(habitat))  
-  dispersal_results <- switch(method,
-                              ca = dispersal_core_ca(params,pop,hsm,cc),
-                              fft = dispersal_core_fft(params,pop))  
-  return(dispersal_results)
-}
+# dispersal <- function(params, pop, hsm, cc, method){
+#   #stopifnot(is.dispersal(params))
+#   if(!any(method==c('ca','fft')))stop('method must be either "ca" (cellular automata) or\n "fft" (fast fourier transformation).')
+#   #stopifnot(is.habitat(habitat))  
+#   dispersal_results <- switch(method,
+#                               ca = dispersal_core_ca(params,pop,hsm,cc),
+#                               fft = dispersal_core_fft(params,pop))  
+#   return(dispersal_results)
+# }
 
 
 dispersal_core_ca <- function(params, pop, hsm, cc){
@@ -425,12 +425,12 @@ dispersal_core_fft <- function(params, pop){
 #' 
 #' @examples
 #' 
-#' # Use the linear growth function to modify the  
+#' # Use the simple growth function to modify the  
 #' # population using life-stage transitions:
 #'
-#' test_lin_growth <- linear_growth()
+#' test_lin_growth <- simple_growth()
 
-linear_growth <- function () {
+simple_growth <- function () {
   
   pop_dynamics <- function (state, timestep) {
     
@@ -551,31 +551,38 @@ demographic_stochasticity <- function () {
 #'
 #' test_sim_dispersal <- simple_dispersal()
 
-simple_dispersal <- function (distribution = stats::rlnorm(1), distance_decay = 0.5) {
+simple_dispersal <- function (distance_decay = 0.5) {
 
   pop_dynamics <- function (state, timestep) {
 
     population_raster <- state$population$population_raster
 
-    # get population as a matrix
+    # get population as a matrix - one column per life stage, one row per grid cell
     idx <- which(!is.na(raster::getValues(population_raster[[1]])))
     population <- raster::extract(population_raster, idx)
 
-    # do dispersal
+    # extract locations as x and y coordinates from landscape
     locations <- raster::xyFromCell(population_raster, idx)
+    
+    # get resolution and rescale distance decay accordingly
     resolution <- mean(raster::res(population_raster))
-    dispersal_decay <- distribution * resolution
+    dispersal_decay <- distance_decay * resolution
 
+    # calculate distance matrix
     D <- as.matrix(stats::dist(locations))
-    dispersal_matrix <- exp(-D / distance_decay)
+    
+    # redistribute populations based on probability density function
+    dispersal_matrix <- exp(-D / dispersal_decay)
+    
+    # get population sums in each cell and rescale to maintain total populations
     sums <- colSums(dispersal_matrix)
     dispersal <- sweep(dispersal_matrix, 2, sums, "/")
     
+    # multiply populations by new dispersal locations
     population <- dispersal %*% population
 
     # put back in the raster
     population_raster[idx] <- population
-
     state$population$population_raster <- population_raster
     
     state
@@ -585,7 +592,60 @@ simple_dispersal <- function (distribution = stats::rlnorm(1), distance_decay = 
 
 }
 
+
+#' @rdname population_dynamics
+#' 
+#' @export
+#' 
+#' @examples
+#' 
+#' # Use the kernel-based dispersal function to modify the  
+#' # population using a user-defined diffusion distribution:
+#'
+#' test_kern_dispersal <- kernel_function_dispersal()
+
+kernel_function_dispersal <- function (kernel_fun = function (r) exp(-r/distance_decay), distance_decay = 0.5) {
   
+  pop_dynamics <- function (state, timestep) {
+    
+    population_raster <- state$population$population_raster
+    
+    # get population as a matrix - one column per life stage, one row per grid cell
+    idx <- which(!is.na(raster::getValues(population_raster[[1]])))
+    population <- raster::extract(population_raster, idx)
+    
+    # extract locations as x and y coordinates from landscape (ncells x 2)
+    locations <- raster::xyFromCell(population_raster, idx)
+    
+    # determine the cell resolution for calculating cell distances traveled
+    resolution <- mean(raster::res(population_raster))
+
+    # construct a matrix all distances between all cells (ncells x ncells)
+    # rescale based on cell resolution
+    D <- as.matrix(stats::dist(locations))/resolution
+    
+    # apply dispersal function to determine proportions of individuals that remain/move into cells
+    # adjust the distance by the raster resolution to convert to cell distances
+    dispersal_matrix <- kernel_fun(D)
+    
+    # not entirely sure what this does...
+    sums <- colSums(dispersal_matrix)
+    dispersal <- sweep(dispersal_matrix, 2, sums, "/")
+    
+    population <- dispersal %*% population
+
+    # put back in the raster
+    population_raster[idx] <- population
+    state$population$population_raster <- population_raster
+    
+    state
+  }
+  
+  as.population_simple_dispersal(pop_dynamics)
+  
+}
+
+
 #' @rdname population_dynamics
 #' 
 #' @export
@@ -611,11 +671,10 @@ cellular_automata_dispersal <- function () {
     population <- raster::extract(population_raster, idx)
 
     # do dispersal
-    state$population$population_raster <- dispersal(params = dispersal_parameters,
+    state$population$population_raster <- dispersal_core_ca(params = dispersal_parameters,
                                                     pop = population_raster,
                                                     hsm = habitat_suitability,
-                                                    cc = carrying_capacity,
-                                                    method = "ca"
+                                                    cc = carrying_capacity
     )
     
     state
@@ -651,9 +710,8 @@ fast_fourier_dispersal <- function () {
     population <- raster::extract(population_raster, idx)
 
     # do dispersal
-    state$population$population_raster <- dispersal(params = dispersal_parameters,
-                                                    pop = population_raster,
-                                                    method = "fft")
+    state$population$population_raster <- dispersal_core_fft(params = dispersal_parameters,
+                                                    pop = population_raster)
     state
   }
 
@@ -694,17 +752,22 @@ pop_translocation <- function (source_layer, sink_layer, stages = NULL, effect_t
       
       if (is.null(stages)) {
         
-        for (i in seq_len(ncol(population_matrix))) {
+        for (stage in seq_len(ncol(population_matrix))) {
 
-          population_matrix[ , i] <- population_matrix[ , i] + (sink/nstages) - (source/nstages)
+          if (any(population_matrix[ , stage] + (sink/nstages) - (source/nstages) < 0)) {
+            stop("Your translocations are resulting in negative populations -\nsource locations/numbers are not viable.")
+          }
+          population_matrix[ , stage] <- population_matrix[ , stage] + (sink/nstages) - (source/nstages)
 
         }
 
       } else {
         
-        for (i in stages) {
-          
-          population_matrix[ , i] <- population_matrix[ , i] + (sink/length(stages)) - (source/length(stages))
+        for (stage in stages) {
+          if (any(population_matrix[ , stage] + (sink/length(stages)) - (source/length(stages)) < 0)) {
+            stop("Your translocations are resulting in negative populations -\nsource locations/numbers are not viable.")
+          }
+          population_matrix[ , stage] <- population_matrix[ , stage] + (sink/length(stages)) - (source/length(stages))
 
         }
         

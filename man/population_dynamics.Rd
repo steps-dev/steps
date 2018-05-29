@@ -5,9 +5,10 @@
 \alias{is.population_dynamics}
 \alias{print.population_dynamics}
 \alias{population_dynamics}
-\alias{linear_growth}
+\alias{simple_growth}
 \alias{demographic_stochasticity}
 \alias{simple_dispersal}
+\alias{kernel_function_dispersal}
 \alias{cellular_automata_dispersal}
 \alias{fast_fourier_dispersal}
 \alias{pop_translocation}
@@ -23,11 +24,14 @@ is.population_dynamics(x)
 population_dynamics(pop_change = linear_growth(), pop_disp = NULL,
   pop_mod = NULL, pop_dens_dep = NULL)
 
-linear_growth()
+simple_growth()
 
 demographic_stochasticity()
 
-simple_dispersal(distribution = stats::rlnorm(1), distance_decay = 0.5)
+simple_dispersal(distance_decay = 0.5)
+
+kernel_function_dispersal(kernel_fun = function(r) exp(-r/distance_decay),
+  distance_decay = 0.5)
 
 cellular_automata_dispersal()
 
@@ -53,9 +57,9 @@ pop_density_dependence()
 
 \item{pop_dens_dep}{a function to control density dependence effects on the population at each timestep}
 
-\item{distribution}{the distribution function to use when dispersing a population}
-
 \item{distance_decay}{controls the distance at which the population disperses}
+
+\item{kernel_fun}{a user-defined distance dispersal kernal function}
 
 \item{source_layer}{a spatial layer with the locations and number of individuals to translocate from - note, this layer will only have zero values if individuals are being introduced from outside the study area}
 
@@ -64,6 +68,8 @@ pop_density_dependence()
 \item{stages}{which life-stages are affected by the translocations - note, default is all}
 
 \item{effect_timesteps}{which timesteps in a single simulation do the translocations take place}
+
+\item{distribution}{the distribution function to use when dispersing a population}
 }
 \value{
 An object of class \code{population_dynamics}
@@ -153,10 +159,10 @@ par(mfrow=c(1,2))
 plot(test_state$population$population_raster[[2]])
 plot(test_state2$population$population_raster[[2]])
 
-# Use the linear growth function to modify the  
+# Use the simple growth function to modify the  
 # population using life-stage transitions:
 
-test_lin_growth <- linear_growth()
+test_lin_growth <- simple_growth()
 
 # Use the demographic stochasticity function to modify the  
 # population using random variation:
@@ -167,6 +173,11 @@ test_dem_stoch <- demographic_stochasticity()
 # population using a diffusion kernel:
 
 test_sim_dispersal <- simple_dispersal()
+
+# Use the kernel-based dispersal function to modify the  
+# population using a user-defined diffusion distribution:
+
+test_kern_dispersal <- kernel_function_dispersal()
 
 # Use the cellular automata dispersal function to modify  
 # the population using rule-based cell movements:

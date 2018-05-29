@@ -35,7 +35,7 @@ names(koala.hab.suit) <- "Habitat" # assign a name to the layer
 plot(koala.hab.suit, box = FALSE, axes = FALSE)
 
 # Define an initial carrying capacity layer
-koala.hab.k <- ceiling(koala.hab.suit*10) # up to 10 individuals in the best habitat
+koala.hab.k <- ceiling(koala.hab.suit*20) # up to 20 individuals in the best habitat
 names(koala.hab.k) <- "Carrying Capacity" # assign a name to the layer
 plot(koala.hab.k, box = FALSE, axes = FALSE)
 
@@ -67,7 +67,7 @@ koala.dist.fire <- stack(list.files("inst/extdata", full = TRUE, pattern = 'Koal
 # Define some population disturbance layers. In this case where and how many individuals will be translocated.
 koala.pop.source <- koala.pop[[4]]
 koala.pop.source[] <- 0
-koala.pop.source[sample(which(getValues(koala.pop[[4]]) >= 3), 25)] <- 1
+koala.pop.source[sample(which(getValues(koala.pop[[4]]) >= 5), 5)] <- 1
 plot(koala.pop.source, box = FALSE, axes = FALSE)
 
 koala.pop.sink <- koala.pop[[4]]
@@ -78,6 +78,11 @@ koala.pop.sink[sample(which(getValues(koala.pop[[1]]) == 1 |
                             getValues(koala.pop[[4]]) == 1),
                       cellStats(koala.pop.source, sum))] <- 1
 plot(koala.pop.sink, box = FALSE, axes = FALSE)
+
+# Note, for reintroductions from off-site, e.g. captive breeding, the source layer is all zeros and only the sink layer has values.
+koala.pop.source.cb <- koala.pop.source
+koala.pop.source.cb[] <- 0
+
 
 # Define some demography disturbance layers. Note, these must match the intended number of timesteps.
 koala.surv <- list(stack(list.files("inst/extdata", full = TRUE, pattern = 'Koala_Sur_F03R+')),
@@ -109,7 +114,7 @@ koala.state <- build_state(habitat = koala.habitat,
                            population = koala.population)
 
 # Create list of habitat dynamic modules
-hab.dyn.list <- list(deterministic_fires(habitat_suitability = koala.hab.suit,
+hab.dyn.list <- list(disturbance_fires(habitat_suitability = koala.hab.suit,
                                          disturbance_layers = koala.dist.fire,
                                          effect_time = 3),
                      NULL,
@@ -120,17 +125,17 @@ dem.dyn.list <- list(demo_environmental_stochasticity(koala.trans.mat,
                      demo_density_dependence(koala.trans.mat,
                                              fecundity_fraction = 0.7,
                                              survival_fraction = 0.8),
-                     deterministic_surv_fec(koala.trans.mat,
+                     surv_fec_modify(koala.trans.mat,
                                             koala.surv,
                                             koala.fec),
                      NULL)
 
 # Create list of population dynamic modules
-pop.dyn.list <- list(linear_growth(),
+pop.dyn.list <- list(simple_growth(),
                      demographic_stochasticity(),
                      pop_density_dependence(),
-                     simple_dispersal(distribution = rlnorm(1),
-                                      distance_decay = 0.5),
+                     simple_dispersal(),
+                     kernel_function_dispersal(),
                      cellular_automata_dispersal(),
                      fast_fourier_dispersal(),
                      pop_translocation(koala.pop.source,
@@ -140,6 +145,7 @@ pop.dyn.list <- list(linear_growth(),
 
 # Create table with proposed combinations of dynamics for simulations
 dyn_perm <- list(
+  list(3, 4, 1, 5, 9, 9),
   list(3, 4, 1, 8, 8, 8),
   list(3, 4, 1, 3, 8, 8),
   list(3, 4, 1, 3, 5, 8),
@@ -180,8 +186,8 @@ for ( i in seq_len(length(dyn_perm)) ) {
   
   sim_results <- simulation(state = koala.state,
                             dynamics = koala.dynamics,
-                            timesteps = 20,
-                            replicates = 5)
+                            timesteps = 10,
+                            replicates = 1)
   
   pdf(paste0("working/examples/plots/pop_perm_",sprintf("%03d", i),".pdf"))
   plot(sim_results)
@@ -191,3 +197,5 @@ for ( i in seq_len(length(dyn_perm)) ) {
 
 
 plot(sim_results)
+
+plot(sim_results[[1]][[10]]$population$population_raster)

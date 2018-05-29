@@ -351,9 +351,9 @@ demo_density_dependence <- function (transition_matrix,
 #'                                     surv_layers = surv,
 #'                                     fec_layers = fec)
 
-deterministic_surv_fec <- function (transition_matrix, surv_layers, fec_layers) {
+surv_fec_modify <- function (transition_matrix, surv_layers, fec_layers) {
   
-  determ_surv_fec <- function (state, timestep) {
+  surv_fec_mod <- function (state, timestep) {
     
     if (is.null(state$demography$local_transition_matrix)) {
       stop("Local cell-based transition matrices are required \nfor this function - none have been specified")
@@ -392,6 +392,6 @@ deterministic_surv_fec <- function (transition_matrix, surv_layers, fec_layers) 
     
   }
   
-  as.demography_deterministic_surv_fec(determ_surv_fec)
+  as.demography_deterministic_surv_fec(surv_fec_mod)
   
 }

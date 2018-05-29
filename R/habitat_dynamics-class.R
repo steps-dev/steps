@@ -161,16 +161,16 @@ as.habitat_deterministic_disturbance <- function (habitat_deterministic_disturba
 #' 
 #' @examples
 #' 
-#' # Use the deterministic_fires function to modify the  
+#' # Use the disturbance_fires function to modify the  
 #' # habitat using spatial fire history layers:
 #' 
-#' test_fires <- deterministic_fires(habitat_suitability = r / cellStats(r, "max"),
+#' test_fires <- disturbance_fires(habitat_suitability = r / cellStats(r, "max"),
 #'                                     disturbance_layers = dist,
 #'                                     effect_time = 1)
 
-deterministic_fires <- function (habitat_suitability, disturbance_layers, effect_time=1) {
+disturbance_fires <- function (habitat_suitability, disturbance_layers, effect_time=1) {
   
-  det_fire_fun <- function (state, timestep) {
+  dist_fire_fun <- function (state, timestep) {
     
     original_habitat <- habitat_suitability
     
@@ -187,6 +187,6 @@ deterministic_fires <- function (habitat_suitability, disturbance_layers, effect
     
   }
   
-  as.habitat_deterministic_disturbance(det_fire_fun)
+  as.habitat_deterministic_disturbance(dist_fire_fun)
   
 }

@@ -7,7 +7,7 @@
 \alias{demography_dynamics}
 \alias{demo_environmental_stochasticity}
 \alias{demo_density_dependence}
-\alias{deterministic_surv_fec}
+\alias{surv_fec_modify}
 \title{Change the demography in a state object}
 \usage{
 as.demography_dynamics(demography_dynamics_function)
@@ -23,7 +23,7 @@ demo_environmental_stochasticity(transition_matrix, stochasticity = 0)
 demo_density_dependence(transition_matrix, fecundity_fraction = 1,
   survival_fraction = 1)
 
-deterministic_surv_fec(global_transition_matrix, surv_layers, fec_layers)
+surv_fec_modify(transition_matrix, surv_layers, fec_layers)
 }
 \arguments{
 \item{demography_dynamics_function}{A function that operates on a state object to change demography at specified timesteps. User may enter a custom function or select a pre-defined module - see examples.}
@@ -119,7 +119,7 @@ print(example_function)
 
 # Use the demography_dynamics function to modify a demography object:
 
-env_stoch <- demo_environmental_stochasticity(global_transition_matrix = mat,
+env_stoch <- demo_environmental_stochasticity(transition_matrix = mat,
                                              stochasticity = mat_sd)
 
 example_function <- demography_dynamics(env_stoch,
@@ -128,7 +128,7 @@ example_function <- demography_dynamics(env_stoch,
 # Use the demo_environmental_stochasticity function to modify the transition
 # matrix with specified environmental stochasticity:
 
-test_demo_es <- demo_environmental_stochasticity(global_transition_matrix = mat,
+test_demo_es <- demo_environmental_stochasticity(transition_matrix = mat,
                                     stochasticity = mat_sd)
 
 # Use the demo_density_dependence function to modify the transition
@@ -140,7 +140,7 @@ test_demo_dd <- demo_density_dependence(fecundity_fraction = 1,
 # Use the deterministic_surv_fec function to modify the  
 # demography using explicit survival and fecundity layers:
 
-test_survfec <- deterministic_surv_fec(global_transition_matrix = mat,
+test_survfec <- deterministic_surv_fec(transition_matrix = mat,
                                     surv_layers = surv,
                                     fec_layers = fec)
 }
