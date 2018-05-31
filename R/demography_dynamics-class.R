@@ -367,6 +367,10 @@ surv_fec_modify <- function (transition_matrix, surv_layers, fec_layers) {
     global_demography <- transition_matrix
     nstages <- dim(transition_matrix)[[1]]
     
+    if (any(lapply(surv_layers, function (x) is.null(x)) == TRUE)) {
+      stop("Survival layers must be provided for all life-stages")
+    }
+    
     if (any(unlist(lapply(surv_layers, function (x) raster::nlayers(x))) < timestep)) {
       stop("The number of survival/fecundity layers must match \nthe number of timesteps in the simulation run")
     }
@@ -374,10 +378,6 @@ surv_fec_modify <- function (transition_matrix, surv_layers, fec_layers) {
     local_demography <- state$demography$local_transition_matrix
     
     for (i in seq_len(nstages)) {
-      
-      if (any(lapply(surv_layers, function (x) is.null(x)) == TRUE)) {
-        stop("Survival layers must be provided for all life-stages")
-      }
       
       matrix_idx <- which(global_demography != 0 & row(global_demography) != 1 & col(global_demography) == i, arr.ind = TRUE)
       local_demography[matrix_idx[1], matrix_idx[2], ] <- global_demography[matrix_idx] * surv_layers[[i]][[timestep]][]
