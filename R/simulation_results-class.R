@@ -409,7 +409,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
       
       graphics::lines(quants[, 2] ~ xaxs,
             lwd = 2,
-            col = grey(0.4))
+            col = grDevices::grey(0.4))
       
       
       graphics::abline(h=raster::cellStats(x[[1]][[1]]$habitat$carrying_capacity,sum),

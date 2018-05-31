@@ -120,8 +120,9 @@ print(example_function)
 # Use the demography_dynamics function to modify a demography object:
 
 env_stoch <- demo_environmental_stochasticity(transition_matrix = mat,
-                                             stochasticity = mat_sd)
-demo_dens <- demo_density_dependence(transition_matrix = mat)                                             
+                                              stochasticity = mat_sd)
+                                              
+demo_dens <- demo_density_dependence(transition_matrix = mat)
 
 example_function <- demography_dynamics(env_stoch,demo_dens)
 

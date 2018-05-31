@@ -30,7 +30,7 @@ test_that('simulation_results classes work', {
   
   r2 <- r
   r2[] <- 0
-  cells <- sample(c(1:ncell(r2)), 20)
+  cells <- sample(c(1:ncell(r2)), 100)
   r2[c(adjacent(hab.suit, cells, directions=16, pairs=FALSE),cells)]  <- 10
   r3 <- r2*hab.suit
   
@@ -106,7 +106,7 @@ test_that('simulation_results classes work', {
   b_hab2 <- build_habitat(habitat_suitability = hab.suit,
                           carrying_capacity = NULL)
   
-  b_dem2 <- build_demography(transition_matrix = fake_transition_matrix(4),
+  b_dem2 <- build_demography(transition_matrix = mat,
                              dispersal_parameters = params3)
   
   b_state <- build_state(habitat = b_hab,
@@ -204,7 +204,7 @@ test_that('simulation_results classes work', {
                                   dynamics = b_dynamics,
                                   timesteps = 10)))
 
-  expect_true(inherits(simulation(state = b_state2, # *****
+  expect_true(inherits(simulation(state = b_state2,
                                   dynamics = b_dynamics,
                                   timesteps = 10),
                        "simulation_results"))

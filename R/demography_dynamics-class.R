@@ -122,8 +122,9 @@ print.demography_dynamics <- function (x, ...) {
 #' # Use the demography_dynamics function to modify a demography object:
 #' 
 #' env_stoch <- demo_environmental_stochasticity(transition_matrix = mat,
-#'                                              stochasticity = mat_sd)
-#' demo_dens <- demo_density_dependence(transition_matrix = mat)                                             
+#'                                               stochasticity = mat_sd)
+#'                                               
+#' demo_dens <- demo_density_dependence(transition_matrix = mat)
 #' 
 #' example_function <- demography_dynamics(env_stoch,demo_dens)
 
@@ -318,12 +319,13 @@ demo_density_dependence <- function (transition_matrix,
       fecundity <- replicate_values(fecundity, demography_obj, index = TRUE)
       survival <- replicate_values(survival, demography_obj, index = TRUE)
 
-      
       demography_obj[fecundity] <- vals_fecundity * fecundity_fraction
       demography_obj[survival] <- vals_survival * survival_fraction
       
-      demography_obj[, , idk] <- transition_matrix #### This is the problem area...
-      
+      if (local) {
+        demography_obj[, , idk] <- transition_matrix
+      }
+
     }
 
     if (local) {
