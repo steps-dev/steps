@@ -31,7 +31,7 @@ test_that('simulation_results classes work', {
   r2 <- r
   r2[] <- 0
   cells <- sample(c(1:ncell(r2)), 100)
-  r2[c(adjacent(hab.suit, cells, directions=16, pairs=FALSE),cells)]  <- 10
+  r2[c(adjacent(hab.suit, cells, directions=16, pairs=FALSE),cells)]  <- 20
   r3 <- r2*hab.suit
   
   pop <- stack(r3*1,r3*2,r3*3,r3*2)
@@ -60,12 +60,12 @@ test_that('simulation_results classes work', {
   surv_fec <- list(dist.s, dist.s, dist.s, dist.s)
   surv_fec2 <- list(dist.s, dist.s, dist.s, NULL)
   
-  pop_source <- pop[[4]]
+  pop_source <- pop[[3]]
   pop_source[] <- 0
-  pop_source[sample(which(getValues(pop[[4]]) >= 10), 5)] <- 1
+  pop_source[sample(which(getValues(pop[[3]]) >= 20), 5)] <- 1
   #plot(pop_source, box = FALSE, axes = FALSE)
   
-  pop_sink <- pop[[4]]
+  pop_sink <- pop[[3]]
   pop_sink[] <- 0
   pop_sink[sample(which(getValues(pop[[1]]) == 0 |
                         getValues(pop[[2]]) == 0 |
