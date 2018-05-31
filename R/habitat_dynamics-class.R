@@ -91,11 +91,11 @@ print.habitat_dynamics <- function (x, ...) {
 #' 
 #' # Use the habitat_dynamics function to modify a habitat object:
 #' 
-#' determ_dist <- deterministic_fires(habitat_suitability = r / cellStats(r, "max"),
+#' fires_dist <- disturbance_fires(habitat_suitability = r / cellStats(r, "max"),
 #'                                     disturbance_layers = dist,
 #'                                     effect_time = 1)
 #' 
-#' example_function <- habitat_dynamics(determ_dist)
+#' example_function <- habitat_dynamics(fires_dist)
 
 habitat_dynamics <- function (...) {
   
@@ -143,8 +143,8 @@ habitat_dynamics <- function (...) {
 ### internal functions ###
 ##########################
 
-as.habitat_deterministic_disturbance <- function (habitat_deterministic_disturbance) {
-  as_class(habitat_deterministic_disturbance, "habitat_dynamics", "function")
+as.habitat_disturbance <- function (habitat_disturbance) {
+  as_class(habitat_disturbance, "habitat_dynamics", "function")
 }
 
 # as.habitat_stochastic_disturbance <- function (habitat_stochastic_disturbance) {
@@ -187,6 +187,6 @@ disturbance_fires <- function (habitat_suitability, disturbance_layers, effect_t
     
   }
   
-  as.habitat_deterministic_disturbance(dist_fire_fun)
+  as.habitat_disturbance(dist_fire_fun)
   
 }

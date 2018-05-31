@@ -216,7 +216,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
           stop("Please provide a life-stage when plotting \npopulation rasters or specify zero (0) for a sum of all life-stages")
         }
           
-        rasters <- raster::stack(lapply(x, function (state) state$population$population_raster[[stage]]))
+        rasters <- raster::stack(lapply(x[[1]], function (state) state$population$population_raster[[stage]]))
         
         # Find maximum and minimum population value in raster cells for all timesteps for life-stage
         scale_max <- ceiling(max(raster::cellStats(rasters, max)))
@@ -386,7 +386,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
       graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
       
       # draw the 95% CI polygon (if available) and median line
-      quants <- t(apply(apply(pop, 3, rowSums),1, quantile, c(0.025, 0.5, 0.975)))
+      quants <- t(apply(apply(pop, 3, rowSums),1, stats::quantile, c(0.025, 0.5, 0.975)))
       
       xaxs <- seq_len(nrow(pop[,,1]))
       
@@ -402,12 +402,12 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
       #                   col = 'gray')
       # }
       
-      polygon(x = c(xaxs, rev(xaxs)),
+      graphics::polygon(x = c(xaxs, rev(xaxs)),
               y = c(quants[, 1], rev(quants[, 3])),
-              col = grey(0.9),
+              col = grDevices::grey(0.9),
               border = NA)
       
-      lines(quants[, 2] ~ xaxs,
+      graphics::lines(quants[, 2] ~ xaxs,
             lwd = 2,
             col = grey(0.4))
       

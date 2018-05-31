@@ -21,7 +21,7 @@ is.population_dynamics(x)
 
 \method{print}{population_dynamics}(x, ...)
 
-population_dynamics(pop_change = linear_growth(), pop_disp = NULL,
+population_dynamics(pop_change = simple_growth(), pop_disp = NULL,
   pop_mod = NULL, pop_dens_dep = NULL)
 
 simple_growth()
@@ -49,7 +49,7 @@ pop_density_dependence()
 
 \item{...}{further arguments passed to or from other methods}
 
-\item{pop_change}{a function to define how population growth occurs (default is linear) at each timestep}
+\item{pop_change}{a function to define how population growth occurs (default is simple) at each timestep}
 
 \item{pop_disp}{a function to define how the population disperses at each timestep}
 
@@ -59,7 +59,7 @@ pop_density_dependence()
 
 \item{distance_decay}{controls the distance at which the population disperses}
 
-\item{kernel_fun}{a user-defined distance dispersal kernal function}
+\item{kernel_fun}{a user-defined distance dispersal kernel function}
 
 \item{source_layer}{a spatial layer with the locations and number of individuals to translocate from - note, this layer will only have zero values if individuals are being introduced from outside the study area}
 
@@ -68,8 +68,6 @@ pop_density_dependence()
 \item{stages}{which life-stages are affected by the translocations - note, default is all}
 
 \item{effect_timesteps}{which timesteps in a single simulation do the translocations take place}
-
-\item{distribution}{the distribution function to use when dispersing a population}
 }
 \value{
 An object of class \code{population_dynamics}

@@ -80,11 +80,11 @@ print(example_function)
 
 # Use the habitat_dynamics function to modify a habitat object:
 
-determ_dist <- deterministic_fires(habitat_suitability = r / cellStats(r, "max"),
+fires_dist <- disturbance_fires(habitat_suitability = r / cellStats(r, "max"),
                                     disturbance_layers = dist,
                                     effect_time = 1)
 
-example_function <- habitat_dynamics(determ_dist)
+example_function <- habitat_dynamics(fires_dist)
 
 # Use the disturbance_fires function to modify the  
 # habitat using spatial fire history layers:

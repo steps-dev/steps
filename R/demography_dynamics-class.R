@@ -123,9 +123,9 @@ print.demography_dynamics <- function (x, ...) {
 #' 
 #' env_stoch <- demo_environmental_stochasticity(transition_matrix = mat,
 #'                                              stochasticity = mat_sd)
+#' demo_dens <- demo_density_dependence(transition_matrix = mat)                                             
 #' 
-#' example_function <- demography_dynamics(env_stoch,
-#'                                         demo_dens_dep =  demo_density_dependence())
+#' example_function <- demography_dynamics(env_stoch,demo_dens)
 
 demography_dynamics <- function (...) {
   
@@ -184,8 +184,8 @@ as.demography_density_dependence <- function (demography_density_dependence) {
   as_class(demography_density_dependence, "demography_dynamics", "function")
 }
 
-as.demography_deterministic_surv_fec <- function (demography_deterministic_surv_fec) {
-  as_class(demography_deterministic_surv_fec, "demography_dynamics", "function")
+as.demography_modify_surv_fec <- function (demography_modify_surv_fec) {
+  as_class(demography_modify_surv_fec, "demography_dynamics", "function")
 }
 
 ####################################
@@ -241,7 +241,8 @@ demo_environmental_stochasticity <- function (transition_matrix,
     # change to:
     # demography_obj <- state$demography$demography_obj
     
-    # expand these values if demography_obj is an array (otherwise leave them as they are)
+    
+    
     idx <- replicate_values(idx, demography_obj, index = TRUE)
     vals <- replicate_values(vals, demography_obj)
     lower <- replicate_values(lower, demography_obj)
@@ -281,8 +282,9 @@ demo_environmental_stochasticity <- function (transition_matrix,
 #' # Use the demo_density_dependence function to modify the transition
 #' # matrix once carrying capacity is reached:
 #' 
-#' test_demo_dd <- demo_density_dependence(fecundity_fraction = 1,
-#'                                                 survival_fraction = 0.5)
+#' test_demo_dd <- demo_density_dependence(transition_matrix = mat,
+#'                                         fecundity_fraction = 1,
+#'                                         survival_fraction = 0.5)
 
 demo_density_dependence <- function (transition_matrix,
                                      fecundity_fraction = 1,
@@ -316,10 +318,11 @@ demo_density_dependence <- function (transition_matrix,
       fecundity <- replicate_values(fecundity, demography_obj, index = TRUE)
       survival <- replicate_values(survival, demography_obj, index = TRUE)
 
+      
       demography_obj[fecundity] <- vals_fecundity * fecundity_fraction
       demography_obj[survival] <- vals_survival * survival_fraction
       
-      demography_obj[, , idk] <- transition_matrix
+      demography_obj[, , idk] <- transition_matrix #### This is the problem area...
       
     }
 
@@ -344,10 +347,10 @@ demo_density_dependence <- function (transition_matrix,
 #' 
 #' @examples
 #' 
-#' # Use the deterministic_surv_fec function to modify the  
+#' # Use the surv_fec_modify function to modify the  
 #' # demography using explicit survival and fecundity layers:
 #' 
-#' test_survfec <- deterministic_surv_fec(transition_matrix = mat,
+#' test_survfec <- surv_fec_modify(transition_matrix = mat,
 #'                                     surv_layers = surv,
 #'                                     fec_layers = fec)
 
@@ -392,6 +395,6 @@ surv_fec_modify <- function (transition_matrix, surv_layers, fec_layers) {
     
   }
   
-  as.demography_deterministic_surv_fec(surv_fec_mod)
+  as.demography_modify_surv_fec(surv_fec_mod)
   
 }

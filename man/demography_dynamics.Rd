@@ -121,9 +121,9 @@ print(example_function)
 
 env_stoch <- demo_environmental_stochasticity(transition_matrix = mat,
                                              stochasticity = mat_sd)
+demo_dens <- demo_density_dependence(transition_matrix = mat)                                             
 
-example_function <- demography_dynamics(env_stoch,
-                                        demo_dens_dep =  demo_density_dependence())
+example_function <- demography_dynamics(env_stoch,demo_dens)
 
 # Use the demo_environmental_stochasticity function to modify the transition
 # matrix with specified environmental stochasticity:
@@ -134,13 +134,14 @@ test_demo_es <- demo_environmental_stochasticity(transition_matrix = mat,
 # Use the demo_density_dependence function to modify the transition
 # matrix once carrying capacity is reached:
 
-test_demo_dd <- demo_density_dependence(fecundity_fraction = 1,
-                                                survival_fraction = 0.5)
+test_demo_dd <- demo_density_dependence(transition_matrix = mat,
+                                        fecundity_fraction = 1,
+                                        survival_fraction = 0.5)
 
-# Use the deterministic_surv_fec function to modify the  
+# Use the surv_fec_modify function to modify the  
 # demography using explicit survival and fecundity layers:
 
-test_survfec <- deterministic_surv_fec(transition_matrix = mat,
+test_survfec <- surv_fec_modify(transition_matrix = mat,
                                     surv_layers = surv,
                                     fec_layers = fec)
 }

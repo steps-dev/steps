@@ -11,13 +11,12 @@ NULL
 #' @param population_dynamics_function A function that operates on a state object to change population at specified timesteps. User may enter a custom function or select a pre-defined module - see documentation. 
 #' @param x a population_dynamic object
 #' @param ... further arguments passed to or from other methods
-#' @param pop_change a function to define how population growth occurs (default is linear) at each timestep
+#' @param pop_change a function to define how population growth occurs (default is simple) at each timestep
 #' @param pop_disp a function to define how the population disperses at each timestep
 #' @param pop_mod a function to define any deterministic changes to the population - such as translocation - at each timestep
 #' @param pop_dens_dep a function to control density dependence effects on the population at each timestep
-#' @param distribution the distribution function to use when dispersing a population
+#' @param kernel_fun a user-defined distance dispersal kernel function
 #' @param distance_decay controls the distance at which the population disperses
-#' @param kernel_fun a user-defined distance dispersal kernal function
 #' @param source_layer a spatial layer with the locations and number of individuals to translocate from - note, this layer will only have zero values if individuals are being introduced from outside the study area
 #' @param sink_layer a spatial layer with the locations and number of individuals to translocate to
 #' @param stages which life-stages are affected by the translocations - note, default is all
@@ -140,7 +139,7 @@ print.population_dynamics <- function (x, ...) {
 #' plot(test_state$population$population_raster[[2]])
 #' plot(test_state2$population$population_raster[[2]])
 
-population_dynamics <- function (pop_change = linear_growth(),
+population_dynamics <- function (pop_change = simple_growth(),
                                  pop_disp = NULL,
                                  pop_mod = NULL,
                                  pop_dens_dep = NULL) {
@@ -169,8 +168,8 @@ population_dynamics <- function (pop_change = linear_growth(),
 ### internal functions ###
 ##########################
 
-as.population_linear_growth <- function (population_linear_growth) {
-  as_class(population_linear_growth, "population_dynamics", "function")
+as.population_simple_growth <- function (population_simple_growth) {
+  as_class(population_simple_growth, "population_dynamics", "function")
 }
 
 as.population_demo_stoch <- function (population_demo_stoch) {
@@ -448,11 +447,11 @@ simple_growth <- function () {
       local_mat <-  state$demography$local_transition_matrix
 
       for (i in seq_len(nrow(population))) {
-        population[i, ] <- local_mat[ , , i] %*% population[i, ]
+        population[i, ] <- population[i, ] %*% local_mat[ , , i]
       }
       
     } else {
-      population <- transition_matrix %*% population
+      population <- population %*% transition_matrix
     }
 
     # put back in the raster
@@ -463,7 +462,7 @@ simple_growth <- function () {
     state
   }
   
-  as.population_linear_growth(pop_dynamics)
+  as.population_simple_growth(pop_dynamics)
   
 }
 
@@ -771,7 +770,7 @@ pop_translocation <- function (source_layer, sink_layer, stages = NULL, effect_t
 
         }
         
-      population_matrix[population_matrix < 0] <- 0 
+      #population_matrix[population_matrix < 0] <- 0 
         
       }
 

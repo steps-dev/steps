@@ -81,6 +81,8 @@ koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit,
 
 ## ---- message = FALSE----------------------------------------------------
 koala.demography <- build_demography(transition_matrix = koala.trans.mat,
+                                     type = 'local',
+                                     habitat_suitability = koala.hab.suit,
                                      dispersal_parameters = koala.disp.param)
 
 ## ---- message = FALSE----------------------------------------------------
@@ -92,18 +94,18 @@ koala.state <- build_state(habitat = koala.habitat,
                            population = koala.population)
 
 ## ---- message = FALSE----------------------------------------------------
-koala.habitat.dynamics <- habitat_dynamics(determ_dist = deterministic_fires(habitat_suitability = koala.hab.suit,
+koala.habitat.dynamics <- habitat_dynamics(disturbance_fires(habitat_suitability = koala.hab.suit,
                                                 disturbance_layers = koala.dist.fire,
                                                 effect_time=3))
 
 ## ---- message = FALSE----------------------------------------------------
-koala.demography.dynamics <- demography_dynamics(env_stoch = demo_environmental_stochasticity(global_transition_matrix = koala.trans.mat,
-                                                                                          stochasticity = koala.trans.mat.es),
-                                                 demo_dens_dep =  demo_density_dependence())
+koala.demography.dynamics <- demography_dynamics(demo_environmental_stochasticity(transition_matrix = koala.trans.mat,
+                                                                                  stochasticity = koala.trans.mat.es),
+                                                 demo_density_dependence(transition_matrix = koala.trans.mat))
 
 
 ## ---- message = FALSE----------------------------------------------------
-koala.population.dynamics <- population_dynamics(pop_change = linear_growth(),
+koala.population.dynamics <- population_dynamics(pop_change = simple_growth(),
                                                  pop_disp = cellular_automata_dispersal(),
                                                  pop_mod = NULL,
                                                  pop_dens_dep = pop_density_dependence())
