@@ -425,18 +425,17 @@ List rcpp_dispersal(NumericMatrix starting_population_state, NumericMatrix poten
 	            habitat_suitability_map, barriers_map, use_barrier, barrier_type, loopID, dispersal_distance, dispersal_kernel);
 	            // Rcpp::Rcout << cell_in_dispersal_distance << std::endl;
 	 	        /* Update sink cell status. */
-    	        if(cell_in_dispersal_distance[0] >= 0){
+    	        if(cell_in_dispersal_distance[0] >= 0 && cell_in_dispersal_distance[1] >= 0){
     		        /* Only if the 2 conditions are fullfilled the cell's is there dispersal to this cell and the population size is changed. */
     		        int source_x = cell_in_dispersal_distance[0];
     		        int source_y = cell_in_dispersal_distance[1];
     		        // Rcpp::Rcout << source_x << std::endl;
     		        int source_pop_dispersed = proportion_of_population_to_disperse(source_x, source_y, i, j, starting_population_state,
     		                                                                        carrying_capacity_available_cleaned, dispersal_proportion);
-    		        future_population_state(i,j) = starting_population_state(i,j) + source_pop_dispersed;//*habitat_suitability_map(i,j);
-    		        starting_population_state(source_x,source_y) = starting_population_state(source_x,source_y) - source_pop_dispersed;
+    		        future_population_state(i,j) = starting_population_state(i,j) + source_pop_dispersed;
+    		        // future_population_state(source_x,source_y) = starting_population_state(source_x,source_y) - source_pop_dispersed;
+     		        starting_population_state(source_x,source_y) = starting_population_state(source_x,source_y) - source_pop_dispersed;
     	          if(starting_population_state(source_x,source_y)<0)starting_population_state(source_x,source_y)=0;
-    	          // future_population_state(source_x,source_y) = starting_population_state(source_x,source_y) - source_pop_dispersed;//*habitat_suitability_map(i,j);
-    	          // Rcpp::Rcout << future_population_state(i,j) << ' ' << future_population_state(source_x,source_y) << std::endl;
     	          tracking_population_state_cleaned(i,j) = loopID;
     	          // tracking_population_state_cleaned(source_x,source_y) = loopID;
     	        }
