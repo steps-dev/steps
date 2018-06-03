@@ -12,7 +12,7 @@
 # @param determ_surv_fec a function for altering a life-stage transition matrix with user supplied spatial layers at each timestep
 # @param demo_dens_dep a function for modifying the transition matrix at each timestep when carrying capacity is reached
 #' @param transition_matrix a life-stage transition matrix
-#' @param stochasticity a matrix with standard deviations (consistent or varying) around the transition means with matching dimensions as the life-stage transition matrix or a number representing a consitent standard deviation to apply to all transitions (default is 0)
+#' @param stochasticity a matrix with standard deviations (consistent or varying) around the transition means with matching dimensions as the life-stage transition matrix or a number representing a consistent standard deviation to apply to all transitions (default is 0)
 #' @param fecundity_fraction a multiplier value between 0 and 1 for fecundity values in the transition matrix
 #' @param survival_fraction a multiplier value between 0 and 1 for fecundity values in the transition matrix 
 #' @param surv_layers a list of raster stacks with multipliers for survival equal to the number of life-stages
