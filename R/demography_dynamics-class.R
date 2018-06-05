@@ -228,7 +228,6 @@ demo_environmental_stochasticity <- function (transition_matrix,
     # global_demography <- transition_matrix
     # nstages <- dim(transition_matrix)[[1]]
     
-    
     # demography_obj <- state$demography$demography_obj
     
     local <- !is.null(state$demography$local_transition_matrix)
@@ -241,8 +240,6 @@ demo_environmental_stochasticity <- function (transition_matrix,
 
     # change to:
     # demography_obj <- state$demography$demography_obj
-    
-    
     
     idx <- replicate_values(idx, demography_obj, index = TRUE)
     vals <- replicate_values(vals, demography_obj)

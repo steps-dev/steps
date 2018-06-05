@@ -126,8 +126,8 @@ koala.state <- build_state(habitat = koala.habitat,
                            population = koala.population)
 
 koala.habitat.dynamics <- habitat_dynamics()
-koala.demography.dynamics <- demography_dynamics(env_stoch = demo_environmental_stochasticity(transition_matrix = koala.trans.mat,
-                                                                                              stochasticity = koala.trans.mat.es))
+koala.demography.dynamics <- demography_dynamics(demo_environmental_stochasticity(transition_matrix = koala.trans.mat,
+                                                                                  stochasticity = koala.trans.mat.es))
 koala.population.dynamics <- population_dynamics()
 koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
                                  demography_dynamics = koala.demography.dynamics,

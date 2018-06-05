@@ -627,10 +627,11 @@ kernel_function_dispersal <- function (kernel_fun = function (r) exp(-r/distance
     # adjust the distance by the raster resolution to convert to cell distances
     dispersal_matrix <- kernel_fun(D)
     
-    # not entirely sure what this does...
+    # rescale column values to sum to one
     sums <- colSums(dispersal_matrix)
     dispersal <- sweep(dispersal_matrix, 2, sums, "/")
     
+    # determine dispersing population values
     population <- dispersal %*% population
 
     # put back in the raster
