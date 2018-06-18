@@ -33,9 +33,9 @@ simple_dispersal(distance_decay = 0.5)
 kernel_function_dispersal(kernel_fun = function(r) exp(-r/distance_decay),
   distance_decay = 0.5)
 
-cellular_automata_dispersal()
+cellular_automata_dispersal(dispersal_parameters)
 
-fast_fourier_dispersal()
+fast_fourier_dispersal(dispersal_parameters)
 
 pop_translocation(source_layer, sink_layer, stages = NULL,
   effect_timesteps = NULL)
@@ -60,6 +60,8 @@ pop_density_dependence()
 \item{distance_decay}{controls the distance at which the population disperses}
 
 \item{kernel_fun}{a user-defined distance dispersal kernel function}
+
+\item{dispersal_parameters}{a list of parameters that control how populations disperse}
 
 \item{source_layer}{a spatial layer with the locations and number of individuals to translocate from - note, this layer will only have zero values if individuals are being introduced from outside the study area}
 

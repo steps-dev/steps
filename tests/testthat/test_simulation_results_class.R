@@ -31,10 +31,10 @@ test_that('simulation_results classes work', {
   r2 <- r
   r2[] <- 0
   cells <- sample(c(1:ncell(r2)), 150)
-  r2[c(adjacent(hab.suit, cells, directions=16, pairs=FALSE),cells)]  <- 30
+  r2[c(adjacent(hab.suit, cells, directions=16, pairs=FALSE),cells)]  <- 50
   r3 <- r2*hab.suit
   
-  pop <- stack(r3*1,r3*2,r3*3,r3*2)
+  pop <- stack(r3*2,r3*3,r3*2,r3*3)
   
   hab.k <- hab.suit*10
   
@@ -62,14 +62,14 @@ test_that('simulation_results classes work', {
   
   pop_source <- pop[[3]]
   pop_source[] <- 0
-  pop_source[sample(which(getValues(pop[[3]]) >= 30), 5)] <- 1
+  pop_source[sample(which(getValues(pop[[3]]) >= 50), 3)] <- 1
   #plot(pop_source, box = FALSE, axes = FALSE)
   
   pop_sink <- pop[[3]]
   pop_sink[] <- 0
-  pop_sink[sample(which(getValues(pop[[1]]) == 0 |
-                        getValues(pop[[2]]) == 0 |
-                        getValues(pop[[3]]) == 0 |
+  pop_sink[sample(which(getValues(pop[[1]]) != 0 |
+                        getValues(pop[[2]]) != 0 |
+                        getValues(pop[[3]]) != 0 |
                         getValues(pop[[4]]) == 0),
                         cellStats(pop_source, sum))] <- 1
   #plot(pop_sink, box = FALSE, axes = FALSE)
@@ -97,17 +97,17 @@ test_that('simulation_results classes work', {
   
   b_hab <- build_habitat(habitat_suitability = hab.suit,
                          carrying_capacity = hab.k)
-  b_pop <- build_population(pop)
-  b_dem <- build_demography(transition_matrix = mat,
-                            type = "local",
-                            habitat_suitability = hab.suit,
-                            dispersal_parameters = params2)
   
   b_hab2 <- build_habitat(habitat_suitability = hab.suit,
                           carrying_capacity = NULL)
   
-  b_dem2 <- build_demography(transition_matrix = mat,
-                             dispersal_parameters = params3)
+  b_pop <- build_population(pop)
+ 
+  b_dem <- build_demography(transition_matrix = mat,
+                            type = "local",
+                            habitat_suitability = hab.suit)
+ 
+  b_dem2 <- build_demography(transition_matrix = mat)
   
   b_state <- build_state(habitat = b_hab,
                          population = b_pop,
@@ -140,7 +140,7 @@ test_that('simulation_results classes work', {
                                                   fec_layers = surv_fec))
 
   pop_dyn <- population_dynamics(pop_change = simple_growth(),
-                                 pop_disp = cellular_automata_dispersal(),
+                                 pop_disp = cellular_automata_dispersal(params2),
                                  pop_mod = pop_translocation(source_layer = pop_source,
                                                              sink_layer = pop_sink,
                                                              stages = NULL,
@@ -151,11 +151,11 @@ test_that('simulation_results classes work', {
                                   pop_mod = NULL,
                                   pop_dens_dep = NULL)
   pop_dyn3 <- population_dynamics(pop_change = demographic_stochasticity(),
-                                  pop_disp = fast_fourier_dispersal(),
+                                  pop_disp = fast_fourier_dispersal(params),
                                   pop_mod = NULL,
                                   pop_dens_dep = NULL)
   pop_dyn4 <- population_dynamics(pop_change = simple_growth(),
-                                  pop_disp = cellular_automata_dispersal(),
+                                  pop_disp = cellular_automata_dispersal(params3),
                                   pop_mod = pop_translocation(source_layer = pop_source,
                                                              sink_layer = pop_sink,
                                                              stages = 4,

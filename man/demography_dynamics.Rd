@@ -34,7 +34,7 @@ surv_fec_modify(transition_matrix, surv_layers, fec_layers)
 
 \item{transition_matrix}{a life-stage transition matrix}
 
-\item{stochasticity}{a matrix with standard deviations (consistent or varying) around the transition means with matching dimensions as the life-stage transition matrix or a number representing a consitent standard deviation to apply to all transitions (default is 0)}
+\item{stochasticity}{a matrix with standard deviations (consistent or varying) around the transition means with matching dimensions as the life-stage transition matrix or a number representing a consistent standard deviation to apply to all transitions (default is 0)}
 
 \item{fecundity_fraction}{a multiplier value between 0 and 1 for fecundity values in the transition matrix}
 

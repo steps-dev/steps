@@ -17,6 +17,7 @@ NULL
 #' @param pop_dens_dep a function to control density dependence effects on the population at each timestep
 #' @param kernel_fun a user-defined distance dispersal kernel function
 #' @param distance_decay controls the distance at which the population disperses
+#' @param dispersal_parameters a list of parameters that control how populations disperse
 #' @param source_layer a spatial layer with the locations and number of individuals to translocate from - note, this layer will only have zero values if individuals are being introduced from outside the study area
 #' @param sink_layer a spatial layer with the locations and number of individuals to translocate to
 #' @param stages which life-stages are affected by the translocations - note, default is all
@@ -657,12 +658,11 @@ kernel_function_dispersal <- function (kernel_fun = function (r) exp(-r/distance
 #' 
 #' test_ca_dispersal <- cellular_automata_dispersal()
 
-cellular_automata_dispersal <- function () {
+cellular_automata_dispersal <- function (dispersal_parameters) {
 
   pop_dynamics <- function (state, timestep) {
 
     population_raster <- state$population$population_raster
-    dispersal_parameters <- state$demography$dispersal_parameters
     habitat_suitability <- state$habitat$habitat_suitability
     carrying_capacity <- state$habitat$carrying_capacity
 
@@ -696,12 +696,11 @@ cellular_automata_dispersal <- function () {
 #' 
 #' test_fft_dispersal <- fast_fourier_dispersal()
 
-fast_fourier_dispersal <- function () {
+fast_fourier_dispersal <- function (dispersal_parameters) {
 
   pop_dynamics <- function (state, timestep) {
 
     population_raster <- state$population$population_raster
-    dispersal_parameters <- state$demography$dispersal_parameters
     habitat_suitability <- state$habitat$habitat_suitability
     carrying_capacity <- state$habitat$carrying_capacity
 

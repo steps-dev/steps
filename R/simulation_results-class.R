@@ -43,15 +43,14 @@
 #'
 #' test_habitat <- build_habitat(habitat_suitability = r / cellStats(r, "max"),
 #'                               carrying_capacity = ceiling(r * 0.1))
-#' test_demography <- build_demography(transition_matrix = mat,
-#'                                     dispersal_parameters = rlnorm(1))
+#' test_demography <- build_demography(transition_matrix = mat)
 #' test_population <- build_population(pop)
 #'
 #' test_state <- build_state(test_habitat, test_demography, test_population)
 #'
 #' test_dynamics <- build_dynamics(habitat_dynamics(),
-#'                                        demography_dynamics(),
-#'                                        population_dynamics())
+#'                                 demography_dynamics(),
+#'                                 population_dynamics())
 #'
 #' results <- simulation(test_state, test_dynamics, timesteps = 10, replicates = 2)
 

@@ -117,13 +117,12 @@ koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit,
                                carrying_capacity = koala.hab.k)
 ```
 
-The second sub-component is a demography object that is constructed from the koala life-stage transition matrix and the list of dispersal parameters.
+The second sub-component is a demography object that is constructed from the koala life-stage transition matrix. Since we have selected a cell-based (local) type of demography, we must also provide a raster that defines the extent, resolution, and projection of the landscape. In this case we have simply used the habitat suitability layer.
 
 ```{r, message = FALSE}
 koala.demography <- build_demography(transition_matrix = koala.trans.mat,
                                      type = 'local',
-                                     habitat_suitability = koala.hab.suit,
-                                     dispersal_parameters = koala.disp.param)
+                                     habitat_suitability = koala.hab.suit)
 ```
 
 The third sub-component is a population object that is constructed from the koala population raster stack.
@@ -163,7 +162,7 @@ A population dynamics object modifies the population sub-component of the state 
 
 ```{r, message = FALSE}
 koala.population.dynamics <- population_dynamics(pop_change = simple_growth(),
-                                                 pop_disp = cellular_automata_dispersal(),
+                                                 pop_disp = cellular_automata_dispersal(dispersal_parameters = koala.disp.param),
                                                  pop_mod = NULL,
                                                  pop_dens_dep = pop_density_dependence())
 ```

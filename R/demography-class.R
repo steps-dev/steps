@@ -1,7 +1,7 @@
 #' Create a demography object to use in a state object
 #'
 #' @description A demography object is used to store information on how populations change in space and time.
-#' This includes life-stage matrices and parameters to control dispersal.
+#' This includes life-stage matrices.
 #' It is a sub-component of a \link[steps]{state} object and is modified in each timestep of an experiment.
 #' 
 #' @rdname demography
@@ -9,7 +9,6 @@
 #' @param transition_matrix a symmetrical stage-based population structure matrix
 #' @param type scale of transition matrix - either 'global' or 'local' (cell-based)
 #' @param habitat_suitability habitat suitability raster layer (required if 'local' type is specified)
-#' @param dispersal_parameters specifications for dispersal in the landscape
 #' @param misc miscellaneous inputs used to modify demography
 #' @param object a demography object
 #' @param x a demography object
@@ -28,18 +27,13 @@
 #' 
 #' mat <- steps:::fake_transition_matrix(4)
 #' 
-#' # Provide a list of dispersal parameters
+#' # Construct the demography object
 #' 
-#' params <- list(rlnorm(1),c(1:4))
-#' 
-#' # Construct the demography object.
-#' 
-#' test_demography <- build_demography(transition_matrix = mat, dispersal_parameters = params)
+#' test_demography <- build_demography(transition_matrix = mat)
 
 build_demography <- function (transition_matrix, 
                               type = 'global', 
                               habitat_suitability = NULL, 
-                              dispersal_parameters, 
                               misc = NULL, 
                               ...) {
   x <- transition_matrix
@@ -66,12 +60,10 @@ build_demography <- function (transition_matrix,
     
     demography <- list(global_transition_matrix = x,
                        local_transition_matrix = all_stage_matrices,
-                       dispersal_parameters = dispersal_parameters,
                        misc = misc)
   }else{
     demography <- list(global_transition_matrix = x,
                        local_transition_matrix = NULL,
-                       dispersal_parameters = dispersal_parameters,
                        misc = misc)    
   }
 

@@ -54,11 +54,11 @@ plot(koala.disp.bar, box = FALSE, axes = FALSE)
 
 # Define the initial dispersal parameters
 koala.disp.param <- list(dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=10,'Stage_2-3'=10,'Stage_3+'=0),
-                          dispersal_kernel=list('Stage_0-1'=0,'Stage_1-2'=exp(-c(0:9)^1/3.36),'Stage_2-3'=exp(-c(0:9)^1/3.36),'Stage_3+'=0),
-                          dispersal_proportion=list('Stage_0-1'=0,'Stage_1-2'=0.35,'Stage_2-3'=0.35*0.714,'Stage_3+'=0),
-                          barrier_type=1,
-                          barriers_map=koala.disp.bar,
-                          use_barriers=TRUE
+                         dispersal_kernel=list('Stage_0-1'=0,'Stage_1-2'=exp(-c(0:9)^1/3.36),'Stage_2-3'=exp(-c(0:9)^1/3.36),'Stage_3+'=0),
+                         dispersal_proportion=list('Stage_0-1'=0,'Stage_1-2'=0.35,'Stage_2-3'=0.35*0.714,'Stage_3+'=0),
+                         barrier_type=1,
+                         barriers_map=koala.disp.bar,
+                         use_barriers=TRUE
 )
 
 # Load some habitat disturbance layers. Note, these must match the intended number of timesteps.
@@ -103,7 +103,6 @@ koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit,
 koala.demography <- build_demography(transition_matrix = koala.trans.mat,
                                      type = 'local', 
                                      habitat_suitability = koala.hab.suit,
-                                     dispersal_parameters = koala.disp.param,
                                      misc = NULL)
 # Construct the population object
 koala.population <- build_population(population_raster = koala.pop)
@@ -136,8 +135,8 @@ pop.dyn.list <- list(simple_growth(),
                      pop_density_dependence(),
                      simple_dispersal(),
                      kernel_function_dispersal(),
-                     cellular_automata_dispersal(),
-                     fast_fourier_dispersal(),
+                     cellular_automata_dispersal(koala.disp.param),
+                     fast_fourier_dispersal(koala.disp.param),
                      pop_translocation(koala.pop.source,
                                        koala.pop.sink,
                                        effect_timesteps = c(5,15)),
