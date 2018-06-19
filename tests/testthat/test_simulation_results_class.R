@@ -147,7 +147,7 @@ test_that('simulation_results classes work', {
                                                              effect_timesteps = 2),
                                  pop_dens_dep = pop_density_dependence())
   pop_dyn2 <- population_dynamics(pop_change = demographic_stochasticity(),
-                                  pop_disp = simple_dispersal(),
+                                  pop_disp = simple_dispersal(dispersal_parameters = params),
                                   pop_mod = NULL,
                                   pop_dens_dep = NULL)
   pop_dyn3 <- population_dynamics(pop_change = demographic_stochasticity(),

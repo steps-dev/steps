@@ -72,18 +72,11 @@ NULL
 #' 
 #' test_habitat <- build_habitat(habitat_suitability = hab_suit,
 #'                               carrying_capacity = k)
-#' test_demography <- build_demography(transition_matrix = mat,
-#'                                     dispersal_parameters = rlnorm(1))
+#' test_demography <- build_demography(transition_matrix = mat)
 #' 
-#' test_demography_dp <- build_demography(transition_matrix = mat,
-#'                                     dispersal_parameters = dp_params)
 #' test_population <- build_population(pop)
 #' 
 #' test_state <- build_state(test_habitat, test_demography, test_population)
-#' 
-#' test_state_dp <- build_state(test_habitat,
-#'                              test_demography_dp,
-#'                              test_population)
 #'                              
 #' example_function <- function (state, timestep) {
 #'   state
@@ -434,10 +427,11 @@ simple_growth <- function () {
   
   pop_dynamics <- function (state, timestep) {
     
+    # import components from state object
     population_raster <- state$population$population_raster
     transition_matrix <- state$demography$global_transition_matrix
-    nstages <- ncol(state$demography$global_transition_matrix)
-    
+    #nstages <- ncol(state$demography$global_transition_matrix) not used...
+
     # get population as a matrix
     idx <- which(!is.na(raster::getValues(population_raster[[1]])))
     population <- raster::extract(population_raster, idx)
@@ -549,17 +543,22 @@ demographic_stochasticity <- function () {
 #' # Use the simple dispersal function to modify the  
 #' # population using a diffusion kernel:
 #'
-#' test_sim_dispersal <- simple_dispersal()
+#' test_sim_dispersal <- simple_dispersal(dispersal_parameters = dp_params)
 
-simple_dispersal <- function (distance_decay = 0.5) {
+simple_dispersal <- function (distance_decay = 0.5, dispersal_parameters) {
 
   pop_dynamics <- function (state, timestep) {
 
+    # import components from state object
     population_raster <- state$population$population_raster
 
+    # identify populations and workout which populations can disperse.
+    which_stages_disperse <- which(dispersal_parameters$dispersal_proportion>0)
+    n_dispersing_stages <- length(which_stages_disperse)
+    
     # get population as a matrix - one column per life stage, one row per grid cell
     idx <- which(!is.na(raster::getValues(population_raster[[1]])))
-    population <- raster::extract(population_raster, idx)
+    population <- raster::extract(population_raster, idx)[, which_stages_disperse]
 
     # extract locations as x and y coordinates from landscape
     locations <- raster::xyFromCell(population_raster, idx)
@@ -573,16 +572,21 @@ simple_dispersal <- function (distance_decay = 0.5) {
     
     # redistribute populations based on probability density function
     dispersal_matrix <- exp(-D / dispersal_decay)
+    rm(D)
     
     # get population sums in each cell and rescale to maintain total populations
     sums <- colSums(dispersal_matrix)
     dispersal <- sweep(dispersal_matrix, 2, sums, "/")
+    rm(dispersal_matrix)
     
     # multiply populations by new dispersal locations
     population <- dispersal %*% population
 
     # put back in the raster
-    population_raster[idx] <- population
+    for (i in seq_len(n_dispersing_stages)){
+      population_raster[[as.integer(which_stages_disperse)[i]]][idx] <- population[ , i]
+    }
+    #population_raster[[which_stages_disperse]][idx] <- population
     state$population$population_raster <- population_raster
     
     state
@@ -602,13 +606,18 @@ simple_dispersal <- function (distance_decay = 0.5) {
 #' # Use the kernel-based dispersal function to modify the  
 #' # population using a user-defined diffusion distribution:
 #'
-#' test_kern_dispersal <- kernel_function_dispersal()
+#' test_kern_dispersal <- kernel_function_dispersal(dispersal_parameters = dp_params)
 
-kernel_function_dispersal <- function (kernel_fun = function (r) exp(-r/distance_decay), distance_decay = 0.5) {
+kernel_function_dispersal <- function (kernel_fun = function (r) exp(-r/distance_decay), distance_decay = 0.5, dispersal_parameters) {
   
   pop_dynamics <- function (state, timestep) {
     
+    # import components from state object
     population_raster <- state$population$population_raster
+    
+    # identify populations and workout which populations can disperse.
+    which_stages_disperse <- which(dispersal_parameters$dispersal_proportion>0)
+    n_dispersing_stages <- length(which_stages_disperse)
     
     # get population as a matrix - one column per life stage, one row per grid cell
     idx <- which(!is.na(raster::getValues(population_raster[[1]])))
@@ -636,7 +645,9 @@ kernel_function_dispersal <- function (kernel_fun = function (r) exp(-r/distance
     population <- dispersal %*% population
 
     # put back in the raster
-    population_raster[idx] <- population
+    for (i in seq_len(n_dispersing_stages)){
+      population_raster[[as.integer(which_stages_disperse)[i]]][idx] <- population[ , i]
+    }
     state$population$population_raster <- population_raster
     
     state
@@ -656,7 +667,7 @@ kernel_function_dispersal <- function (kernel_fun = function (r) exp(-r/distance
 #' # Use the cellular automata dispersal function to modify  
 #' # the population using rule-based cell movements:
 #' 
-#' test_ca_dispersal <- cellular_automata_dispersal()
+#' test_ca_dispersal <- cellular_automata_dispersal(dispersal_parameters = dp_params)
 
 cellular_automata_dispersal <- function (dispersal_parameters) {
 
@@ -694,7 +705,7 @@ cellular_automata_dispersal <- function (dispersal_parameters) {
 #' # Use the fast fourier dispersal function to modify the  
 #' # population using rule-based cell movements:
 #' 
-#' test_fft_dispersal <- fast_fourier_dispersal()
+#' test_fft_dispersal <- fast_fourier_dispersal(dispersal_parameters = dp_params)
 
 fast_fourier_dispersal <- function (dispersal_parameters) {
 

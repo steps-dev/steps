@@ -48,8 +48,7 @@ pop <- stack(replicate(4, ceiling(r * 0.2)))
 
 test_habitat <- build_habitat(habitat_suitability = r / cellStats(r, "max"),
                               carrying_capacity = ceiling(r * 0.1))
-test_demography <- build_demography(transition_matrix = mat,
-                                    dispersal_parameters = rlnorm(1))
+test_demography <- build_demography(transition_matrix = mat)
 test_population <- build_population(pop)
 
 test_state <- build_state(test_habitat, test_demography, test_population)

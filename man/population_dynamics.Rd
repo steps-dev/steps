@@ -28,10 +28,10 @@ simple_growth()
 
 demographic_stochasticity()
 
-simple_dispersal(distance_decay = 0.5)
+simple_dispersal(distance_decay = 0.5, dispersal_parameters)
 
 kernel_function_dispersal(kernel_fun = function(r) exp(-r/distance_decay),
-  distance_decay = 0.5)
+  distance_decay = 0.5, dispersal_parameters)
 
 cellular_automata_dispersal(dispersal_parameters)
 
@@ -59,9 +59,9 @@ pop_density_dependence()
 
 \item{distance_decay}{controls the distance at which the population disperses}
 
-\item{kernel_fun}{a user-defined distance dispersal kernel function}
-
 \item{dispersal_parameters}{a list of parameters that control how populations disperse}
+
+\item{kernel_fun}{a user-defined distance dispersal kernel function}
 
 \item{source_layer}{a spatial layer with the locations and number of individuals to translocate from - note, this layer will only have zero values if individuals are being introduced from outside the study area}
 
@@ -123,18 +123,11 @@ dp_params <- list(dispersal_distance=list('Stage_1'=0,
 
 test_habitat <- build_habitat(habitat_suitability = hab_suit,
                               carrying_capacity = k)
-test_demography <- build_demography(transition_matrix = mat,
-                                    dispersal_parameters = rlnorm(1))
+test_demography <- build_demography(transition_matrix = mat)
 
-test_demography_dp <- build_demography(transition_matrix = mat,
-                                    dispersal_parameters = dp_params)
 test_population <- build_population(pop)
 
 test_state <- build_state(test_habitat, test_demography, test_population)
-
-test_state_dp <- build_state(test_habitat,
-                             test_demography_dp,
-                             test_population)
                              
 example_function <- function (state, timestep) {
   state
@@ -172,22 +165,22 @@ test_dem_stoch <- demographic_stochasticity()
 # Use the simple dispersal function to modify the  
 # population using a diffusion kernel:
 
-test_sim_dispersal <- simple_dispersal()
+test_sim_dispersal <- simple_dispersal(dispersal_parameters = dp_params)
 
 # Use the kernel-based dispersal function to modify the  
 # population using a user-defined diffusion distribution:
 
-test_kern_dispersal <- kernel_function_dispersal()
+test_kern_dispersal <- kernel_function_dispersal(dispersal_parameters = dp_params)
 
 # Use the cellular automata dispersal function to modify  
 # the population using rule-based cell movements:
 
-test_ca_dispersal <- cellular_automata_dispersal()
+test_ca_dispersal <- cellular_automata_dispersal(dispersal_parameters = dp_params)
 
 # Use the fast fourier dispersal function to modify the  
 # population using rule-based cell movements:
 
-test_fft_dispersal <- fast_fourier_dispersal()
+test_fft_dispersal <- fast_fourier_dispersal(dispersal_parameters = dp_params)
 
 # Use the translocation_population_dynamics object to modify the  
 # population using translocations:
