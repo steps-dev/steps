@@ -67,10 +67,7 @@ test_that('simulation_results classes work', {
   
   pop_sink <- pop[[3]]
   pop_sink[] <- 0
-  pop_sink[sample(which(getValues(pop[[1]]) != 0 |
-                        getValues(pop[[2]]) != 0 |
-                        getValues(pop[[3]]) != 0 |
-                        getValues(pop[[4]]) == 0),
+  pop_sink[sample(which(getValues(pop[[3]]) <= 10),
                         cellStats(pop_source, sum))] <- 1
   #plot(pop_sink, box = FALSE, axes = FALSE)
 
