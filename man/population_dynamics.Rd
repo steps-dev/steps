@@ -7,10 +7,8 @@
 \alias{population_dynamics}
 \alias{simple_growth}
 \alias{demographic_stochasticity}
-\alias{simple_dispersal}
-\alias{kernel_function_dispersal}
+\alias{kernel_dispersal}
 \alias{cellular_automata_dispersal}
-\alias{fast_fourier_dispersal}
 \alias{pop_translocation}
 \alias{pop_density_dependence}
 \title{Change the population in a state object}
@@ -28,14 +26,17 @@ simple_growth()
 
 demographic_stochasticity()
 
-simple_dispersal(distance_decay = 0.5, dispersal_parameters)
 
-kernel_function_dispersal(kernel_fun = function(r) exp(-r/distance_decay),
-  distance_decay = 0.5, dispersal_parameters)
+  kernel_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay
+  = 0.1), dispersal_proportion = list(0, 0.35, 0.35 * 0.714, 0),
+  arrival_probability = "habitat_suitability", fft = FALSE)
 
-cellular_automata_dispersal(dispersal_parameters)
-
-fast_fourier_dispersal(dispersal_parameters)
+cellular_automata_dispersal(dispersal_distance = list(0, 10, 10, 0),
+  dispersal_kernel = list(0, exp(-c(0:9)^1/3.36), exp(-c(0:9)^1/3.36), 0),
+  dispersal_proportion = list(0, 0.35, 0.35 * 0.714, 0), barrier_type = 0,
+  dispersal_steps = 1, use_barriers = FALSE, barriers_map = NULL,
+  arrival_probability = "habitat_suitability",
+  carrying_capacity = "carrying_capacity")
 
 pop_translocation(source_layer, sink_layer, stages = NULL,
   effect_timesteps = NULL)
@@ -49,7 +50,7 @@ pop_density_dependence()
 
 \item{...}{further arguments passed to or from other methods}
 
-\item{pop_change}{a function to define how population growth occurs (default is simple) at each timestep}
+\item{pop_change}{a function to define how population growth occurs (default is exponential kernel) at each timestep}
 
 \item{pop_disp}{a function to define how the population disperses at each timestep}
 
@@ -57,11 +58,25 @@ pop_density_dependence()
 
 \item{pop_dens_dep}{a function to control density dependence effects on the population at each timestep}
 
-\item{distance_decay}{controls the distance at which the population disperses}
+\item{dispersal_kernel}{a single or list of user-defined distance dispersal kernel functions}
 
-\item{dispersal_parameters}{a list of parameters that control how populations disperse}
+\item{dispersal_proportion}{proportions of individuals (0 to 1) that can disperse in each life stage}
 
-\item{kernel_fun}{a user-defined distance dispersal kernel function}
+\item{arrival_probability}{a raster layer that controls where individuals can disperse to (e.g. habitat suitability)}
+
+\item{fft}{should a fast-fourier approximation be used?}
+
+\item{dispersal_distance}{the distances (in cell units) that each life stage can disperse}
+
+\item{barrier_type}{if barrier map is used, does it stop (0 - default) or kill (1) individuals}
+
+\item{dispersal_steps}{number of dispersal steps to take before stopping}
+
+\item{use_barriers}{should dispersal barriers be used? If so, a barriers map must be provided}
+
+\item{barriers_map}{a raster layer that contains cell values of 0 (no barrier) and 1 (barrier)}
+
+\item{carrying_capacity}{a raster layer that specifies the carrying capacity in each cell}
 
 \item{source_layer}{a spatial layer with the locations and number of individuals to translocate from - note, this layer will only have zero values if individuals are being introduced from outside the study area}
 
@@ -162,25 +177,16 @@ test_lin_growth <- simple_growth()
 
 test_dem_stoch <- demographic_stochasticity()
 
-# Use the simple dispersal function to modify the  
-# population using a diffusion kernel:
-
-test_sim_dispersal <- simple_dispersal(dispersal_parameters = dp_params)
-
 # Use the kernel-based dispersal function to modify the  
-# population using a user-defined diffusion distribution:
+# population using a user-defined diffusion distribution
+# and an optional arrival probability layer (e.g. habitat suitability):
 
-test_kern_dispersal <- kernel_function_dispersal(dispersal_parameters = dp_params)
+test_kern_dispersal <- kernel_dispersal()
 
 # Use the cellular automata dispersal function to modify  
 # the population using rule-based cell movements:
 
-test_ca_dispersal <- cellular_automata_dispersal(dispersal_parameters = dp_params)
-
-# Use the fast fourier dispersal function to modify the  
-# population using rule-based cell movements:
-
-test_fft_dispersal <- fast_fourier_dispersal(dispersal_parameters = dp_params)
+test_ca_dispersal <- cellular_automata_dispersal()
 
 # Use the translocation_population_dynamics object to modify the  
 # population using translocations:

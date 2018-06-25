@@ -74,26 +74,26 @@ test_that('simulation_results classes work', {
                         cellStats(pop_source, sum))] <- 1
   #plot(pop_sink, box = FALSE, axes = FALSE)
 
-  params <- list(
-    dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=1,'Stage_2-3'=1,'Stage_3+'=0),
-    dispersal_kernel=list('Stage_0-1'=0,'Stage_1-2'=exp(-c(0:9)^1/3.36),'Stage_2-3'=exp(-c(0:9)^1/3.36),'Stage_3+'=0),
-    dispersal_proportion=list('Stage_0-1'=0,'Stage_1-2'=0.35,'Stage_2-3'=0.35*0.714,'Stage_3+'=0))
-  
-  params2 <- list(
-    dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=10,'Stage_2-3'=10,'Stage_3+'=0),
-    dispersal_kernel=list('Stage_0-1'=0,'Stage_1-2'=exp(-c(0:9)^1/3.36),'Stage_2-3'=exp(-c(0:9)^1/3.36),'Stage_3+'=0),
-    dispersal_proportion=list('Stage_0-1'=0,'Stage_1-2'=0.35,'Stage_2-3'=0.35*0.714,'Stage_3+'=0),
-    barriers_map=disp.bar,
-    use_barriers=TRUE,
-    barrier_type=1)
-  
-  params3 <- list(
-    dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=10,'Stage_2-3'=10,'Stage_3+'=0),
-    dispersal_kernel=list('Stage_0-1'=0,'Stage_1-2'=exp(-c(0:9)^1/3.36),'Stage_2-3'=exp(-c(0:9)^1/3.36),'Stage_3+'=0),
-    dispersal_proportion=list('Stage_0-1'=0,'Stage_1-2'=0.35,'Stage_2-3'=0.35*0.714,'Stage_3+'=0),
-    barriers_map=disp.bar2,
-    use_barriers=TRUE,
-    barrier_type=1)
+  # params <- list(
+  #   dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=1,'Stage_2-3'=1,'Stage_3+'=0),
+  #   dispersal_kernel=list('Stage_0-1'=0,'Stage_1-2'=exp(-c(0:9)^1/3.36),'Stage_2-3'=exp(-c(0:9)^1/3.36),'Stage_3+'=0),
+  #   dispersal_proportion=list('Stage_0-1'=0,'Stage_1-2'=0.35,'Stage_2-3'=0.35*0.714,'Stage_3+'=0))
+  # 
+  # params2 <- list(
+  #   dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=10,'Stage_2-3'=10,'Stage_3+'=0),
+  #   dispersal_kernel=list('Stage_0-1'=0,'Stage_1-2'=exp(-c(0:9)^1/3.36),'Stage_2-3'=exp(-c(0:9)^1/3.36),'Stage_3+'=0),
+  #   dispersal_proportion=list('Stage_0-1'=0,'Stage_1-2'=0.35,'Stage_2-3'=0.35*0.714,'Stage_3+'=0),
+  #   barriers_map=disp.bar,
+  #   use_barriers=TRUE,
+  #   barrier_type=1)
+  # 
+  # params3 <- list(
+  #   dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=10,'Stage_2-3'=10,'Stage_3+'=0),
+  #   dispersal_kernel=list('Stage_0-1'=0,'Stage_1-2'=exp(-c(0:9)^1/3.36),'Stage_2-3'=exp(-c(0:9)^1/3.36),'Stage_3+'=0),
+  #   dispersal_proportion=list('Stage_0-1'=0,'Stage_1-2'=0.35,'Stage_2-3'=0.35*0.714,'Stage_3+'=0),
+  #   barriers_map=disp.bar2,
+  #   use_barriers=TRUE,
+  #   barrier_type=1)
   
   b_hab <- build_habitat(habitat_suitability = hab.suit,
                          carrying_capacity = hab.k)
@@ -140,28 +140,53 @@ test_that('simulation_results classes work', {
                                                   fec_layers = surv_fec))
 
   pop_dyn <- population_dynamics(pop_change = simple_growth(),
-                                 pop_disp = cellular_automata_dispersal(params2),
+                                 pop_disp = cellular_automata_dispersal(dispersal_distance=list(0, 10, 10, 0),
+                                                                        dispersal_kernel=list(0, exp(-c(0:9)^1/3.36), exp(-c(0:9)^1/3.36), 0),
+                                                                        dispersal_proportion=list(0, 0.35, 0.35*0.714, 0),
+                                                                        barrier_type = 1,
+                                                                        use_barriers = TRUE,
+                                                                        barriers_map = disp.bar),
                                  pop_mod = pop_translocation(source_layer = pop_source,
                                                              sink_layer = pop_sink,
                                                              stages = NULL,
                                                              effect_timesteps = 2),
                                  pop_dens_dep = pop_density_dependence())
+  
   pop_dyn2 <- population_dynamics(pop_change = demographic_stochasticity(),
-                                  pop_disp = simple_dispersal(dispersal_parameters = params),
+                                  pop_disp = kernel_dispersal(dispersal_kernel=exponential_dispersal_kernel(distance_decay = 0.1),
+                                                              dispersal_proportion=list(0, 0.35, 0.35*0.714, 0)),
                                   pop_mod = NULL,
                                   pop_dens_dep = NULL)
+  
   pop_dyn3 <- population_dynamics(pop_change = demographic_stochasticity(),
-                                  pop_disp = fast_fourier_dispersal(params),
+                                  pop_disp = kernel_dispersal(dispersal_kernel=exponential_dispersal_kernel(distance_decay = 0.1),
+                                                              dispersal_proportion=list(0, 0.35, 0.35*0.714, 0),
+                                                              fft=TRUE,
+                                                              arrival_probability=NULL),
                                   pop_mod = NULL,
                                   pop_dens_dep = NULL)
+  
   pop_dyn4 <- population_dynamics(pop_change = simple_growth(),
-                                  pop_disp = cellular_automata_dispersal(params3),
+                                  pop_disp = cellular_automata_dispersal(dispersal_distance=list(0, 10, 10, 0),
+                                                                         dispersal_kernel=list(0, exp(-c(0:9)^1/3.36), exp(-c(0:9)^1/3.36), 0),
+                                                                         dispersal_proportion=list(0, 0.35, 0.35*0.714, 0),
+                                                                         barrier_type = 1,
+                                                                         use_barriers = TRUE,
+                                                                         barriers_map = disp.bar2),
                                   pop_mod = pop_translocation(source_layer = pop_source,
                                                              sink_layer = pop_sink,
                                                              stages = 4,
                                                              effect_timesteps = 2),
                                   pop_dens_dep = pop_density_dependence())
 
+  pop_dyn5 <- population_dynamics(pop_change = demographic_stochasticity(),
+                                  pop_disp = kernel_dispersal(dispersal_kernel=exponential_dispersal_kernel(distance_decay = 0.1),
+                                                              dispersal_proportion=list(0, 0.35, 0.35*0.714, 0),
+                                                              fft=TRUE),
+                                  pop_mod = NULL,
+                                  pop_dens_dep = NULL)
+  
+  
   b_dynamics <- build_dynamics(habitat_dynamics = hab_dyn,
                                demography_dynamics = dem_dyn,
                                population_dynamics = pop_dyn)
@@ -189,6 +214,10 @@ test_that('simulation_results classes work', {
   b_dynamics7 <- build_dynamics(habitat_dynamics = habitat_dynamics(),
                                 demography_dynamics = dem_dyn3,
                                 population_dynamics = pop_dyn)
+  
+  b_dynamics8 <- build_dynamics(habitat_dynamics = habitat_dynamics(),
+                                demography_dynamics = demography_dynamics(),
+                                population_dynamics = pop_dyn5)
   
   expect_true(inherits(simulation(state = b_state,
                                   dynamics = b_dynamics,
@@ -240,6 +269,11 @@ test_that('simulation_results classes work', {
                        "simulation_results"))
   
   expect_error(inherits(simulation(state = b_state,
+                                  dynamics = b_dynamics8,
+                                  timesteps = 10),
+                       "simulation_results"))
+  
+  expect_error(inherits(simulation(state = b_state,
                                   dynamics = b_dynamics7,
                                   timesteps = 10),
                        "simulation_results"))
@@ -279,7 +313,7 @@ test_that('simulation_results classes work', {
   expect_true(inherits(simulation(state = b_state,
                                 dynamics = b_dynamics,
                                 timesteps = 10,
-                                replicates = 5),
+                                replicates = 2),
                        "simulation_results")
   )
    

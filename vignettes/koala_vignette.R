@@ -82,8 +82,7 @@ koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit,
 ## ---- message = FALSE----------------------------------------------------
 koala.demography <- build_demography(transition_matrix = koala.trans.mat,
                                      type = 'local',
-                                     habitat_suitability = koala.hab.suit,
-                                     dispersal_parameters = koala.disp.param)
+                                     habitat_suitability = koala.hab.suit)
 
 ## ---- message = FALSE----------------------------------------------------
 koala.population <- build_population(population_raster = koala.pop)
@@ -106,9 +105,26 @@ koala.demography.dynamics <- demography_dynamics(demo_environmental_stochasticit
 
 ## ---- message = FALSE----------------------------------------------------
 koala.population.dynamics <- population_dynamics(pop_change = simple_growth(),
-                                                 pop_disp = cellular_automata_dispersal(),
-                                                 pop_mod = NULL,
-                                                 pop_dens_dep = pop_density_dependence())
+                                                 pop_disp = cellular_automata_dispersal(dispersal_distance = list(0,
+                                                                                                           10,
+                                                                                                           10,
+                                                                                                           0),
+                                                                                        dispersal_kernel = list(0,
+                                                                                                         exp(-c(0:9)^1/3.36),
+                                                                                                         exp(-c(0:9)^1/3.36),
+                                                                                                         0),
+                                                                                        dispersal_proportion = list(0,
+                                                                                                             0.35,
+                                                                                                             0.35*0.714,
+                                                                                                             0),
+                                                                                        barrier_type = 0,
+                                                                                        dispersal_steps = 1,
+                                                                                        use_barriers = FALSE,
+                                                                                        barriers_map = NULL,
+                                                                                        arrival_probability = "habitat_suitability",
+                                                                                        carrying_capacity = "carrying_capacity"),
+                                          pop_mod = NULL,
+                                          pop_dens_dep = pop_density_dependence())
 
 ## ---- message = FALSE----------------------------------------------------
 koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,

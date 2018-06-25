@@ -162,9 +162,26 @@ A population dynamics object modifies the population sub-component of the state 
 
 ```{r, message = FALSE}
 koala.population.dynamics <- population_dynamics(pop_change = simple_growth(),
-                                                 pop_disp = cellular_automata_dispersal(dispersal_parameters = koala.disp.param),
-                                                 pop_mod = NULL,
-                                                 pop_dens_dep = pop_density_dependence())
+                                                 pop_disp = cellular_automata_dispersal(dispersal_distance = list(0,
+                                                                                                           10,
+                                                                                                           10,
+                                                                                                           0),
+                                                                                        dispersal_kernel = list(0,
+                                                                                                         exp(-c(0:9)^1/3.36),
+                                                                                                         exp(-c(0:9)^1/3.36),
+                                                                                                         0),
+                                                                                        dispersal_proportion = list(0,
+                                                                                                             0.35,
+                                                                                                             0.35*0.714,
+                                                                                                             0),
+                                                                                        barrier_type = 0,
+                                                                                        dispersal_steps = 1,
+                                                                                        use_barriers = FALSE,
+                                                                                        barriers_map = NULL,
+                                                                                        arrival_probability = "habitat_suitability",
+                                                                                        carrying_capacity = "carrying_capacity"),
+                                          pop_mod = NULL,
+                                          pop_dens_dep = pop_density_dependence())
 ```
 
 All three sub-components are used to build a dynamics object. The dynamics object modifies the state object at each timestep in a single simulation. Note, we specify the order in which we would like the dynamics to act on the state object for each timestep. First the koala habitat will be modified by fire, then environmental stochasticity will be applied to the life-stage transition matrix, then the koala population will grow or shrink and disperse.
