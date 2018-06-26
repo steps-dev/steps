@@ -514,7 +514,7 @@ demographic_stochasticity <- function () {
           #survival
           survivors <- stats::rbinom(1,
                                      round(as.vector(population[i , j]), 0),
-                                     local_mat[tail(which(local_mat[ ,j , i] > 0),1) , j, i])
+                                     local_mat[utils::tail(which(local_mat[ ,j , i] > 0),1) , j, i])
           
           population[i, j] <- newborns + survivors
           
@@ -533,7 +533,7 @@ demographic_stochasticity <- function () {
         #survival
         survivors <- stats::rbinom(n,
                                    round(as.vector(population[ , i]), 0),
-                                   transition_matrix[tail(which(transition_matrix[ , i] > 0),1) , i])
+                                   transition_matrix[utils::tail(which(transition_matrix[ , i] > 0),1) , i])
         
         population[ , i] <- newborns + survivors
         
