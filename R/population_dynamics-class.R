@@ -319,8 +319,15 @@ dispersalFFT <- function (popmat, fs) {
   # extract the section of the torus representing our 2D plane and return
   pop_new <- pop_torus_new[fs$yidx, fs$xidx]
 
-  # make sure none are lost or gained
-  pop_new[] <- stats::rmultinom(1, size = sum(popmat), prob = pop_new[])
+  # check for missing values and replace with zeros
+  if (any(is.na(pop_new))) {
+    pop_new[is.na(pop.new)] <- 0
+  }
+  
+  # make sure none are lost or gained (unless all are zeros)
+  if (any(pop_new[] > 0)) {
+    pop_new[] <- stats::rmultinom(1, size = sum(popmat), prob = pop_new[])    
+  }
   
   pop_new
 }

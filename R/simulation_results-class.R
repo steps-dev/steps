@@ -115,20 +115,6 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
   stages <- raster::nlayers(x[[1]][[1]]$population$population_raster)
   stage_names <- colnames(x[[1]][[1]]$demography$global_transition_matrix)
 
-  # ras.pal <- grDevices::colorRampPalette(
-  #   c(
-  #     '#440154', # dark purple
-  #     '#472c7a', # purple
-  #     '#3b518b', # blue
-  #     '#2c718e', # blue
-  #     '#21908d', # blue-green
-  #     '#27ad81', # green
-  #     '#5cc863', # green
-  #     '#aadc32', # lime green
-  #     '#fde725' # yellow
-  #   )
-  # )
-    
   graph.pal <- c("#94d1c7",
                  "#cccc2b",
                  "#bebada",
@@ -215,18 +201,16 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
           stop("Please provide a life-stage when plotting \npopulation rasters or specify zero (0) for a sum of all life-stages")
         }
           
-        rasters <- raster::stack(lapply(x[[1]], function (state) state$population$population_raster[[stage]]))
-        
-        # Find maximum and minimum population value in raster cells for all timesteps for life-stage
-        scale_max <- ceiling(max(raster::cellStats(rasters, max)))
-        scale_min <- floor(min(raster::cellStats(rasters, min)))
-        
-        # Produce scale of values
-        breaks <- seq(scale_min, scale_max, (scale_max-scale_min)/100)
-        
         if(stage == 0) {
           
           rasters_sum <- raster::stack(lapply(x[[1]], function (state) sum(state$population$population_raster)))
+          
+          # Find maximum and minimum population value in raster cells for all timesteps for life-stage
+          scale_max <- ceiling(max(raster::cellStats(rasters_sum, max)))
+          scale_min <- floor(min(raster::cellStats(rasters_sum, min)))
+          
+          # Produce scale of values
+          breaks <- seq(scale_min, scale_max, (scale_max-scale_min)/100)
           
           if (animate == TRUE) {
             graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
@@ -255,6 +239,15 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
           }
 
         } else {
+          
+          rasters <- raster::stack(lapply(x[[1]], function (state) state$population$population_raster[[stage]]))
+          
+          # Find maximum and minimum population value in raster cells for all timesteps for life-stage
+          scale_max <- ceiling(max(raster::cellStats(rasters, max)))
+          scale_min <- floor(min(raster::cellStats(rasters, min)))
+          
+          # Produce scale of values
+          breaks <- seq(scale_min, scale_max, (scale_max-scale_min)/100)
           
           if (animate == TRUE) {
             graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
