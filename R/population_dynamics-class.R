@@ -11,10 +11,11 @@ NULL
 #' @param population_dynamics_function A function that operates on a state object to change population at specified timesteps. User may enter a custom function or select a pre-defined module - see documentation. 
 #' @param x a population_dynamic object
 #' @param ... further arguments passed to or from other methods
-#' @param pop_change a function to define how population growth occurs (default is exponential kernel) at each timestep
-#' @param pop_disp a function to define how the population disperses at each timestep
+#' @param pop_change a function to define how population growth occurs at each timestep
+#' @param pop_disp a function to define how the population disperses at each timestep (default is exponential kernel)
 #' @param pop_mod a function to define any deterministic changes to the population - such as translocation - at each timestep
 #' @param pop_dens_dep a function to control density dependence effects on the population at each timestep
+#' @param demo_stoch should demographic stochasticity be used in population change? (default is FALSE)
 #' @param dispersal_kernel a single or list of user-defined distance dispersal kernel functions
 #' @param dispersal_proportion proportions of individuals (0 to 1) that can disperse in each life stage
 #' @param arrival_probability a raster layer that controls where individuals can disperse to (e.g. habitat suitability)
@@ -29,6 +30,7 @@ NULL
 #' @param sink_layer a spatial layer with the locations and number of individuals to translocate to
 #' @param stages which life-stages are affected by the translocations - note, default is all
 #' @param effect_timesteps which timesteps in a single simulation do the translocations take place
+#' @param stages which life-stages contribute to density dependence - default is all
 #'
 #' @return An object of class \code{population_dynamics}
 #' 
@@ -448,7 +450,7 @@ seq_range <- function (range, by = 1) seq(range[1], range[2], by = by)
 #'
 #' test_lin_growth <- simple_growth()
 
-simple_growth <- function () {
+simple_growth <- function (demo_stoch = FALSE) {
   
   pop_dynamics <- function (state, timestep) {
     
@@ -467,11 +469,41 @@ simple_growth <- function () {
       local_mat <-  state$demography$local_transition_matrix
 
       for (i in seq_len(nrow(population))) {
-        population[i, ] <- population[i, ] %*% local_mat[ , , i]
+        population[i, ] <- local_mat[ , , i] %*% as.matrix(population[i, ])
       }
       
     } else {
-      population <- population %*% transition_matrix
+      #population <- apply(population, 1, function(x) transition_matrix %*% as.matrix(x))
+      
+      if(demo_stoch){
+        
+        t_tilde <- rbind(0, transition_matrix[-1,])
+        f <- transition_matrix
+        f[-1, ] <- 0
+        
+        for (i in seq_len(nrow(population))) {
+          
+          population[i, ] <- rowSums(apply(t_tilde, 2, function(x) stats::rmultinom(1, population[i, ], x)))
+          population[i, 1] <- population[i, 1] + sum(apply(f, 2, function(x) stats::rpois(1, x)))
+          
+        }
+        
+        # #fecundity
+        # newborns <- stats::rpois(n,
+        #                          transition_matrix[1, j] * population[ , j]) 
+        # #survival
+        # survivors <- stats::rbinom(n,
+        #                            ceiling(as.vector(population[ , j])),
+        #                            transition_matrix[utils::tail(which(transition_matrix[ , j] > 0),1) , j])
+        
+      } else {
+        
+        for (i in seq_len(nrow(population))) {
+          population[i, ] <- transition_matrix %*% as.matrix(population[i, ])
+        }
+        
+      }
+
     }
 
     # put back in the raster
@@ -520,7 +552,7 @@ demographic_stochasticity <- function () {
           
           #survival
           survivors <- stats::rbinom(1,
-                                     round(as.vector(population[i , j]), 0),
+                                     ceiling(as.vector(population[i , j])),
                                      local_mat[utils::tail(which(local_mat[ ,j , i] > 0),1) , j, i])
           
           population[i, j] <- newborns + survivors
@@ -532,17 +564,19 @@ demographic_stochasticity <- function () {
     
       n <- nrow(population)
       
-      for (i in seq_len(ncol(population))) {
+      for (j in seq_len(ncol(population))) {
         
         #fecundity
         newborns <- stats::rpois(n,
-                                 transition_matrix[1, i] * population[ , i]) 
+                                 transition_matrix[1, j] * population[ , j]) 
         #survival
         survivors <- stats::rbinom(n,
-                                   round(as.vector(population[ , i]), 0),
-                                   transition_matrix[utils::tail(which(transition_matrix[ , i] > 0),1) , i])
+                                   ceiling(as.vector(population[ , j])),
+                                   transition_matrix[utils::tail(which(transition_matrix[ , j] > 0),1) , j])
         
-        population[ , i] <- newborns + survivors
+        #population[, j] <- newborns + survivors
+        population[ , j] <- survivors
+        population[ , 1] <- newborns
         
       }
     }
@@ -919,7 +953,7 @@ pop_translocation <- function (source_layer, sink_layer, stages = NULL, effect_t
 #' 
 #' test_pop_dd <- pop_density_dependence()
 
-pop_density_dependence <- function () {
+pop_density_dependence <- function (stages = NULL) {
   
   pop_dynamics <- function (state, timestep) {
     
@@ -936,7 +970,12 @@ pop_density_dependence <- function () {
     # }
     
     # get degree of overpopulation, and shrink accordingly
-    overpopulation <- as.vector(carrying_capacity) / rowSums(population_matrix)
+    if (!is.null(stages)) {
+      overpopulation <- as.vector(carrying_capacity) / rowSums(population_matrix[, lifestages])
+    } else {
+      overpopulation <- as.vector(carrying_capacity) / rowSums(population_matrix)
+    }
+    
     overpopulation[is.nan(overpopulation)] <- 0
     overpopulation <- pmin(overpopulation, 1)
     population <- sweep(population_matrix, 1, overpopulation, "*")
