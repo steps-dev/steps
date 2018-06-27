@@ -971,7 +971,7 @@ pop_density_dependence <- function (stages = NULL) {
     
     # get degree of overpopulation, and shrink accordingly
     if (!is.null(stages)) {
-      overpopulation <- as.vector(carrying_capacity) / rowSums(population_matrix[, lifestages])
+      overpopulation <- as.vector(carrying_capacity) / rowSums(population_matrix[ ,stages])
     } else {
       overpopulation <- as.vector(carrying_capacity) / rowSums(population_matrix)
     }
