@@ -467,11 +467,17 @@ simple_growth <- function (demo_stoch = FALSE) {
     if (!is.null(state$demography$local_transition_matrix)) {
       
       local_mat <-  state$demography$local_transition_matrix
-
-      for (i in seq_len(nrow(population))) {
-        population[i, ] <- local_mat[ , , i] %*% as.matrix(population[i, ])
-      }
       
+      if(demo_stoch){
+        
+        
+        
+      } else {
+        
+        population <- t(sapply(seq_len(nrow(population)), function(x) local_mat[ , , x] %*% matrix(population[x, ])))
+        
+      }
+
     } else {
       #population <- apply(population, 1, function(x) transition_matrix %*% as.matrix(x))
       
@@ -481,9 +487,13 @@ simple_growth <- function (demo_stoch = FALSE) {
         f <- transition_matrix
         f[-1, ] <- 0
         
-        for (i in seq_len(nrow(population))) {
+        for (j in seq_len(ncol(population))) {
           
-          population[i, ] <- rowSums(apply(t_tilde, 2, function(x) stats::rmultinom(1, population[i, ], x)))
+          
+
+          colSums(apply(t(population), 2, function(x) stats::rmultinom(1, x, t_tilde[, j])))
+          
+          population[i, ] <- apply(population, 1, function(y) rowSums(apply(t_tilde, 2, function(x) stats::rmultinom(1, y, x))))
           population[i, 1] <- population[i, 1] + sum(apply(f, 2, function(x) stats::rpois(1, x)))
           
         }
@@ -498,10 +508,8 @@ simple_growth <- function (demo_stoch = FALSE) {
         
       } else {
         
-        for (i in seq_len(nrow(population))) {
-          population[i, ] <- transition_matrix %*% as.matrix(population[i, ])
-        }
-        
+        population <- t(transition_matrix %*% t(population))
+
       }
 
     }

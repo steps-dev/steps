@@ -39,25 +39,19 @@ names(gg.hab.k) <- "Carrying Capacity"
 # gg.ala.occurrences.r <- rasterize(crop(spTransform(gg.ala.occurrences, CRS("+init=epsg:28355")), r), r, field=1, fun=max)
 # gg.pop <- ceiling(stack(replicate(3, gg.ala.occurrences.r)) * gg.stable.states)
 
-gg.popN <- stack(replicate(4, (gg.hab.suit*3)))
+gg.popN <- stack(replicate(3, (gg.hab.suit*3)))
 gg.popN <-gg.popN*gg.stable.states
 
 gg.pop<-stack()
 for(i in 1:nlayers(gg.popN)){
-  m<-ceiling(cellStats(gg.popN[[i]], max,na.rm=T))
-  gg.pop1<-calc(gg.popN[[i]], fun=function(x) rbinom(prob =(x/m), size=m, n=1))
-  gg.pop<-stack(gg.pop,gg.pop1)
-  
+  m <- ceiling(cellStats(gg.popN[[i]], max, na.rm=T))
+  gg.pop1 <- calc(gg.popN[[i]], fun=function(x) rbinom(prob =(x/m), size=m, n=1))
+  gg.pop <- stack(gg.pop,gg.pop1)
 }
-TotpopN<-sum(cellStats(gg.pop, 'sum', na.rm=T)) # Get total population size to check sensible
-Initial.pop.size<-sum(gg.pop)
+TotpopN <- sum(cellStats(gg.pop, 'sum', na.rm=T)) # Get total population size to check sensible
+init.pop.size <- sum(gg.pop)
+#plot(init.pop.size, box = FALSE, axes = FALSE, col = viridis(100))
 
-plot(Initial.pop.size)
-
-
-gg.pop <- stack(gg.hab.suit*3,
-                gg.hab.suit*3,
-                gg.hab.suit*3)
 names(gg.pop) <- colnames(gg.trans.mat)
 #plot(gg.pop, box = FALSE, axes = FALSE, col = viridis(100))
 
@@ -72,8 +66,19 @@ gg.disp.bar[cellFromRow(gg.disp.bar,c(nrow(gg.disp.bar)/2,(nrow(gg.disp.bar)/2)+
 #                           barriers_map=gg.disp.bar,
 #                           use_barriers=TRUE
 # )
-# 
-# gg.dist.fire <- stack(list.files("inst/extdata", full = TRUE, pattern = 'gg_Fire*'))
+
+koala.dist.fire <- stack(list.files("inst/extdata", full = TRUE, pattern = 'Koala_Fire*'))
+
+
+gg.dist.fire <- stack()
+for (i in 1:nlayers(koala.dist.fire)) {
+  gg.fire <- r
+  gg.fire[] <- koala.dist.fire[[i]][]
+  gg.dist.fire <- stack(gg.dist.fire, gg.fire)
+}
+
+gg.dist.fire2 <- stack(replicate(5, unlist(gg.dist.fire)))
+
 # 
 # gg.pop.source <- gg.pop[[4]]
 # gg.pop.source[] <- 0
@@ -114,19 +119,22 @@ gg.state <- build_state(habitat = gg.habitat,
 
 ################# DETERMINISTIC GROWTH WITH ENV/DEMO STOCHASTICITY AND CA DISPERSAL #####################
 
-gg.habitat.dynamics <- habitat_dynamics()
+gg.habitat.dynamics <- habitat_dynamics(#disturbance_fires(habitat_suitability = gg.hab.suit,
+                                                         # disturbance_layers = gg.dist.fire2,
+                                                          #effect_time=5)
+                                        )
 gg.demography.dynamics <- demography_dynamics(#demo_environmental_stochasticity(transition_matrix = gg.trans.mat,
                                                                                #stochasticity = 0.1)
                                               )
-gg.population.dynamics <- population_dynamics(pop_change = simple_growth(demo_stoch = FALSE),
-                                              #pop_disp = cellular_automata_dispersal(dispersal_distance=list(0, 64, 0),
-                                                                          #dispersal_kernel=list(0, exp(-c(0:63)^1/10), 0),
-                                                                          #dispersal_proportion=list(0, 0.5, 0))#,
-                                              pop_disp = kernel_dispersal(dispersal_proportion = list(0, 0.5, 0),#,
+gg.population.dynamics <- population_dynamics(pop_change = simple_growth(demo_stoch = TRUE)#,
+                                              #pop_disp = cellular_automata_dispersal(dispersal_distance=list(0, 20, 0),
+                                                                          #dispersal_kernel=list(0, exp(-c(0:19)^1/10), 0),
+                                                                          #dispersal_proportion=list(0, 0.5, 0)),
+                                              #pop_disp = kernel_dispersal(dispersal_proportion = list(0, 0.5, 0),
                                                                           #dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.5),
-                                                                          arrival_probability = NULL,
-                                                                          fft = TRUE),
-                                              pop_dens_dep = pop_density_dependence(stages = c(2,3))
+                                                                          #arrival_probability = NULL,
+                                                                          #fft = TRUE),
+                                              #pop_dens_dep = pop_density_dependence(stages = c(2,3))
                                               )
 gg.dynamics <- build_dynamics(habitat_dynamics = gg.habitat.dynamics,
                               demography_dynamics = gg.demography.dynamics,
@@ -138,7 +146,7 @@ gg.dynamics <- build_dynamics(habitat_dynamics = gg.habitat.dynamics,
 
 sim_results <- simulation(state = gg.state,
                           dynamics = gg.dynamics,
-                          timesteps = 100,
+                          timesteps = 5,
                           replicates = 3)
 
 plot(sim_results)
@@ -253,7 +261,7 @@ plot(sim_results, stage = 2)
 
 plot(sim_results, stage = 0)
 
-plot(sim_results[1], type = "raster", stage = 0)
+plot(sim_results[1], type = "raster", stage = 0, timesteps = c(10,20,30,40,50,60,70,80,90))
 
 plot(sim_results[1], type = "raster", stage = 2)
 
