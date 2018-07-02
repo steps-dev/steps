@@ -14,14 +14,15 @@ is.simulation_results(x)
 \method{print}{simulation_results}(x, ...)
 
 \method{plot}{simulation_results}(x, object = "population", type = "graph",
-  stage = NULL, animate = FALSE, ...)
+  stage = NULL, animate = FALSE, timesteps = c(1:9), panels = c(3, 3),
+  ...)
 }
 \arguments{
 \item{state}{a state object - static habitat, population, and demography in a timestep}
 
 \item{dynamics}{a dynamics object - modules that change habitat, population, and demography during a simulation}
 
-\item{timesteps}{number of timesteps used in one simulation}
+\item{timesteps}{number of timesteps used in one simulation or to display when plotting rasters}
 
 \item{replicates}{number simulations to perform}
 
@@ -36,6 +37,8 @@ is.simulation_results(x)
 \item{stage}{life-stage to plot - must be specified for 'raster' plot types; default is NULL and all life-stages will be plotted}
 
 \item{animate}{if plotting type 'raster' would you like to animate the rasters as a gif?}
+
+\item{panels}{the number of columns and rows to use when plotting raster timeseries - default is 3 x 3 (e.g. c(3,3) )}
 }
 \value{
 An object of class \code{simulation_results}

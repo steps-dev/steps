@@ -22,7 +22,7 @@ is.population_dynamics(x)
 population_dynamics(pop_change = simple_growth(), pop_disp = NULL,
   pop_mod = NULL, pop_dens_dep = NULL)
 
-simple_growth()
+simple_growth(demo_stoch = FALSE)
 
 demographic_stochasticity()
 
@@ -41,7 +41,7 @@ cellular_automata_dispersal(dispersal_distance = list(0, 10, 10, 0),
 pop_translocation(source_layer, sink_layer, stages = NULL,
   effect_timesteps = NULL)
 
-pop_density_dependence()
+pop_density_dependence(stages = NULL)
 }
 \arguments{
 \item{population_dynamics_function}{A function that operates on a state object to change population at specified timesteps. User may enter a custom function or select a pre-defined module - see documentation.}
@@ -50,13 +50,15 @@ pop_density_dependence()
 
 \item{...}{further arguments passed to or from other methods}
 
-\item{pop_change}{a function to define how population growth occurs (default is exponential kernel) at each timestep}
+\item{pop_change}{a function to define how population growth occurs at each timestep}
 
-\item{pop_disp}{a function to define how the population disperses at each timestep}
+\item{pop_disp}{a function to define how the population disperses at each timestep (default is exponential kernel)}
 
 \item{pop_mod}{a function to define any deterministic changes to the population - such as translocation - at each timestep}
 
 \item{pop_dens_dep}{a function to control density dependence effects on the population at each timestep}
+
+\item{demo_stoch}{should demographic stochasticity be used in population change? (default is FALSE)}
 
 \item{dispersal_kernel}{a single or list of user-defined distance dispersal kernel functions}
 
@@ -82,7 +84,7 @@ pop_density_dependence()
 
 \item{sink_layer}{a spatial layer with the locations and number of individuals to translocate to}
 
-\item{stages}{which life-stages are affected by the translocations - note, default is all}
+\item{stages}{which life-stages contribute to density dependence or are affected by the translocations - default is all}
 
 \item{effect_timesteps}{which timesteps in a single simulation do the translocations take place}
 }

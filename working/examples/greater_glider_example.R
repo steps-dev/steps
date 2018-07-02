@@ -16,6 +16,7 @@ colnames(gg.trans.mat) <- rownames(gg.trans.mat) <- c('Newborn','Juvenile','Adul
 gg.stable.states <- abs(eigen(gg.trans.mat)$vectors[,1]/base::sum(eigen(gg.trans.mat)$vectors[,1]) ) 
 
 r <- raster(vals=1, ymx=5860000, ymn=5800000, xmx=410000, xmn=360000, res=c(125,125), crs=('+proj=utm +zone=55 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'))
+#r <- raster(vals=1, ymx=5860000, ymn=5800000, xmx=410000, xmn=360000, res=c(500,500), crs=('+proj=utm +zone=55 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'))
 
 # tree <- resample(crop(raster("inst/extdata/Tree_Density_150.tif")/100, r),r)
 # elev <- resample(crop(raster("inst/extdata/Elev_125.tif"), r),r)
@@ -126,15 +127,15 @@ gg.habitat.dynamics <- habitat_dynamics(#disturbance_fires(habitat_suitability =
 gg.demography.dynamics <- demography_dynamics(#demo_environmental_stochasticity(transition_matrix = gg.trans.mat,
                                                                                #stochasticity = 0.1)
                                               )
-gg.population.dynamics <- population_dynamics(pop_change = simple_growth(demo_stoch = TRUE)#,
+gg.population.dynamics <- population_dynamics(pop_change = simple_growth(demo_stoch = FALSE),
                                               #pop_disp = cellular_automata_dispersal(dispersal_distance=list(0, 20, 0),
                                                                           #dispersal_kernel=list(0, exp(-c(0:19)^1/10), 0),
                                                                           #dispersal_proportion=list(0, 0.5, 0)),
-                                              #pop_disp = kernel_dispersal(dispersal_proportion = list(0, 0.5, 0),
-                                                                          #dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.5),
-                                                                          #arrival_probability = NULL,
-                                                                          #fft = TRUE),
-                                              #pop_dens_dep = pop_density_dependence(stages = c(2,3))
+                                              pop_disp = kernel_dispersal(dispersal_proportion = list(0, 0.5, 0),
+                                                                          dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.5),
+                                                                          arrival_probability = NULL,
+                                                                          fft = TRUE),
+                                              pop_dens_dep = pop_density_dependence(stages = c(2,3))
                                               )
 gg.dynamics <- build_dynamics(habitat_dynamics = gg.habitat.dynamics,
                               demography_dynamics = gg.demography.dynamics,

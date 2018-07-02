@@ -28,9 +28,8 @@ NULL
 #' @param carrying_capacity a raster layer that specifies the carrying capacity in each cell
 #' @param source_layer a spatial layer with the locations and number of individuals to translocate from - note, this layer will only have zero values if individuals are being introduced from outside the study area
 #' @param sink_layer a spatial layer with the locations and number of individuals to translocate to
-#' @param stages which life-stages are affected by the translocations - note, default is all
 #' @param effect_timesteps which timesteps in a single simulation do the translocations take place
-#' @param stages which life-stages contribute to density dependence - default is all
+#' @param stages which life-stages contribute to density dependence or are affected by the translocations - default is all
 #'
 #' @return An object of class \code{population_dynamics}
 #' 
@@ -323,7 +322,7 @@ dispersalFFT <- function (popmat, fs) {
 
   # check for missing values and replace with zeros
   if (any(is.na(pop_new))) {
-    pop_new[is.na(pop.new)] <- 0
+    pop_new[is.na(pop_new)] <- 0
   }
   
   # make sure none are lost or gained (unless all are zeros)
@@ -483,21 +482,21 @@ simple_growth <- function (demo_stoch = FALSE) {
       
       if(demo_stoch){
         
-        t_tilde <- rbind(0, transition_matrix[-1,])
+        t <- rbind(0, transition_matrix[-1,])
         f <- transition_matrix
         f[-1, ] <- 0
         
-        for (j in seq_len(ncol(population))) {
-          
-          
-
-          colSums(apply(t(population), 2, function(x) stats::rmultinom(1, x, t_tilde[, j])))
-          
-          population[i, ] <- apply(population, 1, function(y) rowSums(apply(t_tilde, 2, function(x) stats::rmultinom(1, y, x))))
-          population[i, 1] <- population[i, 1] + sum(apply(f, 2, function(x) stats::rpois(1, x)))
-          
-        }
+        population[ , -1] <- sapply(seq_len(ncol(population)),
+                                    function(x) stats::rbinom(nrow(population),
+                                                              population[, x],
+                                                              t[which(t[, x] > 0), x])
+                                    )[, -ncol(population)]
         
+        population[ , 1] <- rowSums(sapply(seq_len(ncol(population)),
+                                           function(x) stats::rpois(nrow(population),
+                                                                    f[ , x])
+                                           ))
+
         # #fecundity
         # newborns <- stats::rpois(n,
         #                          transition_matrix[1, j] * population[ , j]) 
