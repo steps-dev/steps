@@ -482,20 +482,35 @@ simple_growth <- function (demo_stoch = FALSE) {
       
       if(demo_stoch){
         
-        t <- rbind(0, transition_matrix[-1,])
+        t <- rbind(0, transition_matrix[-1,], 1 - apply(transition_matrix[-1, ], 2, sum))
         f <- transition_matrix
         f[-1, ] <- 0
         
-        population[ , -1] <- sapply(seq_len(ncol(population)),
-                                    function(x) stats::rbinom(nrow(population),
-                                                              population[, x],
-                                                              t[which(t[, x] > 0), x])
-                                    )[, -ncol(population)]
+        # population <- sapply(seq_len(ncol(population)),
+        #                             function(x) stats::rbinom(nrow(population),
+        #                                                       population[, x],
+        #                                                       t[which(t[, x] > 0), x])
+        #                             )
+
+        pop_tmp <- cbind(population, rep(0, nrow(population)))
         
-        population[ , 1] <- rowSums(sapply(seq_len(ncol(population)),
-                                           function(x) stats::rpois(nrow(population),
-                                                                    f[ , x])
-                                           ))
+        survival_stochastic <- sapply(seq_len(ncol(population)),
+                             function(x) stats::rmultinom(n = nrow(population),
+                                                       size = pop_tmp[, x],
+                                                       prob = t[, x]),
+                             simplify = 'array'
+        )
+        
+        new_offspring_deterministic <- f %*% t(population)
+        new_offspring_stochastic <- matrix(rpois(n = length(c(new_offspring_deterministic)),
+                                          lambda = c(new_offspring_deterministic)),
+                                          nrow = nrow(new_offspring_deterministic))
+        new_offspring <- apply(new_offspring_stochastic, 2, sum)
+        
+        population <- t(apply(survival_stochastic[seq_len(ncol(population)), , ], c(1, 2), sum))
+        population[ , 1] <- population[ , 1] + new_offspring
+        
+        
 
         # #fecundity
         # newborns <- stats::rpois(n,
