@@ -6,41 +6,52 @@
 \alias{print.demography}
 \alias{summary.demography}
 \alias{plot.demography}
-\title{Create a demography object to use in a state object}
+\title{Create a demography object to use in a state object.}
 \usage{
-build_demography(transition_matrix, type = "global",
+build_demography(transition_matrix, scale = "global",
   habitat_suitability = NULL, misc = NULL, ...)
 
-is.demography(x)
+is.demography(object)
 
-\method{print}{demography}(x, ...)
+\method{print}{demography}(object, ...)
 
 \method{summary}{demography}(object, ...)
 
-\method{plot}{demography}(x, ...)
+\method{plot}{demography}(object, ...)
 }
 \arguments{
-\item{transition_matrix}{a symmetrical stage-based population structure matrix}
+\item{transition_matrix}{A symmetrical age-based (Leslie) or stage-based
+population structure matrix.}
 
-\item{type}{scale of transition matrix - either 'global' or 'local' (cell-based)}
+\item{scale}{The scale to which the transition matrix is applied - either
+'global' for a landscape-wide application or 'local' for a grid cell-based
+applications. The default value is 'global'.}
 
-\item{habitat_suitability}{habitat suitability raster layer (required if 'local' type is specified)}
+\item{habitat_suitability}{A spatial raster (grid cell-based) layer that
+is of the appropriate extent and resolution for the simulation (required
+if 'local' scale is specified).}
 
-\item{misc}{miscellaneous inputs used to modify demography}
+\item{misc}{Miscellaneous inputs used to modify the demography object in a
+simulation. Note, this is where the user may store objects that are called
+upon and modified by demographic dynamic functions (also created by the user).}
 
-\item{...}{further arguments passed to or from other methods}
+\item{...}{Further arguments passed to or from other methods.}
 
-\item{x}{a demography object}
-
-\item{object}{a demography object}
+\item{object}{A demography object.}
 }
 \value{
 An object of class \code{demography}
 }
 \description{
-A demography object is used to store information on how populations change in space and time.
-This includes life-stage matrices.
-It is a sub-component of a \link[steps]{state} object and is modified in each timestep of an experiment.
+A demography object contains information on how population
+demographics change in space and time.
+}
+\details{
+A demography object is a sub-component of a \link[steps]{state} object
+and is modified in each timestep of a simulation. During a simulation,
+a demography object tracks changes in life-stage matrices (either global
+for the entire landscape or local to grid cells) based on demographic
+dynamic functions selected or created by the user.
 }
 \examples{
 
@@ -48,26 +59,20 @@ library(steps)
 library(raster)
 
 # Use a built-in function to generate a four life-stage transition matrix
-
 mat <- steps:::fake_transition_matrix(4)
 
 # Construct the demography object
-
 test_demography <- build_demography(transition_matrix = mat)
 
-# Test if object is of the type 'population'
-
+# Test if object is of the type 'demography'
 is.demography(test_demography)
 
 # Print information about the 'demography' object
-
 print(test_demography)
 
 # Print a summary of 'demography' object attributes
-
 summary(test_demography)
 
 # Plot the 'demography' object
-
 plot(test_demography)
 }

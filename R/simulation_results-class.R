@@ -55,15 +55,17 @@
 #'
 #' results <- simulation(test_state, test_dynamics, timesteps = 10, replicates = 2)
 
-simulation <- function(state, dynamics, timesteps, replicates=1){
+simulation <- function(state, dynamics, timesteps, replicates=1, parallel=FALSE){
 
-  simulation_results <- future::future_lapply(seq_len(replicates),
+  if (parallel) future::plan(multiprocess)
+  simulation_results <- future.apply::future_lapply(seq_len(replicates),
                                       FUN = simulate,
                                       state = state,
                                       dynamics = dynamics,
                                       timesteps = timesteps,
                                       future.seed = FALSE)
 
+  future::plan("default")
   as.simulation_results(simulation_results)
 }
 

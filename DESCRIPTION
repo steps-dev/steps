@@ -29,6 +29,7 @@ Imports:
     scales,
     extraDistr,
     future,
+    future.apply,
     rasterVis,
     viridisLite
 LinkingTo: Rcpp

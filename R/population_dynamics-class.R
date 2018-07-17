@@ -1,9 +1,9 @@
 #' @useDynLib steps
 #' @importFrom Rcpp sourceCpp
 NULL
-#' Change the population in a state object
+#' Modify the population in a state object.
 #' 
-#' @description A 'population dynamics' object is used to modify species populations in space and time.
+#' A 'population dynamics' object is used to modify species populations in space and time.
 #' It is a sub-component of a \link[steps]{dynamics} object and is executed in each timestep of an experiment.
 #'
 #' @rdname population_dynamics
@@ -469,7 +469,27 @@ simple_growth <- function (demo_stoch = FALSE) {
       
       if(demo_stoch){
         
-        
+        # local_t <- apply(local_mat, 3, function(x) rbind(0, x[-1,], 1 - apply(x[-1, ], 2, sum)))
+        # local_f <- local_mat
+        # local_f[-1, , ] <- 0
+        # 
+        # pop_tmp <- cbind(population, rep(0, nrow(population)))
+        # 
+        # survival_stochastic <- sapply(seq_len(ncol(population)),
+        #                               function(x) stats::rmultinom(n = nrow(population),
+        #                                                            size = pop_tmp[, x],
+        #                                                            prob = local_t[, x]),
+        #                               simplify = 'array'
+        # )
+        # 
+        # new_offspring_deterministic <- local_f %*% t(population)
+        # new_offspring_stochastic <- matrix(rpois(n = length(c(new_offspring_deterministic)),
+        #                                          lambda = c(new_offspring_deterministic)),
+        #                                    nrow = nrow(new_offspring_deterministic))
+        # new_offspring <- apply(new_offspring_stochastic, 2, sum)
+        # 
+        # population <- t(apply(survival_stochastic[seq_len(ncol(population)), , ], c(1, 2), sum))
+        # population[ , 1] <- population[ , 1] + new_offspring
         
       } else {
         
@@ -510,8 +530,6 @@ simple_growth <- function (demo_stoch = FALSE) {
         population <- t(apply(survival_stochastic[seq_len(ncol(population)), , ], c(1, 2), sum))
         population[ , 1] <- population[ , 1] + new_offspring
         
-        
-
         # #fecundity
         # newborns <- stats::rpois(n,
         #                          transition_matrix[1, j] * population[ , j]) 

@@ -6,7 +6,7 @@
 \alias{print.habitat_dynamics}
 \alias{habitat_dynamics}
 \alias{disturbance_fires}
-\title{Change the habitat in a state object}
+\title{Modify the habitat in a state object.}
 \usage{
 as.habitat_dynamics(habitat_dynamics_function)
 

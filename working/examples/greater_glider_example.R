@@ -1,8 +1,5 @@
 library(steps)
 library(raster)
-library(viridisLite)
-library(future)
-plan(multiprocess)
 
 ############ MODEL INPUTS ###############
 
@@ -15,8 +12,8 @@ colnames(gg.trans.mat) <- rownames(gg.trans.mat) <- c('Newborn','Juvenile','Adul
 
 gg.stable.states <- abs(eigen(gg.trans.mat)$vectors[,1]/base::sum(eigen(gg.trans.mat)$vectors[,1]) ) 
 
-r <- raster(vals=1, ymx=5860000, ymn=5800000, xmx=410000, xmn=360000, res=c(125,125), crs=('+proj=utm +zone=55 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'))
-#r <- raster(vals=1, ymx=5860000, ymn=5800000, xmx=410000, xmn=360000, res=c(500,500), crs=('+proj=utm +zone=55 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'))
+#r <- raster(vals=1, ymx=5860000, ymn=5800000, xmx=410000, xmn=360000, res=c(125,125), crs=('+proj=utm +zone=55 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'))
+r <- raster(vals=1, ymx=5860000, ymn=5800000, xmx=410000, xmn=360000, res=c(500,500), crs=('+proj=utm +zone=55 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'))
 
 # tree <- resample(crop(raster("inst/extdata/Tree_Density_150.tif")/100, r),r)
 # elev <- resample(crop(raster("inst/extdata/Elev_125.tif"), r),r)
@@ -28,7 +25,8 @@ gg.hab.suit <- ((gg.hab.suit-cellStats(gg.hab.suit,"min"))/(cellStats(gg.hab.sui
 names(gg.hab.suit) <- "Habitat"
 #plot(gg.hab.suit, box = FALSE, axes = FALSE, col = viridis(100))
 
-gg.hab.k <- ceiling(gg.hab.suit*3)
+#gg.hab.k <- ceiling(gg.hab.suit*3)
+gg.hab.k <- ceiling(gg.hab.suit*48)
 names(gg.hab.k) <- "Carrying Capacity"
 #plot(gg.hab.k, box = FALSE, axes = FALSE, col = viridis(100))
 
@@ -40,7 +38,8 @@ names(gg.hab.k) <- "Carrying Capacity"
 # gg.ala.occurrences.r <- rasterize(crop(spTransform(gg.ala.occurrences, CRS("+init=epsg:28355")), r), r, field=1, fun=max)
 # gg.pop <- ceiling(stack(replicate(3, gg.ala.occurrences.r)) * gg.stable.states)
 
-gg.popN <- stack(replicate(3, (gg.hab.suit*3)))
+#gg.popN <- stack(replicate(3, (gg.hab.suit*3)))
+gg.popN <- stack(replicate(ncol(gg.trans.mat), (gg.hab.suit*48)))
 gg.popN <-gg.popN*gg.stable.states
 
 gg.pop<-stack()
@@ -60,25 +59,16 @@ gg.disp.bar <- gg.hab.suit*0
 gg.disp.bar[cellFromRow(gg.disp.bar,c(nrow(gg.disp.bar)/2,(nrow(gg.disp.bar)/2)+1))] <- 1
 #plot(gg.disp.bar, box = FALSE, axes = FALSE, col = viridis(100))
 
-# gg.disp.param <- list(dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=10,'Stage_2-3'=10,'Stage_3+'=0),
-#                           dispersal_kernel=list('Stage_0-1'=0,'Stage_1-2'=exp(-c(0:9)^1/3.36),'Stage_2-3'=exp(-c(0:9)^1/3.36),'Stage_3+'=0),
-#                           dispersal_proportion=list('Stage_0-1'=0,'Stage_1-2'=0.35,'Stage_2-3'=0.35*0.714,'Stage_3+'=0),
-#                           barrier_type=1,
-#                           barriers_map=gg.disp.bar,
-#                           use_barriers=TRUE
-# )
-
-koala.dist.fire <- stack(list.files("inst/extdata", full = TRUE, pattern = 'Koala_Fire*'))
-
-
-gg.dist.fire <- stack()
-for (i in 1:nlayers(koala.dist.fire)) {
-  gg.fire <- r
-  gg.fire[] <- koala.dist.fire[[i]][]
-  gg.dist.fire <- stack(gg.dist.fire, gg.fire)
-}
-
-gg.dist.fire2 <- stack(replicate(5, unlist(gg.dist.fire)))
+# koala.dist.fire <- stack(list.files("inst/extdata", full = TRUE, pattern = 'Koala_Fire*'))
+# 
+# gg.dist.fire <- stack()
+# for (i in 1:nlayers(koala.dist.fire)) {
+#   gg.fire <- r
+#   gg.fire[] <- koala.dist.fire[[i]][]
+#   gg.dist.fire <- stack(gg.dist.fire, gg.fire)
+# }
+# 
+# gg.dist.fire2 <- stack(replicate(5, unlist(gg.dist.fire)))
 
 # 
 # gg.pop.source <- gg.pop[[4]]
@@ -109,9 +99,9 @@ gg.dist.fire2 <- stack(replicate(5, unlist(gg.dist.fire)))
 
 gg.habitat <- build_habitat(habitat_suitability = gg.hab.suit,
                             carrying_capacity = gg.hab.k)
-gg.demography <- build_demography(transition_matrix = gg.trans.mat#,
-                                  #type = 'local',
-                                  #habitat_suitability = gg.hab.suit
+gg.demography <- build_demography(transition_matrix = gg.trans.mat,
+                                  scale = 'local',
+                                  habitat_suitability = gg.hab.suit
                                   )
 gg.population <- build_population(population_raster = gg.pop)
 gg.state <- build_state(habitat = gg.habitat,
@@ -125,10 +115,10 @@ gg.habitat.dynamics <- habitat_dynamics(#disturbance_fires(habitat_suitability =
                                                           #effect_time=5)
                                         )
 gg.demography.dynamics <- demography_dynamics(#demo_environmental_stochasticity(transition_matrix = gg.trans.mat,
-                                                                               #stochasticity = 0.1)
+                                                                               #stochasticity = 0.01)
                                               )
-gg.population.dynamics <- population_dynamics(pop_change = simple_growth(demo_stoch = FALSE),
-                                              #pop_disp = cellular_automata_dispersal(dispersal_distance=list(0, 20, 0),
+gg.population.dynamics <- population_dynamics(pop_change = simple_growth(demo_stoch = TRUE),
+                                              #pop_disp = cellular_automata_dispersal(dispersal_distance=list(0, 16, 0),
                                                                           #dispersal_kernel=list(0, exp(-c(0:19)^1/10), 0),
                                                                           #dispersal_proportion=list(0, 0.5, 0)),
                                               pop_disp = kernel_dispersal(dispersal_proportion = list(0, 0.5, 0),
@@ -147,8 +137,9 @@ gg.dynamics <- build_dynamics(habitat_dynamics = gg.habitat.dynamics,
 
 sim_results <- simulation(state = gg.state,
                           dynamics = gg.dynamics,
-                          timesteps = 5,
-                          replicates = 3)
+                          timesteps = 100,
+                          replicates = 3,
+                          parallel = TRUE)
 
 plot(sim_results)
 ########################################################################
@@ -159,7 +150,7 @@ plot(sim_results)
 #                                carrying_capacity = gg.hab.k*0.1,
 #                                misc = NULL)
 # gg.demography <- build_demography(transition_matrix = gg.trans.mat,
-#                                      type = 'local', 
+#                                      scale = 'local', 
 #                                      habitat_suitability = gg.hab.suit,
 #                                      dispersal_parameters = gg.disp.param,
 #                                      misc = NULL)
@@ -194,7 +185,7 @@ plot(sim_results)
 #                             carrying_capacity = gg.hab.k,
 #                             misc = NULL)
 # gg.demography <- build_demography(transition_matrix = gg.trans.mat,
-#                                   type = 'local', 
+#                                   scale = 'local', 
 #                                   habitat_suitability = gg.hab.suit,
 #                                   dispersal_parameters = gg.disp.param,
 #                                   misc = NULL)
@@ -227,7 +218,7 @@ plot(sim_results)
 #                             carrying_capacity = gg.hab.k,
 #                             misc = NULL)
 # gg.demography <- build_demography(transition_matrix = gg.trans.mat,
-#                                   type = 'local', 
+#                                   scale = 'local', 
 #                                   habitat_suitability = gg.hab.suit,
 #                                   dispersal_parameters = gg.disp.param,
 #                                   misc = NULL)

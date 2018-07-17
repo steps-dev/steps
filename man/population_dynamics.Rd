@@ -11,7 +11,7 @@
 \alias{cellular_automata_dispersal}
 \alias{pop_translocation}
 \alias{pop_density_dependence}
-\title{Change the population in a state object}
+\title{Modify the population in a state object.}
 \usage{
 as.population_dynamics(population_dynamics_function)
 

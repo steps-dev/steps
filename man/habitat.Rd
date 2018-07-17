@@ -4,31 +4,44 @@
 \alias{build_habitat}
 \alias{is.habitat}
 \alias{print.habitat}
-\title{Create a habitat object to use in a state object}
+\title{Create a habitat object to use in a state object.}
 \usage{
 build_habitat(habitat_suitability, carrying_capacity, misc = NULL, ...)
 
-is.habitat(x)
+is.habitat(object)
 
-\method{print}{habitat}(x, ...)
+\method{print}{habitat}(object, ...)
 }
 \arguments{
-\item{habitat_suitability}{a raster layer or stack containing habitat suitability for each cell}
+\item{habitat_suitability}{A raster layer or stack containing habitat
+suitability values for all cells in a landscape. Note, using a raster
+stack assumes that the user has provided a habitat layer for each
+intended timestep in a simulation.}
 
-\item{carrying_capacity}{a raster layer specifying carrying capacity values for each cell}
+\item{carrying_capacity}{A raster layer specifying carrying capacity
+values for all cells in a landscape.}
 
-\item{misc}{miscellaneous inputs used to modify habitat}
+\item{misc}{Miscellaneous inputs used to modify the habitat object in a
+simulation. Note, this is intended to store objects that are accessed
+and used to modify the habitat with a custom developed habitat dynamic
+function.}
 
-\item{...}{further arguments passed to or from other methods}
+\item{...}{Further arguments passed to or from other methods.}
 
-\item{x}{an object to print or test as an habitat object}
+\item{object}{A habitat object.}
 }
 \value{
 An object of class \code{habitat}
 }
 \description{
-A habitat object is used to store spatially-explicit information on habitat suitability and the carrying_capacity of a landscape.
-It is a sub-component of a \link[steps]{state} object and is modified in each timestep of an experiment.
+A habitat object is used to store spatially-explicit information on habitat
+suitability and the carrying_capacity of a landscape.
+}
+\details{
+A habitat object is a sub-component of a \link[steps]{state} object and
+is modified in each timestep of a simulation. During a simulation, a
+habitat object tracks changes in habitat suitability or carrying capacity
+based on habitat dynamic functions selected or created by the user.
 }
 \examples{
 
@@ -36,26 +49,20 @@ library(steps)
 library(raster)
 
 # Construct a raster object
-
 r <- raster(system.file("external/test.grd", package="raster"))
 
 # Modify raster to contain values between 0 and 1  
-
 hs <- r / cellStats(r, "max")
 
 # Modify raster to contain values for maximum population in each cell
-
 k <- ceiling(r * 0.1)
 
 # Construct the habitat object
-
 test_habitat <- build_habitat(habitat_suitability = hs, carrying_capacity = k)
 
 # Test if object is of the type 'habitat'
-  
 is.habitat(test_habitat)
 
 # Print information about the 'habitat' object
-
 print(test_habitat)
 }

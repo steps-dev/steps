@@ -8,35 +8,43 @@
 \usage{
 build_state(habitat, demography, population)
 
-is.state(x)
+is.state(object)
 
-\method{print}{state}(x, ...)
+\method{print}{state}(object, ...)
 }
 \arguments{
-\item{habitat}{A habitat object - a habitat suitability raster layer or stack}
+\item{habitat}{A \link[steps]{habitat} object.}
 
-\item{demography}{A demography object - a stage-based transition matrix}
+\item{demography}{A \link[steps]{demography} object.}
 
-\item{population}{A population object - a raster stack with layers for each population stage}
+\item{population}{A \link[steps]{population} object.}
 
-\item{x}{an object to print or test as a state object}
+\item{object}{A state object to print or test.}
 
-\item{...}{further arguments passed to or from other methods}
+\item{...}{Further arguments passed to or from other methods.}
 }
 \value{
 An object of class \code{state}
 }
 \description{
-A state object represents a static representation of habitat, population, and demography in a timestep.
-It is modified in each timestep of an experiment based on the specified dynamic objects.
+A state object is a static representation of habitat, population,
+and demography in a single timestep.
+}
+\details{
+A state object is modified in each timestep of a simulation based on
+specified functions in a \link[steps]{dynamics} object. When first
+created, the state object will hold initial values for habitat, population,
+and demography which may or may not change throughout a simulation.
 }
 \examples{
 
 library(steps)
 library(raster)
 
+# Create a raster layer
 r <- raster(system.file("external/test.grd", package="raster"))
 
+# Create a life-stage matrix
 mat <- matrix(c(0.000,0.000,0.302,0.302,
                 0.940,0.000,0.000,0.000,
                 0.000,0.884,0.000,0.000,
@@ -44,18 +52,21 @@ mat <- matrix(c(0.000,0.000,0.302,0.302,
               nrow = 4, ncol = 4, byrow = TRUE)
 colnames(mat) <- rownames(mat) <- c('Stage_1','Stage_2','Stage_3','Stage_4')
 
+# Create initial populations - count must match number of life-stages
 pop <- stack(replicate(4, ceiling(r * 0.2)))
 
+# Create habitat, demography, and population objects
 test_habitat <- build_habitat(habitat_suitability = r / cellStats(r, "max"),
                               carrying_capacity = ceiling(r * 0.1))
 test_demography <- build_demography(transition_matrix = mat)
 test_population <- build_population(pop)
 
+# Construct the state object
 test_state <- build_state(test_habitat, test_demography, test_population)
 
 # Test if object is of the type 'state'
-  
 is.state(test_state)
 
+# Print information about the 'state' object
 print(test_state)
 }

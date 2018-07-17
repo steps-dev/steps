@@ -1,18 +1,29 @@
-#' Create a demography object to use in a state object
+#' Create a demography object to use in a state object.
 #'
-#' @description A demography object is used to store information on how populations change in space and time.
-#' This includes life-stage matrices.
-#' It is a sub-component of a \link[steps]{state} object and is modified in each timestep of an experiment.
+#' A demography object contains information on how population
+#' demographics change in space and time.
+#' 
+#' A demography object is a sub-component of a \link[steps]{state} object
+#' and is modified in each timestep of a simulation. During a simulation,
+#' a demography object tracks changes in life-stage matrices (either global
+#' for the entire landscape or local to grid cells) based on demographic
+#' dynamic functions selected or created by the user. 
 #' 
 #' @rdname demography
 #' 
-#' @param transition_matrix a symmetrical stage-based population structure matrix
-#' @param type scale of transition matrix - either 'global' or 'local' (cell-based)
-#' @param habitat_suitability habitat suitability raster layer (required if 'local' type is specified)
-#' @param misc miscellaneous inputs used to modify demography
-#' @param object a demography object
-#' @param x a demography object
-#' @param ... further arguments passed to or from other methods
+#' @param transition_matrix A symmetrical age-based (Leslie) or stage-based
+#' population structure matrix.
+#' @param scale The scale to which the transition matrix is applied - either
+#' 'global' for a landscape-wide application or 'local' for a grid cell-based
+#' applications. The default value is 'global'.
+#' @param habitat_suitability A spatial raster (grid cell-based) layer that
+#' is of the appropriate extent and resolution for the simulation (required
+#' if 'local' scale is specified).
+#' @param misc Miscellaneous inputs used to modify the demography object in a
+#'  simulation. Note, this is where the user may store objects that are called
+#'  upon and modified by demographic dynamic functions (also created by the user).
+#' @param object A demography object.
+#' @param ... Further arguments passed to or from other methods.
 #'
 #' @return An object of class \code{demography}
 #' 
@@ -24,15 +35,13 @@
 #' library(raster)
 #' 
 #' # Use a built-in function to generate a four life-stage transition matrix
-#' 
 #' mat <- steps:::fake_transition_matrix(4)
 #' 
 #' # Construct the demography object
-#' 
 #' test_demography <- build_demography(transition_matrix = mat)
 
 build_demography <- function (transition_matrix, 
-                              type = 'global', 
+                              scale = 'global', 
                               habitat_suitability = NULL, 
                               misc = NULL, 
                               ...) {
@@ -43,7 +52,7 @@ build_demography <- function (transition_matrix,
   if(base::is.null(m.names)) m.names <- base::paste0("stage.",1:di)
   base::dimnames(x) <- base::list(m.names, m.names)
   
-  if ( type == 'local' ) {
+  if ( scale == 'local' ) {
     if ( !inherits(habitat_suitability,c("RasterLayer")) ) {
       stop("A raster layer must be specified if storing local (cell-based) transition matrices")
     }
@@ -76,12 +85,11 @@ build_demography <- function (transition_matrix,
 #' 
 #' @examples
 #' 
-#' # Test if object is of the type 'population'
-#' 
+#' # Test if object is of the type 'demography'
 #' is.demography(test_demography)
 
-is.demography <- function (x) {
-  inherits(x, 'demography')
+is.demography <- function (object) {
+  inherits(object, 'demography')
 }
 
 #' @rdname demography
@@ -91,11 +99,20 @@ is.demography <- function (x) {
 #' @examples
 #' 
 #' # Print information about the 'demography' object
-#' 
 #' print(test_demography)
 
-print.demography <- function (x, ...) {
-  cat("This is a demography object")
+print.demography <- function (object, ...) {
+  if (!is.null(object$local_transition_matrix)) {
+    
+    cat("This is a demography object that contains", length(object$local_transition_matrix),
+        " independent transition matrices - one for each grid cell in the landscape.")
+    
+  } else {
+    
+    cat("This is a demography object that contains a single transition matrix",
+        " that will be applied similarly to all grid cells across the landscape.")
+    
+  }
 }
 
 #' @rdname demography
@@ -105,7 +122,6 @@ print.demography <- function (x, ...) {
 #' @examples
 #' 
 #' # Print a summary of 'demography' object attributes
-#' 
 #' summary(test_demography)
 
 summary.demography <- function (object, ...) {
@@ -140,15 +156,14 @@ summary.demography <- function (object, ...) {
 #' @examples
 #' 
 #' # Plot the 'demography' object
-#' 
 #' plot(test_demography)
 
-plot.demography <- function (x, ...) {
+plot.demography <- function (object, ...) {
   # plot a dynamic using igraph
   
   # extract the stage matrix & create an igraph graph x
   graphics::par(mar=c(2,4,4,2))
-  x <- x$global_transition_matrix
+  x <- object$global_transition_matrix
   textmat <- base::t(x)
   textmat[textmat>0]<-base::paste0('p(',base::as.character(textmat[textmat>0]),')')
   textmat[textmat=='0'] <-''
@@ -190,14 +205,14 @@ as.demography <- function (demography) {
 
 stage_matrixCheck <- function (x) {
   if (!is.matrix(x)) {
-    stop("A matrix object is required")
+    stop("A matrix object is required.")
   }
   
   if (ncol(x) != nrow(x)) {
-    stop("A square matrix with stage probabilities between each stage is required")
+    stop("A square matrix with stage probabilities between each stage is required.")
   }
   
   if (!all(is.finite(x))) {
-    stop("All values in matrix are required to be either zero or positive and finite")
+    stop("All values in matrix are required to be either zero or positive and finite.")
   }
 }

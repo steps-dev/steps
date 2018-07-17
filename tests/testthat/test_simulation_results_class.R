@@ -101,7 +101,7 @@ test_that('simulation_results classes work', {
   b_pop <- build_population(pop)
  
   b_dem <- build_demography(transition_matrix = mat,
-                            type = "local",
+                            scale = "local",
                             habitat_suitability = hab.suit)
  
   b_dem2 <- build_demography(transition_matrix = mat)

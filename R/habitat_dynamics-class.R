@@ -1,6 +1,6 @@
-#' Change the habitat in a state object
+#' Modify the habitat in a state object.
 #'
-#' @description A 'habitat dynamics' object is used to modify habitat suitability (or carrying capacity) of a landscape in space and time.
+#' A 'habitat dynamics' object is used to modify habitat suitability (or carrying capacity) of a landscape in space and time.
 #' It is a sub-component of a \link[steps]{dynamics} object and is executed in each timestep of an experiment.
 #'
 #' @rdname habitat_dynamics

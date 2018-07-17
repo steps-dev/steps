@@ -7,7 +7,7 @@
 \alias{plot.simulation_results}
 \title{Run an simulation to make spatially-explicit population projections}
 \usage{
-simulation(state, dynamics, timesteps, replicates = 1)
+simulation(state, dynamics, timesteps, replicates = 1, parallel = FALSE)
 
 is.simulation_results(x)
 
