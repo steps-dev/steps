@@ -1,34 +1,19 @@
 #' Modify the demography in a state object.
 #' 
-#' A 'demography dynamics' object is used to modify life-stage transition
-#' matrices - adding stochasticity for example.
+#' A \code{demography_dynamics} object is used to modify life-stage transition
+#' matrices - for example, adding stochasticity.
 #' 
-#' A 'demography dynamics' object is a sub-component of a \link[steps]{dynamics}
+#' A \code{demography_dynamics} object is a sub-component of a \link[steps]{dynamics}
 #' object and is executed in each timestep of a simulation. Note, some dynamics
 #' functions can be executed at non-regular intervals (i.e. only timesteps
 #' explicitly defined by the user)
 #'
 #' @rdname demography_dynamics
 #'
-#' @param demography_dynamics_function A function that operates on a state
-#' object to change demography at specified timesteps. A user may enter a
-#' custom function or select a pre-defined module - see examples. 
-#' @param object A demography dynamics object to print or test.
-#' @param ... Further arguments passed to or from other methods.
-#' @param transition_matrix A life-stage transition matrix.
-#' @param stochasticity A matrix with standard deviations (consistent or
-#' varying) around the transition means with dimensions matched to the
-#' life-stage transition matrix or a number representing a consistent
-#' standard deviation to apply to all transitions (default is 0).
-#' @param fecundity_fraction A multiplier value between 0 and 1 for fecundity
-#' values in the transition matrix.
-#' @param survival_fraction A multiplier value between 0 and 1 for survival
-#' values in the transition matrix.
-#' @param surv_layers a list of raster stacks with multipliers for survival
-#' equal to the number of life-stages.
-#' @param fec_layers a list of raster stacks with multipliers for fecundities
-#' equal to the number of life-stages. Note, life-stages that do not reproduce
-#' will have NULL in place of the raster stack
+#' @param ... Functions that operates on a state object to change demography
+#' at specified timesteps. A user may enter custom functions or select
+#' pre-defined modules - see examples. 
+#' @param object A \code{demography_dynamics} object to print or test.
 #'
 #' @return An object of class \code{demography_dynamics}
 #' 
@@ -91,67 +76,21 @@
 #' # Construct a state object
 #' test_state <- build_state(test_habitat, test_demography, test_population)
 #' 
-#' # Create a generic function that simply returns an unmodified state
-#' # object at each timestep
-#' example_function <- function (state, timestep) {
-#'   state
-#' }
-#' 
-#' # Define the function as a demography_dynamics object
-#' example_function <- as.demography_dynamics(example_function)
-
-as.demography_dynamics <- function (demography_dynamics_function) {
-  as_class(demography_dynamics_function, "demography_dynamics", "function")
-}
-
-#' @rdname demography_dynamics
-#'
-#' @export
-#' 
-#' @examples
-#'
-#' # Test if object is of the type 'demography dynamics'
-#'   
-#' is.demography_dynamics(example_function)
-
-is.demography_dynamics <- function (object) {
-  inherits(x, 'demography_dynamics')
-}
-
-#' @rdname demography_dynamics
-#'
-#' @export
-#'
-#' @examples
-#' 
-#' # Print details about the demography_dynamics object
-#' 
-#' print(example_function)
-
-print.demography_dynamics <- function (object, ...) {
-  cat("This is a demography_dynamics object with functions ")
-}
-
-
-#' @rdname demography_dynamics
-#' 
-#' @export
-#' 
-#' @examples
-#' 
-#' # Use the demography_dynamics function to modify a demography object: 
+#' # Select existing dynamic functions to be run on the demography
+#' # in a simulation and specify input parameters: 
 #' env_stoch <- demo_environmental_stochasticity(transition_matrix = mat,
 #'                                               stochasticity = mat_sd)
 #'                                               
 #' demo_dens <- demo_density_dependence(transition_matrix = mat)
 #' 
-#' example_function <- demography_dynamics(env_stoch,demo_dens)
+#' # Construct a demography dynamics object
+#' test_demo_dynamics <- build_demography_dynamics(env_stoch, demo_dens)
 
-demography_dynamics <- function (...) {
+build_demography_dynamics <- function (...) {
   
   dots <- list(...)
   
-  # run checks on the functions they've passed in, make sure they are legit
+  # run checks on the functions passed in to make sure they are legit
   
   demo_dynamics <- function (state, timestep) {
     
@@ -169,229 +108,32 @@ demography_dynamics <- function (...) {
   
 }
 
-##########################
-### internal functions ###
-##########################
-
-as.demography_environmental_stochasticity <- function (demography_environmental_stochasticity) {
-  as_class(demography_environmental_stochasticity, "demography_dynamics", "function")
+as.demography_dynamics <- function (demography_dynamics_function) {
+  as_class(demography_dynamics_function, "demography_dynamics", "function")
 }
-
-as.demography_density_dependence <- function (demography_density_dependence) {
-  as_class(demography_density_dependence, "demography_dynamics", "function")
-}
-
-as.demography_modify_surv_fec <- function (demography_modify_surv_fec) {
-  as_class(demography_modify_surv_fec, "demography_dynamics", "function")
-}
-
-####################################
-### pre-defined module functions ###
-####################################
-
-#' @section Pre-defined demographic dynamic functions:
-
-#' @rdname demography_dynamics
-#' 
-#' @export
-#' 
-#' @examples
-#' 
-#' # Use the demo_environmental_stochasticity function to modify the transition
-#' # matrix with specified environmental stochasticity:
-#' 
-#' test_demo_es <- demo_environmental_stochasticity(transition_matrix = mat,
-#'                                     stochasticity = mat_sd)
-
-demo_environmental_stochasticity <- function (transition_matrix,
-                                              stochasticity=0) {
-  
-  idx <- which(transition_matrix != 0)
-  is_recruitment <- upper.tri(transition_matrix)[idx]
-  lower <- 0
-  upper <- ifelse(is_recruitment, Inf, 1)
-  vals <- transition_matrix[idx]
-  
-  if (is.matrix(stochasticity)) {
-    stopifnot(identical(dim(transition_matrix), dim(stochasticity)))
-    stopifnot(identical(which(stochasticity != 0), idx))
-    stochasticity <- stochasticity[idx]
-  }
-  
-  env_stoch_fun <- function (state, timestep) {
-    
-    # if (!is.null(state$demography$local_transition_matrix) & is.null(local_transition_matrix)) {
-    #   stop("Local cell-based transition matrices are required \nfor this function - none have been specified")
-    # }
-    # global_demography <- transition_matrix
-    # nstages <- dim(transition_matrix)[[1]]
-    
-    # demography_obj <- state$demography$demography_obj
-    
-    local <- !is.null(state$demography$local_transition_matrix)
-    
-    if (local) {
-      demography_obj <- state$demography$local_transition_matrix
-    } else {
-      demography_obj <- state$demography$global_transition_matrix
-    }
-
-    # change to:
-    # demography_obj <- state$demography$demography_obj
-    
-    idx <- replicate_values(idx, demography_obj, index = TRUE)
-    vals <- replicate_values(vals, demography_obj)
-    lower <- replicate_values(lower, demography_obj)
-    upper <- replicate_values(upper, demography_obj)
-    stochasticity <- replicate_values(stochasticity, demography_obj)
-
-    demography_obj[idx] <- extraDistr::rtnorm(length(idx),
-                                              vals,
-                                              stochasticity,
-                                              a = lower,
-                                              b = upper)
-    
-    if (local) {
-      state$demography$local_transition_matrix <- demography_obj
-    } else {
-      state$demography$global_transition_matrix <- demography_obj
-    }
-    
-    # change to:
-    # state$demography$demography_obj <- demography_obj
-    
-    state
-    
-  }
-  
-  as.demography_environmental_stochasticity(env_stoch_fun)
-  
-}
-
-
-#' @rdname demography_dynamics
-#' 
-#' @export
-#' 
-#' @examples
-#' 
-#' # Use the demo_density_dependence function to modify the transition
-#' # matrix once carrying capacity is reached:
-#' 
-#' test_demo_dd <- demo_density_dependence(transition_matrix = mat,
-#'                                         fecundity_fraction = 1,
-#'                                         survival_fraction = 0.5)
-
-demo_density_dependence <- function (transition_matrix,
-                                     fecundity_fraction = 1,
-                                     survival_fraction = 1) {
-  
-  idm <- which(transition_matrix != 0)
-  fecundity <- which(transition_matrix != 0 & upper.tri(transition_matrix))
-  survival <- setdiff(idm, fecundity)
-  vals_fecundity <- transition_matrix[fecundity]
-  vals_survival <- transition_matrix[survival]
-  
-  dens_dep_fun <- function (state, timestep) {
-    
-    idr <- which(!is.na(raster::getValues(state$population$population_raster[[1]])))
-    population <- raster::extract(state$population$population_raster, idr)
-
-    local <- !is.null(state$demography$local_transition_matrix)
-
-    if (local) {
-      demography_obj <- state$demography$local_transition_matrix
-    } else {
-      demography_obj <- state$demography$global_transition_matrix
-    }
-    
-    if (any(rowSums(population) > raster::extract(state$habitat$carrying_capacity, idr))) {
-
-      idk <- which(rowSums(population) <= raster::extract(state$habitat$carrying_capacity, idr))
-      
-      vals_fecundity <- replicate_values(vals_fecundity, demography_obj)
-      vals_survival <- replicate_values(vals_survival, demography_obj)
-      fecundity <- replicate_values(fecundity, demography_obj, index = TRUE)
-      survival <- replicate_values(survival, demography_obj, index = TRUE)
-
-      demography_obj[fecundity] <- vals_fecundity * fecundity_fraction
-      demography_obj[survival] <- vals_survival * survival_fraction
-      
-      if (local) {
-        demography_obj[, , idk] <- transition_matrix
-      }
-
-    }
-
-    if (local) {
-      state$demography$local_transition_matrix <- demography_obj
-    } else {
-      state$demography$global_transition_matrix <- demography_obj
-    }
-    
-    state
-    
-  }
-  
-  as.demography_density_dependence(dens_dep_fun)
-  
-}
-
 
 #' @rdname demography_dynamics
 #'
 #' @export
 #' 
 #' @examples
-#' 
-#' # Use the surv_fec_modify function to modify the  
-#' # demography using explicit survival and fecundity layers:
-#' 
-#' test_survfec <- surv_fec_modify(transition_matrix = mat,
-#'                                     surv_layers = surv,
-#'                                     fec_layers = fec)
+#'
+#' # Test if object is of the type 'demography_dynamics'
+#' is.demography_dynamics(test_demo_dynamics)
 
-surv_fec_modify <- function (transition_matrix, surv_layers, fec_layers) {
-  
-  surv_fec_mod <- function (state, timestep) {
-    
-    if (is.null(state$demography$local_transition_matrix)) {
-      stop("Local cell-based transition matrices are required \nfor this function - none have been specified")
-    }
-    
-    global_demography <- transition_matrix
-    nstages <- dim(transition_matrix)[[1]]
-    
-    if (any(lapply(surv_layers, function (x) is.null(x)) == TRUE)) {
-      stop("Survival layers must be provided for all life-stages")
-    }
-    
-    if (any(unlist(lapply(surv_layers, function (x) raster::nlayers(x))) < timestep)) {
-      stop("The number of survival/fecundity layers must match \nthe number of timesteps in the simulation run")
-    }
-    
-    local_demography <- state$demography$local_transition_matrix
-    
-    for (i in seq_len(nstages)) {
-      
-      matrix_idx <- which(global_demography != 0 & row(global_demography) != 1 & col(global_demography) == i, arr.ind = TRUE)
-      local_demography[matrix_idx[1], matrix_idx[2], ] <- global_demography[matrix_idx] * surv_layers[[i]][[timestep]][]
-    }
-    
-    for (i in seq_len(nstages)) {
-      
-      if (!is.null(fec_layers[[i]])) {
-        local_demography[1, i, ] <- global_demography[1, i] * fec_layers[[i]][[timestep]][]
-      }
+is.demography_dynamics <- function (object) {
+  inherits(object, 'demography_dynamics')
+}
 
-    }
-    
-    state$demography$local_transition_matrix <- local_demography
-    
-    state
-    
-  }
-  
-  as.demography_modify_surv_fec(surv_fec_mod)
-  
+#' @rdname demography_dynamics
+#'
+#' @export
+#'
+#' @examples
+#' 
+#' # Print details about the 'demography_dynamics' object
+#' print(test_demo_dynamics)
+
+print.demography_dynamics <- function (object) {
+  cat("This is a demography_dynamics object")
 }

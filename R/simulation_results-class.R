@@ -323,13 +323,33 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
       # Produce scale of values
       breaks <- seq(scale_min, scale_max, (scale_max-scale_min)/100)
       
-      ts <- seq_len(raster::nlayers(rasters))
-      groups <- split(ts, ceiling(seq_along(ts)/9))
-      
-      for (i in seq_along(groups)) {
+      if (animate == TRUE) {
+        graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
         
-        group <- groups[[i]]
-        print(rasterVis::levelplot(rasters[[group]],
+        raster::animate(rasters[[timesteps]],
+                        col=viridisLite::viridis(length(breaks)-1),
+                        n = 1)
+      
+      } else {  
+        
+      # ts <- seq_len(raster::nlayers(rasters))
+      # groups <- split(ts, ceiling(seq_along(ts)/9))
+      # 
+      # for (i in seq_along(groups)) {
+      #   
+      #   group <- groups[[i]]
+      #   print(rasterVis::levelplot(rasters[[group]],
+      #                              scales = list(draw = FALSE),
+      #                              margin = list(draw = FALSE),
+      #                              at = breaks,
+      #                              col.regions = viridisLite::viridis(length(breaks)-1),
+      #                              colorkey = list(space = "bottom",
+      #                                              title = "index",
+      #                                              width = 0.6),
+      #                              main="habitat"))
+      # }
+      
+        print(rasterVis::levelplot(rasters[[timesteps]],
                                    scales = list(draw = FALSE),
                                    margin = list(draw = FALSE),
                                    at = breaks,
@@ -337,9 +357,10 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                                    colorkey = list(space = "bottom",
                                                    title = "index",
                                                    width = 0.6),
-                                   main="habitat"))
+                                   main = "habitat",
+                                   layout = panels))
       }
-      
+        
     }
     
     if (object == "carrying_capacity") {
@@ -353,13 +374,33 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
       # Produce scale of values10
       breaks <- seq(scale_min, scale_max, (scale_max-scale_min)/100)
       
-      ts <- seq_len(raster::nlayers(rasters))
-      groups <- split(ts, ceiling(seq_along(ts)/9))
-      
-      for (i in seq_along(groups)) {
+      if (animate == TRUE) {
+        graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
         
-        group <- groups[[i]]
-        print(rasterVis::levelplot(rasters[[group]],
+        raster::animate(rasters[[timesteps]],
+                        col=viridisLite::viridis(length(breaks)-1),
+                        n = 1)
+        
+      } else {  
+      
+      # ts <- seq_len(raster::nlayers(rasters))
+      # groups <- split(ts, ceiling(seq_along(ts)/9))
+      # 
+      # for (i in seq_along(groups)) {
+      #   
+      #   group <- groups[[i]]
+      #   print(rasterVis::levelplot(rasters[[group]],
+      #                              scales = list(draw = FALSE),
+      #                              margin = list(draw = FALSE),
+      #                              at = breaks,
+      #                              col.regions = viridisLite::viridis(length(breaks)-1),
+      #                              colorkey = list(space = "bottom",
+      #                                              title = "individuals",
+      #                                              width = 0.6),
+      #                              main="k"))
+      # }
+      
+        print(rasterVis::levelplot(rasters[[timesteps]],
                                    scales = list(draw = FALSE),
                                    margin = list(draw = FALSE),
                                    at = breaks,
@@ -367,9 +408,10 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                                    colorkey = list(space = "bottom",
                                                    title = "individuals",
                                                    width = 0.6),
-                                   main="k"))
+                                   main = "k",
+                                   layout = panels))
       }
-      
+        
     }
      
   }

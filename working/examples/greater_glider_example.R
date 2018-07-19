@@ -110,14 +110,14 @@ gg.state <- build_state(habitat = gg.habitat,
 
 ################# DETERMINISTIC GROWTH WITH ENV/DEMO STOCHASTICITY AND CA DISPERSAL #####################
 
-gg.habitat.dynamics <- habitat_dynamics(#disturbance_fires(habitat_suitability = gg.hab.suit,
+gg.habitat.dynamics <- build_habitat_dynamics(#disturbance_fires(habitat_suitability = gg.hab.suit,
                                                          # disturbance_layers = gg.dist.fire2,
                                                           #effect_time=5)
                                         )
-gg.demography.dynamics <- demography_dynamics(#demo_environmental_stochasticity(transition_matrix = gg.trans.mat,
-                                                                               #stochasticity = 0.01)
+gg.demography.dynamics <- build_demography_dynamics(demo_environmental_stochasticity(transition_matrix = gg.trans.mat,
+                                                                               stochasticity = 0.1)
                                               )
-gg.population.dynamics <- population_dynamics(pop_change = simple_growth(demo_stoch = TRUE),
+gg.population.dynamics <- build_population_dynamics(pop_change = simple_growth(demo_stoch = FALSE),
                                               #pop_disp = cellular_automata_dispersal(dispersal_distance=list(0, 16, 0),
                                                                           #dispersal_kernel=list(0, exp(-c(0:19)^1/10), 0),
                                                                           #dispersal_proportion=list(0, 0.5, 0)),
