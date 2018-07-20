@@ -108,6 +108,7 @@ gg.state <- build_state(habitat = gg.habitat,
                         demography = gg.demography,
                         population = gg.population)
 
+
 ################# DETERMINISTIC GROWTH WITH ENV/DEMO STOCHASTICITY AND CA DISPERSAL #####################
 
 gg.habitat.dynamics <- build_habitat_dynamics(#disturbance_fires(habitat_suitability = gg.hab.suit,

@@ -68,7 +68,7 @@ simple_growth <- function (demo_stoch = FALSE) {
         
         survival_stochastic <- sapply(seq_len(ncol(population)),
                                       function(y) sapply(seq_len(nrow(population)),
-                                                         function(x) rbinom(n = nrow(local_t),
+                                                         function(x) rmultinom(n = 1,
                                                                             size = pop_tmp[x, y],
                                                                             prob = local_t[, y, x])),
                                       simplify = 'array')
