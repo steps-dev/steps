@@ -67,13 +67,14 @@ simple_growth <- function (demo_stoch = FALSE) {
         pop_tmp <- cbind(population, rep(0, nrow(population)))
         
         survival_stochastic <- sapply(seq_len(ncol(population)),
-                                      function(x) stats::rmultinom(n = nrow(population),
-                                                                   size = pop_tmp[, x],
-                                                                   prob = local_t[, x, ]),
-                                      simplify = 'array'
-        )
+                                      function(y) sapply(seq_len(nrow(population)),
+                                                         function(x) rbinom(n = nrow(local_t),
+                                                                            size = pop_tmp[x, y],
+                                                                            prob = local_t[, y, x])),
+                                      simplify = 'array')
+                                      
 
-        new_offspring_deterministic <- t(sapply(seq_len(nrow(population)), function(x) local_f[ , , x] %*% matrix(population[x, ])))
+        new_offspring_deterministic <- sapply(seq_len(nrow(population)), function(x) local_f[ , , x] %*% matrix(population[x, ]))
         new_offspring_stochastic <- matrix(rpois(n = length(c(new_offspring_deterministic)),
                                                  lambda = c(new_offspring_deterministic)),
                                            nrow = nrow(new_offspring_deterministic))
@@ -106,7 +107,7 @@ simple_growth <- function (demo_stoch = FALSE) {
         pop_tmp <- cbind(population, rep(0, nrow(population)))
         
         survival_stochastic <- sapply(seq_len(ncol(population)),
-                             function(x) stats::rmultinom(n = nrow(population),
+                             function(x) rmultinom(n = nrow(population),
                                                        size = pop_tmp[, x],
                                                        prob = t[, x]),
                              simplify = 'array'
