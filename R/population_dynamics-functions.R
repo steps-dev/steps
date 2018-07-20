@@ -59,27 +59,28 @@ simple_growth <- function (demo_stoch = FALSE) {
       
       if(demo_stoch){
         
-        # local_t <- apply(local_mat, 3, function(x) rbind(0, x[-1,], 1 - apply(x[-1, ], 2, sum)))
-        # local_f <- local_mat
-        # local_f[-1, , ] <- 0
-        # 
-        # pop_tmp <- cbind(population, rep(0, nrow(population)))
-        # 
-        # survival_stochastic <- sapply(seq_len(ncol(population)),
-        #                               function(x) stats::rmultinom(n = nrow(population),
-        #                                                            size = pop_tmp[, x],
-        #                                                            prob = local_t[, x]),
-        #                               simplify = 'array'
-        # )
-        # 
-        # new_offspring_deterministic <- local_f %*% t(population)
-        # new_offspring_stochastic <- matrix(rpois(n = length(c(new_offspring_deterministic)),
-        #                                          lambda = c(new_offspring_deterministic)),
-        #                                    nrow = nrow(new_offspring_deterministic))
-        # new_offspring <- apply(new_offspring_stochastic, 2, sum)
-        # 
-        # population <- t(apply(survival_stochastic[seq_len(ncol(population)), , ], c(1, 2), sum))
-        # population[ , 1] <- population[ , 1] + new_offspring
+        local_t <- array(apply(local_mat, 3, function(x) rbind(0, x[-1,], 1 - apply(x[-1, ], 2, sum))),
+                         dim = c(dim(local_mat)[1]+1, dim(local_mat)[2], dim(local_mat)[3]))
+        local_f <- local_mat
+        local_f[-1, , ] <- 0
+        
+        pop_tmp <- cbind(population, rep(0, nrow(population)))
+        
+        survival_stochastic <- sapply(seq_len(ncol(population)),
+                                      function(x) stats::rmultinom(n = nrow(population),
+                                                                   size = pop_tmp[, x],
+                                                                   prob = local_t[, x, ]),
+                                      simplify = 'array'
+        )
+
+        new_offspring_deterministic <- t(sapply(seq_len(nrow(population)), function(x) local_f[ , , x] %*% matrix(population[x, ])))
+        new_offspring_stochastic <- matrix(rpois(n = length(c(new_offspring_deterministic)),
+                                                 lambda = c(new_offspring_deterministic)),
+                                           nrow = nrow(new_offspring_deterministic))
+        new_offspring <- apply(new_offspring_stochastic, 2, sum)
+
+        population <- t(apply(survival_stochastic[seq_len(ncol(population)), , ], c(1, 2), sum))
+        population[ , 1] <- population[ , 1] + new_offspring
         
       } else {
         
