@@ -3,10 +3,13 @@
 #' A \code{population_dynamics} object is used to modify species populations
 #' in space and time.
 #' 
-#' A \code{population_dynamics} is a sub-component of a \link[steps]{dynamics}
+#' A \code{population_dynamics} object is a sub-component of a \link[steps]{dynamics}
 #' object and is executed in each timestep of a simulation.  Note, some dynamics
 #' functions can be executed at non-regular intervals (i.e. only timesteps
-#' explicitly defined by the user)
+#' explicitly defined by the user). The \code{build_population_dynamics} function is
+#' used to construct a population dynamics object consisting of several population
+#' dynamics functions and their associated parameters. These functions specify how
+#' the population in the state object will be modified throughout a simulation. 
 #'
 #' @rdname population_dynamics
 #'
