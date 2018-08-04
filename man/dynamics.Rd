@@ -4,23 +4,24 @@
 \alias{build_dynamics}
 \alias{is.dynamics}
 \alias{print.dynamics}
-\title{Create a dynamics object to run in an experiment}
+\title{Create a dynamics object}
 \usage{
 build_dynamics(habitat_dynamics, demography_dynamics, population_dynamics,
-  order = c("demography_dynamics", "habitat_dynamics", "population_dynamics"))
+  order = c("demography_dynamics", "habitat_dynamics",
+  "population_dynamics"))
 
 is.dynamics(x)
 
 \method{print}{dynamics}(x, ...)
 }
 \arguments{
-\item{habitat_dynamics}{A module to alter the habitat object in an experiment}
+\item{habitat_dynamics}{A module to alter the habitat object in a simulation}
 
-\item{demography_dynamics}{A module to alter the habitat object in an experiment}
+\item{demography_dynamics}{A module to alter the habitat object in a simulation}
 
-\item{population_dynamics}{A module to alter the population object in an experiment}
+\item{population_dynamics}{A module to alter the population object in a simulation}
 
-\item{order}{The order to apply the dynamics at each timestep in an experiment}
+\item{order}{The order to apply the dynamics at each timestep in a simulation}
 
 \item{x}{an object to print or test as a dynamics object}
 
@@ -30,17 +31,22 @@ is.dynamics(x)
 An object of class \code{dynamics}
 }
 \description{
-A dynamics object is a group of modules (functions) used modify habitat, population, and demography in a timestep.
-It modifies a state object in each timestep of an experiment.
+A dynamics object is a group of modular functions used modify habitat,
+population, and demography in a timestep.
+}
+\details{
+A dynamics object modifies a \link[steps]{state} object in each timestep
+of a simulation based on specified habitat, demography, or population
+dynamics functions.
 }
 \examples{
 
 library(steps)
 library(raster)
 
-test_dynamics <- build_dynamics(habitat_dynamics(),
-                                demography_dynamics(),
-                                population_dynamics())
+test_dynamics <- build_dynamics(build_habitat_dynamics(),
+                                build_demography_dynamics(),
+                                build_population_dynamics())
 
 # Test if object is of the type 'dynamics'
   

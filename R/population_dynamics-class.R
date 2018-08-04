@@ -82,8 +82,7 @@
 #' test_state <- build_state(test_habitat, test_demography, test_population)
 
 #' # Use the population_dynamics object to modify the population with
-#' a default population change function:
-#'
+#' # a default population change function:
 #' test_pop_dynamics <- build_population_dynamics()
 #' test_state2 <- test_pop_dynamics(test_state, 1)
 #' 

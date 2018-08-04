@@ -9,13 +9,16 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r, message = FALSE, echo = FALSE}
+library(steps)
+library(raster)
+```
+
 Below is an example using the koala - an arboreal marsupial native to Australia.  
 
 First we setup the stage based transition matricies. The first matrix represents survival and fecundity life-stage transition probabilities for koalas. The second matrix describes the uncertainty around the transition probabilities and is used to simulate environmental stochasticity - zeros indicate no uncertainty. Note, there are four life-stages and the matrix is symmetrical in its row and column numbers. Also, names are added to the columns and rows to identify the different life-stages of the koala.
 
 ```{r, message = FALSE}
-library(steps)
-library(raster)
 
 koala.trans.mat <- matrix(c(0.000,0.000,0.302,0.302,
                               0.940,0.000,0.000,0.000,
@@ -239,7 +242,7 @@ plot(koala.results, object = "carrying_capacity")
 
 We can also perform multiple simulations. For the koala, we specified three replicates of a twenty timestep simulation. To improve computation time, we have opted to use multiple processors by setting a parallel parameter to TRUE to run all three replicates at the same time - each on a different processor.
 
-```{r, message = FALSE}
+```{r, message = FALSE, echo = FALSE}
 koala.sim.results <- simulation(koala.state,
                                 koala.dynamics,
                                 timesteps = 20,

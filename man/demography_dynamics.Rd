@@ -30,7 +30,10 @@ matrices - for example, adding stochasticity.
 A \code{demography_dynamics} object is a sub-component of a \link[steps]{dynamics}
 object and is executed in each timestep of a simulation. Note, some dynamics
 functions can be executed at non-regular intervals (i.e. only timesteps
-explicitly defined by the user)
+explicitly defined by the user). The \code{build_demography_dynamics} function is
+used to construct a demography dynamics object consisting of several demographic
+dynamics functions and their associated parameters. These functions specify how
+the demography in the state object will be modified throughout a simulation.
 }
 \examples{
 

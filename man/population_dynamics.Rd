@@ -6,8 +6,8 @@
 \alias{print.population_dynamics}
 \title{Modify the population in a state object.}
 \usage{
-build_population_dynamics(pop_change = simple_growth(), pop_disp = NULL,
-  pop_mod = NULL, pop_dens_dep = NULL)
+build_population_dynamics(pop_change = simple_growth(),
+  pop_disp = NULL, pop_mod = NULL, pop_dens_dep = NULL)
 
 is.population_dynamics(object)
 
@@ -34,10 +34,13 @@ A \code{population_dynamics} object is used to modify species populations
 in space and time.
 }
 \details{
-A \code{population_dynamics} is a sub-component of a \link[steps]{dynamics}
+A \code{population_dynamics} object is a sub-component of a \link[steps]{dynamics}
 object and is executed in each timestep of a simulation.  Note, some dynamics
 functions can be executed at non-regular intervals (i.e. only timesteps
-explicitly defined by the user)
+explicitly defined by the user). The \code{build_population_dynamics} function is
+used to construct a population dynamics object consisting of several population
+dynamics functions and their associated parameters. These functions specify how
+the population in the state object will be modified throughout a simulation.
 }
 \examples{
 
@@ -96,8 +99,7 @@ test_population <- build_population(pop)
 # Construct a state object
 test_state <- build_state(test_habitat, test_demography, test_population)
 # Use the population_dynamics object to modify the population with
-a default population change function:
-
+# a default population change function:
 test_pop_dynamics <- build_population_dynamics()
 test_state2 <- test_pop_dynamics(test_state, 1)
 

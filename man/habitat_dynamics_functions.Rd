@@ -5,7 +5,8 @@
 \alias{disturbance_fires}
 \title{Functions to modify the habitat in a state object.}
 \usage{
-disturbance_fires(habitat_suitability, disturbance_layers, effect_time = 1)
+disturbance_fires(habitat_suitability, disturbance_layers,
+  effect_time = 1)
 }
 \arguments{
 \item{habitat_suitability}{a raster layer or stack containing habitat suitability for each cell}

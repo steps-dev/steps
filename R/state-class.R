@@ -82,7 +82,7 @@ is.state <- function (object) {
 
 print.state <- function (object, ...) {
   cat("This is a state object for a species with", ncol(object$demography$global_transition_matrix),
-      "life stage(s) across a landscape of", lenght(object$habitat$habitat_suitability), "total cells.")
+      "life stage(s) across a landscape of", length(object$habitat$habitat_suitability), "total cells.")
 }
 
 ##########################

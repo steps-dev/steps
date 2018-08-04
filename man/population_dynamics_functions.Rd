@@ -19,10 +19,10 @@ demographic_stochasticity()
   arrival_probability = "habitat_suitability", fft = FALSE)
 
 cellular_automata_dispersal(dispersal_distance = list(0, 10, 10, 0),
-  dispersal_kernel = list(0, exp(-c(0:9)^1/3.36), exp(-c(0:9)^1/3.36), 0),
-  dispersal_proportion = list(0, 0.35, 0.35 * 0.714, 0), barrier_type = 0,
-  dispersal_steps = 1, use_barriers = FALSE, barriers_map = NULL,
-  arrival_probability = "habitat_suitability",
+  dispersal_kernel = list(0, exp(-c(0:9)^1/3.36), exp(-c(0:9)^1/3.36),
+  0), dispersal_proportion = list(0, 0.35, 0.35 * 0.714, 0),
+  barrier_type = 0, dispersal_steps = 1, use_barriers = FALSE,
+  barriers_map = NULL, arrival_probability = "habitat_suitability",
   carrying_capacity = "carrying_capacity")
 
 pop_translocation(source_layer, sink_layer, stages = NULL,

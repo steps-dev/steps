@@ -28,10 +28,15 @@ A \code{habitat dynamics} object is used to modify habitat suitability
 by fire or intentional habitat modification.
 }
 \details{
-It is a sub-component of a \link[steps]{dynamics} object and is executed
-in each timestep of a simulation. Note, some dynamics functions can be
-executed at non-regular intervals (i.e. only timesteps explicitly defined
-by the user)
+The \code{build_habitat_dynamics} is a sub-component of a
+\link[steps]{dynamics} object and is executed in each timestep of a
+simulation. Note, some dynamics functions can be executed at
+non-regular intervals (i.e. only timesteps explicitly defined by the user).
+The \code{build_habitat_dynamics} function is used to construct a
+habitat dynamics object consisting of several habitat
+dynamics functions and their associated parameters. These functions
+specify how the habitat in the state object will be modified
+throughout a simulation.
 }
 \examples{
 

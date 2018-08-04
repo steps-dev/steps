@@ -5,17 +5,18 @@
 \alias{is.simulation_results}
 \alias{print.simulation_results}
 \alias{plot.simulation_results}
-\title{Run an simulation to make spatially-explicit population projections}
+\title{Run an simulation}
 \usage{
-simulation(state, dynamics, timesteps, replicates = 1, parallel = FALSE)
+simulation(state, dynamics, timesteps, replicates = 1,
+  parallel = FALSE)
 
 is.simulation_results(x)
 
 \method{print}{simulation_results}(x, ...)
 
-\method{plot}{simulation_results}(x, object = "population", type = "graph",
-  stage = NULL, animate = FALSE, timesteps = c(1:9), panels = c(3, 3),
-  ...)
+\method{plot}{simulation_results}(x, object = "population",
+  type = "graph", stage = NULL, animate = FALSE,
+  timesteps = c(1:9), panels = c(3, 3), ...)
 }
 \arguments{
 \item{state}{a state object - static habitat, population, and demography in a timestep}
@@ -25,6 +26,8 @@ is.simulation_results(x)
 \item{timesteps}{number of timesteps used in one simulation or to display when plotting rasters}
 
 \item{replicates}{number simulations to perform}
+
+\item{parallel}{should parallel processors be used for simulations (default is FALSE)}
 
 \item{x}{an simulation_results object}
 
@@ -44,7 +47,8 @@ is.simulation_results(x)
 An object of class \code{simulation_results}
 }
 \description{
-A simulation changes state objects based on dynamics over a specified number of timesteps.
+A simulation changes state objects based on selected dynamics over a
+specified number of timesteps.
 }
 \examples{
 
@@ -71,9 +75,9 @@ test_population <- build_population(pop)
 
 test_state <- build_state(test_habitat, test_demography, test_population)
 
-test_dynamics <- build_dynamics(habitat_dynamics(),
-                                demography_dynamics(),
-                                population_dynamics())
+test_dynamics <- build_dynamics(build_habitat_dynamics(),
+                                build_demography_dynamics(),
+                                build_population_dynamics())
 
 results <- simulation(test_state, test_dynamics, timesteps = 10, replicates = 2)
 
