@@ -237,100 +237,100 @@ demographic_stochasticity <- function () {
 #'
 #' test_kern_dispersal <- kernel_dispersal()
 
-kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
-                              dispersal_proportion = list(0, 0.35, 0.35*0.714, 0),
-                              arrival_probability = "habitat_suitability",
-                              fft = FALSE
-                              ) {
+kernel_dispersal <- function(
+  dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
+  dispersal_proportion = list(0, 0.35, 0.35 * 0.714, 0),
+  arrival_probability = "habitat_suitability", fft = FALSE
+) {
   
   if (fft & !is.null(arrival_probability)) {
-    stop("An arrival probability surface can't be used with the FFT approximation.\n",
-         "Set arrival_probability = NULL in the kernel_dispersal function parameters")
+    stop(
+      "An arrival probability surface can't be used with FFT approximation.\n",
+      "Set \"arrival_probability = NULL\""
+    )
   }
-  
-  pop_dynamics <- function (state, timestep) {
-    
-    # import components from state object
-    population_raster <- state$population$population_raster
-    
-    if (!is.null(arrival_probability)) {
-      arrival_prob <- state$habitat[[arrival_probability]]      
-    }
 
-    # identify populations and workout which populations can disperse
+  pop_dynamics <- function(state, timestep) {
+
+    # Which populations can disperse
     which_stages_disperse <- which(dispersal_proportion > 0)
-    n_dispersing_stages <- length(which_stages_disperse)
-    
-    # get population as a matrix - one column per life stage, one row per grid cell
-    idx <- which(!is.na(raster::getValues(population_raster[[1]])))
-    population <- raster::extract(population_raster, idx)
-    
-    # get cell arrival probabilities as a vector
-    if (!is.null(arrival_probability)) {
-      suitabilities <- raster::extract(arrival_prob, idx)
-    }
 
-    if(fft) {
+    if (fft) {
+      # Apply dispersal to the population
+      # (need to run this separately for each stage)
+      for (stage in which_stages_disperse) {
+        state$population$population_raster[[stage]][] <- dispersalFFT(
+          popmat = raster::as.matrix(
+            state$population$population_raster[[stage]]
+          ),
+          fs = setupFFT(
+            x = raster::ncol(state$population$population_raster),
+            y = raster::nrow(state$population$population_raster),
+            f = function(d) {
+                  disp <- dispersal_kernel(d)
+                  disp / sum(disp)
+                }
+          )
+        )
+      }
 
-      disperse_pops <- population_raster[which_stages_disperse]
-      n <- dim(population_raster[[1]])[1:2]
-      y <- seq_len(n[1])
-      x <- seq_len(n[2])
-      
-      ## set up disperal function
-      f <- function (d) {
-        disp <- dispersal_kernel(d)
-        disp / sum(disp)
-      }
-      
-      # setup for the fft approach (run this once, before the simulation)
-      fs <- setupFFT(x = x, y = y, f = f)
-      
-      # apply dispersal to the population (need to run this separately for each stage)
-      for (i in which_stages_disperse){
-        population_raster[[i]][] <- dispersalFFT(popmat = raster::as.matrix(population_raster[[i]]), fs = fs)
-      }
-      
-      state$population$population_raster <- population_raster
-      
     } else {
+
+      # Extract locations as x and y coordinates from landscape (ncells x 2)
+      xy <- raster::xyFromCell(
+        state$population$population_raster,
+        seq(raster::ncell(state$population$population_raster))
+      )
+
+      # Rescale locations
+      xy <- sweep(xy, 2, raster::res(state$population$population_raster), "/")
+
+      # Extract arrival probabilities
+      arrival_prob_values <- raster::getValues(
+        state$habitat[[arrival_probability]]
+      )
+
+      # Only non-zero arrival prob cells can receive individuals
+      can_arriv <- which(arrival_prob_values > 0 & !is.na(arrival_prob_values))
+
       
-      # extract locations as x and y coordinates from landscape (ncells x 2)
-      locations <- raster::xyFromCell(population_raster, idx)
-      
-      # determine the cell resolution for calculating cell distances traveled
-      resolution <- mean(raster::res(population_raster))
-      
-      # construct a matrix all distances between all cells (ncells x ncells)
-      # rescale based on cell resolution
-      D <- as.matrix(stats::dist(locations))/resolution
-      
-      # apply dispersal function to determine proportions of individuals that remain/move into cells
-      # adjust the distance by the raster resolution to convert to cell distances
-      dispersal_matrix <- dispersal_kernel(D)
-      
-      dispersal_matrix <- sweep(dispersal_matrix, 1, suitabilities, "*")
-      
-      # rescale column values to sum to one
-      sums <- colSums(dispersal_matrix)
-      dispersal <- sweep(dispersal_matrix, 2, sums, "/")
-      
-      # determine dispersing population values
-      population <- dispersal %*% population
-      
-      # put back in the raster
-      for (i in seq_len(n_dispersing_stages)){
-        population_raster[[as.integer(which_stages_disperse)[i]]][idx] <- population[ , i]
+      for (stage in which_stages_disperse) {
+
+        # Extract the population values
+        population_values <- raster::getValues(
+          state$population$population_raster[[stage]]
+        )
+
+        # Only non-zero population cells can contribute
+        has_pop <- which(population_values > 0 & !is.na(population_values))
+
+        contribute <- function(i) {
+          # Euclidean distance between ith cell and all the cells that it can
+          # contribute to
+          contribution <- sqrt(
+            (xy[i, "x"] - xy[can_arriv, "x"])^2 +
+            (xy[i, "y"] - xy[can_arriv, "y"])^2
+          )
+          contribution <- dispersal_kernel(contribution)
+          contribution <- contribution * arrival_prob_values[can_arriv]
+          
+          # Standardise contributions
+          contribution <- contribution / sum(contribution)
+          contribution * population_values[i]
+        }
+
+        state$population$population_raster[[stage]][can_arriv] <- rowSums(
+          vapply(has_pop, contribute, as.numeric(can_arriv))
+        )
       }
-      state$population$population_raster <- population_raster
-      
     }
- 
+
     state
-  }
-  
+
+}
+
   as.population_kernel_dispersal(pop_dynamics)
-  
+
 }
 
 
