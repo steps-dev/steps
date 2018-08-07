@@ -242,6 +242,7 @@ kernel_dispersal <- function(
   dispersal_proportion = list(0, 0.35, 0.35 * 0.714, 0),
   arrival_probability = "both",
   stages = NULL,
+  demo_stoch = FALSE,
   fft = FALSE
 ) {
   
@@ -347,10 +348,17 @@ kernel_dispersal <- function(
           )
           contribution <- dispersal_kernel(contribution)
           contribution <- contribution * arrival_prob_values[can_arriv]
-          
-          # Standardise contributions
+          # Standardise contributions and round them if demo_stoch = TRUE
           contribution <- contribution / sum(contribution)
-          contribution * population_values[i]
+          contribution <- contribution * population_values[i]
+          if (isFALSE(demo_stoch)) return(contribution)
+          contribution_int <- floor(contribution)
+          idx <- tail(
+            order(contribution - contribution_int),
+            round(sum(contribution)) - sum(contribution_int)
+          )
+          contribution_int[idx] <- contribution_int[idx] + 1
+          contribution_int
         }
 
         state$population$population_raster[[stage]][can_arriv] <- rowSums(
