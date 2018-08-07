@@ -238,6 +238,7 @@ demographic_stochasticity <- function () {
 #' test_kern_dispersal <- kernel_dispersal()
 
 kernel_dispersal <- function(
+  distance_function = function(from, to) sqrt(rowSums(sweep(to, 2, from)^2)),
   dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
   dispersal_proportion = list(0, 0.35, 0.35 * 0.714, 0),
   arrival_probability = "both",
@@ -325,7 +326,7 @@ kernel_dispersal <- function(
         habitat_suitability = habitat_suitability_values,
         carrying_capacity = carrying_capacity_proportion
       )
-      
+
       # Only non-zero arrival prob cells can receive individuals
       can_arriv <- which(arrival_prob_values > 0 & !is.na(arrival_prob_values))
 
@@ -340,12 +341,8 @@ kernel_dispersal <- function(
         has_pop <- which(population_values > 0 & !is.na(population_values))
 
         contribute <- function(i) {
-          # Euclidean distance between ith cell and all the cells that it can
-          # contribute to
-          contribution <- sqrt(
-            (xy[i, "x"] - xy[can_arriv, "x"])^2 +
-            (xy[i, "y"] - xy[can_arriv, "y"])^2
-          )
+          # distance btw ith cell and all the cells that it can contribute to.
+          contribution <- distance_function(xy[i, ], xy[can_arriv, ])
           contribution <- dispersal_kernel(contribution)
           contribution <- contribution * arrival_prob_values[can_arriv]
           # Standardise contributions and round them if demo_stoch = TRUE
