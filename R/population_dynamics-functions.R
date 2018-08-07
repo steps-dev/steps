@@ -240,7 +240,9 @@ demographic_stochasticity <- function () {
 kernel_dispersal <- function(
   dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
   dispersal_proportion = list(0, 0.35, 0.35 * 0.714, 0),
-  arrival_probability = "habitat_suitability", fft = FALSE
+  arrival_probability = "both",
+  stages = NULL,
+  fft = FALSE
 ) {
   
   if (fft & !is.null(arrival_probability)) {
@@ -252,9 +254,16 @@ kernel_dispersal <- function(
 
   pop_dynamics <- function(state, timestep) {
 
-    # Which populations can disperse
+    # Which stages can disperse
     which_stages_disperse <- which(dispersal_proportion > 0)
-
+    
+    # Which stages contribute to density dependence.
+    which_stages_density <- if (is.null(stages)) {
+        seq(raster::nlayers(state$population$population_raster))
+      } else {
+        stages
+      }
+    
     if (fft) {
       # Apply dispersal to the population
       # (need to run this separately for each stage)
@@ -286,14 +295,39 @@ kernel_dispersal <- function(
       xy <- sweep(xy, 2, raster::res(state$population$population_raster), "/")
 
       # Extract arrival probabilities
-      arrival_prob_values <- raster::getValues(
-        state$habitat[[arrival_probability]]
+      arrival_probability <- match.arg(
+        arrival_probability,
+        c("both", "habitat_suitability", "carrying_capacity")
       )
 
+      delayedAssign(
+        "habitat_suitability_values",
+        raster::getValues(state$habitat$habitat_suitability)
+      )
+
+      delayedAssign(
+        "carrying_capacity_proportion",
+        raster::getValues(
+          raster::calc(
+            raster::stack(state$population$population_raster)[[
+              which_stages_density
+            ]],
+            sum
+          ) /
+          state$habitat$carrying_capacity
+        )
+      )
+
+      arrival_prob_values <- switch(
+        arrival_probability,
+        both = habitat_suitability_values * carrying_capacity_proportion,
+        habitat_suitability = habitat_suitability_values,
+        carrying_capacity = carrying_capacity_proportion
+      )
+      
       # Only non-zero arrival prob cells can receive individuals
       can_arriv <- which(arrival_prob_values > 0 & !is.na(arrival_prob_values))
 
-      
       for (stage in which_stages_disperse) {
 
         # Extract the population values
