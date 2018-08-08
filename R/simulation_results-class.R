@@ -1,6 +1,9 @@
-#' Run an simulation to make spatially-explicit population projections
+#' Run an simulation
 #'
-#' @description A simulation changes state objects based on dynamics over a specified number of timesteps.
+#' A simulation changes state objects based on selected dynamics over a
+#' specified number of timesteps.
+#' 
+#' 
 #'
 #' @rdname simulation_results
 #'
@@ -8,6 +11,7 @@
 #' @param dynamics a dynamics object - modules that change habitat, population, and demography during a simulation
 #' @param timesteps number of timesteps used in one simulation or to display when plotting rasters
 #' @param replicates number simulations to perform
+#' @param parallel should parallel processors be used for simulations (default is FALSE)
 #' @param x an simulation_results object
 #' @param object the state object to plot - can be 'population' (default), 'habitat_suitability' or 'carrying_capacity'
 #' @param type the plot type - 'graph' (default) or 'raster'
@@ -49,9 +53,9 @@
 #'
 #' test_state <- build_state(test_habitat, test_demography, test_population)
 #'
-#' test_dynamics <- build_dynamics(habitat_dynamics(),
-#'                                 demography_dynamics(),
-#'                                 population_dynamics())
+#' test_dynamics <- build_dynamics(build_habitat_dynamics(),
+#'                                 build_demography_dynamics(),
+#'                                 build_population_dynamics())
 #'
 #' results <- simulation(test_state, test_dynamics, timesteps = 10, replicates = 2)
 

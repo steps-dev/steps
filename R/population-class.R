@@ -63,7 +63,7 @@ is.population <- function (object) {
 
 print.population <- function (object, ...) {
 
-  cat("This is a populaion object that contains ", nlayers(object[['population_raster']]),
+  cat("This is a populaion object that contains ", raster::nlayers(object[['population_raster']]),
       " life stage(s).")
   
 }

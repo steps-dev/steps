@@ -9,13 +9,16 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r, message = FALSE, echo = FALSE}
+library(steps)
+library(raster)
+```
+
 Below is an example using the koala - an arboreal marsupial native to Australia.  
 
 First we setup the stage based transition matricies. The first matrix represents survival and fecundity life-stage transition probabilities for koalas. The second matrix describes the uncertainty around the transition probabilities and is used to simulate environmental stochasticity - zeros indicate no uncertainty. Note, there are four life-stages and the matrix is symmetrical in its row and column numbers. Also, names are added to the columns and rows to identify the different life-stages of the koala.
 
 ```{r, message = FALSE}
-library(steps)
-library(raster)
 
 koala.trans.mat <- matrix(c(0.000,0.000,0.302,0.302,
                               0.940,0.000,0.000,0.000,
@@ -156,7 +159,7 @@ koala.demography.dynamics <- build_demography_dynamics(demo_environmental_stocha
 
 ```
 
-A population dynamics object modifies the population sub-component of the state object. We use a pre-defined cellular-automata dispersal function to characterise the koala movements at each timestep. Included in this function is also density dependence (ceiling based on carrying capacity) and population changes for each stage based on the life-stage transition matrix.
+A population dynamics object modifies the population sub-component of the state object. We use a pre-defined cellular-automata dispersal function to characterise the koala movements at each timestep. In this function we define the dispersal distances (cells), the shape of dispersal kernels, and proportion of individuals that disperse for each life stage (hence lists of four elements for each parameter). Other parameter include whether a barrier will stop or kill an individual, how many iterations of movement occur within each timestep, and the arrival probabilities and carrying capacities for each cell. We also include a function for density dependence (ceiling based on carrying capacity - only the sub-adult and adult life stages contribute) and population changes (i.e. simple_growth() ) for each stage based on the life-stage transition matrix.
 
 ```{r, message = FALSE}
 koala.population.dynamics <- build_population_dynamics(pop_change = simple_growth(),
@@ -179,7 +182,7 @@ koala.population.dynamics <- build_population_dynamics(pop_change = simple_growt
                                                                                         arrival_probability = "habitat_suitability",
                                                                                         carrying_capacity = "carrying_capacity"),
                                           pop_mod = NULL,
-                                          pop_dens_dep = pop_density_dependence())
+                                          pop_dens_dep = pop_density_dependence(stages = c(3,4)))
 ```
 
 All three sub-components are used to build a dynamics object. The dynamics object modifies the state object at each timestep in a single simulation. Note, we specify the order in which we would like the dynamics to act on the state object for each timestep. First the koala habitat will be modified by fire, then environmental stochasticity will be applied to the life-stage transition matrix, then the koala population will grow or shrink and disperse.
@@ -239,13 +242,19 @@ plot(koala.results, object = "carrying_capacity")
 
 We can also perform multiple simulations. For the koala, we specified three replicates of a twenty timestep simulation. To improve computation time, we have opted to use multiple processors by setting a parallel parameter to TRUE to run all three replicates at the same time - each on a different processor.
 
-```{r, message = FALSE}
+```{r, message = FALSE, echo = FALSE}
 koala.sim.results <- simulation(koala.state,
                                 koala.dynamics,
                                 timesteps = 20,
                                 replicates = 3,
                                 parallel = TRUE
                                 )
+```
+
+The default plot will show all of the simulation relicates and the mean population trajectory:
+
+```{r, message = FALSE, fig.width=4, fig.align="center"}
+plot(koala.sim.results)
 ```
 
 Because a simulation object is comprised of single or multiple replicates, we can subset and plot individual replicates. Here, we plot the population projections for the third replicate of the simulation:

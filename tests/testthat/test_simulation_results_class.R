@@ -118,25 +118,25 @@ test_that('simulation_results classes work', {
                           population = b_pop,
                           demography = b_dem)
   
-  hab_dyn <- habitat_dynamics(disturbance_fires(habitat_suitability = hab.suit,
+  hab_dyn <- build_habitat_dynamics(disturbance_fires(habitat_suitability = hab.suit,
                                                   disturbance_layers = dist.s,
                                                   effect_time = 2))
   
-  dem_dyn <- demography_dynamics(demo_environmental_stochasticity(transition_matrix = mat,
+  dem_dyn <- build_demography_dynamics(demo_environmental_stochasticity(transition_matrix = mat,
                                                                   stochasticity = mat_sd),
                                  demo_density_dependence(transition_matrix = mat,
                                                          fecundity_fraction = 0.8,
                                                          survival_fraction = 0.8))
     
-  dem_dyn2 <- demography_dynamics(surv_fec_modify(transition_matrix = mat,
+  dem_dyn2 <- build_demography_dynamics(demo_surv_fec_modify(transition_matrix = mat,
                                                   surv_layers = surv_fec,
                                                   fec_layers = surv_fec))
   
-  dem_dyn3 <- demography_dynamics(surv_fec_modify(transition_matrix = mat,
+  dem_dyn3 <- build_demography_dynamics(demo_surv_fec_modify(transition_matrix = mat,
                                                   surv_layers = surv_fec2,
                                                   fec_layers = surv_fec))
 
-  pop_dyn <- population_dynamics(pop_change = simple_growth(),
+  pop_dyn <- build_population_dynamics(pop_change = simple_growth(),
                                  pop_disp = cellular_automata_dispersal(dispersal_distance=list(0, 10, 10, 0),
                                                                         dispersal_kernel=list(0, exp(-c(0:9)^1/3.36), exp(-c(0:9)^1/3.36), 0),
                                                                         dispersal_proportion=list(0, 0.35, 0.35*0.714, 0),
@@ -149,13 +149,13 @@ test_that('simulation_results classes work', {
                                                              effect_timesteps = 2),
                                  pop_dens_dep = pop_density_dependence())
   
-  pop_dyn2 <- population_dynamics(pop_change = demographic_stochasticity(),
+  pop_dyn2 <- build_population_dynamics(pop_change = demographic_stochasticity(),
                                   pop_disp = kernel_dispersal(dispersal_kernel=exponential_dispersal_kernel(distance_decay = 0.1),
                                                               dispersal_proportion=list(0, 0.35, 0.35*0.714, 0)),
                                   pop_mod = NULL,
                                   pop_dens_dep = NULL)
   
-  pop_dyn3 <- population_dynamics(pop_change = demographic_stochasticity(),
+  pop_dyn3 <- build_population_dynamics(pop_change = demographic_stochasticity(),
                                   pop_disp = kernel_dispersal(dispersal_kernel=exponential_dispersal_kernel(distance_decay = 0.1),
                                                               dispersal_proportion=list(0, 0.35, 0.35*0.714, 0),
                                                               fft=TRUE,
@@ -163,7 +163,7 @@ test_that('simulation_results classes work', {
                                   pop_mod = NULL,
                                   pop_dens_dep = NULL)
   
-  pop_dyn4 <- population_dynamics(pop_change = simple_growth(),
+  pop_dyn4 <- build_population_dynamics(pop_change = simple_growth(),
                                   pop_disp = cellular_automata_dispersal(dispersal_distance=list(0, 10, 10, 0),
                                                                          dispersal_kernel=list(0, exp(-c(0:9)^1/3.36), exp(-c(0:9)^1/3.36), 0),
                                                                          dispersal_proportion=list(0, 0.35, 0.35*0.714, 0),
@@ -176,7 +176,7 @@ test_that('simulation_results classes work', {
                                                              effect_timesteps = 2),
                                   pop_dens_dep = pop_density_dependence())
 
-  pop_dyn5 <- population_dynamics(pop_change = demographic_stochasticity(),
+  pop_dyn5 <- build_population_dynamics(pop_change = demographic_stochasticity(),
                                   pop_disp = kernel_dispersal(dispersal_kernel=exponential_dispersal_kernel(distance_decay = 0.1),
                                                               dispersal_proportion=list(0, 0.35, 0.35*0.714, 0),
                                                               fft=TRUE),
@@ -188,32 +188,32 @@ test_that('simulation_results classes work', {
                                demography_dynamics = dem_dyn,
                                population_dynamics = pop_dyn)
   
-  b_dynamics2 <- build_dynamics(habitat_dynamics = habitat_dynamics(),
-                                demography_dynamics = demography_dynamics(),
+  b_dynamics2 <- build_dynamics(habitat_dynamics = build_habitat_dynamics(),
+                                demography_dynamics = build_demography_dynamics(),
                                 population_dynamics = pop_dyn)
   
-  b_dynamics3 <- build_dynamics(habitat_dynamics = habitat_dynamics(),
-                                demography_dynamics = demography_dynamics(),
+  b_dynamics3 <- build_dynamics(habitat_dynamics = build_habitat_dynamics(),
+                                demography_dynamics = build_demography_dynamics(),
                                 population_dynamics = pop_dyn2)
   
-  b_dynamics4 <- build_dynamics(habitat_dynamics = habitat_dynamics(),
-                                demography_dynamics = demography_dynamics(),
+  b_dynamics4 <- build_dynamics(habitat_dynamics = build_habitat_dynamics(),
+                                demography_dynamics = build_demography_dynamics(),
                                 population_dynamics = pop_dyn3)
   
   b_dynamics5 <- build_dynamics(habitat_dynamics = hab_dyn,
                                 demography_dynamics = dem_dyn,
                                 population_dynamics = pop_dyn4)
   
-  b_dynamics6 <- build_dynamics(habitat_dynamics = habitat_dynamics(),
+  b_dynamics6 <- build_dynamics(habitat_dynamics = build_habitat_dynamics(),
                                 demography_dynamics = dem_dyn2,
                                 population_dynamics = pop_dyn)
   
-  b_dynamics7 <- build_dynamics(habitat_dynamics = habitat_dynamics(),
+  b_dynamics7 <- build_dynamics(habitat_dynamics = build_habitat_dynamics(),
                                 demography_dynamics = dem_dyn3,
                                 population_dynamics = pop_dyn)
   
-  b_dynamics8 <- build_dynamics(habitat_dynamics = habitat_dynamics(),
-                                demography_dynamics = demography_dynamics(),
+  b_dynamics8 <- build_dynamics(habitat_dynamics = build_habitat_dynamics(),
+                                demography_dynamics = build_demography_dynamics(),
                                 population_dynamics = pop_dyn5)
   
   expect_true(inherits(simulation(state = b_state,

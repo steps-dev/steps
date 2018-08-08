@@ -100,7 +100,7 @@ gg.disp.bar[cellFromRow(gg.disp.bar,c(nrow(gg.disp.bar)/2,(nrow(gg.disp.bar)/2)+
 gg.habitat <- build_habitat(habitat_suitability = gg.hab.suit,
                             carrying_capacity = gg.hab.k)
 gg.demography <- build_demography(transition_matrix = gg.trans.mat,
-                                  scale = 'local',
+                                  #scale = 'local',
                                   habitat_suitability = gg.hab.suit
                                   )
 gg.population <- build_population(population_raster = gg.pop)

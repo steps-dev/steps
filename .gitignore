@@ -9,4 +9,3 @@ src/*.o
 src/*.so
 .gitignore
 inst/doc
-state

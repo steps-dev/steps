@@ -23,6 +23,15 @@
 #' @examples
 #' 
 #' library(steps)
+#' 
+#' mat <- matrix(c(0.000,0.000,0.302,0.302,
+#'                 0.940,0.000,0.000,0.000,
+#'                 0.000,0.884,0.000,0.000,
+#'                 0.000,0.000,0.793,0.793),
+#'               nrow = 4, ncol = 4, byrow = TRUE)
+#' colnames(mat) <- rownames(mat) <- c('Stage_1','Stage_2','Stage_3','Stage_4')
+#' 
+#' mat_sd <- .01
 
 #' @rdname demography_dynamics_functions
 #' 

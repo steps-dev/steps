@@ -1,8 +1,8 @@
-## ---- message = FALSE----------------------------------------------------
+## ---- message = FALSE, echo = FALSE--------------------------------------
 library(steps)
 library(raster)
-library(future)
-library(rasterVis)
+
+## ---- message = FALSE----------------------------------------------------
 
 koala.trans.mat <- matrix(c(0.000,0.000,0.302,0.302,
                               0.940,0.000,0.000,0.000,
@@ -93,18 +93,18 @@ koala.state <- build_state(habitat = koala.habitat,
                            population = koala.population)
 
 ## ---- message = FALSE----------------------------------------------------
-koala.habitat.dynamics <- habitat_dynamics(disturbance_fires(habitat_suitability = koala.hab.suit,
+koala.habitat.dynamics <- build_habitat_dynamics(disturbance_fires(habitat_suitability = koala.hab.suit,
                                                 disturbance_layers = koala.dist.fire,
                                                 effect_time=3))
 
 ## ---- message = FALSE----------------------------------------------------
-koala.demography.dynamics <- demography_dynamics(demo_environmental_stochasticity(transition_matrix = koala.trans.mat,
+koala.demography.dynamics <- build_demography_dynamics(demo_environmental_stochasticity(transition_matrix = koala.trans.mat,
                                                                                   stochasticity = koala.trans.mat.es),
                                                  demo_density_dependence(transition_matrix = koala.trans.mat))
 
 
 ## ---- message = FALSE----------------------------------------------------
-koala.population.dynamics <- population_dynamics(pop_change = simple_growth(),
+koala.population.dynamics <- build_population_dynamics(pop_change = simple_growth(),
                                                  pop_disp = cellular_automata_dispersal(dispersal_distance = list(0,
                                                                                                            10,
                                                                                                            10,
@@ -124,7 +124,7 @@ koala.population.dynamics <- population_dynamics(pop_change = simple_growth(),
                                                                                         arrival_probability = "habitat_suitability",
                                                                                         carrying_capacity = "carrying_capacity"),
                                           pop_mod = NULL,
-                                          pop_dens_dep = pop_density_dependence())
+                                          pop_dens_dep = pop_density_dependence(stages = c(3,4)))
 
 ## ---- message = FALSE----------------------------------------------------
 koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
@@ -138,7 +138,7 @@ koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
 ## ---- message = FALSE,  results='hide'-----------------------------------
 koala.results <- simulation(koala.state,
                        koala.dynamics,
-                       timesteps = 10,
+                       timesteps = 20,
                        replicates = 1
                        )
 
@@ -159,14 +159,20 @@ plot(koala.results, object = "habitat_suitability")
 
 plot(koala.results, object = "carrying_capacity")
 
-## ---- message = FALSE----------------------------------------------------
-plan(multiprocess)
+## ---- message = FALSE, echo = FALSE--------------------------------------
 koala.sim.results <- simulation(koala.state,
                                 koala.dynamics,
-                                timesteps = 10,
-                                replicates = 3
+                                timesteps = 20,
+                                replicates = 3,
+                                parallel = TRUE
                                 )
 
 ## ---- message = FALSE, fig.width=4, fig.align="center"-------------------
+plot(koala.sim.results)
+
+## ---- message = FALSE, fig.width=4, fig.align="center"-------------------
 plot(koala.sim.results[3], stage = 0)
+
+## ---- message = FALSE, fig.width=7, fig.align="center"-------------------
+plot(koala.sim.results[1], type = "raster", stage = 2)
 

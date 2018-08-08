@@ -1,14 +1,18 @@
-#' Create a dynamics object to run in an experiment
+#' Create a dynamics object
 #'
-#' @description A dynamics object is a group of modules (functions) used modify habitat, population, and demography in a timestep.
-#' It modifies a state object in each timestep of an experiment.
+#' A dynamics object is a group of modular functions used modify habitat,
+#' population, and demography in a timestep.
+#' 
+#' A dynamics object modifies a \link[steps]{state} object in each timestep
+#' of a simulation based on specified habitat, demography, or population
+#' dynamics functions.
 #' 
 #' @rdname dynamics
 #' 
-#' @param population_dynamics A module to alter the population object in an experiment
-#' @param habitat_dynamics A module to alter the habitat object in an experiment
-#' @param demography_dynamics A module to alter the habitat object in an experiment
-#' @param order The order to apply the dynamics at each timestep in an experiment 
+#' @param habitat_dynamics A module to alter the habitat object in a simulation
+#' @param demography_dynamics A module to alter the habitat object in a simulation
+#' @param population_dynamics A module to alter the population object in a simulation
+#' @param order The order to apply the dynamics at each timestep in a simulation 
 #' @param x an object to print or test as a dynamics object
 #' @param ... further arguments passed to or from other methods
 #'
@@ -21,9 +25,9 @@
 #' library(steps)
 #' library(raster)
 #' 
-#' test_dynamics <- build_dynamics(habitat_dynamics(),
-#'                                 demography_dynamics(),
-#'                                 population_dynamics())
+#' test_dynamics <- build_dynamics(build_habitat_dynamics(),
+#'                                 build_demography_dynamics(),
+#'                                 build_population_dynamics())
 
 build_dynamics <- function (habitat_dynamics,
                             demography_dynamics,
