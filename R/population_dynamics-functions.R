@@ -212,6 +212,7 @@ fast_kernel_dispersal <- function(
 #' test_kern_dispersal <- probabilistic_kernel_dispersal()
 
 probabilistic_kernel_dispersal <- function(
+  distance_function = function(from, to) sqrt(rowSums(sweep(to, 2, from)^2)),
   dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
   dispersal_proportion = list(0, 0.35, 0.35 * 0.714, 0),
   arrival_probability = "both",
@@ -280,35 +281,42 @@ probabilistic_kernel_dispersal <- function(
       population_values <- raster::getValues(
         state$population$population_raster[[stage]]
       )
-      
-      # Only non-zero population cells can contribute
-      has_pop <- which(population_values > 0 & !is.na(population_values))
-      
-      contribute <- function(i) {
-        # Euclidean distance between ith cell and all the cells that it can
-        # contribute to
-        contribution <- sqrt(
-          (xy[i, "x"] - xy[can_arriv, "x"])^2 +
-            (xy[i, "y"] - xy[can_arriv, "y"])^2
+
+      # Only non-zero arrival prob cells can receive individuals
+      can_arriv <- which(arrival_prob_values > 0 & !is.na(arrival_prob_values))
+
+      for (stage in which_stages_disperse) {
+
+        # Extract the population values
+        population_values <- raster::getValues(
+          state$population$population_raster[[stage]]
         )
-        contribution <- dispersal_kernel(contribution)
-        contribution <- contribution * arrival_prob_values[can_arriv]
-        # Standardise contributions and round them if demo_stoch = TRUE
-        contribution <- contribution / sum(contribution)
-        contribution <- contribution * population_values[i]
-        if (identical(demo_stoch, FALSE)) return(contribution)
-        contribution_int <- floor(contribution)
-        idx <- tail(
-          order(contribution - contribution_int),
-          round(sum(contribution)) - sum(contribution_int)
+
+        # Only non-zero population cells can contribute
+        has_pop <- which(population_values > 0 & !is.na(population_values))
+
+        contribute <- function(i) {
+          # distance btw ith cell and all the cells that it can contribute to.
+          contribution <- distance_function(xy[i, ], xy[can_arriv, ])
+          contribution <- dispersal_kernel(contribution)
+          contribution <- contribution * arrival_prob_values[can_arriv]
+          # Standardise contributions and round them if demo_stoch = TRUE
+          contribution <- contribution / sum(contribution)
+          contribution <- contribution * population_values[i]
+          if (identical(demo_stoch, FALSE)) return(contribution)
+          contribution_int <- floor(contribution)
+          idx <- tail(
+            order(contribution - contribution_int),
+            round(sum(contribution)) - sum(contribution_int)
+          )
+          contribution_int[idx] <- contribution_int[idx] + 1
+          contribution_int
+        }
+
+        state$population$population_raster[[stage]][can_arriv] <- rowSums(
+          vapply(has_pop, contribute, as.numeric(can_arriv))
         )
-        contribution_int[idx] <- contribution_int[idx] + 1
-        contribution_int
       }
-      
-      state$population$population_raster[[stage]][can_arriv] <- rowSums(
-        vapply(has_pop, contribute, as.numeric(can_arriv))
-      )
     }
     
     state
