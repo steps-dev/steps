@@ -14,7 +14,7 @@ Authors@R: person("Skipton", "Woolley", email = "skip.woolley@csiro.au",
 Maintainer: Skipton Woolley <skip.woolley@csiro.au>
 Description: Software to simulate population dynamics across space and time.
 Depends:
-    R (>= 3.2.2),
+    R (>= 3.2.2)
 License: GPL (>= 2)
 Imports:
     Rcpp,
@@ -39,3 +39,4 @@ Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
+Encoding: UTF-8

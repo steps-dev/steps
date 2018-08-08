@@ -12,8 +12,8 @@ NULL
 #' @param dispersal_kernel a single or list of user-defined distance dispersal kernel functions
 #' @param dispersal_proportion proportions of individuals (0 to 1) that can disperse in each life stage
 #' @param arrival_probability a raster layer that controls where individuals can disperse to (e.g. habitat suitability)
-#' @param fft should a fast-fourier approximation be used?
 #' @param dispersal_distance the distances (in cell units) that each life stage can disperse
+#' @param stages which life-stages contribute to density dependence or are affected by the translocations - default is all
 #' @param barrier_type if barrier map is used, does it stop (0 - default) or kill (1) individuals
 #' @param dispersal_steps number of dispersal steps to take before stopping
 #' @param use_barriers should dispersal barriers be used? If so, a barriers map must be provided
@@ -22,7 +22,6 @@ NULL
 #' @param source_layer a spatial layer with the locations and number of individuals to translocate from - note, this layer will only have zero values if individuals are being introduced from outside the study area
 #' @param sink_layer a spatial layer with the locations and number of individuals to translocate to
 #' @param effect_timesteps which timesteps in a single simulation do the translocations take place
-#' @param stages which life-stages contribute to density dependence or are affected by the translocations - default is all
 #'
 #' @examples
 #' 
@@ -150,77 +149,52 @@ simple_growth <- function (demo_stoch = FALSE) {
   
 }
 
+
 #' @rdname population_dynamics_functions
 #' 
 #' @export
 #' 
 #' @examples
 #' 
-#' # Use the demographic stochasticity function to modify the  
-#' # population using random variation:
+#' # Use the fast kernel-based dispersal function to modify the  
+#' # population using a user-defined diffusion distribution and
+#' # a fast-fourier transformation (FFT) computational algorithm:
 #'
-#' test_dem_stoch <- demographic_stochasticity()
+#' test_kern_dispersal <- fast_kernel_dispersal()
 
-demographic_stochasticity <- function () {
-  
-  pop_dynamics <- function (state, timestep) {
-    
-    population_raster <- state$population$population_raster
-    transition_matrix <- state$demography$global_transition_matrix
-    
-    # get population as a matrix
-    idx <- which(!is.na(raster::getValues(population_raster[[1]])))
-    population <- raster::extract(population_raster, idx)
+fast_kernel_dispersal <- function(
+  dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
+  dispersal_proportion = list(0, 0.35, 0.35 * 0.714, 0)
+  ) {
 
-    if (!is.null(state$demography$local_transition_matrix)) {
-      
-      local_mat <-  state$demography$local_transition_matrix
-      
-      for (i in seq_len(nrow(population))) {
-        for (j in seq_len(ncol(population))) {
-          
-          #fecundity
-          newborns <- stats::rpois(1, local_mat[1, j, i] * population[i , j]) 
-          
-          #survival
-          survivors <- stats::rbinom(1,
-                                     ceiling(as.vector(population[i , j])),
-                                     local_mat[utils::tail(which(local_mat[ ,j , i] > 0),1) , j, i])
-          
-          population[i, j] <- newborns + survivors
-          
-        }
-      }
-
-    } else {
+  pop_dynamics <- function(state, timestep) {
     
-      n <- nrow(population)
-      
-      for (j in seq_len(ncol(population))) {
-        
-        #fecundity
-        newborns <- stats::rpois(n,
-                                 transition_matrix[1, j] * population[ , j]) 
-        #survival
-        survivors <- stats::rbinom(n,
-                                   ceiling(as.vector(population[ , j])),
-                                   transition_matrix[utils::tail(which(transition_matrix[ , j] > 0),1) , j])
-        
-        #population[, j] <- newborns + survivors
-        population[ , j] <- survivors
-        population[ , 1] <- newborns
-        
-      }
+    # Which stages can disperse
+    which_stages_disperse <- which(dispersal_proportion > 0)
+
+    # Apply dispersal to the population
+    # (need to run this separately for each stage)
+    for (stage in which_stages_disperse) {
+      state$population$population_raster[[stage]][] <- dispersalFFT(
+        popmat = raster::as.matrix(
+          state$population$population_raster[[stage]]
+        ),
+        fs = setupFFT(
+          x = seq_len(raster::ncol(state$population$population_raster)),
+          y = seq_len(raster::nrow(state$population$population_raster)),
+          f = function(d) {
+            disp <- dispersal_kernel(d)
+            disp / sum(disp)
+          }
+        )
+      )
     }
     
-    population_raster[idx] <- population
-    
-    state$population$population_raster <- population_raster
-    
     state
+    
   }
   
-  as.population_demo_stoch(pop_dynamics)
+  as.population_fast_kernel_dispersal(pop_dynamics)
   
 }
 
@@ -231,147 +205,117 @@ demographic_stochasticity <- function () {
 #' 
 #' @examples
 #' 
-#' # Use the kernel-based dispersal function to modify the  
+#' # Use the probabilistic kernel-based dispersal function to modify the  
 #' # population using a user-defined diffusion distribution
-#' # and an optional arrival probability layer (e.g. habitat suitability):
+#' # and an arrival probability layers (e.g. habitat suitability):
 #'
-#' test_kern_dispersal <- kernel_dispersal()
+#' test_kern_dispersal <- probabilistic_kernel_dispersal()
 
-kernel_dispersal <- function(
+probabilistic_kernel_dispersal <- function(
   dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
   dispersal_proportion = list(0, 0.35, 0.35 * 0.714, 0),
   arrival_probability = "both",
   stages = NULL,
-  demo_stoch = FALSE,
-  fft = FALSE
-) {
+  demo_stoch = FALSE
+  ) {
   
-  if (fft & !is.null(arrival_probability)) {
-    stop(
-      "An arrival probability surface can't be used with FFT approximation.\n",
-      "Set \"arrival_probability = NULL\""
-    )
-  }
-
   pop_dynamics <- function(state, timestep) {
-
+    
     # Which stages can disperse
     which_stages_disperse <- which(dispersal_proportion > 0)
     
     # Which stages contribute to density dependence.
     which_stages_density <- if (is.null(stages)) {
-        seq(raster::nlayers(state$population$population_raster))
-      } else {
-        stages
-      }
-    
-    if (fft) {
-      # Apply dispersal to the population
-      # (need to run this separately for each stage)
-      for (stage in which_stages_disperse) {
-        state$population$population_raster[[stage]][] <- dispersalFFT(
-          popmat = raster::as.matrix(
-            state$population$population_raster[[stage]]
-          ),
-          fs = setupFFT(
-            x = raster::ncol(state$population$population_raster),
-            y = raster::nrow(state$population$population_raster),
-            f = function(d) {
-                  disp <- dispersal_kernel(d)
-                  disp / sum(disp)
-                }
-          )
-        )
-      }
-
+      seq(raster::nlayers(state$population$population_raster))
     } else {
-
-      # Extract locations as x and y coordinates from landscape (ncells x 2)
-      xy <- raster::xyFromCell(
-        state$population$population_raster,
-        seq(raster::ncell(state$population$population_raster))
-      )
-
-      # Rescale locations
-      xy <- sweep(xy, 2, raster::res(state$population$population_raster), "/")
-
-      # Extract arrival probabilities
-      arrival_probability <- match.arg(
-        arrival_probability,
-        c("both", "habitat_suitability", "carrying_capacity")
-      )
-
-      delayedAssign(
-        "habitat_suitability_values",
-        raster::getValues(state$habitat$habitat_suitability)
-      )
-
-      delayedAssign(
-        "carrying_capacity_proportion",
-        raster::getValues(
-          raster::calc(
-            raster::stack(state$population$population_raster)[[
-              which_stages_density
+      stages
+    }
+    
+    # Extract locations as x and y coordinates from landscape (ncells x 2)
+    xy <- raster::xyFromCell(
+      state$population$population_raster,
+      seq(raster::ncell(state$population$population_raster))
+    )
+    
+    # Rescale locations
+    xy <- sweep(xy, 2, raster::res(state$population$population_raster), "/")
+    
+    # Extract arrival probabilities
+    arrival_probability <- match.arg(
+      arrival_probability,
+      c("both", "habitat_suitability", "carrying_capacity")
+    )
+    
+    delayedAssign(
+      "habitat_suitability_values",
+      raster::getValues(state$habitat$habitat_suitability)
+    )
+    
+    delayedAssign(
+      "carrying_capacity_proportion",
+      raster::getValues(
+        raster::calc(
+          raster::stack(state$population$population_raster)[[
+            which_stages_density
             ]],
-            sum
-          ) /
+          sum
+        ) /
           state$habitat$carrying_capacity
-        )
       )
-
-      arrival_prob_values <- switch(
-        arrival_probability,
-        both = habitat_suitability_values * carrying_capacity_proportion,
-        habitat_suitability = habitat_suitability_values,
-        carrying_capacity = carrying_capacity_proportion
+    )
+    
+    arrival_prob_values <- switch(
+      arrival_probability,
+      both = habitat_suitability_values * carrying_capacity_proportion,
+      habitat_suitability = habitat_suitability_values,
+      carrying_capacity = carrying_capacity_proportion
+    )
+    
+    # Only non-zero arrival prob cells can receive individuals
+    can_arriv <- which(arrival_prob_values > 0 & !is.na(arrival_prob_values))
+    
+    for (stage in which_stages_disperse) {
+      
+      # Extract the population values
+      population_values <- raster::getValues(
+        state$population$population_raster[[stage]]
       )
       
-      # Only non-zero arrival prob cells can receive individuals
-      can_arriv <- which(arrival_prob_values > 0 & !is.na(arrival_prob_values))
-
-      for (stage in which_stages_disperse) {
-
-        # Extract the population values
-        population_values <- raster::getValues(
-          state$population$population_raster[[stage]]
-        )
-
-        # Only non-zero population cells can contribute
-        has_pop <- which(population_values > 0 & !is.na(population_values))
-
-        contribute <- function(i) {
-          # Euclidean distance between ith cell and all the cells that it can
-          # contribute to
-          contribution <- sqrt(
-            (xy[i, "x"] - xy[can_arriv, "x"])^2 +
+      # Only non-zero population cells can contribute
+      has_pop <- which(population_values > 0 & !is.na(population_values))
+      
+      contribute <- function(i) {
+        # Euclidean distance between ith cell and all the cells that it can
+        # contribute to
+        contribution <- sqrt(
+          (xy[i, "x"] - xy[can_arriv, "x"])^2 +
             (xy[i, "y"] - xy[can_arriv, "y"])^2
-          )
-          contribution <- dispersal_kernel(contribution)
-          contribution <- contribution * arrival_prob_values[can_arriv]
-          # Standardise contributions and round them if demo_stoch = TRUE
-          contribution <- contribution / sum(contribution)
-          contribution <- contribution * population_values[i]
-          if (isFALSE(demo_stoch)) return(contribution)
-          contribution_int <- floor(contribution)
-          idx <- tail(
-            order(contribution - contribution_int),
-            round(sum(contribution)) - sum(contribution_int)
-          )
-          contribution_int[idx] <- contribution_int[idx] + 1
-          contribution_int
-        }
-
-        state$population$population_raster[[stage]][can_arriv] <- rowSums(
-          vapply(has_pop, contribute, as.numeric(can_arriv))
         )
+        contribution <- dispersal_kernel(contribution)
+        contribution <- contribution * arrival_prob_values[can_arriv]
+        # Standardise contributions and round them if demo_stoch = TRUE
+        contribution <- contribution / sum(contribution)
+        contribution <- contribution * population_values[i]
+        if (identical(demo_stoch, FALSE)) return(contribution)
+        contribution_int <- floor(contribution)
+        idx <- tail(
+          order(contribution - contribution_int),
+          round(sum(contribution)) - sum(contribution_int)
+        )
+        contribution_int[idx] <- contribution_int[idx] + 1
+        contribution_int
       }
+      
+      state$population$population_raster[[stage]][can_arriv] <- rowSums(
+        vapply(has_pop, contribute, as.numeric(can_arriv))
+      )
     }
-
+    
     state
-
-}
-
-  as.population_kernel_dispersal(pop_dynamics)
+    
+  }
+  
+  as.population_probabilistic_kernel_dispersal(pop_dynamics)
 
 }
 
@@ -581,8 +525,12 @@ as.population_demo_stoch <- function (population_demo_stoch) {
   as_class(population_demo_stoch, "population_dynamics", "function")
 }
 
-as.population_kernel_dispersal <- function (population_kernel_dispersal) {
-  as_class(population_kernel_dispersal, "population_dynamics", "function")
+as.population_fast_kernel_dispersal <- function (population_fast_kernel_dispersal) {
+  as_class(population_fast_kernel_dispersal, "population_dynamics", "function")
+}
+
+as.population_probabilistic_kernel_dispersal <- function (population_probabilistic_kernel_dispersal) {
+  as_class(population_probabilistic_kernel_dispersal, "population_dynamics", "function")
 }
 
 as.population_ca_dispersal <- function (population_ca_dispersal) {

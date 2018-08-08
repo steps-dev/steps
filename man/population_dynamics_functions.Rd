@@ -2,8 +2,8 @@
 % Please edit documentation in R/population_dynamics-functions.R
 \name{simple_growth}
 \alias{simple_growth}
-\alias{demographic_stochasticity}
-\alias{kernel_dispersal}
+\alias{fast_kernel_dispersal}
+\alias{probabilistic_kernel_dispersal}
 \alias{cellular_automata_dispersal}
 \alias{pop_translocation}
 \alias{pop_density_dependence}
@@ -11,12 +11,14 @@
 \usage{
 simple_growth(demo_stoch = FALSE)
 
-demographic_stochasticity()
+
+  fast_kernel_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay
+  = 0.1), dispersal_proportion = list(0, 0.35, 0.35 * 0.714, 0))
 
 
-  kernel_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay
+  probabilistic_kernel_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay
   = 0.1), dispersal_proportion = list(0, 0.35, 0.35 * 0.714, 0),
-  arrival_probability = "habitat_suitability", fft = FALSE)
+  arrival_probability = "both", stages = NULL, demo_stoch = FALSE)
 
 cellular_automata_dispersal(dispersal_distance = list(0, 10, 10, 0),
   dispersal_kernel = list(0, exp(-c(0:9)^1/3.36), exp(-c(0:9)^1/3.36),
@@ -39,7 +41,7 @@ pop_density_dependence(stages = NULL)
 
 \item{arrival_probability}{a raster layer that controls where individuals can disperse to (e.g. habitat suitability)}
 
-\item{fft}{should a fast-fourier approximation be used?}
+\item{stages}{which life-stages contribute to density dependence or are affected by the translocations - default is all}
 
 \item{dispersal_distance}{the distances (in cell units) that each life stage can disperse}
 
@@ -57,8 +59,6 @@ pop_density_dependence(stages = NULL)
 
 \item{sink_layer}{a spatial layer with the locations and number of individuals to translocate to}
 
-\item{stages}{which life-stages contribute to density dependence or are affected by the translocations - default is all}
-
 \item{effect_timesteps}{which timesteps in a single simulation do the translocations take place}
 }
 \description{
@@ -75,16 +75,17 @@ library(steps)
 
 test_lin_growth <- simple_growth()
 
-# Use the demographic stochasticity function to modify the  
-# population using random variation:
+# Use the fast kernel-based dispersal function to modify the  
+# population using a user-defined diffusion distribution and
+# a fast-fourier transformation (FFT) computational algorithm:
 
-test_dem_stoch <- demographic_stochasticity()
+test_kern_dispersal <- fast_kernel_dispersal()
 
-# Use the kernel-based dispersal function to modify the  
+# Use the probabilistic kernel-based dispersal function to modify the  
 # population using a user-defined diffusion distribution
-# and an optional arrival probability layer (e.g. habitat suitability):
+# and an arrival probability layers (e.g. habitat suitability):
 
-test_kern_dispersal <- kernel_dispersal()
+test_kern_dispersal <- probabilistic_kernel_dispersal()
 
 # Use the cellular automata dispersal function to modify  
 # the population using rule-based cell movements:
