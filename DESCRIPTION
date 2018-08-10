@@ -36,6 +36,7 @@ LinkingTo: Rcpp
 RoxygenNote: 6.1.0
 Suggests:
     testthat,
+    fields,
     knitr,
     rmarkdown
 VignetteBuilder: knitr
