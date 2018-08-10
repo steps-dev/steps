@@ -22,7 +22,7 @@
 #' @param misc Miscellaneous inputs used to modify the demography object in a
 #'  simulation. Note, this is where the user may store objects that are called
 #'  upon and modified by demographic dynamic functions (also created by the user).
-#' @param object A demography object.
+#' @param x A demography object.
 #' @param ... Further arguments passed to or from other methods.
 #'
 #' @return An object of class \code{demography}
@@ -88,8 +88,8 @@ build_demography <- function (transition_matrix,
 #' # Test if object is of the type 'demography'
 #' is.demography(test_demography)
 
-is.demography <- function (object) {
-  inherits(object, 'demography')
+is.demography <- function (x) {
+  inherits(x, 'demography')
 }
 
 #' @rdname demography
@@ -101,10 +101,10 @@ is.demography <- function (object) {
 #' # Print information about the 'demography' object
 #' print(test_demography)
 
-print.demography <- function (object, ...) {
-  if (!is.null(object$local_transition_matrix)) {
+print.demography <- function (x, ...) {
+  if (!is.null(x$local_transition_matrix)) {
     
-    cat("This is a demography object that contains", length(object$local_transition_matrix),
+    cat("This is a demography object that contains", length(x$local_transition_matrix),
         " independent transition matrices - one for each grid cell in the landscape.")
     
   } else {
@@ -124,9 +124,9 @@ print.demography <- function (object, ...) {
 #' # Print a summary of 'demography' object attributes
 #' summary(test_demography)
 
-summary.demography <- function (object, ...) {
+summary.demography <- function (x, ...) {
 
-  x <- object$global_transition_matrix
+  x <- x$global_transition_matrix
   di <- base::dim(x)[1]
   ea <- base::eigen(x)
   lambda <- base::abs(ea$values[1]) 
@@ -158,12 +158,12 @@ summary.demography <- function (object, ...) {
 #' # Plot the 'demography' object
 #' plot(test_demography)
 
-plot.demography <- function (object, ...) {
+plot.demography <- function (x, ...) {
   # plot a dynamic using igraph
   
   # extract the stage matrix & create an igraph graph x
   graphics::par(mar=c(2,4,4,2))
-  x <- object$global_transition_matrix
+  x <- x$global_transition_matrix
   textmat <- base::t(x)
   textmat[textmat>0]<-base::paste0('p(',base::as.character(textmat[textmat>0]),')')
   textmat[textmat=='0'] <-''

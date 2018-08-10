@@ -14,7 +14,7 @@ NULL
 #' @param distance_function defines distance between source cells and all potential sink cells for dispersal 
 #' @param arrival_probability a raster layer that controls where individuals can disperse to (e.g. habitat suitability)
 #' @param dispersal_distance the distances (in cell units) that each life stage can disperse
-#' @param stages which life-stages contribute to density dependence or are affected by the translocations - default is all
+#' @param stages which life-stages disperse, are modified (e.g. translocated), or contribute to density dependence - default is all
 #' @param barrier_type if barrier map is used, does it stop (0 - default) or kill (1) individuals
 #' @param dispersal_steps number of dispersal steps to take before stopping
 #' @param use_barriers should dispersal barriers be used? If so, a barriers map must be provided
@@ -165,13 +165,17 @@ simple_growth <- function (demo_stoch = FALSE) {
 
 fast_kernel_dispersal <- function(
   dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
-  dispersal_proportion = list(0, 0.35, 0.35 * 0.714, 0)
+  stages = NULL
   ) {
 
   pop_dynamics <- function(state, timestep) {
     
     # Which stages can disperse
-    which_stages_disperse <- which(dispersal_proportion > 0)
+    which_stages_disperse <- if (is.null(stages)) {
+      seq_len(ncol(state$demography$global_transition_matrix))
+    } else {
+      stages
+    }
 
     # Apply dispersal to the population
     # (need to run this separately for each stage)
@@ -215,7 +219,6 @@ fast_kernel_dispersal <- function(
 probabilistic_kernel_dispersal <- function(
   distance_function = function(from, to) sqrt(rowSums(sweep(to, 2, from)^2)),
   dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
-  dispersal_proportion = list(0, 0.35, 0.35 * 0.714, 0),
   arrival_probability = "both",
   stages = NULL,
   demo_stoch = FALSE
@@ -224,7 +227,11 @@ probabilistic_kernel_dispersal <- function(
   pop_dynamics <- function(state, timestep) {
     
     # Which stages can disperse
-    which_stages_disperse <- which(dispersal_proportion > 0)
+    which_stages_disperse <- if (is.null(stages)) {
+      seq_len(ncol(state$demography$global_transition_matrix))
+    } else {
+      stages      
+    }
     
     # Which stages contribute to density dependence.
     which_stages_density <- if (is.null(stages)) {

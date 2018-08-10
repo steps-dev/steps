@@ -19,7 +19,7 @@
 #' @param ... Functions that operate on a state object to change habitat
 #' at specified timesteps. User may enter a custom function or select a
 #' pre-defined module - see examples. 
-#' @param object an \code{habitat_dynamics} object to print or test.
+#' @param x an \code{habitat_dynamics} object to print or test.
 #' 
 #' @return An object of class \code{habitat_dynamics}
 #' 
@@ -129,8 +129,8 @@ as.habitat_dynamics <- function (habitat_dynamics_function) {
 #' # Test if object is of the type 'habitat dynamics'
 #' is.habitat_dynamics(test_hab_dynamics)
 
-is.habitat_dynamics <- function (object) {
-  inherits(object, 'habitat_dynamics')
+is.habitat_dynamics <- function (x) {
+  inherits(x, 'habitat_dynamics')
 }
 
 #' @rdname habitat_dynamics
@@ -142,6 +142,6 @@ is.habitat_dynamics <- function (object) {
 #' # Print details about the 'habitat_dynamics' object
 #' print(test_hab_dynamics)
 
-print.habitat_dynamics <- function (object, ...) {
+print.habitat_dynamics <- function (x, ...) {
   cat("This is a habitat_dynamics object")
 }

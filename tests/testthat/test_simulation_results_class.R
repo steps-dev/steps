@@ -22,7 +22,7 @@ test_that('simulation_results classes work', {
   colnames(mat_sd) <- rownames(mat_sd) <- c('Stage_0-1','Stage_1-2','Stage_2-3','Stage_3+')
 
   # the types of habitat attributes
-  r <- raster(vals=1, nrows=50, ncols=50, res=c(1,1), crs=('+proj=aea +lat_1=-18 +lat_2=-36 +lat_0=0 +lon_0=132 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'))
+  r <- raster(vals=1, nrows=20, ncols=20, res=c(1,1), crs=('+proj=aea +lat_1=-18 +lat_2=-36 +lat_0=0 +lon_0=132 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'))
   
   hab.suit <- r*sample(seq(0,1,.01), ncell(r), replace=TRUE)
   

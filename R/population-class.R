@@ -12,7 +12,7 @@
 #' 
 #' @param population_raster A raster stack (grid cell-based) with one layer
 #' for each life stage.
-#' @param object A population object.
+#' @param x A population object.
 #' @param ... Further arguments passed to or from other methods.
 #'
 #' @return An object of class \code{population}
@@ -48,8 +48,8 @@ build_population <- function (population_raster) {
 #' # Test if object is of the type 'population'
 #' is.population(test_population)
  
-is.population <- function (object) {
-  inherits(object, 'population')
+is.population <- function (x) {
+  inherits(x, 'population')
 }
 
 #' @rdname population
@@ -61,9 +61,9 @@ is.population <- function (object) {
 #' # Print information about the 'population' object
 #' print(test_population)
 
-print.population <- function (object, ...) {
+print.population <- function (x, ...) {
 
-  cat("This is a populaion object that contains ", raster::nlayers(object[['population_raster']]),
+  cat("This is a populaion object that contains ", raster::nlayers(x[['population_raster']]),
       " life stage(s).")
   
 }

@@ -13,7 +13,7 @@
 #' @param habitat A \link[steps]{habitat} object.
 #' @param demography A \link[steps]{demography} object.
 #' @param population A \link[steps]{population} object.
-#' @param object A state object to print or test.
+#' @param x A state object to print or test.
 #' @param ... Further arguments passed to or from other methods.
 #'
 #' @return An object of class \code{state}
@@ -67,8 +67,8 @@ build_state <- function (habitat, demography, population) {
 #' # Test if object is of the type 'state'
 #' is.state(test_state)
 
-is.state <- function (object) {
-  inherits(object, 'state')
+is.state <- function (x) {
+  inherits(x, 'state')
 }
 
 #' @rdname state
@@ -80,9 +80,9 @@ is.state <- function (object) {
 #' # Print information about the 'state' object
 #' print(test_state)
 
-print.state <- function (object, ...) {
-  cat("This is a state object for a species with", ncol(object$demography$global_transition_matrix),
-      "life stage(s) across a landscape of", length(object$habitat$habitat_suitability), "total cells.")
+print.state <- function (x, ...) {
+  cat("This is a state object for a species with", ncol(x$demography$global_transition_matrix),
+      "life stage(s) across a landscape of", length(x$habitat$habitat_suitability), "total cells.")
 }
 
 ##########################

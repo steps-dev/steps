@@ -20,7 +20,7 @@
 #'  simulation. Note, this is intended to store objects that are accessed
 #'  and used to modify the habitat with a custom developed habitat dynamic
 #'  function.
-#' @param object A habitat object.
+#' @param x A habitat object.
 #' @param ... Further arguments passed to or from other methods.
 #'
 #' @return An object of class \code{habitat}
@@ -60,8 +60,8 @@ build_habitat <- function (habitat_suitability, carrying_capacity, misc=NULL, ..
 #' # Test if object is of the type 'habitat'
 #' is.habitat(test_habitat)
 
-is.habitat <- function (object) {
-  inherits(object, 'habitat')
+is.habitat <- function (x) {
+  inherits(x, 'habitat')
 }
 
 #' @rdname habitat
@@ -73,11 +73,11 @@ is.habitat <- function (object) {
 #' # Print information about the 'habitat' object
 #' print(test_habitat)
 
-print.habitat <- function (object, ...) {
-  r.dims <- dim(object[['habitat_suitability']])
-  r.res <- raster::res(object[['habitat_suitability']])
+print.habitat <- function (x, ...) {
+  r.dims <- dim(x[['habitat_suitability']])
+  r.res <- raster::res(x[['habitat_suitability']])
   
-  cat("This is a habitat object that contains", raster::nlayers(object[['habitat_suitability']]),
+  cat("This is a habitat object that contains", raster::nlayers(x[['habitat_suitability']]),
       "habitat suitability layer(s). In both the habitat suitability and carrying",
       "capacity layers, each grid cell is" ,r.res[1], "by", r.res[2], "map",
       "units (based on projection) in size and the grid cells are arranged in",

@@ -16,7 +16,7 @@
 #' @param ... Functions that operates on a state object to change demography
 #' at specified timesteps. A user may enter custom functions or select
 #' pre-defined modules - see examples. 
-#' @param object A \code{demography_dynamics} object to print or test.
+#' @param x A \code{demography_dynamics} object to print or test.
 #'
 #' @return An object of class \code{demography_dynamics}
 #' 
@@ -124,8 +124,8 @@ as.demography_dynamics <- function (demography_dynamics_function) {
 #' # Test if object is of the type 'demography_dynamics'
 #' is.demography_dynamics(test_demo_dynamics)
 
-is.demography_dynamics <- function (object) {
-  inherits(object, 'demography_dynamics')
+is.demography_dynamics <- function (x) {
+  inherits(x, 'demography_dynamics')
 }
 
 #' @rdname demography_dynamics
@@ -137,6 +137,6 @@ is.demography_dynamics <- function (object) {
 #' # Print details about the 'demography_dynamics' object
 #' print(test_demo_dynamics)
 
-print.demography_dynamics <- function (object) {
+print.demography_dynamics <- function (x) {
   cat("This is a demography_dynamics object")
 }

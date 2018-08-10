@@ -17,7 +17,7 @@
 #' @param pop_disp a function to define how the population disperses at each timestep (default is exponential kernel)
 #' @param pop_mod a function to define any deterministic changes to the population - such as translocation - at each timestep
 #' @param pop_dens_dep a function to control density dependence effects on the population at each timestep
-#' @param object a population_dynamic object
+#' @param x a population_dynamic object
 #' @param ... further arguments passed to or from other methods
 #'
 #' @return An object of class \code{population_dynamics}
@@ -129,8 +129,8 @@ as.population_dynamics <- function (population_dynamics_function) {
 #' # Test if object is of the type 'population dynamics'
 #' is.population_dynamics(test_pop_dynamics)
 
-is.population_dynamics <- function (object) {
-  inherits(object, 'population_dynamics')
+is.population_dynamics <- function (x) {
+  inherits(x, 'population_dynamics')
 }
 
 #' @rdname population_dynamics
@@ -142,6 +142,6 @@ is.population_dynamics <- function (object) {
 #' # Print details about the 'population_dynamics' object 
 #' print(test_pop_dynamics)
 
-print.population_dynamics <- function (object, ...) {
+print.population_dynamics <- function (x, ...) {
   cat("This is a population_dynamics object")
 }
