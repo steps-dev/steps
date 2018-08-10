@@ -11,6 +11,7 @@ NULL
 #' @param demo_stoch should demographic stochasticity be used in population change? (default is FALSE)
 #' @param dispersal_kernel a single or list of user-defined distance dispersal kernel functions
 #' @param dispersal_proportion proportions of individuals (0 to 1) that can disperse in each life stage
+#' @param distance_function defines distance between source cells and all potential sink cells for dispersal 
 #' @param arrival_probability a raster layer that controls where individuals can disperse to (e.g. habitat suitability)
 #' @param dispersal_distance the distances (in cell units) that each life stage can disperse
 #' @param stages which life-stages contribute to density dependence or are affected by the translocations - default is all
@@ -305,7 +306,7 @@ probabilistic_kernel_dispersal <- function(
           contribution <- contribution * population_values[i]
           if (identical(demo_stoch, FALSE)) return(contribution)
           contribution_int <- floor(contribution)
-          idx <- tail(
+          idx <- utils::tail(
             order(contribution - contribution_int),
             round(sum(contribution)) - sum(contribution_int)
           )
