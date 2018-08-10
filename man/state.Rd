@@ -8,9 +8,9 @@
 \usage{
 build_state(habitat, demography, population)
 
-is.state(object)
+is.state(x)
 
-\method{print}{state}(object, ...)
+\method{print}{state}(x, ...)
 }
 \arguments{
 \item{habitat}{A \link[steps]{habitat} object.}
@@ -19,7 +19,7 @@ is.state(object)
 
 \item{population}{A \link[steps]{population} object.}
 
-\item{object}{A state object to print or test.}
+\item{x}{A state object to print or test.}
 
 \item{...}{Further arguments passed to or from other methods.}
 }

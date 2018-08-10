@@ -8,16 +8,16 @@
 \usage{
 build_habitat_dynamics(...)
 
-is.habitat_dynamics(object)
+is.habitat_dynamics(x)
 
-\method{print}{habitat_dynamics}(object, ...)
+\method{print}{habitat_dynamics}(x, ...)
 }
 \arguments{
 \item{...}{Functions that operate on a state object to change habitat
 at specified timesteps. User may enter a custom function or select a
 pre-defined module - see examples.}
 
-\item{object}{an \code{habitat_dynamics} object to print or test.}
+\item{x}{an \code{habitat_dynamics} object to print or test.}
 }
 \value{
 An object of class \code{habitat_dynamics}

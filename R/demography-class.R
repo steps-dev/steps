@@ -22,7 +22,8 @@
 #' @param misc Miscellaneous inputs used to modify the demography object in a
 #'  simulation. Note, this is where the user may store objects that are called
 #'  upon and modified by demographic dynamic functions (also created by the user).
-#' @param x A demography object.
+#' @param x A demography object (test or print).
+#' @param object A demography object (summary).
 #' @param ... Further arguments passed to or from other methods.
 #'
 #' @return An object of class \code{demography}
@@ -124,9 +125,9 @@ print.demography <- function (x, ...) {
 #' # Print a summary of 'demography' object attributes
 #' summary(test_demography)
 
-summary.demography <- function (x, ...) {
+summary.demography <- function (object, ...) {
 
-  x <- x$global_transition_matrix
+  x <- object$global_transition_matrix
   di <- base::dim(x)[1]
   ea <- base::eigen(x)
   lambda <- base::abs(ea$values[1]) 

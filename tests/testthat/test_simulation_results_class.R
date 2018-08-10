@@ -4,6 +4,7 @@ test_that('simulation_results classes work', {
   
   library(raster)
   library(rgdal)
+  library(fields)
 
   # the types of demography
   mat <- matrix(c(0.000,0.000,0.302,0.302,
@@ -22,24 +23,31 @@ test_that('simulation_results classes work', {
   colnames(mat_sd) <- rownames(mat_sd) <- c('Stage_0-1','Stage_1-2','Stage_2-3','Stage_3+')
 
   # the types of habitat attributes
-  r <- raster(vals=1, nrows=20, ncols=20, res=c(1,1), crs=('+proj=aea +lat_1=-18 +lat_2=-36 +lat_0=0 +lon_0=132 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'))
+  grid <- list(x = seq(0,2,,20), y = seq(0,2,,20)) 
+  obj <- Exp.image.cov(grid = grid, theta = 0.5, setup = TRUE)
+  r <- raster(sim.rf(obj))
   
-  hab.suit <- r*sample(seq(0,1,.01), ncell(r), replace=TRUE)
+  #r <- raster(vals=1, nrows=20, ncols=20, res=c(1,1), crs=('+proj=aea +lat_1=-18 +lat_2=-36 +lat_0=0 +lon_0=132 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'))
   
-  r2 <- r
-  r2[] <- 0
-  cells <- sample(c(1:ncell(r2)), 150)
-  r2[c(adjacent(hab.suit, cells, directions=16, pairs=FALSE),cells)]  <- 50
-  r3 <- r2*hab.suit
+  hab.suit <- (r + abs(cellStats(r, min))) / cellStats((r + abs(cellStats(r, min))), max)
   
-  pop <- stack(r3*2,r3*3,r3*2,r3*3)
+  # r2 <- r
+  # r2[] <- 0
+  # cells <- sample(c(1:ncell(r2)), 150)
+  # r2[c(adjacent(hab.suit, cells, directions=16, pairs=FALSE),cells)]  <- 50
+  # r3 <- r2*hab.suit
+  
+  pop <- stack(ceiling(hab.suit*2),
+               floor(hab.suit*3),
+               ceiling(hab.suit*2),
+               ceiling(hab.suit*3))
   
   hab.k <- hab.suit*10
   
   disp.bar <- hab.suit*0
   disp.bar[cellFromCol(disp.bar,ncol(disp.bar)/2)] <- 1
   disp.bar2 <- hab.suit*0
-  disp.bar2[sampleRandom(disp.bar2, size=700, na.rm=TRUE, sp=TRUE)] <- 1
+  disp.bar2[sampleRandom(disp.bar2, size=100, na.rm=TRUE, sp=TRUE)] <- 1
   
   dist_list <- list()
   
@@ -60,12 +68,12 @@ test_that('simulation_results classes work', {
   
   pop_source <- pop[[3]]
   pop_source[] <- 0
-  pop_source[sample(which(getValues(pop[[3]]) >= 50), 3)] <- 1
+  pop_source[sample(which(getValues(pop[[3]]) >= 2), 3)] <- 1
   #plot(pop_source, box = FALSE, axes = FALSE)
   
   pop_sink <- pop[[3]]
   pop_sink[] <- 0
-  pop_sink[sample(which(getValues(pop[[3]]) <= 10),
+  pop_sink[sample(which(getValues(pop[[3]]) <= 2),
                         cellStats(pop_source, sum))] <- 1
   #plot(pop_sink, box = FALSE, axes = FALSE)
 
@@ -148,14 +156,12 @@ test_that('simulation_results classes work', {
                                        pop_dens_dep = pop_density_dependence())
   
   pop_dyn2 <- build_population_dynamics(pop_change = simple_growth(demo_stoch = TRUE),
-                                        pop_disp = fast_kernel_dispersal(dispersal_kernel=exponential_dispersal_kernel(distance_decay = 0.1),
-                                                                         dispersal_proportion=list(0, 0.35, 0.35*0.714, 0)),
+                                        pop_disp = fast_kernel_dispersal(dispersal_kernel=exponential_dispersal_kernel(distance_decay = 0.1)),
                                         pop_mod = NULL,
                                         pop_dens_dep = NULL)
   
   pop_dyn3 <- build_population_dynamics(pop_change = simple_growth(demo_stoch = TRUE),
                                         pop_disp = probabilistic_kernel_dispersal(dispersal_kernel=exponential_dispersal_kernel(distance_decay = 0.1),
-                                                                                  dispersal_proportion=list(0, 0.35, 0.35*0.714, 0),
                                                                                   arrival_probability="habitat_suitability"),
                                         pop_mod = NULL,
                                         pop_dens_dep = NULL)
@@ -175,8 +181,7 @@ test_that('simulation_results classes work', {
 
   pop_dyn5 <- build_population_dynamics(pop_change = simple_growth(demo_stoch = TRUE),
                                         pop_disp = probabilistic_kernel_dispersal(dispersal_kernel=exponential_dispersal_kernel(distance_decay = 0.1),
-                                                                                  dispersal_proportion=list(0, 0.35, 0.35*0.714, 0)
-                                        ),
+                                                                                  stages = c(2,3)),
                                         pop_mod = NULL,
                                         pop_dens_dep = NULL)
   
@@ -262,15 +267,15 @@ test_that('simulation_results classes work', {
                                   timesteps = 10),
                        "simulation_results"))
   
+  expect_true(inherits(simulation(state = b_state,
+                                  dynamics = b_dynamics8,
+                                  timesteps = 10),
+                       "simulation_results"))
+
   expect_error(inherits(simulation(state = b_state,
                                    dynamics = b_dynamics7,
                                    timesteps = 10),
                         "simulation_results"))
-  
-  expect_error(inherits(simulation(state = b_state,
-                                  dynamics = b_dynamics8,
-                                  timesteps = 10),
-                       "simulation_results"))
   
   expect_error(simulation(state = b_state,
                                   dynamics = b_dynamics,

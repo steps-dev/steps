@@ -13,12 +13,11 @@ simple_growth(demo_stoch = FALSE)
 
 
   fast_kernel_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay
-  = 0.1), dispersal_proportion = list(0, 0.35, 0.35 * 0.714, 0))
+  = 0.1), stages = NULL)
 
 probabilistic_kernel_dispersal(distance_function = function(from, to)
   sqrt(rowSums(sweep(to, 2, from)^2)),
   dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
-  dispersal_proportion = list(0, 0.35, 0.35 * 0.714, 0),
   arrival_probability = "both", stages = NULL, demo_stoch = FALSE)
 
 cellular_automata_dispersal(dispersal_distance = list(0, 10, 10, 0),
@@ -38,15 +37,15 @@ pop_density_dependence(stages = NULL)
 
 \item{dispersal_kernel}{a single or list of user-defined distance dispersal kernel functions}
 
-\item{dispersal_proportion}{proportions of individuals (0 to 1) that can disperse in each life stage}
+\item{stages}{which life-stages disperse, are modified (e.g. translocated), or contribute to density dependence - default is all}
 
 \item{distance_function}{defines distance between source cells and all potential sink cells for dispersal}
 
 \item{arrival_probability}{a raster layer that controls where individuals can disperse to (e.g. habitat suitability)}
 
-\item{stages}{which life-stages contribute to density dependence or are affected by the translocations - default is all}
-
 \item{dispersal_distance}{the distances (in cell units) that each life stage can disperse}
+
+\item{dispersal_proportion}{proportions of individuals (0 to 1) that can disperse in each life stage}
 
 \item{barrier_type}{if barrier map is used, does it stop (0 - default) or kill (1) individuals}
 

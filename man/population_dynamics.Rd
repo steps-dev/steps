@@ -9,9 +9,9 @@
 build_population_dynamics(pop_change = simple_growth(),
   pop_disp = NULL, pop_mod = NULL, pop_dens_dep = NULL)
 
-is.population_dynamics(object)
+is.population_dynamics(x)
 
-\method{print}{population_dynamics}(object, ...)
+\method{print}{population_dynamics}(x, ...)
 }
 \arguments{
 \item{pop_change}{a function to define how population growth occurs at each timestep}
@@ -22,7 +22,7 @@ is.population_dynamics(object)
 
 \item{pop_dens_dep}{a function to control density dependence effects on the population at each timestep}
 
-\item{object}{a population_dynamic object}
+\item{x}{a population_dynamic object}
 
 \item{...}{further arguments passed to or from other methods}
 }

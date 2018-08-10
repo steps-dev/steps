@@ -8,15 +8,15 @@
 \usage{
 build_population(population_raster)
 
-is.population(object)
+is.population(x)
 
-\method{print}{population}(object, ...)
+\method{print}{population}(x, ...)
 }
 \arguments{
 \item{population_raster}{A raster stack (grid cell-based) with one layer
 for each life stage.}
 
-\item{object}{A population object.}
+\item{x}{A population object.}
 
 \item{...}{Further arguments passed to or from other methods.}
 }

@@ -11,13 +11,13 @@
 build_demography(transition_matrix, scale = "global",
   habitat_suitability = NULL, misc = NULL, ...)
 
-is.demography(object)
+is.demography(x)
 
-\method{print}{demography}(object, ...)
+\method{print}{demography}(x, ...)
 
 \method{summary}{demography}(object, ...)
 
-\method{plot}{demography}(object, ...)
+\method{plot}{demography}(x, ...)
 }
 \arguments{
 \item{transition_matrix}{A symmetrical age-based (Leslie) or stage-based
@@ -37,7 +37,9 @@ upon and modified by demographic dynamic functions (also created by the user).}
 
 \item{...}{Further arguments passed to or from other methods.}
 
-\item{object}{A demography object.}
+\item{x}{A demography object (test or print).}
+
+\item{object}{A demography object (summary).}
 }
 \value{
 An object of class \code{demography}

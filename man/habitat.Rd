@@ -8,9 +8,9 @@
 \usage{
 build_habitat(habitat_suitability, carrying_capacity, misc = NULL, ...)
 
-is.habitat(object)
+is.habitat(x)
 
-\method{print}{habitat}(object, ...)
+\method{print}{habitat}(x, ...)
 }
 \arguments{
 \item{habitat_suitability}{A raster layer or stack containing habitat
@@ -28,7 +28,7 @@ function.}
 
 \item{...}{Further arguments passed to or from other methods.}
 
-\item{object}{A habitat object.}
+\item{x}{A habitat object.}
 }
 \value{
 An object of class \code{habitat}

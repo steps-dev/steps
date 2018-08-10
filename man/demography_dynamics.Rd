@@ -8,16 +8,16 @@
 \usage{
 build_demography_dynamics(...)
 
-is.demography_dynamics(object)
+is.demography_dynamics(x)
 
-\method{print}{demography_dynamics}(object)
+\method{print}{demography_dynamics}(x, ...)
 }
 \arguments{
 \item{...}{Functions that operates on a state object to change demography
 at specified timesteps. A user may enter custom functions or select
 pre-defined modules - see examples.}
 
-\item{object}{A \code{demography_dynamics} object to print or test.}
+\item{x}{A \code{demography_dynamics} object to print or test.}
 }
 \value{
 An object of class \code{demography_dynamics}

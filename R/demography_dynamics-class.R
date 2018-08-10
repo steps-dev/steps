@@ -137,6 +137,6 @@ is.demography_dynamics <- function (x) {
 #' # Print details about the 'demography_dynamics' object
 #' print(test_demo_dynamics)
 
-print.demography_dynamics <- function (x) {
+print.demography_dynamics <- function (x, ...) {
   cat("This is a demography_dynamics object")
 }
