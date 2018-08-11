@@ -79,7 +79,7 @@ print.habitat <- function (x, ...) {
   
   cat("This is a habitat object that contains", raster::nlayers(x[['habitat_suitability']]),
       "habitat suitability layer(s). In both the habitat suitability and carrying",
-      "capacity layers, each grid cell is" ,r.res[1], "by", r.res[2], "map",
+      "capacity layers, each grid cell is", r.res[1], "by", r.res[2], "map",
       "units (based on projection) in size and the grid cells are arranged in",
       r.dims[1], "rows and", r.dims[2], "columns.")
   

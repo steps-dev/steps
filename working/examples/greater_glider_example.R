@@ -71,17 +71,16 @@ gg.disp.bar[cellFromRow(gg.disp.bar,c(nrow(gg.disp.bar)/2,(nrow(gg.disp.bar)/2)+
 # gg.dist.fire2 <- stack(replicate(5, unlist(gg.dist.fire)))
 
 # 
-# gg.pop.source <- gg.pop[[4]]
+# gg.pop.source <- gg.pop[[3]]
 # gg.pop.source[] <- 0
-# gg.pop.source[sample(which(getValues(gg.pop[[4]]) >= 3), 25)] <- 1
+# gg.pop.source[sample(which(getValues(gg.pop[[3]]) >= 3), 25)] <- 1
 # plot(gg.pop.source, box = FALSE, axes = FALSE)
 # 
-# gg.pop.sink <- gg.pop[[4]]
+# gg.pop.sink <- gg.pop[[3]]
 # gg.pop.sink[] <- 0
 # gg.pop.sink[sample(which(getValues(gg.pop[[1]]) == 1 |
 #                             getValues(gg.pop[[2]]) == 1 |
-#                             getValues(gg.pop[[3]]) == 1 |
-#                             getValues(gg.pop[[4]]) == 1),
+#                             getValues(gg.pop[[3]]) == 1),
 #                       cellStats(gg.pop.source, sum))] <- 1
 # plot(gg.pop.sink, box = FALSE, axes = FALSE)
 # 

@@ -438,28 +438,15 @@ pop_translocation <- function (source_layer, sink_layer, stages = NULL, effect_t
       source <- raster::extract(source_layer, idx)
       sink <- raster::extract(sink_layer, idx)
       
-      if (is.null(stages)) {
+      if (is.null(stages)) stages <- seq_len(nstages)
+
+      for (stage in stages) {
         
-        for (stage in seq_len(ncol(population_matrix))) {
-
-          if (any(population_matrix[ , stage] + (sink/nstages) - (source/nstages) < 0)) {
-            stop("Your translocations are resulting in negative populations -\nsource locations/numbers are not viable.")
-          }
-          population_matrix[ , stage] <- population_matrix[ , stage] + (sink/nstages) - (source/nstages)
-
-        }
-
-      } else {
-        
-        for (stage in stages) {
-          if (any(population_matrix[ , stage] + (sink/length(stages)) - (source/length(stages)) < 0)) {
-            stop("Your translocations are resulting in negative populations -\nsource locations/numbers are not viable.")
-          }
-          population_matrix[ , stage] <- population_matrix[ , stage] + (sink/length(stages)) - (source/length(stages))
-
+        if (any(population_matrix[ , stage] - source < 0)) {
+          warning("The proposed number of translocated individuals do not exist for\nlife-stage ", stage," in timestep ", timestep, " - only the maximum number of available\nindividuals in each cell will be translocated. Please check the\nspecified source and sink layers.")
         }
         
-      #population_matrix[population_matrix < 0] <- 0 
+        population_matrix[ , stage] <- population_matrix[ , stage] + sink - pmin(source, population_matrix[ , stage])
         
       }
 

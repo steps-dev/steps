@@ -37,12 +37,12 @@ test_that('simulation_results classes work', {
   # r2[c(adjacent(hab.suit, cells, directions=16, pairs=FALSE),cells)]  <- 50
   # r3 <- r2*hab.suit
   
-  pop <- stack(ceiling(hab.suit*2),
-               floor(hab.suit*3),
-               ceiling(hab.suit*2),
-               ceiling(hab.suit*3))
+  pop <- stack(ceiling(hab.suit*5),
+               floor(hab.suit*5),
+               ceiling(hab.suit*5),
+               ceiling(hab.suit*5))
   
-  hab.k <- hab.suit*10
+  hab.k <- hab.suit*20
   
   disp.bar <- hab.suit*0
   disp.bar[cellFromCol(disp.bar,ncol(disp.bar)/2)] <- 1
