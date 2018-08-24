@@ -300,7 +300,12 @@ probabilistic_kernel_dispersal <- function(
           state$population$population_raster[[stage]]
         )
 
-        # Only non-zero population cells can contribute
+        # does cell have dispersing individuals?
+        # multiply by proportion that disperses...
+        # has_disperse <- which(proportion_disperses > 0 & !is.na(proportion_disperses))
+        
+        # Only non-zero population cells can contribute - needs to be a binomial
+        # realisation of a proportion disperses function
         has_pop <- which(population_values > 0 & !is.na(population_values))
 
         contribute <- function(i) {
