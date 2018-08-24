@@ -197,7 +197,7 @@ koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
 )
 ```
 
-Now that we have defined and built the state and dynamic objects, we can run a single simulation (i.e \code{replicate = 1}). We simulate changes to the koala population over twenty timesteps. Runtime will depend on the complexity of the state object and the configuration of the dynamic object.
+Now that we have defined and built the state and dynamic objects, we can run a single simulation (i.e replicates = 1). We simulate changes to the koala population over twenty timesteps. Runtime will depend on the complexity of the state object and the configuration of the dynamic object.
 
 ```{r, message = FALSE,  results='hide'}
 koala.results <- simulation(koala.state,
@@ -263,7 +263,7 @@ Because a simulation object is comprised of single or multiple replicates, we ca
 plot(koala.sim.results[3], stage = 0)
 ```
 
-Note, if several replicates of a simulation are run, you must explicitly specify which one to plot for rasters (i.e. \code{koala.sim.results[1]})
+Note, if several replicates of a simulation are run, you must explicitly specify which one to plot for rasters (i.e. koala.sim.results[1])
 
 ```{r, message = FALSE, fig.width=7, fig.align="center"}
 plot(koala.sim.results[1], type = "raster", stage = 2)
