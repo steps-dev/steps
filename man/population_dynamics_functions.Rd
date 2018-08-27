@@ -2,8 +2,8 @@
 % Please edit documentation in R/population_dynamics-functions.R
 \name{simple_growth}
 \alias{simple_growth}
-\alias{fast_kernel_dispersal}
-\alias{probabilistic_kernel_dispersal}
+\alias{fast_dispersal}
+\alias{kernel_dispersal}
 \alias{cellular_automata_dispersal}
 \alias{pop_translocation}
 \alias{pop_density_dependence}
@@ -12,10 +12,10 @@
 simple_growth(demo_stoch = FALSE)
 
 
-  fast_kernel_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay
+  fast_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay
   = 0.1), stages = NULL)
 
-probabilistic_kernel_dispersal(distance_function = function(from, to)
+kernel_dispersal(distance_function = function(from, to)
   sqrt(rowSums(sweep(to, 2, from)^2)),
   dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
   arrival_probability = "both", stages = NULL, demo_stoch = FALSE)
