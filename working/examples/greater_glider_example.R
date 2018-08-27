@@ -121,9 +121,9 @@ gg.population.dynamics <- build_population_dynamics(pop_change = simple_growth(d
                                               #pop_disp = cellular_automata_dispersal(dispersal_distance=list(0, 16, 0),
                                                                           #dispersal_kernel=list(0, exp(-c(0:19)^1/10), 0),
                                                                           #dispersal_proportion=list(0, 0.5, 0)),
-                                              #pop_disp = fast_kernel_dispersal(dispersal_proportion = list(0, 0.5, 0),
+                                              #pop_disp = fast_dispersal(dispersal_proportion = list(0, 0.5, 0),
                                                                                #dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.5)),
-                                              pop_disp = probabilistic_kernel_dispersal(dispersal_proportion = list(0, 0.5, 0),
+                                              pop_disp = kernel_dispersal(dispersal_proportion = list(0, 0.5, 0),
                                                                           dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.5),
                                                                           arrival_probability = "both"),
                                               pop_dens_dep = pop_density_dependence(stages = c(2,3))

@@ -163,7 +163,7 @@ simple_growth <- function (demo_stoch = FALSE) {
 #'
 #' test_kern_dispersal <- fast_kernel_dispersal()
 
-fast_kernel_dispersal <- function(
+fast_dispersal <- function(
   dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
   stages = NULL
   ) {
@@ -199,7 +199,7 @@ fast_kernel_dispersal <- function(
     
   }
   
-  as.population_fast_kernel_dispersal(pop_dynamics)
+  as.population_fast_dispersal(pop_dynamics)
   
 }
 
@@ -216,7 +216,7 @@ fast_kernel_dispersal <- function(
 #'
 #' test_kern_dispersal <- probabilistic_kernel_dispersal()
 
-probabilistic_kernel_dispersal <- function(
+kernel_dispersal <- function(
   distance_function = function(from, to) sqrt(rowSums(sweep(to, 2, from)^2)),
   dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
   arrival_probability = "both",
@@ -336,7 +336,7 @@ probabilistic_kernel_dispersal <- function(
     
   }
   
-  as.population_probabilistic_kernel_dispersal(pop_dynamics)
+  as.population_kernel_dispersal(pop_dynamics)
 
 }
 
@@ -533,12 +533,12 @@ as.population_demo_stoch <- function (population_demo_stoch) {
   as_class(population_demo_stoch, "population_dynamics", "function")
 }
 
-as.population_fast_kernel_dispersal <- function (population_fast_kernel_dispersal) {
-  as_class(population_fast_kernel_dispersal, "population_dynamics", "function")
+as.population_fast_dispersal <- function (population_fast_dispersal) {
+  as_class(population_fast_dispersal, "population_dynamics", "function")
 }
 
-as.population_probabilistic_kernel_dispersal <- function (population_probabilistic_kernel_dispersal) {
-  as_class(population_probabilistic_kernel_dispersal, "population_dynamics", "function")
+as.population_kernel_dispersal <- function (population_kernel_dispersal) {
+  as_class(population_kernel_dispersal, "population_dynamics", "function")
 }
 
 as.population_ca_dispersal <- function (population_ca_dispersal) {

@@ -156,12 +156,12 @@ test_that('simulation_results classes work', {
                                        pop_dens_dep = pop_density_dependence())
   
   pop_dyn2 <- build_population_dynamics(pop_change = simple_growth(demo_stoch = TRUE),
-                                        pop_disp = fast_kernel_dispersal(dispersal_kernel=exponential_dispersal_kernel(distance_decay = 0.1)),
+                                        pop_disp = fast_dispersal(dispersal_kernel=exponential_dispersal_kernel(distance_decay = 0.1)),
                                         pop_mod = NULL,
                                         pop_dens_dep = NULL)
   
   pop_dyn3 <- build_population_dynamics(pop_change = simple_growth(demo_stoch = TRUE),
-                                        pop_disp = probabilistic_kernel_dispersal(dispersal_kernel=exponential_dispersal_kernel(distance_decay = 0.1),
+                                        pop_disp = kernel_dispersal(dispersal_kernel=exponential_dispersal_kernel(distance_decay = 0.1),
                                                                                   arrival_probability="habitat_suitability"),
                                         pop_mod = NULL,
                                         pop_dens_dep = NULL)
@@ -180,7 +180,7 @@ test_that('simulation_results classes work', {
                                         pop_dens_dep = pop_density_dependence())
 
   pop_dyn5 <- build_population_dynamics(pop_change = simple_growth(demo_stoch = TRUE),
-                                        pop_disp = probabilistic_kernel_dispersal(dispersal_kernel=exponential_dispersal_kernel(distance_decay = 0.1),
+                                        pop_disp = kernel_dispersal(dispersal_kernel=exponential_dispersal_kernel(distance_decay = 0.1),
                                                                                   stages = c(2,3)),
                                         pop_mod = NULL,
                                         pop_dens_dep = NULL)
