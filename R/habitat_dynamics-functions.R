@@ -26,9 +26,9 @@
 #'                                     disturbance_layers = dist,
 #'                                     effect_time = 1)
 
-disturbance_fires <- function (habitat_suitability, disturbance_layers, effect_time=1) {
+disturbance_fires <- function (habitat_suitability, disturbance_layers, effect_time = 1) {
   
-  dist_fire_fun <- function (state, timestep) {
+  dist_fire_fun <- function (landscape, timestep) {
     
     original_habitat <- habitat_suitability
     
@@ -36,12 +36,12 @@ disturbance_fires <- function (habitat_suitability, disturbance_layers, effect_t
       stop("The number of disturbance layers must match the \nnumber of timesteps in the experiment")
     }
 
-    modified_habitat <- original_habitat * raster::overlay(disturbance_layers[[utils::tail(seq_len(timestep), effect_time)]], fun=prod)
+    modified_habitat <- original_habitat * raster::overlay(disturbance_layers[[utils::tail(seq_len(timestep), effect_time)]], fun = prod)
     names(modified_habitat) <- "Habitat"
 
-    state$habitat$habitat_suitability <- modified_habitat
+    landscape$suitability <- modified_habitat
     
-    state
+    landscape
     
   }
   

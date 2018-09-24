@@ -42,37 +42,3 @@ fake_transition_matrix <- function (n_stages) {
   
   transition_matrix
 }
-
-# given a 3D array, and a vector of values (or cell numbers if index = TRUE) in
-# the first slice (a matrix), return a vector of the corresponding
-# vcalues/indices for corresponding elements in the whole array
-replicate_values <- function (values, array, index = FALSE) {
-  
-  # get relevant dimensions fomr the 3D array
-  dims <- dim(array)
-  ndim <- length(dims)
-  
-  if (ndim == 3) {
-    
-    nelem <- prod(dims[1:2])
-    replicated <- dims[3]
-    
-    # handle differently if we're replicating an index
-    if (index) {
-      
-      # how much to pad the index to get corresponding elements in each slice  
-      addition <- nelem * (seq_len(replicated)  -1)
-      # get indices for the whole array
-      values <- as.numeric(outer(values, addition, FUN = "+"))
-      
-    } else {
-      values <- rep(values, replicated)
-    }
-    
-  } else if (ndim != 2) {
-    stop ("Check dimensions of input object")
-  }
-  
-  values
-  
-}

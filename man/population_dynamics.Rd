@@ -4,10 +4,10 @@
 \alias{population_dynamics}
 \alias{is.population_dynamics}
 \alias{print.population_dynamics}
-\title{Modify the population in a state object.}
+\title{Define population dynamics.}
 \usage{
-population_dynamics(change = simple_growth(), disp = NULL,
-  mod = NULL, dens_dep = NULL)
+population_dynamics(change, dispersal = NULL, modification = NULL,
+  density_dependence = NULL)
 
 is.population_dynamics(x)
 
@@ -16,11 +16,11 @@ is.population_dynamics(x)
 \arguments{
 \item{change}{a \link[steps]{population_dynamics_functions} to define how population growth occurs at each timestep}
 
-\item{disp}{a function to define how the population disperses at each timestep (default is exponential kernel)}
+\item{dispersal}{a function to define how the population disperses at each timestep (default is exponential kernel)}
 
-\item{mod}{a function to define any deterministic changes to the population - such as translocation - at each timestep}
+\item{modification}{a function to define any deterministic changes to the population - such as translocation - at each timestep}
 
-\item{dens_dep}{a function to control density dependence effects on the population at each timestep}
+\item{density_dependence}{a function to control density dependence effects on the population at each timestep}
 
 \item{x}{a population_dynamic object}
 
@@ -30,17 +30,17 @@ is.population_dynamics(x)
 An object of class \code{population_dynamics}
 }
 \description{
-A \code{population_dynamics} object is used to modify species populations
-in space and time.
+A \code{population_dynamics} object is used to describe how populations
+change in space and time.
 }
 \details{
-A population_dynamics object is a sub-component of a \link[steps]{dynamics}
-object and is executed in each timestep of a simulation.  Note, some dynamics
+A population_dynamics object is passed to \link[steps]{simulation}
+and defines how populations change between timesteps.  Note, some dynamics
 functions can be executed at non-regular intervals (i.e. only timesteps
 explicitly defined by the user). The \code{population_dynamics} function is
 used to construct a population dynamics object consisting of several population
 dynamics functions and their associated parameters. These functions specify how
-the population in the state object will be modified throughout a simulation.
+the population in the landscape object will be modified throughout a simulation.
 }
 \examples{
 

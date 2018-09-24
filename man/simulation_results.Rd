@@ -7,8 +7,8 @@
 \alias{plot.simulation_results}
 \title{Run an simulation}
 \usage{
-simulation(state, dynamics, timesteps, replicates = 1,
-  parallel = FALSE)
+simulation(landscape, population_dynamics, habitat_dynamics = list(),
+  timesteps = 3, replicates = 1)
 
 is.simulation_results(x)
 
@@ -19,15 +19,15 @@ is.simulation_results(x)
   timesteps = c(1:9), panels = c(3, 3), ...)
 }
 \arguments{
-\item{state}{a state object - static habitat, population, and demography in a timestep}
+\item{landscape}{a landscape object representing the initial habitat and population}
 
-\item{dynamics}{a dynamics object - modules that change habitat, population, and demography during a simulation}
+\item{population_dynamics}{a population_dynamics object describing how population changes over time}
+
+\item{habitat_dynamics}{optional list of functions to modify the landscape at each timestep}
 
 \item{timesteps}{number of timesteps used in one simulation or to display when plotting rasters}
 
 \item{replicates}{number simulations to perform}
-
-\item{parallel}{should parallel processors be used for simulations (default is FALSE)}
 
 \item{x}{an simulation_results object}
 
@@ -47,7 +47,7 @@ is.simulation_results(x)
 An object of class \code{simulation_results}
 }
 \description{
-A simulation changes state objects based on selected dynamics over a
+A simulation changes landscape objects based on selected dynamics over a
 specified number of timesteps.
 }
 \examples{
@@ -57,7 +57,7 @@ library(raster)
 library(future)
 plan(multiprocess)
 
-state <- state(population(egk_pop),
+landscape <- landscape(population(egk_pop),
                habitat(egk_hab, egk_k),
                demography(egk_mat))
 
@@ -65,7 +65,7 @@ dynamics <- dynamics(habitat_dynamics(),
                      demography_dynamics(),
                      population_dynamics())
 
-results <- simulation(state, dynamics, timesteps = 10, replicates = 5)
+results <- simulation(landscape, dynamics, timesteps = 10, replicates = 5)
 
 # Test if object is of the type 'simulation_results'
 

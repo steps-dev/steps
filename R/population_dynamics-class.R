@@ -1,22 +1,22 @@
-#' Modify the population in a state object.
+#' Define population dynamics.
 #' 
-#' A \code{population_dynamics} object is used to modify species populations
-#' in space and time.
+#' A \code{population_dynamics} object is used to describe how populations
+#' change in space and time.
 #' 
-#' A population_dynamics object is a sub-component of a \link[steps]{dynamics}
-#' object and is executed in each timestep of a simulation.  Note, some dynamics
+#' A population_dynamics object is passed to \link[steps]{simulation}
+#' and defines how populations change between timesteps.  Note, some dynamics
 #' functions can be executed at non-regular intervals (i.e. only timesteps
 #' explicitly defined by the user). The \code{population_dynamics} function is
 #' used to construct a population dynamics object consisting of several population
 #' dynamics functions and their associated parameters. These functions specify how
-#' the population in the state object will be modified throughout a simulation. 
+#' the population in the landscape object will be modified throughout a simulation. 
 #'
 #' @rdname population_dynamics
 #'
 #' @param change a \link[steps]{population_dynamics_functions} to define how population growth occurs at each timestep
-#' @param disp a function to define how the population disperses at each timestep (default is exponential kernel)
-#' @param mod a function to define any deterministic changes to the population - such as translocation - at each timestep
-#' @param dens_dep a function to control density dependence effects on the population at each timestep
+#' @param dispersal a function to define how the population disperses at each timestep (default is exponential kernel)
+#' @param modification a function to define any deterministic changes to the population - such as translocation - at each timestep
+#' @param density_dependence a function to control density dependence effects on the population at each timestep
 #' @param x a population_dynamic object
 #' @param ... further arguments passed to or from other methods
 #'
@@ -33,25 +33,25 @@
 #' uses default population growth function based on transition matrices
 #' pop_dynamics <- population_dynamics()
 
-population_dynamics <- function (change = simple_growth(),
-                                 disp = NULL,
-                                 mod = NULL,
-                                 dens_dep = NULL) {
+population_dynamics <- function (change,
+                                 dispersal = NULL,
+                                 modification = NULL,
+                                 density_dependence = NULL) {
   
-  pop_dynamics <- function (state, timestep) {
+  pop_dynamics <- function (landscape, timestep) {
     
-    state <- change(state, timestep)
+    landscape <- change(landscape, timestep)
     
-    if (!is.null(disp))
-      state <- disp(state, timestep)
+    if (!is.null(dispersal))
+      landscape <- dispersal(landscape, timestep)
     
-    if (!is.null(mod))
-      state <- mod(state, timestep)
+    if (!is.null(modification))
+      landscape <- modification(landscape, timestep)
     
-    if (!is.null(dens_dep))
-      state <- dens_dep(state, timestep)
+    if (!is.null(density_dependence))
+      landscape <- density_dependence(landscape, timestep)
     
-    state
+    landscape
   }
   
   as.population_dynamics(pop_dynamics)

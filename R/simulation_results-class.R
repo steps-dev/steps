@@ -1,17 +1,17 @@
 #' Run an simulation
 #'
-#' A simulation changes state objects based on selected dynamics over a
+#' A simulation changes landscape objects based on selected dynamics over a
 #' specified number of timesteps.
 #' 
 #' 
 #'
 #' @rdname simulation_results
 #'
-#' @param state a state object - static habitat, population, and demography in a timestep
-#' @param dynamics a dynamics object - modules that change habitat, population, and demography during a simulation
+#' @param landscape a landscape object representing the initial habitat and population
+#' @param population_dynamics a population_dynamics object describing how population changes over time
+#' @param habitat_dynamics optional list of functions to modify the landscape at each timestep
 #' @param timesteps number of timesteps used in one simulation or to display when plotting rasters
 #' @param replicates number simulations to perform
-#' @param parallel should parallel processors be used for simulations (default is FALSE)
 #' @param x an simulation_results object
 #' @param object the state object to plot - can be 'population' (default), 'habitat_suitability' or 'carrying_capacity'
 #' @param type the plot type - 'graph' (default) or 'raster'
@@ -35,7 +35,7 @@
 #' library(future)
 #' plan(multiprocess)
 #'
-#' state <- state(population(egk_pop),
+#' landscape <- landscape(population(egk_pop),
 #'                habitat(egk_hab, egk_k),
 #'                demography(egk_mat))
 #'
@@ -43,19 +43,22 @@
 #'                      demography_dynamics(),
 #'                      population_dynamics())
 #'
-#' results <- simulation(state, dynamics, timesteps = 10, replicates = 5)
+#' results <- simulation(landscape, dynamics, timesteps = 10, replicates = 5)
 
-simulation <- function(state, dynamics, timesteps, replicates=1, parallel=FALSE){
+simulation <- function(landscape, population_dynamics, habitat_dynamics = list(), timesteps = 3, replicates = 1){
 
-  if (parallel) future::plan(multiprocess)
-  simulation_results <- future.apply::future_lapply(seq_len(replicates),
+  in_parallel <- !inherits(future::plan(), "sequential")
+  lapply_fun <- ifelse(in_parallel,
+                       future.apply::future_lapply,
+                       base::lapply)
+  
+  simulation_results <- lapply_fun(seq_len(replicates),
                                       FUN = simulate,
-                                      state = state,
-                                      dynamics = dynamics,
-                                      timesteps = timesteps,
-                                      future.seed = FALSE)
+                                      landscape = landscape,
+                                      population_dynamics = population_dynamics,
+                                      habitat_dynamics = habitat_dynamics,
+                                      timesteps = timesteps)
 
-  future::plan("default")
   as.simulation_results(simulation_results)
 }
 
@@ -105,8 +108,8 @@ print.simulation_results <- function (x, ...) {
 
 plot.simulation_results <- function (x, object = "population", type = "graph", stage = NULL, animate = FALSE, timesteps = c(1:9), panels = c(3,3), ...){
   
-  stages <- raster::nlayers(x[[1]][[1]]$population$population_raster)
-  stage_names <- colnames(x[[1]][[1]]$demography$global_transition_matrix)
+  stages <- raster::nlayers(x[[1]][[1]]$population)
+  stage_names <- names(x[[1]][[1]]$population)
 
   graph.pal <- c("#94d1c7",
                  "#cccc2b",
@@ -203,7 +206,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
         
         if(stage == 0) {
           
-          rasters_sum <- raster::stack(lapply(x[[1]], function (state) sum(state$population$population_raster)))
+          rasters_sum <- raster::stack(lapply(x[[1]], function (landscape) sum(landscape$population)))
           
           # Find maximum and minimum population value in raster cells for all timesteps for life-stage
           scale_max <- ceiling(max(raster::cellStats(rasters_sum, max)))
@@ -252,7 +255,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
 
         } else {
           
-          rasters <- raster::stack(lapply(x[[1]], function (state) state$population$population_raster[[stage]]))
+          rasters <- raster::stack(lapply(x[[1]], function (landscape) landscape$population[[stage]]))
           
           # Find maximum and minimum population value in raster cells for all timesteps for life-stage
           scale_max <- ceiling(max(raster::cellStats(rasters, max)))
@@ -304,7 +307,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
     
     if (object == "habitat_suitability") {
       
-      rasters <- raster::stack(lapply(x[[1]], function (state) state$habitat$habitat_suitability))
+      rasters <- raster::stack(lapply(x[[1]], function (landscape) landscape$habitat$habitat_suitability))
       
       # Find maximum and minimum population value in raster cells for all timesteps for life-stage
       scale_max <- ceiling(max(raster::cellStats(rasters, max)))
@@ -355,7 +358,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
     
     if (object == "carrying_capacity") {
       
-      rasters <- raster::stack(lapply(x[[1]], function (state) state$habitat$carrying_capacity))
+      rasters <- raster::stack(lapply(x[[1]], function (landscape) landscape$habitat$carrying_capacity))
       
       # Find maximum and minimum population value in raster cells for all timesteps for life-stage
       scale_max <- ceiling(max(raster::cellStats(rasters, max)))
@@ -512,42 +515,41 @@ as.simulation_results <- function (simulation_results) {
   as_class(simulation_results, "simulation_results", "list")
 }
 
-simulate <- function (i, state, dynamics, timesteps = 100) {
+simulate <- function (i, landscape, population_dynamics, habitat_dynamics,timesteps = 100) {
   timesteps <- seq_len(timesteps)
-  output_states <- iterate_system(state, dynamics, timesteps)
-  as_class(output_states, "replicate", "list")
-}
-
-iterate_system <- function (state, dynamics, timesteps) {
-
-  output_states <- list()
-
   pb <- utils::txtProgressBar(min = 0, max = max(timesteps), style = 3)
+  
+  output_landscapes <- list()
+  
   for (timestep in timesteps) {
-    for (dynamic_function in dynamics) {
-      state <- dynamic_function(state, timestep)
+    
+    landscape <- population_dynamics(landscape, timestep)
+    
+    for (dynamic_function in habitat_dynamics) {
+      landscape <- dynamic_function(landscape, timestep)
     }
-    output_states[[timestep]] <- state
+    
+    output_landscapes[[timestep]] <- landscape
     utils::setTxtProgressBar(pb, timestep)
   }
+  
   close(pb)
-
-  output_states
-
+  
+  as_class(output_landscapes, "replicate", "list")
 }
 
 # extract populations from a simulation
 get_pop_replicate <- function(x, ...) {
-  stages <- raster::nlayers(x[[1]]$population$population_raster)
-  idx <- which(!is.na(raster::getValues(x[[1]]$population$population_raster[[1]])))
-  pops <- lapply(x, function(x) raster::extract(x$population$population_raster, idx))
+  stages <- raster::nlayers(x[[1]]$population)
+  idx <- which(!is.na(raster::getValues(x[[1]]$population[[1]])))
+  pops <- lapply(x, function(x) raster::extract(x$population, idx))
   pop_sums <- lapply(pops, function(x) colSums(x))
   pop_matrix <- matrix(unlist(pop_sums), ncol = stages, byrow = TRUE)
   return(pop_matrix)
 }
 
 get_pop_simulation <- function(x, ...) {
-  stages <- raster::nlayers(x[[1]][[1]]$population$population_raster)
+  stages <- raster::nlayers(x[[1]][[1]]$population)
   timesteps <- length(x[[1]])
   sims <- length(x)
   
