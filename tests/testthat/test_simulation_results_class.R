@@ -6,217 +6,158 @@ test_that('simulation_results classes work', {
   library(rgdal)
   library(fields)
 
-  # the types of demography
-  mat <- matrix(c(0.000,0.000,0.302,0.302,
-                  0.940,0.000,0.000,0.000,
-                  0.000,0.884,0.000,0.000,
-                  0.000,0.000,0.793,0.793),
-                nrow = 4, ncol = 4, byrow = TRUE)
-  colnames(mat) <- rownames(mat) <- c('Stage_0-1','Stage_1-2','Stage_2-3','Stage_3+')
-  
-  # the types of demography
-  mat_sd <- matrix(c(0.000,0.000,1,1,
-                     1,0.000,0.000,0.000,
-                     0.000,1,0.000,0.000,
-                     0.000,0.000,1,1),
-                   nrow = 4, ncol = 4, byrow = TRUE)
-  colnames(mat_sd) <- rownames(mat_sd) <- c('Stage_0-1','Stage_1-2','Stage_2-3','Stage_3+')
-
-  # the types of habitat attributes
-  grid <- list(x = seq(0,2,,20), y = seq(0,2,,20)) 
-  obj <- Exp.image.cov(grid = grid, theta = 0.5, setup = TRUE)
-  r <- raster(sim.rf(obj))
-  
-  #r <- raster(vals=1, nrows=20, ncols=20, res=c(1,1), crs=('+proj=aea +lat_1=-18 +lat_2=-36 +lat_0=0 +lon_0=132 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'))
-  
-  hab.suit <- (r + abs(cellStats(r, min))) / cellStats((r + abs(cellStats(r, min))), max)
-  
-  # r2 <- r
-  # r2[] <- 0
-  # cells <- sample(c(1:ncell(r2)), 150)
-  # r2[c(adjacent(hab.suit, cells, directions=16, pairs=FALSE),cells)]  <- 50
-  # r3 <- r2*hab.suit
-  
-  pop <- stack(ceiling(hab.suit*5),
-               floor(hab.suit*5),
-               ceiling(hab.suit*5),
-               ceiling(hab.suit*5))
-  
-  hab.k <- hab.suit*20
-  
-  disp.bar <- hab.suit*0
+  disp.bar <- egk_hab*0
   disp.bar[cellFromCol(disp.bar,ncol(disp.bar)/2)] <- 1
-  disp.bar2 <- hab.suit*0
+  disp.bar2 <- egk_hab*0
   disp.bar2[sampleRandom(disp.bar2, size=100, na.rm=TRUE, sp=TRUE)] <- 1
   
   dist_list <- list()
   
   for (i in 1:10) {
     
-    r2 <- r
+    r2 <- egk_hab
     r2[] <- 1
     cells <- sample(c(1:ncell(r2)), 10)
-    r2[c(adjacent(hab.suit, cells, directions=8, pairs=FALSE),cells)]  <- 0.5
+    r2[c(adjacent(egk_hab, cells, directions=8, pairs=FALSE),cells)]  <- 0.5
     dist_list[[i]] <- r2
     
   }
   
   dist.s <- stack(dist_list)
 
-  surv_fec <- list(dist.s, dist.s, dist.s, dist.s)
-  surv_fec2 <- list(dist.s, dist.s, dist.s, NULL)
+  surv_fec <- list(dist.s, dist.s, dist.s)
+  surv_fec2 <- list(dist.s, dist.s, NULL)
   
-  pop_source <- pop[[3]]
+  pop_source <- egk_pop[[3]]
   pop_source[] <- 0
-  pop_source[sample(which(getValues(pop[[3]]) >= 2), 3)] <- 1
+  pop_source[sample(which(getValues(egk_pop[[3]]) >= 2), 3)] <- 1
   #plot(pop_source, box = FALSE, axes = FALSE)
   
-  pop_sink <- pop[[3]]
+  pop_sink <- egk_pop[[3]]
   pop_sink[] <- 0
-  pop_sink[sample(which(getValues(pop[[3]]) <= 2),
+  pop_sink[sample(which(getValues(egk_pop[[3]]) <= 2),
                         cellStats(pop_source, sum))] <- 1
   #plot(pop_sink, box = FALSE, axes = FALSE)
 
-  # params <- list(
-  #   dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=1,'Stage_2-3'=1,'Stage_3+'=0),
-  #   dispersal_kernel=list('Stage_0-1'=0,'Stage_1-2'=exp(-c(0:9)^1/3.36),'Stage_2-3'=exp(-c(0:9)^1/3.36),'Stage_3+'=0),
-  #   dispersal_proportion=list('Stage_0-1'=0,'Stage_1-2'=0.35,'Stage_2-3'=0.35*0.714,'Stage_3+'=0))
-  # 
-  # params2 <- list(
-  #   dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=10,'Stage_2-3'=10,'Stage_3+'=0),
-  #   dispersal_kernel=list('Stage_0-1'=0,'Stage_1-2'=exp(-c(0:9)^1/3.36),'Stage_2-3'=exp(-c(0:9)^1/3.36),'Stage_3+'=0),
-  #   dispersal_proportion=list('Stage_0-1'=0,'Stage_1-2'=0.35,'Stage_2-3'=0.35*0.714,'Stage_3+'=0),
-  #   barriers_map=disp.bar,
-  #   use_barriers=TRUE,
-  #   barrier_type=1)
-  # 
-  # params3 <- list(
-  #   dispersal_distance=list('Stage_0-1'=0,'Stage_1-2'=10,'Stage_2-3'=10,'Stage_3+'=0),
-  #   dispersal_kernel=list('Stage_0-1'=0,'Stage_1-2'=exp(-c(0:9)^1/3.36),'Stage_2-3'=exp(-c(0:9)^1/3.36),'Stage_3+'=0),
-  #   dispersal_proportion=list('Stage_0-1'=0,'Stage_1-2'=0.35,'Stage_2-3'=0.35*0.714,'Stage_3+'=0),
-  #   barriers_map=disp.bar2,
-  #   use_barriers=TRUE,
-  #   barrier_type=1)
+  b_hab <- habitat(habitat_suitability = egk_hab,
+                         carrying_capacity = egk_k)
   
-  b_hab <- build_habitat(habitat_suitability = hab.suit,
-                         carrying_capacity = hab.k)
-  
-  b_hab2 <- build_habitat(habitat_suitability = hab.suit,
+  b_hab2 <- habitat(habitat_suitability = egk_hab,
                           carrying_capacity = NULL)
   
-  b_pop <- build_population(pop)
+  b_pop <- population(egk_pop)
  
-  b_dem <- build_demography(transition_matrix = mat,
+  b_dem <- demography(transition_matrix = egk_mat,
                             scale = "local",
-                            habitat_suitability = hab.suit)
+                            habitat_suitability = egk_hab)
  
-  b_dem2 <- build_demography(transition_matrix = mat)
+  b_dem2 <- demography(transition_matrix = egk_mat)
   
-  b_state <- build_state(habitat = b_hab,
-                         population = b_pop,
-                         demography = b_dem)
+  b_state <- state(population = b_pop,
+                   habitat = b_hab,
+                   demography = b_dem)
   
-  b_state2 <- build_state(habitat = b_hab,
-                          population = b_pop,
-                          demography = b_dem2)
+  b_state2 <- state(population = b_pop,
+                    habitat = b_hab,
+                    demography = b_dem2)
   
-  b_state3 <- build_state(habitat = b_hab2,
-                          population = b_pop,
-                          demography = b_dem)
+  b_state3 <- state(population = b_pop,
+                    habitat = b_hab2,
+                    demography = b_dem)
   
-  hab_dyn <- build_habitat_dynamics(disturbance_fires(habitat_suitability = hab.suit,
+  hab_dyn <- habitat_dynamics(disturbance_fires(habitat_suitability = egk_hab,
                                                   disturbance_layers = dist.s,
                                                   effect_time = 2))
   
-  dem_dyn <- build_demography_dynamics(demo_environmental_stochasticity(transition_matrix = mat,
-                                                                  stochasticity = mat_sd),
-                                 demo_density_dependence(transition_matrix = mat,
-                                                         fecundity_fraction = 0.8,
-                                                         survival_fraction = 0.8))
+  dem_dyn <- demography_dynamics(environmental_stochasticity(transition_matrix = egk_mat,
+                                                             stochasticity = 0.5),
+                                 density_dependence(transition_matrix = egk_mat,
+                                                    fecundity_fraction = 0.8,
+                                                    survival_fraction = 0.8))
     
-  dem_dyn2 <- build_demography_dynamics(demo_surv_fec_modify(transition_matrix = mat,
+  dem_dyn2 <- demography_dynamics(surv_fec_modify(transition_matrix = egk_mat,
                                                   surv_layers = surv_fec,
                                                   fec_layers = surv_fec))
   
-  dem_dyn3 <- build_demography_dynamics(demo_surv_fec_modify(transition_matrix = mat,
+  dem_dyn3 <- demography_dynamics(surv_fec_modify(transition_matrix = egk_mat,
                                                   surv_layers = surv_fec2,
                                                   fec_layers = surv_fec))
 
-  pop_dyn <- build_population_dynamics(pop_change = simple_growth(),
-                                       pop_disp = cellular_automata_dispersal(dispersal_distance=list(0, 10, 10, 0),
-                                                                              dispersal_kernel=list(0, exp(-c(0:9)^1/3.36), exp(-c(0:9)^1/3.36), 0),
-                                                                              dispersal_proportion=list(0, 0.35, 0.35*0.714, 0),
-                                                                              barrier_type = 1,
-                                                                              use_barriers = TRUE,
-                                                                              barriers_map = disp.bar),
-                                       pop_mod = pop_translocation(source_layer = pop_source,
-                                                                   sink_layer = pop_sink,
-                                                                   stages = NULL,
-                                                                   effect_timesteps = 2),
-                                       pop_dens_dep = pop_density_dependence())
+  pop_dyn <- population_dynamics(change = simple_growth(),
+                                 disp = cellular_automata_dispersal(dispersal_distance=list(0, 10, 0),
+                                                                    dispersal_kernel=list(0, exp(-c(0:9)^1/3.36), 0),
+                                                                    dispersal_proportion=list(0, 0.35*0.714, 0),
+                                                                    barrier_type = 1,
+                                                                    use_barriers = TRUE,
+                                                                    barriers_map = disp.bar),
+                                 mod = translocation(source_layer = pop_source,
+                                                     sink_layer = pop_sink,
+                                                     stages = NULL,
+                                                     effect_timesteps = 2),
+                                 dens_dep = ceiling_density_dependence())
   
-  pop_dyn2 <- build_population_dynamics(pop_change = simple_growth(demo_stoch = TRUE),
-                                        pop_disp = fast_dispersal(dispersal_kernel=exponential_dispersal_kernel(distance_decay = 0.1)),
-                                        pop_mod = NULL,
-                                        pop_dens_dep = NULL)
+  pop_dyn2 <- population_dynamics(change = simple_growth(demo_stoch = TRUE),
+                                  disp = fast_dispersal(dispersal_kernel=exponential_dispersal_kernel(distance_decay = 0.1)),
+                                  mod = NULL,
+                                  dens_dep = NULL)
   
-  pop_dyn3 <- build_population_dynamics(pop_change = simple_growth(demo_stoch = TRUE),
-                                        pop_disp = kernel_dispersal(dispersal_kernel=exponential_dispersal_kernel(distance_decay = 0.1),
-                                                                                  arrival_probability="habitat_suitability"),
-                                        pop_mod = NULL,
-                                        pop_dens_dep = NULL)
+  pop_dyn3 <- population_dynamics(change = simple_growth(demo_stoch = TRUE),
+                                  disp = kernel_dispersal(dispersal_kernel=exponential_dispersal_kernel(distance_decay = 0.1),
+                                                          arrival_probability="habitat_suitability"),
+                                  mod = NULL,
+                                  dens_dep = NULL)
   
-  pop_dyn4 <- build_population_dynamics(pop_change = simple_growth(),
-                                        pop_disp = cellular_automata_dispersal(dispersal_distance=list(0, 10, 10, 0),
-                                                                               dispersal_kernel=list(0, exp(-c(0:9)^1/3.36), exp(-c(0:9)^1/3.36), 0),
-                                                                               dispersal_proportion=list(0, 0.35, 0.35*0.714, 0),
-                                                                               barrier_type = 1,
-                                                                               use_barriers = TRUE,
-                                                                               barriers_map = disp.bar2),
-                                        pop_mod = pop_translocation(source_layer = pop_source,
-                                                                    sink_layer = pop_sink,
-                                                                    stages = 4,
-                                                                    effect_timesteps = 2),
-                                        pop_dens_dep = pop_density_dependence())
-
-  pop_dyn5 <- build_population_dynamics(pop_change = simple_growth(demo_stoch = TRUE),
-                                        pop_disp = kernel_dispersal(dispersal_kernel=exponential_dispersal_kernel(distance_decay = 0.1),
-                                                                                  stages = c(2,3)),
-                                        pop_mod = NULL,
-                                        pop_dens_dep = NULL)
+  pop_dyn4 <- population_dynamics(change = simple_growth(),
+                                  disp = cellular_automata_dispersal(dispersal_distance=list(0, 10, 0),
+                                                                     dispersal_kernel=list(0, exp(-c(0:9)^1/3.36), 0),
+                                                                     dispersal_proportion=list(0, 0.35*0.714, 0),
+                                                                     barrier_type = 1,
+                                                                     use_barriers = TRUE,
+                                                                     barriers_map = disp.bar2),
+                                  mod = translocation(source_layer = pop_source,
+                                                      sink_layer = pop_sink,
+                                                      stages = 3,
+                                                      effect_timesteps = 2),
+                                  dens_dep = ceiling_density_dependence())
+  
+  pop_dyn5 <- population_dynamics(change = simple_growth(demo_stoch = TRUE),
+                                  disp = kernel_dispersal(dispersal_kernel=exponential_dispersal_kernel(distance_decay = 0.1),
+                                                          stages = c(2,3)),
+                                  mod = NULL,
+                                  dens_dep = NULL)
   
   
-  b_dynamics <- build_dynamics(habitat_dynamics = hab_dyn,
-                               demography_dynamics = dem_dyn,
-                               population_dynamics = pop_dyn)
+  b_dynamics <- dynamics(habitat_dynamics = hab_dyn,
+                         demography_dynamics = dem_dyn,
+                         population_dynamics = pop_dyn)
   
-  b_dynamics2 <- build_dynamics(habitat_dynamics = build_habitat_dynamics(),
-                                demography_dynamics = build_demography_dynamics(),
-                                population_dynamics = pop_dyn)
+  b_dynamics2 <- dynamics(habitat_dynamics = habitat_dynamics(),
+                          demography_dynamics = demography_dynamics(),
+                          population_dynamics = pop_dyn)
   
-  b_dynamics3 <- build_dynamics(habitat_dynamics = build_habitat_dynamics(),
-                                demography_dynamics = build_demography_dynamics(),
-                                population_dynamics = pop_dyn2)
+  b_dynamics3 <- dynamics(habitat_dynamics = habitat_dynamics(),
+                          demography_dynamics = demography_dynamics(),
+                          population_dynamics = pop_dyn2)
   
-  b_dynamics4 <- build_dynamics(habitat_dynamics = build_habitat_dynamics(),
-                                demography_dynamics = build_demography_dynamics(),
-                                population_dynamics = pop_dyn3)
+  b_dynamics4 <- dynamics(habitat_dynamics = habitat_dynamics(),
+                          demography_dynamics = demography_dynamics(),
+                          population_dynamics = pop_dyn3)
   
-  b_dynamics5 <- build_dynamics(habitat_dynamics = hab_dyn,
-                                demography_dynamics = dem_dyn,
-                                population_dynamics = pop_dyn4)
+  b_dynamics5 <- dynamics(habitat_dynamics = hab_dyn,
+                          demography_dynamics = dem_dyn,
+                          population_dynamics = pop_dyn4)
   
-  b_dynamics6 <- build_dynamics(habitat_dynamics = build_habitat_dynamics(),
-                                demography_dynamics = dem_dyn2,
-                                population_dynamics = pop_dyn)
+  b_dynamics6 <- dynamics(habitat_dynamics = habitat_dynamics(),
+                          demography_dynamics = dem_dyn2,
+                          population_dynamics = pop_dyn)
   
-  b_dynamics7 <- build_dynamics(habitat_dynamics = build_habitat_dynamics(),
-                                demography_dynamics = dem_dyn3,
-                                population_dynamics = pop_dyn)
+  b_dynamics7 <- dynamics(habitat_dynamics = habitat_dynamics(),
+                          demography_dynamics = dem_dyn3,
+                          population_dynamics = pop_dyn)
   
-  b_dynamics8 <- build_dynamics(habitat_dynamics = build_habitat_dynamics(),
-                                demography_dynamics = build_demography_dynamics(),
-                                population_dynamics = pop_dyn5)
+  b_dynamics8 <- dynamics(habitat_dynamics = habitat_dynamics(),
+                          demography_dynamics = demography_dynamics(),
+                          population_dynamics = pop_dyn5)
   
   expect_true(inherits(simulation(state = b_state,
                                   dynamics = b_dynamics,

@@ -11,7 +11,5 @@ test_that('population_dynamics classes work', {
   expect_error(as.population_dynamics(1))
     
   print(as.population_dynamics(func))
-
-  #expect_error(as.population(c(1,2,3)))
   
 })

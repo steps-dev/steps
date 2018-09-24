@@ -44,7 +44,7 @@
 #' test_demo_es <- demo_environmental_stochasticity(transition_matrix = mat,
 #'                                     stochasticity = mat_sd)
 
-demo_environmental_stochasticity <- function (transition_matrix,
+environmental_stochasticity <- function (transition_matrix,
                                               stochasticity=0) {
   
   idx <- which(transition_matrix != 0)
@@ -122,9 +122,9 @@ demo_environmental_stochasticity <- function (transition_matrix,
 #'                                         fecundity_fraction = 1,
 #'                                         survival_fraction = 0.5)
 
-demo_density_dependence <- function (transition_matrix,
-                                     fecundity_fraction = 1,
-                                     survival_fraction = 1) {
+density_dependence <- function (transition_matrix,
+                                fecundity_fraction = 1,
+                                survival_fraction = 1) {
   
   idm <- which(transition_matrix != 0)
   fecundity <- which(transition_matrix != 0 & upper.tri(transition_matrix))
@@ -194,7 +194,7 @@ demo_density_dependence <- function (transition_matrix,
 #'                                     surv_layers = surv,
 #'                                     fec_layers = fec)
 
-demo_surv_fec_modify <- function (transition_matrix, surv_layers, fec_layers) {
+surv_fec_modify <- function (transition_matrix, surv_layers, fec_layers) {
   
   surv_fec_mod <- function (state, timestep) {
     

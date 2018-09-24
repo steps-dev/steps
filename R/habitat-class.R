@@ -32,19 +32,10 @@
 #' library(steps)
 #' library(raster)
 #' 
-#' # Construct a raster object
-#' r <- raster(system.file("external/test.grd", package="raster"))
-#' 
-#' # Modify raster to contain values between 0 and 1  
-#' hs <- r / cellStats(r, "max")
-#' 
-#' # Modify raster to contain values for maximum population in each cell
-#' k <- ceiling(r * 0.1)
-#' 
 #' # Construct the habitat object
-#' test_habitat <- build_habitat(habitat_suitability = hs, carrying_capacity = k)
+#' hab <- habitat(habitat_suitability = egk_hab, carrying_capacity = egk_k)
 
-build_habitat <- function (habitat_suitability, carrying_capacity, misc=NULL, ...) {
+habitat <- function (habitat_suitability, carrying_capacity, misc=NULL, ...) {
   habitat <- list(habitat_suitability = habitat_suitability,
                   carrying_capacity = carrying_capacity,
                   misc = misc)

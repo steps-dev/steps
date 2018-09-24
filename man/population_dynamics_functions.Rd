@@ -5,8 +5,8 @@
 \alias{fast_dispersal}
 \alias{kernel_dispersal}
 \alias{cellular_automata_dispersal}
-\alias{pop_translocation}
-\alias{pop_density_dependence}
+\alias{translocation}
+\alias{ceiling_density_dependence}
 \title{Functions to modify the population in a state object.}
 \usage{
 simple_growth(demo_stoch = FALSE)
@@ -27,10 +27,10 @@ cellular_automata_dispersal(dispersal_distance = list(0, 10, 10, 0),
   barriers_map = NULL, arrival_probability = "habitat_suitability",
   carrying_capacity = "carrying_capacity")
 
-pop_translocation(source_layer, sink_layer, stages = NULL,
+translocation(source_layer, sink_layer, stages = NULL,
   effect_timesteps = NULL)
 
-pop_density_dependence(stages = NULL)
+ceiling_density_dependence(stages = NULL)
 }
 \arguments{
 \item{demo_stoch}{should demographic stochasticity be used in population change? (default is FALSE)}

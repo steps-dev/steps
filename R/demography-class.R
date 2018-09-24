@@ -35,17 +35,14 @@
 #' library(steps)
 #' library(raster)
 #' 
-#' # Use a built-in function to generate a four life-stage transition matrix
-#' mat <- steps:::fake_transition_matrix(4)
-#' 
 #' # Construct the demography object
-#' test_demography <- build_demography(transition_matrix = mat)
+#' dem <- demography(transition_matrix = egk_mat)
 
-build_demography <- function (transition_matrix, 
-                              scale = 'global', 
-                              habitat_suitability = NULL, 
-                              misc = NULL, 
-                              ...) {
+demography <- function (transition_matrix, 
+                        scale = 'global', 
+                        habitat_suitability = NULL, 
+                        misc = NULL, 
+                        ...) {
   x <- transition_matrix
   stage_matrixCheck(x)
   di <- base::dim(x)[[1]]
@@ -76,7 +73,7 @@ build_demography <- function (transition_matrix,
                        local_transition_matrix = NULL,
                        misc = misc)    
   }
-
+  
   as.demography(demography)
 }
 

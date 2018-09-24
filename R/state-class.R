@@ -10,9 +10,9 @@
 #' 
 #' @rdname state
 #'
+#' @param population A \link[steps]{population} object.
 #' @param habitat A \link[steps]{habitat} object.
 #' @param demography A \link[steps]{demography} object.
-#' @param population A \link[steps]{population} object.
 #' @param x A state object to print or test.
 #' @param ... Further arguments passed to or from other methods.
 #'
@@ -25,36 +25,21 @@
 #' library(steps)
 #' library(raster)
 #' 
-#' # Create a raster layer
-#' r <- raster(system.file("external/test.grd", package="raster"))
-#' 
-#' # Create a life-stage matrix
-#' mat <- matrix(c(0.000,0.000,0.302,0.302,
-#'                 0.940,0.000,0.000,0.000,
-#'                 0.000,0.884,0.000,0.000,
-#'                 0.000,0.000,0.793,0.793),
-#'               nrow = 4, ncol = 4, byrow = TRUE)
-#' colnames(mat) <- rownames(mat) <- c('Stage_1','Stage_2','Stage_3','Stage_4')
-#' 
-#' # Create initial populations - count must match number of life-stages
-#' pop <- stack(replicate(4, ceiling(r * 0.2)))
-#' 
 #' # Create habitat, demography, and population objects
-#' test_habitat <- build_habitat(habitat_suitability = r / cellStats(r, "max"),
-#'                               carrying_capacity = ceiling(r * 0.1))
-#' test_demography <- build_demography(transition_matrix = mat)
-#' test_population <- build_population(pop)
+#' hab <- habitat(egk_hab, egk_k)
+#' dem <- demography(egk_mat)
+#' pop <- population(egk_pop)
 #' 
 #' # Construct the state object
-#' test_state <- build_state(test_habitat, test_demography, test_population)
+#' state <- state(pop, hab, dem)
 
-build_state <- function (habitat, demography, population) {
+state <- function (population, habitat, demography) {
   # CHECK OBJECT TYPES
   check_habitat_matches_population(habitat, population)
   check_demography_matches_population(demography, population)
-  state <- list(habitat = habitat,
-                demography = demography,
-                population = population)
+  state <- list(population = population,
+                habitat = habitat,
+                demography = demography)
   as.state(state)
 }
 

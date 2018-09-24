@@ -2,17 +2,17 @@
 % Please edit documentation in R/demography_dynamics-functions.R
 \name{demography_dynamics_functions}
 \alias{demography_dynamics_functions}
-\alias{demo_environmental_stochasticity}
-\alias{demo_density_dependence}
-\alias{demo_surv_fec_modify}
+\alias{environmental_stochasticity}
+\alias{density_dependence}
+\alias{surv_fec_modify}
 \title{Functions to modify the demography in a state object.}
 \usage{
-demo_environmental_stochasticity(transition_matrix, stochasticity = 0)
+environmental_stochasticity(transition_matrix, stochasticity = 0)
 
-demo_density_dependence(transition_matrix, fecundity_fraction = 1,
+density_dependence(transition_matrix, fecundity_fraction = 1,
   survival_fraction = 1)
 
-demo_surv_fec_modify(transition_matrix, surv_layers, fec_layers)
+surv_fec_modify(transition_matrix, surv_layers, fec_layers)
 }
 \arguments{
 \item{transition_matrix}{A life-stage transition matrix.}

@@ -35,29 +35,15 @@
 #' library(future)
 #' plan(multiprocess)
 #'
-#' r <- raster(system.file("external/test.grd", package="raster"))
+#' state <- state(population(egk_pop),
+#'                habitat(egk_hab, egk_k),
+#'                demography(egk_mat))
 #'
-#' mat <- matrix(c(0.000,0.000,0.302,0.302,
-#'                 0.940,0.000,0.000,0.000,
-#'                 0.000,0.884,0.000,0.000,
-#'                 0.000,0.000,0.793,0.793),
-#'               nrow = 4, ncol = 4, byrow = TRUE)
-#' colnames(mat) <- rownames(mat) <- c('Stage_1','Stage_2','Stage_3','Stage_4')
+#' dynamics <- dynamics(habitat_dynamics(),
+#'                      demography_dynamics(),
+#'                      population_dynamics())
 #'
-#' pop <- stack(replicate(4, ceiling(r * 0.2)))
-#'
-#' test_habitat <- build_habitat(habitat_suitability = r / cellStats(r, "max"),
-#'                               carrying_capacity = ceiling(r * 0.1))
-#' test_demography <- build_demography(transition_matrix = mat)
-#' test_population <- build_population(pop)
-#'
-#' test_state <- build_state(test_habitat, test_demography, test_population)
-#'
-#' test_dynamics <- build_dynamics(build_habitat_dynamics(),
-#'                                 build_demography_dynamics(),
-#'                                 build_population_dynamics())
-#'
-#' results <- simulation(test_state, test_dynamics, timesteps = 10, replicates = 2)
+#' results <- simulation(state, dynamics, timesteps = 10, replicates = 5)
 
 simulation <- function(state, dynamics, timesteps, replicates=1, parallel=FALSE){
 

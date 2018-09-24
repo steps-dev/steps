@@ -24,17 +24,10 @@
 #' library(steps)
 #' library(raster)
 #' 
-#' # Construct a raster object
-#' r <- raster(system.file("external/test.grd",package="raster"))
-#' 
-#' # Create a stack of raster layers to represent each
-#' # life-stage of a population structure (four in this case)
-#' rs <- stack(replicate(4, r * 0.2))
-#' 
 #' # Construct the population object
-#' test_population <- build_population(rs)
+#' pop <- population(egk_pop)
 
-build_population <- function (population_raster) {
+population <- function (population_raster) {
   population <- list(population_raster = population_raster)
   as.population(population)
 }
@@ -63,8 +56,8 @@ is.population <- function (x) {
 
 print.population <- function (x, ...) {
 
-  cat("This is a populaion object that contains ", raster::nlayers(x[['population_raster']]),
-      " life stage(s).")
+  cat("This is a populaion object that contains", raster::nlayers(x[['population_raster']]),
+      "life stage(s).")
   
 }
 

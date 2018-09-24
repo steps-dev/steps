@@ -25,22 +25,22 @@
 #' library(steps)
 #' library(raster)
 #' 
-#' test_dynamics <- build_dynamics(build_habitat_dynamics(),
-#'                                 build_demography_dynamics(),
-#'                                 build_population_dynamics())
+#' dynamics <- dynamics(population_dynamics(),
+#'                      habitat_dynamics(),
+#'                      demography_dynamics())
 
-build_dynamics <- function (habitat_dynamics,
-                            demography_dynamics,
-                            population_dynamics,
-                            order = c("demography_dynamics",
-                                      "habitat_dynamics",
-                                      "population_dynamics")
-                            ) {
+dynamics <- function (population_dynamics,
+                      habitat_dynamics,
+                      demography_dynamics,
+                      order = c("population_dynamics",
+                                "habitat_dynamics",
+                                "demography_dynamics")
+) {
   #INSERT CHECKS FOR OBJECT CLASSES
-  dynamics <- list(habitat_dynamics = habitat_dynamics,
-                   demography_dynamics = demography_dynamics,
-                   population_dynamics = population_dynamics)
-
+  dynamics <- list(population_dynamics = population_dynamics,
+                   habitat_dynamics = habitat_dynamics,
+                   demography_dynamics = demography_dynamics)
+  
   # get all the functions in a list, in the required order
   check_dynamics_order(order)
   dynamics <- lapply(order, get, envir = environment())
@@ -88,7 +88,7 @@ check_dynamics_order <- function (order) {
                 "habitat_dynamics",
                 "population_dynamics")
   if (!identical(sorted_order, expected)) {
-    msg <- paste0("order must be a length-4 character vector giving the order ",
+    msg <- paste0("order must be a length-3 character vector giving the order ",
                   "in which to run the dynamic functions. It must contain each ",
                   "of the following strings once and only once:\n",
                   "'", paste(expected, collapse = "', '"), "'")

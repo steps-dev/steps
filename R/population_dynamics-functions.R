@@ -427,7 +427,7 @@ cellular_automata_dispersal <- function (dispersal_distance=list(0, 10, 10, 0),
 #'                                        stages = NULL,
 #'                                        effect_timesteps = 1)
 
-pop_translocation <- function (source_layer, sink_layer, stages = NULL, effect_timesteps = NULL) {
+translocation <- function (source_layer, sink_layer, stages = NULL, effect_timesteps = NULL) {
   
   pop_dynamics <- function (state, timestep) {
     
@@ -482,7 +482,7 @@ pop_translocation <- function (source_layer, sink_layer, stages = NULL, effect_t
 #' 
 #' test_pop_dd <- pop_density_dependence()
 
-pop_density_dependence <- function (stages = NULL) {
+ceiling_density_dependence <- function (stages = NULL) {
   
   pop_dynamics <- function (state, timestep) {
     

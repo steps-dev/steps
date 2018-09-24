@@ -11,7 +11,5 @@ test_that('demography_dynamics classes work', {
   expect_error(as.demography_dynamics(1))
     
   print(as.demography_dynamics(func))
-
-  #expect_error(as.demography(c(1,2,3)))
   
 })

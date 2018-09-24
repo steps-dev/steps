@@ -76,36 +76,36 @@ koala.disp.param <- list(dispersal_distance=dispersal_distance,
 koala.dist.fire <- stack(list.files(system.file("extdata", package="steps"), full.names = TRUE, pattern = 'Koala_Fire*'))
 
 ## ---- message = FALSE----------------------------------------------------
-koala.habitat <- build_habitat(habitat_suitability = koala.hab.suit,
+koala.habitat <- habitat(habitat_suitability = koala.hab.suit,
                                carrying_capacity = koala.hab.k)
 
 ## ---- message = FALSE----------------------------------------------------
-koala.demography <- build_demography(transition_matrix = koala.trans.mat,
+koala.demography <- demography(transition_matrix = koala.trans.mat,
                                      type = 'local',
                                      habitat_suitability = koala.hab.suit)
 
 ## ---- message = FALSE----------------------------------------------------
-koala.population <- build_population(population_raster = koala.pop)
+koala.population <- population(population_raster = koala.pop)
 
 ## ---- message = FALSE----------------------------------------------------
-koala.state <- build_state(habitat = koala.habitat,
+koala.state <- state(habitat = koala.habitat,
                            demography = koala.demography,
                            population = koala.population)
 
 ## ---- message = FALSE----------------------------------------------------
-koala.habitat.dynamics <- build_habitat_dynamics(disturbance_fires(habitat_suitability = koala.hab.suit,
+koala.habitat.dynamics <- habitat_dynamics(disturbance_fires(habitat_suitability = koala.hab.suit,
                                                 disturbance_layers = koala.dist.fire,
                                                 effect_time=3))
 
 ## ---- message = FALSE----------------------------------------------------
-koala.demography.dynamics <- build_demography_dynamics(demo_environmental_stochasticity(transition_matrix = koala.trans.mat,
+koala.demography.dynamics <- demography_dynamics(environmental_stochasticity(transition_matrix = koala.trans.mat,
                                                                                   stochasticity = koala.trans.mat.es),
-                                                 demo_density_dependence(transition_matrix = koala.trans.mat))
+                                                 density_dependence(transition_matrix = koala.trans.mat))
 
 
 ## ---- message = FALSE----------------------------------------------------
-koala.population.dynamics <- build_population_dynamics(pop_change = simple_growth(),
-                                                 pop_disp = cellular_automata_dispersal(dispersal_distance = list(0,
+koala.population.dynamics <- population_dynamics(change = simple_growth(),
+                                                 disp = cellular_automata_dispersal(dispersal_distance = list(0,
                                                                                                            10,
                                                                                                            10,
                                                                                                            0),
@@ -123,11 +123,11 @@ koala.population.dynamics <- build_population_dynamics(pop_change = simple_growt
                                                                                         barriers_map = NULL,
                                                                                         arrival_probability = "habitat_suitability",
                                                                                         carrying_capacity = "carrying_capacity"),
-                                          pop_mod = NULL,
-                                          pop_dens_dep = pop_density_dependence(stages = c(3,4)))
+                                          mod = NULL,
+                                          dens_dep = ceiling_density_dependence(stages = c(3,4)))
 
 ## ---- message = FALSE----------------------------------------------------
-koala.dynamics <- build_dynamics(habitat_dynamics = koala.habitat.dynamics,
+koala.dynamics <- dynamics(habitat_dynamics = koala.habitat.dynamics,
                                  demography_dynamics = koala.demography.dynamics,
                                  population_dynamics = koala.population.dynamics,
                                  order = c("habitat_dynamics",
