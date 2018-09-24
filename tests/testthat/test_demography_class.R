@@ -28,7 +28,7 @@ test_that('demography classes work', {
   
   print(demography(egk_mat))
   
-  summary(demography(egK_mat))
+  summary(demography(egk_mat))
   
   plot(demography(egk_mat))
   

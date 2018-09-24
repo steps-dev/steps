@@ -44,7 +44,7 @@ test_that('state classes work', {
                )
 
   mat2 <- egk_mat[c(1:2),c(1:2)]
-  b_dem2 <- build_demography(transition_matrix = mat2)
+  b_dem2 <- demography(transition_matrix = mat2)
   expect_error(state(population = b_pop,
                      habitat = b_hab,
                      demography = b_dem2)
