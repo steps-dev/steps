@@ -131,6 +131,20 @@ test_that('simulation_results classes work', {
                                    modification = NULL,
                                    density_dependence = NULL)
   
+  pop_dyn7e3 <- population_dynamics(change = growth(transition_matrix = egk_mat,
+                                                   global_stochasticity = matrix(c(0,0,0,0,0,1,1,1,1), nrow = 3, ncol = 3)),
+                                   dispersal = fast_dispersal(dispersal_kernel=exponential_dispersal_kernel(distance_decay = 0.1),
+                                                              stages = c(2,3)),
+                                   modification = NULL,
+                                   density_dependence = NULL)
+  
+  pop_dyn7e4 <- population_dynamics(change = growth(transition_matrix = egk_mat,
+                                                    local_stochasticity = matrix(c(0,0,0,0,0,1,1,1,1), nrow = 3, ncol = 3)),
+                                    dispersal = fast_dispersal(dispersal_kernel=exponential_dispersal_kernel(distance_decay = 0.1),
+                                                               stages = c(2,3)),
+                                    modification = NULL,
+                                    density_dependence = NULL)
+  
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn,
                                   habitat_dynamics = NULL,
@@ -218,6 +232,18 @@ test_that('simulation_results classes work', {
                         "simulation_results"))
   
   expect_error(inherits(simulation(landscape = landscape,
+                                   population_dynamics = pop_dyn7e3,
+                                   habitat_dynamics = NULL,
+                                   timesteps = 10),
+                        "simulation_results"))
+  
+  expect_error(inherits(simulation(landscape = landscape,
+                                   population_dynamics = pop_dyn7e4,
+                                   habitat_dynamics = NULL,
+                                   timesteps = 10),
+                        "simulation_results"))
+  
+  expect_error(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn,
                                   habitat_dynamics = list(disturbance_fires(habitat_suitability = egk_hab,
                                                                             disturbance_layers = egk_dist,
@@ -255,6 +281,11 @@ test_that('simulation_results classes work', {
   plot(test_simulation[1],
        type = "raster",
        stage = 2,
+       animate = TRUE)
+  
+  plot(test_simulation[1],
+       type = "raster",
+       stage = 0,
        animate = TRUE)
   
   plot(test_simulation[1],
