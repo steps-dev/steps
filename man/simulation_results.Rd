@@ -19,13 +19,17 @@ is.simulation_results(x)
   timesteps = c(1:9), panels = c(3, 3), ...)
 }
 \arguments{
-\item{landscape}{a landscape object representing the initial habitat and population}
+\item{landscape}{a landscape object representing the initial habitat and
+population}
 
-\item{population_dynamics}{a population_dynamics object describing how population changes over time}
+\item{population_dynamics}{a population_dynamics object describing how
+population changes over time}
 
-\item{habitat_dynamics}{optional list of functions to modify the landscape at each timestep}
+\item{habitat_dynamics}{optional list of functions to modify the landscape at
+each timestep}
 
-\item{timesteps}{number of timesteps used in one simulation or to display when plotting rasters}
+\item{timesteps}{number of timesteps used in one simulation or to display
+when plotting rasters}
 
 \item{replicates}{number simulations to perform}
 
@@ -33,15 +37,19 @@ is.simulation_results(x)
 
 \item{...}{further arguments passed to or from other methods}
 
-\item{object}{the state object to plot - can be 'population' (default), 'habitat_suitability' or 'carrying_capacity'}
+\item{object}{the simulation_results object to plot - can be 'population'
+(default), 'suitability' or 'carrying_capacity'}
 
 \item{type}{the plot type - 'graph' (default) or 'raster'}
 
-\item{stage}{life-stage to plot - must be specified for 'raster' plot types; default is NULL and all life-stages will be plotted}
+\item{stage}{life-stage to plot - must be specified for 'raster' plot types;
+default is NULL and all life-stages will be plotted}
 
-\item{animate}{if plotting type 'raster' would you like to animate the rasters as a gif?}
+\item{animate}{if plotting type 'raster' would you like to animate the
+rasters as a gif?}
 
-\item{panels}{the number of columns and rows to use when plotting raster timeseries - default is 3 x 3 (e.g. c(3,3) )}
+\item{panels}{the number of columns and rows to use when plotting raster
+timeseries - default is 3 x 3 (e.g. c(3,3) )}
 }
 \value{
 An object of class \code{simulation_results}
@@ -57,15 +65,13 @@ library(raster)
 library(future)
 plan(multiprocess)
 
-landscape <- landscape(population(egk_pop),
-               habitat(egk_hab, egk_k),
-               demography(egk_mat))
+landscape <- landscape(population = egk_pop,
+               suitability = egk_hab, 
+               carrying_capacity = egk_k)
 
-dynamics <- dynamics(habitat_dynamics(),
-                     demography_dynamics(),
-                     population_dynamics())
+pop_dynamics <- population_dynamics(change = growth(transition_matrix = egk_mat))
 
-results <- simulation(landscape, dynamics, timesteps = 10, replicates = 5)
+results <- simulation(landscape, pop_dynamics, timesteps = 10, replicates = 5)
 
 # Test if object is of the type 'simulation_results'
 

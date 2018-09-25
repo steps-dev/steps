@@ -1,4 +1,4 @@
-#' Functions to modify the habitat in a state object.
+#' Functions to modify the habitat in a landscape object.
 #' 
 #' Pre-defined functions to operate on a habitat and carrying capacity
 #' during a simulation.

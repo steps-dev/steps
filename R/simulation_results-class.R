@@ -2,22 +2,28 @@
 #'
 #' A simulation changes landscape objects based on selected dynamics over a
 #' specified number of timesteps.
-#' 
-#' 
 #'
 #' @rdname simulation_results
 #'
-#' @param landscape a landscape object representing the initial habitat and population
-#' @param population_dynamics a population_dynamics object describing how population changes over time
-#' @param habitat_dynamics optional list of functions to modify the landscape at each timestep
-#' @param timesteps number of timesteps used in one simulation or to display when plotting rasters
+#' @param landscape a landscape object representing the initial habitat and
+#'   population
+#' @param population_dynamics a population_dynamics object describing how
+#'   population changes over time
+#' @param habitat_dynamics optional list of functions to modify the landscape at
+#'   each timestep
+#' @param timesteps number of timesteps used in one simulation or to display
+#'   when plotting rasters
 #' @param replicates number simulations to perform
 #' @param x an simulation_results object
-#' @param object the state object to plot - can be 'population' (default), 'habitat_suitability' or 'carrying_capacity'
+#' @param object the simulation_results object to plot - can be 'population'
+#'   (default), 'suitability' or 'carrying_capacity'
 #' @param type the plot type - 'graph' (default) or 'raster'
-#' @param stage life-stage to plot - must be specified for 'raster' plot types; default is NULL and all life-stages will be plotted
-#' @param animate if plotting type 'raster' would you like to animate the rasters as a gif?
-#' @param panels the number of columns and rows to use when plotting raster timeseries - default is 3 x 3 (e.g. c(3,3) )
+#' @param stage life-stage to plot - must be specified for 'raster' plot types;
+#'   default is NULL and all life-stages will be plotted
+#' @param animate if plotting type 'raster' would you like to animate the
+#'   rasters as a gif?
+#' @param panels the number of columns and rows to use when plotting raster
+#'   timeseries - default is 3 x 3 (e.g. c(3,3) )
 #' @param ... further arguments passed to or from other methods
 #'
 #' @return An object of class \code{simulation_results}
@@ -35,15 +41,13 @@
 #' library(future)
 #' plan(multiprocess)
 #'
-#' landscape <- landscape(population(egk_pop),
-#'                habitat(egk_hab, egk_k),
-#'                demography(egk_mat))
+#' landscape <- landscape(population = egk_pop,
+#'                suitability = egk_hab, 
+#'                carrying_capacity = egk_k)
 #'
-#' dynamics <- dynamics(habitat_dynamics(),
-#'                      demography_dynamics(),
-#'                      population_dynamics())
+#' pop_dynamics <- population_dynamics(change = growth(transition_matrix = egk_mat))
 #'
-#' results <- simulation(landscape, dynamics, timesteps = 10, replicates = 5)
+#' results <- simulation(landscape, pop_dynamics, timesteps = 10, replicates = 5)
 
 simulation <- function(landscape, population_dynamics, habitat_dynamics = list(), timesteps = 3, replicates = 1){
 
@@ -145,7 +149,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                            col=graph.pal[i],
                            ylim=c(pretty(floor(min(pop)))[1], pretty(ceiling(max(pop)))[2]))
             
-            graphics::abline(h=raster::cellStats(x[[1]][[1]]$habitat$carrying_capacity,sum)/stages,
+            graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity,sum)/stages,
                              lwd=1,
                              lty=2)
             
@@ -165,7 +169,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                          col="black",
                          ylim=c(pretty(floor(min(rowSums(pop))))[1], pretty(ceiling(max(rowSums(pop))))[2]))
           
-          graphics::abline(h=raster::cellStats(x[[1]][[1]]$habitat$carrying_capacity,sum),
+          graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity,sum),
                            lwd=1,
                            lty=2)
           
@@ -183,7 +187,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                          col=graph.pal[stage],
                          ylim=c(pretty(floor(min(pop[, stage])))[1], pretty(ceiling(max(pop[, stage])))[2]))
           
-          graphics::abline(h=raster::cellStats(x[[1]][[1]]$habitat$carrying_capacity,sum)/stages,
+          graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity,sum)/stages,
                            lwd=1,
                            lty=2)
           
@@ -305,9 +309,9 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
       }
     }
     
-    if (object == "habitat_suitability") {
+    if (object == "suitability") {
       
-      rasters <- raster::stack(lapply(x[[1]], function (landscape) landscape$habitat$habitat_suitability))
+      rasters <- raster::stack(lapply(x[[1]], function (landscape) landscape$suitability))
       
       # Find maximum and minimum population value in raster cells for all timesteps for life-stage
       scale_max <- ceiling(max(raster::cellStats(rasters, max)))
@@ -358,7 +362,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
     
     if (object == "carrying_capacity") {
       
-      rasters <- raster::stack(lapply(x[[1]], function (landscape) landscape$habitat$carrying_capacity))
+      rasters <- raster::stack(lapply(x[[1]], function (landscape) landscape$carrying_capacity))
       
       # Find maximum and minimum population value in raster cells for all timesteps for life-stage
       scale_max <- ceiling(max(raster::cellStats(rasters, max)))
@@ -414,7 +418,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
     pop <- get_pop_simulation(x)
     pop.mn <- round(apply(pop, c(1,2), mean), 0)
     
-    if (type == "raster" | object == "habitat_suitability" | object == "carrying_capacity") {
+    if (type == "raster" | object == "suitability" | object == "carrying_capacity") {
       stop("Raster plotting is only available for single simulations")
     }
     
@@ -436,7 +440,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                           col = 'gray')
         }
                 
-        #graphics::abline(h=raster::cellStats(x[[1]][[1]]$habitat$carrying_capacity,sum)/stages,
+        #graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity,sum)/stages,
                          #lwd=1,
                          #lty=2)
         
@@ -475,7 +479,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
             col = grDevices::grey(0.4))
       
       
-      graphics::abline(h=raster::cellStats(x[[1]][[1]]$habitat$carrying_capacity,sum),
+      graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity,sum),
                        lwd=1,
                        lty=2)
       
@@ -497,7 +501,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                         col = 'gray')
       }
       
-      graphics::abline(h=raster::cellStats(x[[1]][[1]]$habitat$carrying_capacity,sum)/stages,
+      graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity,sum)/stages,
                        lwd=1,
                        lty=2)
       

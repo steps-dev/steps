@@ -48,12 +48,12 @@ library(steps)
 library(raster)
 
 # Construct a population dynamics object - note non-specified parameters
-uses default population growth function based on transition matrices
+# uses default population growth function based on transition matrices
 pop_dynamics <- population_dynamics()
 
 # Test if object is of the type 'population dynamics'
-is.population_dynamics(test_pop_dynamics)
+is.population_dynamics(pop_dynamics)
 
 # Print details about the 'population_dynamics' object 
-print(test_pop_dynamics)
+print(pop_dynamics)
 }

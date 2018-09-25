@@ -21,7 +21,7 @@ kernel_dispersal(distance_function = function(from, to)
   sqrt(rowSums(sweep(to, 2, from)^2)),
   dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
   arrival_probability = c("both", "suitability", "carrying_capacity"),
-  stages = NULL, demo_stoch = FALSE)
+  stages = NULL, demographic_stochasticity = FALSE)
 
 cellular_automata_dispersal(dispersal_distance = list(0, 10, 10, 0),
   dispersal_kernel = list(0, exp(-c(0:9)^1/3.36), exp(-c(0:9)^1/3.36),

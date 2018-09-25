@@ -95,8 +95,8 @@ growth <- function (transition_matrix,
     n_cells <- length(cell_idx)
     
     # add global noise to the transition matrices and truncate
-    global_noise <- rnorm(length(idx), 0, global_stochasticity)
-    local_noise <- rnorm(length(idx) * n_cells, 0, local_stochasticity)
+    global_noise <- stats::rnorm(length(idx), 0, global_stochasticity)
+    local_noise <- stats::rnorm(length(idx) * n_cells, 0, local_stochasticity)
     total_noise <- global_noise + local_noise
     
     values <- vals + total_noise
@@ -147,7 +147,7 @@ growth <- function (transition_matrix,
     } else {
       
       population <- t(sapply(seq_len(n_cells),
-                             function(x) local_mat[ , , x] %*% matrix(population[x, ])))
+                             function(x) transition_array[ , , x] %*% matrix(population[x, ])))
       
     }
     
@@ -165,52 +165,52 @@ growth <- function (transition_matrix,
 }
 
 
-spatial_transition <- function (survival_raster,
-                                fecundity_raster,
-                                demographic_stochasticity = TRUE,
-                                global_stochasticity = 0,
-                                local_stochasticity = 0) {
-  
-  # as above
-  
-}
+# spatial_transition <- function (survival_raster,
+#                                 fecundity_raster,
+#                                 demographic_stochasticity = TRUE,
+#                                 global_stochasticity = 0,
+#                                 local_stochasticity = 0) {
+#   
+#   # as above
+#   
+# }
 
 
-functional_transition <- function (survival_function,
-                                   fecundity_function,
-                                   demographic_stochasticity = TRUE,
-                                   global_stochasticity = 0,
-                                   local_stochasticity = 0) {
-  
-  # as above
-  
-}
+# functional_transition <- function (survival_function,
+#                                    fecundity_function,
+#                                    demographic_stochasticity = TRUE,
+#                                    global_stochasticity = 0,
+#                                    local_stochasticity = 0) {
+#   
+#   # as above
+#   
+# }
 
-# e.g.:
-survival_fun <- function (landscape) {
-  cov <- landscape$time_since_fire
-  if (is.null(suit)) stop ()
-  
-  cell_idx <- which(!is.na(raster::getValues(cov)))
-  cov_vec <- raster::extract(cov, cell_idx)
-  
-  multipliers <- c(0.5, 0.3, 0.2)
-  cov_mat <- outer(log(cov_vec), multipliers, FUN = "*")
-  plogis(cov_mat)
+# # e.g.:
+# survival_fun <- function (landscape) {
+#   cov <- landscape$time_since_fire
+#   if (is.null(suit)) stop ()
+#   
+#   cell_idx <- which(!is.na(raster::getValues(cov)))
+#   cov_vec <- raster::extract(cov, cell_idx)
+#   
+#   multipliers <- c(0.5, 0.3, 0.2)
+#   cov_mat <- outer(log(cov_vec), multipliers, FUN = "*")
+#   plogis(cov_mat)
+# 
+# }
 
-}
 
-
-fecundity_fun <- function (landscape) {
-  cov <- landscape$time_since_fire
-  if (is.null(suit)) stop ()
-  
-  cell_idx <- which(!is.na(raster::getValues(cov)))
-  cov_vec <- raster::extract(cov, cell_idx)
-  
-  fec_vec <- exp(log(cov_vec) * 0.8)
-  cbind(0, 0, fec_vec)
-}
+# fecundity_fun <- function (landscape) {
+#   cov <- landscape$time_since_fire
+#   if (is.null(suit)) stop ()
+#   
+#   cell_idx <- which(!is.na(raster::getValues(cov)))
+#   cov_vec <- raster::extract(cov, cell_idx)
+#   
+#   fec_vec <- exp(log(cov_vec) * 0.8)
+#   cbind(0, 0, fec_vec)
+# }
 
 
 
@@ -234,7 +234,7 @@ fast_dispersal <- function(
     
     # Which stages can disperse
     which_stages_disperse <- if (is.null(stages)) {
-      seq_len(ncol(landscape$demography$global_transition_matrix))
+      seq_len(raster::nlayers(landscape$population))
     } else {
       stages
     }
@@ -282,7 +282,7 @@ kernel_dispersal <- function(
   dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
   arrival_probability = c("both", "suitability", "carrying_capacity"),
   stages = NULL,
-  demo_stoch = FALSE
+  demographic_stochasticity = FALSE
 ) {
   
   arrival_probability <- match.arg(arrival_probability)
@@ -385,10 +385,10 @@ kernel_dispersal <- function(
           contribution <- distance_function(xy[i, ], xy[can_arriv, ])
           contribution <- dispersal_kernel(contribution)
           contribution <- contribution * arrival_prob_values[can_arriv]
-          # Standardise contributions and round them if demo_stoch = TRUE
+          # Standardise contributions and round them if demographic_stochasticity = TRUE
           contribution <- contribution / sum(contribution)
           contribution <- contribution * population_values[i]
-          if (identical(demo_stoch, FALSE)) return(contribution)
+          if (identical(demographic_stochasticity, FALSE)) return(contribution)
           contribution_int <- floor(contribution)
           idx <- utils::tail(
             order(contribution - contribution_int),

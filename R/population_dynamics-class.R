@@ -30,7 +30,7 @@
 #' library(raster)
 #' 
 #' # Construct a population dynamics object - note non-specified parameters
-#' uses default population growth function based on transition matrices
+#' # uses default population growth function based on transition matrices
 #' pop_dynamics <- population_dynamics()
 
 population_dynamics <- function (change,
@@ -70,7 +70,7 @@ as.population_dynamics <- function (population_dynamics_function) {
 #' @examples
 #'
 #' # Test if object is of the type 'population dynamics'
-#' is.population_dynamics(test_pop_dynamics)
+#' is.population_dynamics(pop_dynamics)
 
 is.population_dynamics <- function (x) {
   inherits(x, 'population_dynamics')
@@ -83,7 +83,7 @@ is.population_dynamics <- function (x) {
 #' @examples
 #'
 #' # Print details about the 'population_dynamics' object 
-#' print(test_pop_dynamics)
+#' print(pop_dynamics)
 
 print.population_dynamics <- function (x, ...) {
   cat("This is a population_dynamics object")

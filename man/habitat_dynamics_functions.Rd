@@ -3,7 +3,7 @@
 \name{habitat_dynamics_functions}
 \alias{habitat_dynamics_functions}
 \alias{disturbance_fires}
-\title{Functions to modify the habitat in a state object.}
+\title{Functions to modify the habitat in a landscape object.}
 \usage{
 disturbance_fires(habitat_suitability, disturbance_layers,
   effect_time = 1)

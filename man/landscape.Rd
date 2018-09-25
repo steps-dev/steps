@@ -4,7 +4,7 @@
 \alias{landscape}
 \alias{is.landscape}
 \alias{print.landscape}
-\title{Create a landscape object to use in a state object.}
+\title{Create a landscape object.}
 \usage{
 landscape(population, suitability = NULL, carrying_capacity = NULL,
   ...)
@@ -17,19 +17,19 @@ is.landscape(x)
 \item{population}{A raster stack (grid cell-based) with one layer
 for each life stage.}
 
-\item{suitability}{An optional raster layer or stack containing landscape
+\item{suitability}{An optional raster layer or stack containing habitat
 suitability values for all cells in a landscape. Note, using a raster
-stack assumes that the user has provided a landscape layer for each
-intended timestep in a simulation.}
+stack assumes that the user has provided a layer for each intended timestep
+in a simulation.}
 
 \item{carrying_capacity}{An optional raster layer specifying carrying capacity
 values for all cells in a landscape.}
 
-\item{...}{In the lanndscape function, named raster objects representing different
+\item{...}{Named raster objects representing different
 aspects of the landscape used to modify the landscape object in a
 simulation. Note, this is intended to store objects that are accessed
-and used to modify the landscape with a custom developed landscape dynamic
-function. Also, further arguments passed to or from other methods.}
+and used to modify the landscape with custom developed dynamic
+functions. Also, further arguments passed to or from other methods.}
 
 \item{x}{A landscape object.}
 }
@@ -37,14 +37,13 @@ function. Also, further arguments passed to or from other methods.}
 An object of class \code{landscape}
 }
 \description{
-A landscape object is used to store spatially-explicit information on landscape
-suitability and the carrying_capacity of a landscape.
+A landscape object is used to store spatially-explicit information on population,
+habitat suitability and carrying_capacity.
 }
 \details{
-A landscape object is a sub-component of a \link[steps]{state} object and
-is modified in each timestep of a simulation. During a simulation, a
-landscape object tracks changes in landscape suitability or carrying capacity
-based on landscape dynamic functions selected or created by the user.
+A landscape object is modified in each timestep of a simulation. During a simulation, a
+landscape object tracks changes in population, habitat suitability or carrying capacity
+based on dynamic functions selected or created by the user.
 }
 \examples{
 
@@ -52,11 +51,11 @@ library(steps)
 library(raster)
 
 # Construct the landscape object
-hab <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+egk_ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
 
 # Test if object is of the type 'landscape'
-is.landscape(test_habitat)
+is.landscape(egk_ls)
 
 # Print information about the 'landscape' object
-print(test_habitat)
+print(egk_ls)
 }
