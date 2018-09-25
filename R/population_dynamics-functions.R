@@ -595,32 +595,28 @@ population_cap <- function (stages = NULL) {
 ### internal functions ###
 ##########################
 
-as.population_growth <- function (population_simple_growth) {
-  as_class(population_simple_growth, "population_dynamics", "function")
+as.population_growth <- function (simple_growth) {
+  as_class(simple_growth, "population_dynamics", "function")
 }
 
-as.population_fast_dispersal <- function (population_fast_dispersal) {
-  as_class(population_fast_dispersal, "population_dynamics", "function")
+as.population_fast_dispersal <- function (fast_dispersal) {
+  as_class(fast_dispersal, "population_dynamics", "function")
 }
 
-as.population_kernel_dispersal <- function (population_kernel_dispersal) {
-  as_class(population_kernel_dispersal, "population_dynamics", "function")
+as.population_kernel_dispersal <- function (kernel_dispersal) {
+  as_class(kernel_dispersal, "population_dynamics", "function")
 }
 
-as.population_ca_dispersal <- function (population_ca_dispersal) {
-  as_class(population_ca_dispersal, "population_dynamics", "function")
+as.population_ca_dispersal <- function (ca_dispersal) {
+  as_class(ca_dispersal, "population_dynamics", "function")
 }
 
-as.population_fft_dispersal <- function (population_fft_dispersal) {
-  as_class(population_fft_dispersal, "population_dynamics", "function")
+as.population_translocation <- function (translocation) {
+  as_class(translocation, "population_dynamics", "function")
 }
 
-as.population_translocation <- function (population_translocation) {
-  as_class(population_translocation, "population_dynamics", "function")
-}
-
-as.population_density_dependence <- function (population_density_dependence) {
-  as_class(population_density_dependence, "population_dynamics", "function")
+as.population_density_dependence <- function (density_dependence) {
+  as_class(density_dependence, "population_dynamics", "function")
 }
 
 extend <- function (x, factor = 2) {

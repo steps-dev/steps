@@ -27,7 +27,6 @@ Imports:
     methods,
     igraph,
     scales,
-    extraDistr,
     future,
     future.apply,
     rasterVis,

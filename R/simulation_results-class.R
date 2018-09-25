@@ -198,7 +198,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
       if (type == "raster") {
         
         if (is.null(stage)) {
-          stop("Please provide a life-stage when plotting \npopulation rasters or specify zero (0) for a sum of all life-stages")
+          stop("Please provide a life-stage when plotting population rasters or specify zero (0) for a sum of all life-stages")
         }
         
         if (length(timesteps) > 20) {

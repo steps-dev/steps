@@ -33,7 +33,7 @@ disturbance_fires <- function (habitat_suitability, disturbance_layers, effect_t
     original_habitat <- habitat_suitability
     
     if (raster::nlayers(disturbance_layers) < timestep ) {
-      stop("The number of disturbance layers must match the \nnumber of timesteps in the experiment")
+      stop("The number of disturbance layers must match the number of timesteps in the experiment")
     }
 
     modified_habitat <- original_habitat * raster::overlay(disturbance_layers[[utils::tail(seq_len(timestep), effect_time)]], fun = prod)
