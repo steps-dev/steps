@@ -6,7 +6,8 @@
 #'   \item{egk_pop}{A raster stack containing intital populations for each life-stage of the Eastern Grey Kangaroo.}
 #'   \item{egk_k}{A raster stack containing the total number of Eastern Grey Kangaroos each grid cell can support.}
 #'   \item{egk_mat}{A matrix containing the survival and fecundity of Eastern Grey Kangaroos at each of three life-stages - juvenile, subadult, and adult.}
-#'   \item{egk_dist}{A raster stack containing values for modifying the habitat.}
+#'   \item{egk_mat_stoch}{A matrix containing the uncertainty around survival and fecundity of Eastern Grey Kangaroos at each of three life-stages - juvenile, subadult, and adult.}
+#'   \item{egk_dist}{A raster stack containing values for modifying the habitat - in this case proportion of landscape remaining after fire.}
 #' }
 #' @format Misc data
 #' @name egk
@@ -20,6 +21,9 @@
 
 #' @rdname egk
 "egk_mat"
+
+#' @rdname egk
+"egk_mat_stoch"
 
 #' @rdname egk
 "egk_dist"

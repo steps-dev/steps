@@ -15,18 +15,20 @@ test_that('simulation_results classes work', {
   disp.bar2[sampleRandom(disp.bar2, size = 100, na.rm = TRUE, sp = TRUE)] <- 1
   
   # dist_list <- list()
-  # 
-  # for (i in 1:10) {
-  #   
+  # for (i in 1:20) {
   #   r2 <- egk_hab
   #   r2[] <- 1
-  #   cells <- sample(c(1:ncell(r2)), 10)
-  #   r2[c(adjacent(egk_hab, cells, directions = 8, pairs = FALSE),cells)]  <- 0.5
+  #   cells <- sample(c(1:ncell(r2)), sample(5:10, 1))
+  #   fireprob <- abs(rnorm(16, 0, 1))
+  #   fireprob <- fireprob/max(fireprob)
+  #   r2[c(adjacent(egk_hab, cells, directions = 16, pairs = FALSE), cells)]  <- fireprob
   #   dist_list[[i]] <- r2
-  #   
   # }
-  
-  # dist.s <- stack(dist_list)
+  # egk_dist <- stack(dist_list)
+  # for (i in c(3,7,14,15,18)) {
+  #   egk_dist[[i]][] <- 1
+  # }
+
 
   # surv_fec <- list(dist.s, dist.s, dist.s)
   # surv_fec2 <- list(dist.s, dist.s, NULL)

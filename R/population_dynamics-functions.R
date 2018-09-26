@@ -570,7 +570,7 @@ population_cap <- function (stages = NULL) {
     
     # get degree of overpopulation, and shrink accordingly
     if (!is.null(stages)) {
-      overpopulation <- as.vector(carrying_capacity) / rowSums(population_matrix[ ,stages])
+      overpopulation <- as.vector(carrying_capacity) / rowSums(cbind(population_matrix[ , stages], rep(0, length(idx))))
     } else {
       overpopulation <- as.vector(carrying_capacity) / rowSums(population_matrix)
     }

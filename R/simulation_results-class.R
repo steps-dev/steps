@@ -149,10 +149,11 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                            col=graph.pal[i],
                            ylim=c(pretty(floor(min(pop)))[1], pretty(ceiling(max(pop)))[2]))
             
-            graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity,sum)/stages,
-                             lwd=1,
-                             lty=2)
-            
+            if (!is.null(x[[1]][[1]]$carrying_capacity)) {
+              graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity, sum)/stages,
+                               lwd=1,
+                               lty=2)
+            }
           }
           
         }
@@ -169,10 +170,11 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                          col="black",
                          ylim=c(pretty(floor(min(rowSums(pop))))[1], pretty(ceiling(max(rowSums(pop))))[2]))
           
-          graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity,sum),
-                           lwd=1,
-                           lty=2)
-          
+          if (!is.null(x[[1]][[1]]$carrying_capacity)) {
+            graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity, sum),
+                             lwd=1,
+                             lty=2)
+          }
         }
         
         if (!is.null(stage) && stage > 0) {
@@ -187,10 +189,11 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                          col=graph.pal[stage],
                          ylim=c(pretty(floor(min(pop[, stage])))[1], pretty(ceiling(max(pop[, stage])))[2]))
           
-          graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity,sum)/stages,
-                           lwd=1,
-                           lty=2)
-          
+          if (!is.null(x[[1]][[1]]$carrying_capacity)) {
+            graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity,sum)/stages,
+                             lwd=1,
+                             lty=2)
+          }
         }
         
       }
@@ -439,10 +442,6 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
           graphics::lines(pop[ , i, j],
                           col = 'gray')
         }
-                
-        #graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity,sum)/stages,
-                         #lwd=1,
-                         #lty=2)
         
       }
       
@@ -478,11 +477,12 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
             lwd = 2,
             col = grDevices::grey(0.4))
       
-      
-      graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity,sum),
-                       lwd=1,
-                       lty=2)
-      
+      if (!is.null(x[[1]][[1]]$carrying_capacity)) {
+        graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity,sum),
+                         lwd=1,
+                         lty=2)
+      }
+
     }
     
     if (!is.null(stage) && stage > 0) {
@@ -501,10 +501,12 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                         col = 'gray')
       }
       
-      graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity,sum)/stages,
-                       lwd=1,
-                       lty=2)
-      
+      if (!is.null(x[[1]][[1]]$carrying_capacity)) {
+        graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity,sum)/stages,
+                         lwd=1,
+                         lty=2)
+      }
+
     }
   
   }
