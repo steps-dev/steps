@@ -35,7 +35,7 @@ change in space and time.
 }
 \details{
 A population_dynamics object is passed to \link[steps]{simulation}
-and defines how populations change between timesteps.  Note, some dynamics
+and defines how populations change between timesteps. Note, some dynamics
 functions can be executed at non-regular intervals (i.e. only timesteps
 explicitly defined by the user). The \code{population_dynamics} function is
 used to construct a population dynamics object consisting of several population

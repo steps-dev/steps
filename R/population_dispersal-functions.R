@@ -5,7 +5,7 @@ NULL
 #'
 #' Pre-defined functions to define population dispersal during a simulation.
 #'
-#' @name population_dynamics_functions
+#' @name population_dispersal_functions
 #'
 #' @param demographic_stochasticity should demographic stochasticity be used in
 #'   dispersal?
