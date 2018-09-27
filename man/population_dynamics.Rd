@@ -14,13 +14,13 @@ is.population_dynamics(x)
 \method{print}{population_dynamics}(x, ...)
 }
 \arguments{
-\item{change}{a \link[steps]{population_dynamics_functions} to define how population growth occurs at each timestep}
+\item{change}{\link[steps]{population_change-functions} to define how population growth occurs at each timestep}
 
-\item{dispersal}{a function to define how the population disperses at each timestep (default is exponential kernel)}
+\item{dispersal}{a single or list of \link[steps]{population_dispersal-functions} to define how the population disperses at each timestep (default is exponential kernel)}
 
-\item{modification}{a function to define any deterministic changes to the population - such as translocation - at each timestep}
+\item{modification}{a single or list of \link[steps]{population_modification-functions} to define any deterministic changes to the population - such as translocation - at each timestep}
 
-\item{density_dependence}{a function to control density dependence effects on the population at each timestep}
+\item{density_dependence}{a single or list of \link[steps]{population_density_dependence-functions} to control density dependence effects on the population at each timestep}
 
 \item{x}{a population_dynamic object}
 
