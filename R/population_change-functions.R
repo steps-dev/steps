@@ -2,7 +2,7 @@
 #'
 #' Pre-defined functions to define population change (e.g. growth) during a simulation.
 #'
-#' @name population_dynamics_functions
+#' @name population_change_functions
 #'
 #' @param transition_matrix A symmetrical age-based (Leslie) or stage-based
 #'   population structure matrix.
@@ -14,7 +14,7 @@
 #'   all populations (\code{global_stochasticity}) or for each population
 #'   separately (\code{local_stochasticity})
 #'
-#' @rdname population_dynamics_functions
+#' @rdname population_change_functions
 #' 
 #' @export
 #' 

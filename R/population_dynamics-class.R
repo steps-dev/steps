@@ -13,10 +13,10 @@
 #'
 #' @rdname population_dynamics
 #'
-#' @param change \link[steps]{population_change-functions} to define how population growth occurs at each timestep
-#' @param dispersal a single or list of \link[steps]{population_dispersal-functions} to define how the population disperses at each timestep (default is exponential kernel)
-#' @param modification a single or list of \link[steps]{population_modification-functions} to define any deterministic changes to the population - such as translocation - at each timestep
-#' @param density_dependence a single or list of \link[steps]{population_density_dependence-functions} to control density dependence effects on the population at each timestep
+#' @param change \link[steps]{population_change_functions} to define how population growth occurs at each timestep
+#' @param dispersal a single or list of \link[steps]{population_dispersal_functions} to define how the population disperses at each timestep (default is exponential kernel)
+#' @param modification a single or list of \link[steps]{population_modification_functions} to define any deterministic changes to the population - such as translocation - at each timestep
+#' @param density_dependence a single or list of \link[steps]{population_density_dependence_functions} to control density dependence effects on the population at each timestep
 #' @param x a population_dynamic object
 #' @param ... further arguments passed to or from other methods
 #'

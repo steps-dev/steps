@@ -30,7 +30,7 @@ NULL
 #' @param carrying_capacity a raster layer that specifies the carrying capacity
 #'   in each cell
 #'
-#' @rdname population_dynamics_functions
+#' @rdname population_dispersal_functions
 #' 
 #' @export
 #' 
@@ -82,7 +82,7 @@ fast_dispersal <- function(
 }
 
 
-#' @rdname population_dynamics_functions
+#' @rdname population_dispersal_functions
 #' 
 #' @export
 #' 
@@ -229,7 +229,7 @@ kernel_dispersal <- function(
 }
 
 
-#' @rdname population_dynamics_functions
+#' @rdname population_dispersal_functions
 #' 
 #' @export
 #' 

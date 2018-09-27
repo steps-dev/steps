@@ -2,7 +2,7 @@
 #'
 #' Pre-defined functions to define population modification (e.g. translocation) during a simulation.
 #'
-#' @name population_dynamics_functions
+#' @name population_modification_functions
 #'
 #' @param stages which life-stages are modified - default is all
 #' @param source_layer a spatial layer with the locations and number of
@@ -13,7 +13,7 @@
 #' @param effect_timesteps which timesteps in a single simulation do the
 #'   translocations take place
 #'
-#' @rdname population_dynamics_functions
+#' @rdname population_modification_functions
 #'
 #' @export
 #' 

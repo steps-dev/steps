@@ -2,11 +2,11 @@
 #'
 #' Pre-defined functions to define population density dependence (e.g. cap) during a simulation.
 #'
-#' @name population_dynamics_functions
+#' @name population_density_dependence_functions
 #'
 #' @param stages which life-stages contribute to density dependence - default is all
 #'
-#' @rdname population_dynamics_functions
+#' @rdname population_density_dependence_functions
 #'
 #' @export
 #' 
