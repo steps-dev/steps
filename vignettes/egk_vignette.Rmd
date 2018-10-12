@@ -1,8 +1,10 @@
 ---
 title: "A Eastern Grey Kangaroo population simulation example"
-author: "Casey Visintin & Skipton Woolley"
+author: "Casey Visintin"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    fig_width: 7
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEngine{knitr::rmarkdown}
@@ -86,18 +88,20 @@ egk_pop_dynamics <- population_dynamics(change = growth(transition_matrix = egk_
 
 Now that we have constructed the landscape object and defined a dynamic object, we can run a single simulation (i.e replicates = 1, default). We simulate changes to the kangaroo population over twenty timesteps. Runtime will depend on the complexity of the landscape object and the configuration of the dynamic object(s).
 
-```{r, message = FALSE,  results='hide'}
+```{r, message = FALSE,  results='hide', progress=FALSE}
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,
+                          habitat_dynamics = NULL,
                           timesteps = 20,
-                          replicates = 1)
+                          replicates = 1,
+                          verbose = FALSE)
 ```
 
 Once a simulation has been run, we can plot temporally-explicit information.
 
 For this example, we can view the kangaroo population trajectories of each life-stage:
 
-```{r, message = FALSE, fig.width=7, fig.align="center"}
+```{r, message = FALSE, fig.align="center"}
 plot(egk_results)
 ```
 
@@ -115,7 +119,7 @@ plot(egk_results, stage = 2, newplot = TRUE)
 
 We can also view the population distribution over the landscape for a single life-stage (only timesteps one through nine shown):
 
-```{r, message = FALSE, fig.width=7, fig.align="center"}
+```{r, message = FALSE, fig.align="center"}
 plot(egk_results, type = "raster", stage = 2)
 ```
 
@@ -125,8 +129,10 @@ We can also perform multiple simulations. For the kangaroo, we specified three r
 
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,
+                          habitat_dynamics = NULL,
                           timesteps = 20,
-                          replicates = 3)
+                          replicates = 3,
+                          verbose = FALSE)
 ```
 
 The default plot will show all of the simulation relicates and the mean population trajectory:
@@ -143,7 +149,7 @@ plot(egk_results[3], stage = 0)
 
 Note, if several replicates of a simulation are run, you must explicitly specify which one to plot for rasters (i.e. egk_results[1])
 
-```{r, message = FALSE, fig.width=7, fig.align="center"}
+```{r, message = FALSE, fig.align="center"}
 plot(egk_results[1], type = "raster", stage = 2)
 ```
 
@@ -158,8 +164,10 @@ egk_pop_dynamics <- population_dynamics(change = growth(transition_matrix = egk_
 
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,
+                          habitat_dynamics = NULL,
                           timesteps = 20,
-                          replicates = 3)
+                          replicates = 3,
+                          verbose = FALSE)
 
 plot(egk_results)
 ```
@@ -179,21 +187,23 @@ egk_pop_dynamics <- population_dynamics(change = growth(transition_matrix = egk_
 
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,
+                          habitat_dynamics = NULL,
                           timesteps = 20,
-                          replicates = 3)
+                          replicates = 3,
+                          verbose = FALSE)
 
 plot(egk_results)
 ```
 
 The landscape object sub-components are stored for each timestep (if they are initially specified) so it is possible to also view the carrying capacity throughout a single simulation (i.e. egk_results[1]). Note, only timesteps one through nine are shown by default but this can be changed - see help for more information.
 
-```{r, message = FALSE, fig.width=7, fig.align="center"}
+```{r, message = FALSE, fig.align="center"}
 plot(egk_results[1], object = "carrying_capacity")
 ```
 
 So far, the populations are only changing within their cells without any movement between cells. Let's add dispersal to allow kangaroos to move throughout the landscape. There are several dispersal functions and all of them utilise habitat suitability, carrying capacity, or both to determine arrival probabilities - see help for more information. Thus we will need to provide the approproate layer in the intial landscape. Below, we use kernel-based dispersal and habitat suitability to determine the arrival probabilities:
 
-```{r, message = FALSE}
+```{r, message = FALSE, progress = FALSE}
 egk_landscape <- landscape(population = egk_pop,
                            suitability = egk_hab,
                            carrying_capacity = egk_k)
@@ -206,15 +216,17 @@ egk_pop_dynamics <- population_dynamics(change = growth(transition_matrix = egk_
 
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,
+                          habitat_dynamics = NULL,
                           timesteps = 20,
-                          replicates = 3)
+                          replicates = 3,
+                          verbose = FALSE)
 
 plot(egk_results)
 ```
 
 Let's have a look at how the adult population is changing in the first repicate of the simulation:
 
-```{r, message = FALSE, fig.width=7, fig.align="center"}
+```{r, message = FALSE, fig.align="center"}
 plot(egk_results[1], type = "raster", stage = 3)
 ```
 
@@ -239,13 +251,20 @@ egk_results <- simulation(landscape = egk_landscape,
                                                                     disturbance_layers = egk_dist,
                                                                     effect_time = 3)),
                           timesteps = 20,
-                          replicates = 3)
+                          replicates = 3,
+                          verbose = FALSE)
 
 plot(egk_results)
 ```
 
 And now let's have a look at how the adult population is changing with fires occurring in the landscape:
 
-```{r, message = FALSE, fig.width=7, fig.align="center"}
+```{r, message = FALSE, fig.align="center"}
 plot(egk_results[1], type = "raster", stage = 3)
+```
+
+Since we are using habitat dynamics we may want to have a look at how the habitat suitability changes in a landscape. Similar to carrying capacity - as shown earlier - it is possible to view the habitat suitability throughout a single simulation:
+
+```{r, message = FALSE, fig.align="center"}
+plot(egk_results[1], object = "suitability")
 ```

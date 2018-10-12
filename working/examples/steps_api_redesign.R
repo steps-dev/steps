@@ -147,3 +147,19 @@ population_dynamics(growth(egk_mat),
                     density_dependence = population_cap())
 
                
+# test single cell raster
+
+r <- raster(nrows=1, ncols=1, xmn=-145, xmx=-144.9, ymn=35.9, ymx=36, vals=1)
+
+pop <- stack(r*20, r*10, r*15)
+k <- r*50
+hab <- r*0.8
+
+
+test <- simulation(landscape(population = pop,
+                             suitability = hab,
+                             carrying_capacity = k),
+                   population_dynamics(growth(egk_mat),
+                                       density_dependence = population_cap()),
+                   replicates = 3)
+plot(test)

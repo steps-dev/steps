@@ -49,7 +49,7 @@
 #'
 #' results <- simulation(landscape, pop_dynamics, timesteps = 10, replicates = 5)
 
-simulation <- function(landscape, population_dynamics, habitat_dynamics = list(), timesteps = 3, replicates = 1){
+simulation <- function(landscape, population_dynamics, habitat_dynamics = list(), timesteps = 3, replicates = 1, verbose = TRUE){
 
   in_parallel <- !inherits(future::plan(), "sequential")
   lapply_fun <- ifelse(in_parallel,
@@ -61,7 +61,8 @@ simulation <- function(landscape, population_dynamics, habitat_dynamics = list()
                                       landscape = landscape,
                                       population_dynamics = population_dynamics,
                                       habitat_dynamics = habitat_dynamics,
-                                      timesteps = timesteps)
+                                      timesteps = timesteps,
+                                      verbose = verbose)
 
   as.simulation_results(simulation_results)
 }
@@ -144,16 +145,16 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
             graphics::plot(pop[ , i],
                            type='l',
                            ylab=paste("Total Population: ",stage_names[i]),
-                           xlab="Time (years)",
+                           xlab="Timesteps",
                            lwd=3,
                            col=graph.pal[i],
-                           ylim=c(pretty(floor(min(pop)))[1], pretty(ceiling(max(pop)))[2]))
+                           ylim=range(pretty(pop)))
             
-            if (!is.null(x[[1]][[1]]$carrying_capacity)) {
-              graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity, sum)/stages,
-                               lwd=1,
-                               lty=2)
-            }
+            # if (!is.null(x[[1]][[1]]$carrying_capacity)) {
+            #   graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity, sum)/stages,
+            #                    lwd=1,
+            #                    lty=2)
+            # }
           }
           
         }
@@ -165,16 +166,16 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
           graphics::plot(rowSums(pop),
                          type='l',
                          ylab="Total Population (all stages)",
-                         xlab="Time (years)",
+                         xlab="Timesteps",
                          lwd=3,
                          col="black",
-                         ylim=c(pretty(floor(min(rowSums(pop))))[1], pretty(ceiling(max(rowSums(pop))))[2]))
+                         ylim=range(pretty(rowSums(pop))))
           
-          if (!is.null(x[[1]][[1]]$carrying_capacity)) {
-            graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity, sum),
-                             lwd=1,
-                             lty=2)
-          }
+          # if (!is.null(x[[1]][[1]]$carrying_capacity)) {
+          #   graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity, sum),
+          #                    lwd=1,
+          #                    lty=2)
+          # }
         }
         
         if (!is.null(stage) && stage > 0) {
@@ -184,16 +185,16 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
           graphics::plot(pop[, stage],
                          type='l',
                          ylab=paste("Total Population: ",stage_names[stage]),
-                         xlab="Time (years)",
+                         xlab="Timesteps",
                          lwd=3,
                          col=graph.pal[stage],
-                         ylim=c(pretty(floor(min(pop[, stage])))[1], pretty(ceiling(max(pop[, stage])))[2]))
+                         ylim=range(pretty(pop[, stage])))
           
-          if (!is.null(x[[1]][[1]]$carrying_capacity)) {
-            graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity,sum)/stages,
-                             lwd=1,
-                             lty=2)
-          }
+          # if (!is.null(x[[1]][[1]]$carrying_capacity)) {
+          #   graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity,sum)/stages,
+          #                    lwd=1,
+          #                    lty=2)
+          # }
         }
         
       }
@@ -246,7 +247,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
             #                                              width = 0.6),
             #                              main="population"))
             # }
-           
+            graphics::par(mar=c(2, 0, 0, 0), mfrow=c(1,1))
             print(rasterVis::levelplot(rasters_sum[[timesteps]],
                                        scales = list(draw = FALSE),
                                        margin = list(draw = FALSE),
@@ -257,9 +258,8 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                                                        width = 0.6),
                                        main = "population",
                                        layout = panels))
-            
           }
-
+          
         } else {
           
           rasters <- raster::stack(lapply(x[[1]], function (landscape) landscape$population[[stage]]))
@@ -434,9 +434,10 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
         graphics::plot(pop.mn[, i],
                        type = 'l',
                        ylab = paste("Total Population: ",stage_names[i]),
-                       xlab = "Time (years)",
+                       xlab = "Timesteps",
                        lwd = 3,
-                       col = graph.pal[i])
+                       col = graph.pal[i],
+                       ylim=range(pretty(pop)))
 
         for (j in seq_along(x)) {
           graphics::lines(pop[ , i, j],
@@ -459,7 +460,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
       graphics::plot(quants[,2],#rowSums(pop[ , , 1]),
                      type = 'l',
                      ylab = "Total Population (all stages)",
-                     xlab = "Time (years)",
+                     xlab = "Timesteps",
                      lwd = 3,
                      col = 'black')
       
@@ -492,7 +493,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
       graphics::plot(pop.mn[ , stage],
                      type = 'l',
                      ylab = paste("Total Population: ",stage_names[stage]),
-                     xlab = "Time (years)",
+                     xlab = "Timesteps",
                      lwd = 3,
                      col = graph.pal[stage])
       
@@ -521,9 +522,9 @@ as.simulation_results <- function (simulation_results) {
   as_class(simulation_results, "simulation_results", "list")
 }
 
-simulate <- function (i, landscape, population_dynamics, habitat_dynamics,timesteps = 100) {
+simulate <- function (i, landscape, population_dynamics, habitat_dynamics, timesteps, verbose) {
   timesteps <- seq_len(timesteps)
-  pb <- utils::txtProgressBar(min = 0, max = max(timesteps), style = 3)
+  if (verbose == TRUE) pb <- utils::txtProgressBar(min = 0, max = max(timesteps), style = 3)
   
   output_landscapes <- list()
   
@@ -536,10 +537,10 @@ simulate <- function (i, landscape, population_dynamics, habitat_dynamics,timest
     }
     
     output_landscapes[[timestep]] <- landscape
-    utils::setTxtProgressBar(pb, timestep)
+    if (verbose == TRUE) utils::setTxtProgressBar(pb, timestep)
   }
   
-  close(pb)
+  if (verbose == TRUE) close(pb)
   
   as_class(output_landscapes, "replicate", "list")
 }
