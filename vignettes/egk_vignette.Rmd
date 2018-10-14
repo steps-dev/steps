@@ -232,12 +232,13 @@ plot(egk_results[1], type = "raster", stage = 3)
 
 All of the rasters may also be plotted as animations - see help for more information.
 
-So far the kangaroo population is the only thing to be dynamically changing in the landscape, however, often habitat suitability also changes due to disturbances. To characterise habitat disturbance, we can use a series of raster layers that map the locations and severity of fires. Each fire raster will be multiplied with the habitat suitability layer and thus contain values between zero (intense fire) and one (no fire). Note, the number of disturbance layers must match the intended number of timesteps in a single simulation. There is an existing spatial dataset of fires in the steps package ("egk_dist"). We use a pre-defined fire disturbance function to modify the habitat suitability in the simulation at each timestep. The function requires an initial habitat suitability layer, a stack of disturbance layers equal to the intended number of timesteps in a single simulation, and an effect time which specifies the number of timesteps that each disturbance layer acts on the habitat suitability. In this example, we provide the kangaroo habitat suitability input ("egk_hab"), the kangaroo fire disturbance input ("egk_dist"), and an effect time of three - meaning each fire layer will affect the habitat suitability for three timestep in each simulation replicate. All functions that act on the habitat must be passed in as a list in the simulation call:
+So far the kangaroo population is the only thing to be dynamically changing in the landscape, however, often habitat suitability also changes due to disturbances. To characterise habitat disturbance, we can use a series of raster layers that map the locations and severity of fires. Each fire raster will be multiplied with the habitat suitability layer and thus contain values between zero (intense fire) and one (no fire). Note, the number of disturbance layers must match the intended number of timesteps in a single simulation. There is an existing spatial dataset of fires in the steps package ("egk_dist") which we store in the landscape object. We use a pre-defined disturbance function to modify the habitat suitability in the simulation at each timestep. The function requires an initial habitat suitability layer, the name of disturbance layers stored in the landscape object ("fires"), and an effect time which specifies the number of timesteps that each disturbance layer acts on the habitat suitability. In this example, we provide the kangaroo habitat suitability input ("egk_hab"), the kangaroo fire disturbance input name ("fires"), and an effect time of three - meaning each fire layer will affect the habitat suitability for three timestep in each simulation replicate. All functions that act on the habitat must be passed in as a list in the simulation call:
 
 ```{r, message = FALSE}
 egk_landscape <- landscape(population = egk_pop,
                            suitability = egk_hab,
-                           carrying_capacity = egk_k)
+                           carrying_capacity = egk_k,
+                           fires = egk_dist)
 
 egk_pop_dynamics <- population_dynamics(change = growth(transition_matrix = egk_mat,
                                                         global_stochasticity = egk_mat_stoch),
@@ -247,8 +248,8 @@ egk_pop_dynamics <- population_dynamics(change = growth(transition_matrix = egk_
 
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,
-                          habitat_dynamics = list(disturbance_fires(habitat_suitability = egk_hab,
-                                                                    disturbance_layers = egk_dist,
+                          habitat_dynamics = list(disturbance(habitat_suitability = egk_hab,
+                                                                    disturbance_layers = "fires",
                                                                     effect_time = 3)),
                           timesteps = 20,
                           replicates = 3,

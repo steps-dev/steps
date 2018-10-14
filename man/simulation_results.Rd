@@ -8,7 +8,7 @@
 \title{Run an simulation}
 \usage{
 simulation(landscape, population_dynamics, habitat_dynamics = list(),
-  timesteps = 3, replicates = 1)
+  timesteps = 3, replicates = 1, verbose = TRUE)
 
 is.simulation_results(x)
 
@@ -32,6 +32,8 @@ each timestep}
 when plotting rasters}
 
 \item{replicates}{number simulations to perform}
+
+\item{verbose}{print messages and progress to console? (default is TRUE)}
 
 \item{x}{an simulation_results object}
 

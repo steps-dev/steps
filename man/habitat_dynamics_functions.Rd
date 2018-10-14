@@ -2,11 +2,10 @@
 % Please edit documentation in R/habitat_dynamics-functions.R
 \name{habitat_dynamics_functions}
 \alias{habitat_dynamics_functions}
-\alias{disturbance_fires}
+\alias{disturbance}
 \title{Functions to modify the habitat in a landscape object.}
 \usage{
-disturbance_fires(habitat_suitability, disturbance_layers,
-  effect_time = 1)
+disturbance(habitat_suitability, disturbance_layers, effect_time = 1)
 }
 \arguments{
 \item{habitat_suitability}{a raster layer or stack containing habitat suitability for each cell}
@@ -24,10 +23,10 @@ during a simulation.
 library(steps)
 
 
-# Use the disturbance_fires function to modify the habitat using spatial
-# fire history layers:
+# Use the disturbance function to modify the habitat using spatial
+# fire history layers (stored in the landscape object):
 
-test_fires <- disturbance_fires(habitat_suitability = r / cellStats(r, "max"),
-                                    disturbance_layers = dist,
+test <- disturbance(habitat_suitability = r / cellStats(r, "max"),
+                                    disturbance_layers = "fires",
                                     effect_time = 1)
 }

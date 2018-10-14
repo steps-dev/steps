@@ -19,24 +19,24 @@
 #' 
 #' @examples
 #' 
-#' # Use the disturbance_fires function to modify the habitat using spatial
-#' # fire history layers:
+#' # Use the disturbance function to modify the habitat using spatial
+#' # fire history layers (stored in the landscape object):
 #' 
-#' test_fires <- disturbance_fires(habitat_suitability = r / cellStats(r, "max"),
-#'                                     disturbance_layers = dist,
+#' test <- disturbance(habitat_suitability = r / cellStats(r, "max"),
+#'                                     disturbance_layers = "fires",
 #'                                     effect_time = 1)
 
-disturbance_fires <- function (habitat_suitability, disturbance_layers, effect_time = 1) {
+disturbance <- function (habitat_suitability, disturbance_layers, effect_time = 1) {
   
-  dist_fire_fun <- function (landscape, timestep) {
+  dist_fun <- function (landscape, timestep) {
     
     original_habitat <- habitat_suitability
     
-    if (raster::nlayers(disturbance_layers) < timestep ) {
+    if (raster::nlayers(landscape[[disturbance_layers]]) < timestep ) {
       stop("The number of disturbance layers must match the number of timesteps in the experiment")
     }
 
-    modified_habitat <- original_habitat * raster::overlay(disturbance_layers[[utils::tail(seq_len(timestep), effect_time)]], fun = prod)
+    modified_habitat <- original_habitat * raster::overlay(landscape[[disturbance_layers]][[utils::tail(seq_len(timestep), effect_time)]], fun = prod)
     names(modified_habitat) <- "Habitat"
 
     landscape$suitability <- modified_habitat
@@ -45,7 +45,7 @@ disturbance_fires <- function (habitat_suitability, disturbance_layers, effect_t
     
   }
   
-  as.habitat_disturbance(dist_fire_fun)
+  as.habitat_disturbance(dist_fun)
   
 }
 

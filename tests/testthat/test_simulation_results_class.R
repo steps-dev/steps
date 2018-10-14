@@ -46,7 +46,8 @@ test_that('simulation_results classes work', {
 
   landscape <- landscape(population = egk_pop,
                    suitability = egk_hab,
-                   carrying_capacity = egk_k)
+                   carrying_capacity = egk_k,
+                   fires = egk_dist)
   
   landscape_nohab <- landscape(population = egk_pop,
                          suitability = NULL,
@@ -202,8 +203,8 @@ test_that('simulation_results classes work', {
   
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn,
-                                  habitat_dynamics = list(disturbance_fires(habitat_suitability = egk_hab,
-                                                                       disturbance_layers = egk_dist,
+                                  habitat_dynamics = list(disturbance(habitat_suitability = egk_hab,
+                                                                       disturbance_layers = "fires",
                                                                        effect_time = 2)),
                                   timesteps = 10),
                        "simulation_results"))
@@ -247,16 +248,16 @@ test_that('simulation_results classes work', {
   
   expect_error(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn,
-                                  habitat_dynamics = list(disturbance_fires(habitat_suitability = egk_hab,
-                                                                            disturbance_layers = egk_dist,
+                                  habitat_dynamics = list(disturbance(habitat_suitability = egk_hab,
+                                                                            disturbance_layers = "fires",
                                                                             effect_time = 2)),
                                   timesteps = 30),
                        "simulation_results"))
    
   test_simulation <- simulation(landscape = landscape,
                                 population_dynamics = pop_dyn,
-                                habitat_dynamics = list(disturbance_fires(habitat_suitability = egk_hab,
-                                                                          disturbance_layers = egk_dist,
+                                habitat_dynamics = list(disturbance(habitat_suitability = egk_hab,
+                                                                          disturbance_layers = "fires",
                                                                           effect_time = 2)),
                                 timesteps = 10,
                                 replicates = 5)

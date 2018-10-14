@@ -14,6 +14,7 @@
 #' @param timesteps number of timesteps used in one simulation or to display
 #'   when plotting rasters
 #' @param replicates number simulations to perform
+#' @param verbose print messages and progress to console? (default is TRUE)
 #' @param x an simulation_results object
 #' @param object the simulation_results object to plot - can be 'population'
 #'   (default), 'suitability' or 'carrying_capacity'
