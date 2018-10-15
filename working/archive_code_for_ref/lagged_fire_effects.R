@@ -17,7 +17,8 @@ rescale <- function (x) {
 
 # regeneration over
 lag_year <- function (timestep = 1,
-                      fire, hs,
+                      fire,
+                      hs,
                       lag = 3,
                       regeneration_function = function (time) {-time}) {
 

@@ -19,7 +19,7 @@
 #' @param object the simulation_results object to plot - can be 'population'
 #'   (default), 'suitability' or 'carrying_capacity'
 #' @param type the plot type - 'graph' (default) or 'raster'
-#' @param stage life-stage to plot - must be specified for 'raster' plot types;
+#' @param stages life-stages to plot - must be specified for 'raster' plot types;
 #'   default is NULL and all life-stages will be plotted
 #' @param animate if plotting type 'raster' would you like to animate the
 #'   rasters as a gif?
@@ -112,9 +112,9 @@ print.simulation_results <- function (x, ...) {
 #'
 #' plot(results)
 
-plot.simulation_results <- function (x, object = "population", type = "graph", stage = NULL, animate = FALSE, timesteps = c(1:9), panels = c(3,3), ...){
+plot.simulation_results <- function (x, object = "population", type = "graph", stages = NULL, animate = FALSE, timesteps = c(1:9), panels = c(3,3), ...){
   
-  stages <- raster::nlayers(x[[1]][[1]]$population)
+  total_stages <- raster::nlayers(x[[1]][[1]]$population)
   stage_names <- names(x[[1]][[1]]$population)
 
   graph.pal <- c("#94d1c7",
@@ -137,11 +137,11 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
       
       if (type == "graph") {
         
-        if (is.null(stage)) {
+        if (is.null(stages)) {
           
-          graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,stages))
+          graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,total_stages))
           
-          for (i in seq_len(stages)) {
+          for (i in seq_len(total_stages)) {
             
             graphics::plot(pop[ , i],
                            type='l',
@@ -152,7 +152,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                            ylim=range(pretty(pop)))
             
             # if (!is.null(x[[1]][[1]]$carrying_capacity)) {
-            #   graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity, sum)/stages,
+            #   graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity, sum)/total_stages,
             #                    lwd=1,
             #                    lty=2)
             # }
@@ -160,7 +160,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
           
         }
         
-        if(!is.null(stage) && stage == 0) {
+        if(!is.null(stages) && stages == 0) {
           
           graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
           
@@ -179,17 +179,17 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
           # }
         }
         
-        if (!is.null(stage) && stage > 0) {
+        if (!is.null(stages) && stages > 0) {
           
           graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
           
-          graphics::plot(pop[, stage],
+          graphics::plot(pop[, stages],
                          type='l',
-                         ylab=paste("Total Population: ",stage_names[stage]),
+                         ylab=paste("Total Population: ",stage_names[stages]),
                          xlab="Timesteps",
                          lwd=3,
-                         col=graph.pal[stage],
-                         ylim=range(pretty(pop[, stage])))
+                         col=graph.pal[stages],
+                         ylim=range(pretty(pop[, stages])))
           
           # if (!is.null(x[[1]][[1]]$carrying_capacity)) {
           #   graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity,sum)/stages,
@@ -202,7 +202,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
       
       if (type == "raster") {
         
-        if (is.null(stage)) {
+        if (is.null(stages)) {
           stop("Please provide a life-stage when plotting population rasters or specify zero (0) for a sum of all life-stages")
         }
         
@@ -213,7 +213,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
           line <- readline()
         }
         
-        if(stage == 0) {
+        if(stages == 0) {
           
           rasters_sum <- raster::stack(lapply(x[[1]], function (landscape) sum(landscape$population)))
           
@@ -263,7 +263,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
           
         } else {
           
-          rasters <- raster::stack(lapply(x[[1]], function (landscape) landscape$population[[stage]]))
+          rasters <- raster::stack(lapply(x[[1]], function (landscape) landscape$population[[stages]]))
           
           # Find maximum and minimum population value in raster cells for all timesteps for life-stage
           scale_max <- ceiling(max(raster::cellStats(rasters, max)))
@@ -426,11 +426,11 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
       stop("Raster plotting is only available for single simulations")
     }
     
-    if (is.null(stage)) {
+    if (is.null(stages)) {
       
-      graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,stages))
+      graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,total_stages))
       
-      for (i in seq_len(stages)) {
+      for (i in seq_len(total_stages)) {
         
         graphics::plot(pop.mn[, i],
                        type = 'l',
@@ -449,7 +449,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
       
     }
     
-    if(!is.null(stage) && stage == 0) {
+    if(!is.null(stages) && stages == 0) {
       
       graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
       
@@ -487,27 +487,27 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
 
     }
     
-    if (!is.null(stage) && stage > 0) {
+    if (!is.null(stages) && stages > 0) {
       
       graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
       
-      graphics::plot(pop.mn[ , stage],
+      graphics::plot(pop.mn[ , stages],
                      type = 'l',
-                     ylab = paste("Total Population: ",stage_names[stage]),
+                     ylab = paste("Total Population: ",stage_names[stages]),
                      xlab = "Timesteps",
                      lwd = 3,
-                     col = graph.pal[stage])
+                     col = graph.pal[stages])
       
       for (j in seq_along(x)) {
-        graphics::lines(pop[ , stage, j],
+        graphics::lines(pop[ , stages, j],
                         col = 'gray')
       }
       
-      if (!is.null(x[[1]][[1]]$carrying_capacity)) {
-        graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity,sum)/stages,
-                         lwd=1,
-                         lty=2)
-      }
+      # if (!is.null(x[[1]][[1]]$carrying_capacity)) {
+      #   graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity,sum)/total_stages,
+      #                    lwd=1,
+      #                    lty=2)
+      # }
 
     }
   
@@ -548,20 +548,20 @@ simulate <- function (i, landscape, population_dynamics, habitat_dynamics, times
 
 # extract populations from a simulation
 get_pop_replicate <- function(x, ...) {
-  stages <- raster::nlayers(x[[1]]$population)
+  total_stages <- raster::nlayers(x[[1]]$population)
   idx <- which(!is.na(raster::getValues(x[[1]]$population[[1]])))
   pops <- lapply(x, function(x) raster::extract(x$population, idx))
   pop_sums <- lapply(pops, function(x) colSums(x))
-  pop_matrix <- matrix(unlist(pop_sums), ncol = stages, byrow = TRUE)
+  pop_matrix <- matrix(unlist(pop_sums), ncol = total_stages, byrow = TRUE)
   return(pop_matrix)
 }
 
 get_pop_simulation <- function(x, ...) {
-  stages <- raster::nlayers(x[[1]][[1]]$population)
+  total_stages <- raster::nlayers(x[[1]][[1]]$population)
   timesteps <- length(x[[1]])
   sims <- length(x)
   
-  pop_array <- array(dim=c(timesteps,stages,sims))
+  pop_array <- array(dim=c(timesteps,total_stages,sims))
   
   for(i in seq_len(sims)) {
     pop_array[, , i] <- get_pop_replicate(x[[i]])

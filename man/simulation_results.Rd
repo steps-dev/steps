@@ -15,7 +15,7 @@ is.simulation_results(x)
 \method{print}{simulation_results}(x, ...)
 
 \method{plot}{simulation_results}(x, object = "population",
-  type = "graph", stage = NULL, animate = FALSE,
+  type = "graph", stages = NULL, animate = FALSE,
   timesteps = c(1:9), panels = c(3, 3), ...)
 }
 \arguments{
@@ -44,7 +44,7 @@ when plotting rasters}
 
 \item{type}{the plot type - 'graph' (default) or 'raster'}
 
-\item{stage}{life-stage to plot - must be specified for 'raster' plot types;
+\item{stages}{life-stages to plot - must be specified for 'raster' plot types;
 default is NULL and all life-stages will be plotted}
 
 \item{animate}{if plotting type 'raster' would you like to animate the
