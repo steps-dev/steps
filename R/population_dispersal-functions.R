@@ -43,24 +43,39 @@ NULL
 #' test_kern_dispersal <- fast_dispersal()
 fast_dispersal <- function(
   dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
-  stages = NULL
+  dispersal_proportion = 1,
+  stages = NULL,
+  demographic_stochasticity = FALSE
 ) {
   
   pop_dynamics <- function(landscape, timestep) {
     
+    n_stages <- raster::nlayers(landscape$population)
+    
     # Which stages can disperse
     which_stages_disperse <- if (is.null(stages)) {
-      seq_len(raster::nlayers(landscape$population))
+      seq_len(n_stages)
     } else {
       stages
+    }
+    
+    if (length(dispersal_proportion) < n_stages) {
+      if (timestep == 1) cat ("    ", n_stages, "life stages exist but", length(dispersal_proportion),"dispersal proportion(s) were specified. Is this what was intended?")
+      dispersal_proportion <- rep(dispersal_proportion, n_stages)
     }
     
     # Apply dispersal to the population
     # (need to run this separately for each stage)
     for (stage in which_stages_disperse) {
-      landscape$population[[stage]][] <- dispersalFFT(
+      
+      pop <- landscape$population[[stage]]
+      
+      pop_dispersing <- landscape$population[[stage]] * dispersal_proportion[[stage]]
+      pop_staying <- pop - pop_dispersing
+      
+      pop_dispersed <- dispersalFFT(
         popmat = raster::as.matrix(
-          landscape$population[[stage]]
+          pop_dispersing
         ),
         fs = setupFFT(
           x = seq_len(raster::ncol(landscape$population)),
@@ -71,6 +86,11 @@ fast_dispersal <- function(
           }
         )
       )
+      
+      raster::values(pop_dispersing) <- pop_dispersed
+      pop <- pop_staying + pop_dispersing
+      landscape$population[[stage]] <- pop
+      
     }
     
     landscape
@@ -97,6 +117,7 @@ kernel_dispersal <- function(
   distance_function = function(from, to) sqrt(rowSums(sweep(to, 2, from)^2)),
   dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
   arrival_probability = c("both", "suitability", "carrying_capacity"),
+  dispersal_proportion = 1,
   stages = NULL,
   demographic_stochasticity = FALSE
 ) {
@@ -104,6 +125,8 @@ kernel_dispersal <- function(
   arrival_probability <- match.arg(arrival_probability)
   
   pop_dynamics <- function(landscape, timestep) {
+    
+    n_stages <- raster::nlayers(landscape$population)
     
     # check the required landscape rasters are available
     layers <- arrival_probability
@@ -120,16 +143,21 @@ kernel_dispersal <- function(
             call. = FALSE)
     }
     
+    if (length(dispersal_proportion) < n_stages) {
+      if (timestep == 1) cat ("    ", n_stages, "life stages exist but", length(dispersal_proportion),"dispersal proportion(s) were specified. Is this what was intended?")
+      dispersal_proportion <- rep(dispersal_proportion, n_stages)
+    }
+    
     # Which stages can disperse
     which_stages_disperse <- if (is.null(stages)) {
-      seq_len(raster::nlayers(landscape$population))
+      seq_len(n_stages)
     } else {
       stages      
     }
     
     # Which stages contribute to density dependence.
     which_stages_density <- if (is.null(stages)) {
-      seq_len(raster::nlayers(landscape$population))
+      seq_len(n_stages)
     } else {
       stages
     }
@@ -163,9 +191,9 @@ kernel_dispersal <- function(
     
     arrival_prob_values <- switch(
       arrival_probability,
-      both = habitat_suitability_values * carrying_capacity_proportion,
-      habitat_suitability = habitat_suitability_values,
-      carrying_capacity = carrying_capacity_proportion
+      both = habitat_suitability_values * (1 - carrying_capacity_proportion), ### I think this should be reduced by the k overage
+      suitability = habitat_suitability_values,
+      carrying_capacity = (1 - carrying_capacity_proportion)
     )
     
     # Only non-zero arrival prob cells can receive individuals
@@ -174,50 +202,54 @@ kernel_dispersal <- function(
     for (stage in which_stages_disperse) {
       
       # Extract the population values
-      population_values <- raster::getValues(
-        landscape$population[[stage]]
+      pop <- landscape$population[[stage]]
+      
+      # Calculate the proportion dispersing
+      pop_dispersing <- raster::getValues(
+        landscape$population[[stage]] * dispersal_proportion[[stage]]
       )
+      
+      # Calculate the proportion not dispersing
+      pop_staying <- pop - pop_dispersing
       
       # Only non-zero arrival prob cells can receive individuals
       can_arriv <- which(arrival_prob_values > 0 & !is.na(arrival_prob_values))
       
-      for (stage in which_stages_disperse) {
-        
-        # Extract the population values
-        population_values <- raster::getValues(
-          landscape$population[[stage]]
+      # does cell have dispersing individuals?
+      # multiply by proportion that disperses...
+      # has_disperse <- which(proportion_disperses > 0 & !is.na(proportion_disperses))
+      
+      # Only non-zero population cells can contribute - needs to be a binomial
+      # realisation of a proportion disperses function
+      has_pop <- which(pop_dispersing > 0 & !is.na(pop_dispersing))
+      
+      contribute <- function(i) {
+        # distance btw ith cell and all the cells that it can contribute to.
+        contribution <- distance_function(xy[i, ], xy[can_arriv, ])
+        contribution <- dispersal_kernel(contribution)
+        contribution <- contribution * arrival_prob_values[can_arriv]
+        # Standardise contributions and round them if demographic_stochasticity = TRUE
+        contribution <- contribution / sum(contribution)
+        contribution <- contribution * pop_dispersing[i]
+        if (identical(demographic_stochasticity, FALSE)) return(contribution)
+        contribution_int <- floor(contribution)
+        idx <- utils::tail(
+          order(contribution - contribution_int),
+          round(sum(contribution)) - sum(contribution_int)
         )
-        
-        # does cell have dispersing individuals?
-        # multiply by proportion that disperses...
-        # has_disperse <- which(proportion_disperses > 0 & !is.na(proportion_disperses))
-        
-        # Only non-zero population cells can contribute - needs to be a binomial
-        # realisation of a proportion disperses function
-        has_pop <- which(population_values > 0 & !is.na(population_values))
-        
-        contribute <- function(i) {
-          # distance btw ith cell and all the cells that it can contribute to.
-          contribution <- distance_function(xy[i, ], xy[can_arriv, ])
-          contribution <- dispersal_kernel(contribution)
-          contribution <- contribution * arrival_prob_values[can_arriv]
-          # Standardise contributions and round them if demographic_stochasticity = TRUE
-          contribution <- contribution / sum(contribution)
-          contribution <- contribution * population_values[i]
-          if (identical(demographic_stochasticity, FALSE)) return(contribution)
-          contribution_int <- floor(contribution)
-          idx <- utils::tail(
-            order(contribution - contribution_int),
-            round(sum(contribution)) - sum(contribution_int)
-          )
-          contribution_int[idx] <- contribution_int[idx] + 1
-          contribution_int
-        }
-        
-        landscape$population[[stage]][can_arriv] <- rowSums(
-          vapply(has_pop, contribute, as.numeric(can_arriv))
-        )
+        contribution_int[idx] <- contribution_int[idx] + 1
+        contribution_int
       }
+      
+      landscape$population[[stage]][can_arriv] <- rowSums(
+        vapply(has_pop, contribute, as.numeric(can_arriv))
+      ) + pop_staying[can_arriv]
+      
+      #values(pop_dispersing) <- pop_dispersed
+      #pop <- pop_staying + pop_dispersing
+      #landscape$population[[stage]] <- pop
+      
+      
     }
     
     landscape
@@ -419,6 +451,14 @@ dispersalFFT <- function (popmat, fs) {
   # landscape efficiently as a section of a torus and using linear algebra
   # identities of the fast Fourier transform
   
+  # duplicate popmat to create 'before' condition
+  popmat_orig <- popmat
+  
+  # check for missing values and replace with zeros
+  if (any(is.na(popmat))) {
+    popmat[is.na(popmat)] <- 0
+  }
+    
   # insert population matrix into the torus population
   fs$pop_torus[fs$yidx, fs$xidx] <- popmat
   
@@ -438,13 +478,22 @@ dispersalFFT <- function (popmat, fs) {
   pop_new <- pop_torus_new[fs$yidx, fs$xidx]
   
   # check for missing values and replace with zeros
-  if (any(is.na(pop_new))) {
-    pop_new[is.na(pop_new)] <- 0
-  }
+  # if (any(is.na(pop_new))) {
+  #   pop_new[is.na(pop_new)] <- 0
+  # }
+  
+  # get proportion of population that dispersed into NA areas
+  prop_out <- sum(pop_new[is.na(popmat_orig)]) / sum(pop_new[!is.na(popmat_orig)])
+  
+  # return NA values to matrix
+  pop_new[is.na(popmat_orig)] <- NA
+  
+  # increase all non-NA cells by inverse of proportion in NA areas
+  pop_new[!is.na(popmat_orig)] <- pop_new[!is.na(popmat_orig)] * (1 + prop_out)
   
   # make sure none are lost or gained (unless all are zeros)
-  if (any(pop_new[] > 0)) {
-    pop_new[] <- stats::rmultinom(1, size = sum(popmat), prob = pop_new[])    
+  if (any(pop_new[!is.na(popmat_orig)] > 0)) {
+    pop_new[!is.na(popmat_orig)] <- stats::rmultinom(1, size = sum(popmat), prob = pop_new[!is.na(popmat_orig)])    
   }
   
   pop_new

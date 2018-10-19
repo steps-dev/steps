@@ -9,13 +9,15 @@
 \usage{
 
   fast_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay
-  = 0.1), stages = NULL)
+  = 0.1), dispersal_proportion = 1, stages = NULL,
+  demographic_stochasticity = FALSE)
 
 kernel_dispersal(distance_function = function(from, to)
   sqrt(rowSums(sweep(to, 2, from)^2)),
   dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
   arrival_probability = c("both", "suitability", "carrying_capacity"),
-  stages = NULL, demographic_stochasticity = FALSE)
+  dispersal_proportion = 1, stages = NULL,
+  demographic_stochasticity = FALSE)
 
 cellular_automata_dispersal(dispersal_distance = list(0, 10, 10, 0),
   dispersal_kernel = list(0, exp(-c(0:9)^1/3.36), exp(-c(0:9)^1/3.36),
@@ -28,7 +30,13 @@ cellular_automata_dispersal(dispersal_distance = list(0, 10, 10, 0),
 \item{dispersal_kernel}{a single or list of user-defined distance dispersal
 kernel functions}
 
+\item{dispersal_proportion}{proportions of individuals (0 to 1) that can
+disperse in each life stage}
+
 \item{stages}{which life-stages disperse - default is all}
+
+\item{demographic_stochasticity}{should demographic stochasticity be used in
+dispersal?}
 
 \item{distance_function}{defines distance between source cells and all
 potential sink cells for dispersal}
@@ -36,14 +44,8 @@ potential sink cells for dispersal}
 \item{arrival_probability}{a raster layer that controls where individuals can
 disperse to (e.g. habitat suitability)}
 
-\item{demographic_stochasticity}{should demographic stochasticity be used in
-dispersal?}
-
 \item{dispersal_distance}{the distances (in cell units) that each life stage
 can disperse}
-
-\item{dispersal_proportion}{proportions of individuals (0 to 1) that can
-disperse in each life stage}
 
 \item{barrier_type}{if barrier map is used, does it stop (0 - default) or
 kill (1) individuals}
