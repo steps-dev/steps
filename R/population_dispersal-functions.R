@@ -193,7 +193,8 @@ kernel_dispersal <- function(
       arrival_probability,
       both = habitat_suitability_values * (1 - carrying_capacity_proportion), ### I think this should be reduced by the k overage
       suitability = habitat_suitability_values,
-      carrying_capacity = (1 - carrying_capacity_proportion)
+      carrying_capacity = (1 - carrying_capacity_proportion)#,
+      #none = replace(habitat_suitability_values, which(!is.na(habitat_suitability_values)), 1)
     )
     
     # Only non-zero arrival prob cells can receive individuals
@@ -211,10 +212,7 @@ kernel_dispersal <- function(
       
       # Calculate the proportion not dispersing
       pop_staying <- pop - pop_dispersing
-      
-      # Only non-zero arrival prob cells can receive individuals
-      can_arriv <- which(arrival_prob_values > 0 & !is.na(arrival_prob_values))
-      
+
       # does cell have dispersing individuals?
       # multiply by proportion that disperses...
       # has_disperse <- which(proportion_disperses > 0 & !is.na(proportion_disperses))
