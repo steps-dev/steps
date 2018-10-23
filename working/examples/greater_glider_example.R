@@ -16,7 +16,7 @@ gg_trans_mat <- matrix(c(0.00,0.00,0.50,
                          nrow = 3, ncol = 3, byrow = TRUE)
 colnames(gg_trans_mat) <- rownames(gg_trans_mat) <- c('Newborn','Juvenile','Adult')
 
-gg_stable_states <- abs(eigen(gg_trans_mat)$vectors[,1]/base::sum(eigen(gg_trans_mat)$vectors[,1]) ) 
+gg_stable_states <- abs( eigen(gg_trans_mat)$vectors[,1] / base::sum(eigen(gg_trans_mat)$vectors[,1]) ) 
 
 #gg_hab_suit <- raster("working/misc/Petauroides_volans_SDM.GH_PM.tif") / 1000
 gg_hab_suit <- aggregate(raster("working/misc/Petauroides_volans_SDM.GH_PM.tif") / 1000, fact=10, fun=mean)

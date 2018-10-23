@@ -5,7 +5,6 @@
 #'
 #' @name habitat_dynamics_functions
 #'
-#' @param habitat_suitability a raster layer or stack containing habitat suitability for each cell
 #' @param disturbance_layers a raster stack with fire disturbances used to alter the habitat object in the experiment (number of layers must match the intended timesteps in the experiment)
 #' @param effect_time the number of timesteps that the disturbance layer will act on the habitat object
 #'
@@ -26,11 +25,12 @@
 #'                                     disturbance_layers = "fires",
 #'                                     effect_time = 1)
 
-disturbance <- function (habitat_suitability, disturbance_layers, effect_time = 1) {
+disturbance <- function (disturbance_layers, effect_time = 1) {
   
   dist_fun <- function (landscape, timestep) {
     
-    original_habitat <- habitat_suitability
+    if (timestep == 1) original_habitat <- landscape[["orig_suitability"]] <- landscape$suitability
+    else original_habitat <- landscape[["orig_suitability"]]
     
     if (raster::nlayers(landscape[[disturbance_layers]]) < timestep ) {
       stop("The number of disturbance layers must match the number of timesteps in the experiment")
