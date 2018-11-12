@@ -21,9 +21,8 @@
 #' # Use the disturbance function to modify the habitat using spatial
 #' # fire history layers (stored in the landscape object):
 #' 
-#' test <- disturbance(habitat_suitability = r / cellStats(r, "max"),
-#'                                     disturbance_layers = "fires",
-#'                                     effect_time = 1)
+#' test <- disturbance(disturbance_layers = "fires",
+#'                     effect_time = 1)
 
 disturbance <- function (disturbance_layers, effect_time = 1) {
   

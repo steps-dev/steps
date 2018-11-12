@@ -5,11 +5,9 @@
 \alias{disturbance}
 \title{Functions to modify the habitat in a landscape object.}
 \usage{
-disturbance(habitat_suitability, disturbance_layers, effect_time = 1)
+disturbance(disturbance_layers, effect_time = 1)
 }
 \arguments{
-\item{habitat_suitability}{a raster layer or stack containing habitat suitability for each cell}
-
 \item{disturbance_layers}{a raster stack with fire disturbances used to alter the habitat object in the experiment (number of layers must match the intended timesteps in the experiment)}
 
 \item{effect_time}{the number of timesteps that the disturbance layer will act on the habitat object}
@@ -26,7 +24,6 @@ library(steps)
 # Use the disturbance function to modify the habitat using spatial
 # fire history layers (stored in the landscape object):
 
-test <- disturbance(habitat_suitability = r / cellStats(r, "max"),
-                                    disturbance_layers = "fires",
-                                    effect_time = 1)
+test <- disturbance(disturbance_layers = "fires",
+                    effect_time = 1)
 }

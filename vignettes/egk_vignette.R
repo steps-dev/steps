@@ -158,15 +158,15 @@ egk_landscape <- landscape(population = egk_pop,
 
 egk_pop_dynamics <- population_dynamics(change = growth(transition_matrix = egk_mat,
                                                         global_stochasticity = egk_mat_stoch),
-                                        dispersal = kernel_dispersal(arrival_probability = "suitability"),
+                                        dispersal = kernel_dispersal(arrival_probability = "suitability",
+                                                                     dispersal_proportion = 0.5),
                                         modification = NULL,
                                         density_dependence = population_cap(stages = 3))
 
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,
-                          habitat_dynamics = list(disturbance(habitat_suitability = egk_hab,
-                                                                    disturbance_layers = "fires",
-                                                                    effect_time = 3)),
+                          habitat_dynamics = list(disturbance(disturbance_layers = "fires",
+                                                              effect_time = 3)),
                           timesteps = 20,
                           replicates = 3,
                           verbose = FALSE)

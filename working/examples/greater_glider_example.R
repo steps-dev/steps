@@ -79,9 +79,11 @@ gg_landscape <- landscape(population = gg_pop,
 
 gg_pop_dynamics <- population_dynamics(change = growth(transition_matrix = gg_trans_mat,
                                                        global_stochasticity = 0.1),
-                                       dispersal = fast_dispersal(stages = 3,
-                                                                  dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.5),
-                                                                  dispersal_proportion = 0.5),
+                                       dispersal = #fast_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.5),
+                                                                  #dispersal_proportion = c(0,0,0.5)),
+                                                   cellular_automata_dispersal(dispersal_distance = c(0,0,10),
+                                                                               dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
+                                                                               dispersal_proportion = c(0,0,1)),
                                        modification = NULL,
                                        density_dependence = population_cap(stages = 3))
 

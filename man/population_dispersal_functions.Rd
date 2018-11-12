@@ -9,21 +9,19 @@
 \usage{
 
   fast_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay
-  = 0.1), dispersal_proportion = 1, stages = NULL,
-  demographic_stochasticity = FALSE)
+  = 0.1), dispersal_proportion = 1, demographic_stochasticity = FALSE)
 
 kernel_dispersal(distance_function = function(from, to)
   sqrt(rowSums(sweep(to, 2, from)^2)),
   dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
   arrival_probability = c("both", "suitability", "carrying_capacity"),
-  dispersal_proportion = 1, stages = NULL,
-  demographic_stochasticity = FALSE)
+  dispersal_proportion = 1, demographic_stochasticity = FALSE)
 
-cellular_automata_dispersal(dispersal_distance = list(0, 10, 10, 0),
-  dispersal_kernel = list(0, exp(-c(0:9)^1/3.36), exp(-c(0:9)^1/3.36),
-  0), dispersal_proportion = list(0, 0.35, 0.35 * 0.714, 0),
-  barrier_type = 0, dispersal_steps = 1, use_barriers = FALSE,
-  barriers_map = NULL, arrival_probability = "suitability",
+cellular_automata_dispersal(dispersal_distance = 1,
+  dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
+  dispersal_proportion = 1, barrier_type = 0, dispersal_steps = 1,
+  use_barriers = FALSE, barriers_map = NULL,
+  arrival_probability = "suitability",
   carrying_capacity = "carrying_capacity")
 }
 \arguments{
@@ -32,8 +30,6 @@ kernel functions}
 
 \item{dispersal_proportion}{proportions of individuals (0 to 1) that can
 disperse in each life stage}
-
-\item{stages}{which life-stages disperse - default is all}
 
 \item{demographic_stochasticity}{should demographic stochasticity be used in
 dispersal?}

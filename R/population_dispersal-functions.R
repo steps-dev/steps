@@ -19,7 +19,6 @@ NULL
 #'   disperse to (e.g. habitat suitability)
 #' @param dispersal_distance the distances (in cell units) that each life stage
 #'   can disperse
-#' @param stages which life-stages disperse - default is all
 #' @param barrier_type if barrier map is used, does it stop (0 - default) or
 #'   kill (1) individuals
 #' @param dispersal_steps number of dispersal steps to take before stopping
@@ -41,28 +40,24 @@ NULL
 #' # a fast-fourier transformation (FFT) computational algorithm:
 #'
 #' test_kern_dispersal <- fast_dispersal()
+
 fast_dispersal <- function(
   dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
   dispersal_proportion = 1,
-  stages = NULL,
   demographic_stochasticity = FALSE
 ) {
   
   pop_dynamics <- function(landscape, timestep) {
     
     n_stages <- raster::nlayers(landscape$population)
-    
-    # Which stages can disperse
-    which_stages_disperse <- if (is.null(stages)) {
-      seq_len(n_stages)
-    } else {
-      stages
-    }
-    
+
     if (length(dispersal_proportion) < n_stages) {
       if (timestep == 1) cat ("    ", n_stages, "life stages exist but", length(dispersal_proportion),"dispersal proportion(s) were specified. Is this what was intended?")
       dispersal_proportion <- rep(dispersal_proportion, n_stages)
     }
+    
+    # Which stages can disperse
+    which_stages_disperse <- which(dispersal_proportion > 0)
     
     # Apply dispersal to the population
     # (need to run this separately for each stage)
@@ -118,7 +113,6 @@ kernel_dispersal <- function(
   dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
   arrival_probability = c("both", "suitability", "carrying_capacity"),
   dispersal_proportion = 1,
-  stages = NULL,
   demographic_stochasticity = FALSE
 ) {
   
@@ -149,18 +143,10 @@ kernel_dispersal <- function(
     }
     
     # Which stages can disperse
-    which_stages_disperse <- if (is.null(stages)) {
-      seq_len(n_stages)
-    } else {
-      stages      
-    }
+    which_stages_disperse <- which(dispersal_proportion > 0)
     
     # Which stages contribute to density dependence.
-    which_stages_density <- if (is.null(stages)) {
-      seq_len(n_stages)
-    } else {
-      stages
-    }
+    which_stages_density <- which(dispersal_proportion > 0)
     
     # Extract locations as x and y coordinates from landscape (ncells x 2)
     xy <- raster::xyFromCell(
@@ -270,9 +256,9 @@ kernel_dispersal <- function(
 #' 
 #' test_ca_dispersal <- cellular_automata_dispersal()
 
-cellular_automata_dispersal <- function (dispersal_distance=list(0, 10, 10, 0),
-                                         dispersal_kernel=list(0, exp(-c(0:9)^1/3.36), exp(-c(0:9)^1/3.36), 0),
-                                         dispersal_proportion=list(0, 0.35, 0.35*0.714, 0),
+cellular_automata_dispersal <- function (dispersal_distance = 1,
+                                         dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
+                                         dispersal_proportion = 1,
                                          barrier_type = 0,
                                          dispersal_steps = 1,
                                          use_barriers = FALSE,
@@ -289,9 +275,23 @@ cellular_automata_dispersal <- function (dispersal_distance=list(0, 10, 10, 0),
     # get population as a matrix
     idx <- which(!is.na(raster::getValues(population_raster[[1]])))
     population <- raster::extract(population_raster, idx)
+
+    n_stages <- raster::nlayers(population_raster)
     
+    if (length(dispersal_proportion) < n_stages) {
+      if (timestep == 1) cat ("    ", n_stages, "life stages exist but", length(dispersal_proportion),"dispersal proportion(s) were specified. Is this what was intended?")
+      dispersal_proportion <- rep(dispersal_proportion, n_stages)
+    }
+
+    if (length(dispersal_distance) < n_stages) {
+      if (timestep == 1) cat ("    ", n_stages, "life stages exist but", length(dispersal_distance),"dispersal distance(s) were specified. Is this what was intended?")
+      dispersal_distance <- rep(dispersal_distance, n_stages)
+    }
+    
+    dispersal_vector <- lapply(dispersal_distance, function(x) dispersal_kernel(seq_len(x)-1))
+        
     # identify dispersing stages
-    which_stages_disperse <- which(dispersal_proportion>0)
+    which_stages_disperse <- which(dispersal_proportion > 0)
     n_dispersing_stages <- length(which_stages_disperse)
     
     #if barriers is NULL create a barriers matrix all == 0.
@@ -305,7 +305,7 @@ cellular_automata_dispersal <- function (dispersal_distance=list(0, 10, 10, 0),
     #   params$barriers_map <- bm
     # }
     
-    # could do this in parallel if wanted. 
+    # could do this in parallel
     for (i in which_stages_disperse){
       population_raster[[i]][] <- rcpp_dispersal(raster::as.matrix(population_raster[[i]]),
                                                  raster::as.matrix(carrying_capacity),
@@ -315,7 +315,7 @@ cellular_automata_dispersal <- function (dispersal_distance=list(0, 10, 10, 0),
                                                  use_barriers,
                                                  as.integer(dispersal_steps),
                                                  as.integer(dispersal_distance[i]),
-                                                 as.numeric(unlist(dispersal_kernel[i])),
+                                                 as.numeric(unlist(dispersal_vector[i])),
                                                  as.numeric(dispersal_proportion[i])
       )$dispersed_population
       
