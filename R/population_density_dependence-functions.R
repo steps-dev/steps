@@ -42,10 +42,17 @@ population_cap <- function (stages = NULL) {
     overpopulation <- pmin(overpopulation, 1)
     population <- sweep(population_matrix, 1, overpopulation, "*")
     
+    # get whole integers
+    population <- t(apply(population,
+                          1,
+                          FUN = function(x) rbinom(prob = (x/ceiling(max(population))),
+                                                   size = ceiling(max(population)),
+                                                   n = 2)))
+    
     # put back in the raster
     population_raster[idx] <- population
     
-    landscape$population <- population_raster 
+    landscape$population <- population_raster
     
     landscape
   }

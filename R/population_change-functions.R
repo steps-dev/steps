@@ -80,7 +80,11 @@ growth <- function (transition_matrix,
                              function(x) {
                                rbind(0,
                                      x[-1,],
-                                     1 - apply(x[-1, ], 2, sum))
+                                     if (is.vector(x[-1, ])) {
+                                       x[-1,]
+                                     } else {
+                                       1 - apply(x[-1, ], 2, sum)
+                                     })
                              }),
                        dim = c(dim + 1,
                                dim,
@@ -113,6 +117,12 @@ growth <- function (transition_matrix,
       population <- t(sapply(seq_len(n_cells),
                              function(x) transition_array[ , , x] %*% matrix(population[x, ])))
       
+      # get whole integers
+      population <- t(apply(population,
+                            1,
+                            FUN = function(x) rbinom(prob = (x/ceiling(max(population))),
+                                                     size = ceiling(max(population)),
+                                                     n = 2)))
     }
     
     

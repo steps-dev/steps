@@ -50,6 +50,8 @@ fast_dispersal <- function(
   pop_dynamics <- function(landscape, timestep) {
     
     n_stages <- raster::nlayers(landscape$population)
+    
+    poptot <- sum(cellStats(landscape$population, sum))
 
     if (length(dispersal_proportion) < n_stages) {
       if (timestep == 1) cat ("    ", n_stages, "life stages exist but", length(dispersal_proportion),"dispersal proportion(s) were specified. Is this what was intended?")
@@ -88,6 +90,8 @@ fast_dispersal <- function(
       
     }
     
+    cat("Pre-Post Population:", poptot, sum(cellStats(landscape$population, sum)), "(Timestep", timestep, ")", "\n")
+    
     landscape
     
   }
@@ -121,6 +125,8 @@ kernel_dispersal <- function(
   pop_dynamics <- function(landscape, timestep) {
     
     n_stages <- raster::nlayers(landscape$population)
+    
+    poptot <- sum(cellStats(landscape$population, sum))
     
     # check the required landscape rasters are available
     layers <- arrival_probability
@@ -212,10 +218,11 @@ kernel_dispersal <- function(
         contribution <- distance_function(xy[i, ], xy[can_arriv, ])
         contribution <- dispersal_kernel(contribution)
         contribution <- contribution * arrival_prob_values[can_arriv]
-        # Standardise contributions and round them if demographic_stochasticity = TRUE
         contribution <- contribution / sum(contribution)
         contribution <- contribution * pop_dispersing[i]
+        # Standardise contributions and round them if demographic_stochasticity = TRUE
         if (identical(demographic_stochasticity, FALSE)) return(contribution)
+        ####### What is going on here? #####
         contribution_int <- floor(contribution)
         idx <- utils::tail(
           order(contribution - contribution_int),
@@ -223,6 +230,7 @@ kernel_dispersal <- function(
         )
         contribution_int[idx] <- contribution_int[idx] + 1
         contribution_int
+        ####################################
       }
       
       landscape$population[[stage]][can_arriv] <- rowSums(
@@ -235,6 +243,8 @@ kernel_dispersal <- function(
       
       
     }
+    
+    cat("Pre-Post Population:", poptot, sum(cellStats(landscape$population, sum)), "(Timestep", timestep, ")", "\n")
     
     landscape
     
@@ -271,6 +281,8 @@ cellular_automata_dispersal <- function (dispersal_distance = 1,
     population_raster <- landscape$population
     arrival_prob <- landscape[[arrival_probability]]
     carrying_capacity <- landscape[[carrying_capacity]]
+    
+    poptot <- sum(cellStats(landscape$population, sum))
     
     # get population as a matrix
     idx <- which(!is.na(raster::getValues(population_raster[[1]])))
@@ -322,6 +334,8 @@ cellular_automata_dispersal <- function (dispersal_distance = 1,
     }
     
     landscape$population <- population_raster
+    
+    cat("Pre-Post Population:", poptot, sum(cellStats(landscape$population, sum)), "(Timestep", timestep, ")", "\n")
     
     landscape
   }
