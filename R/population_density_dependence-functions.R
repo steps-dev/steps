@@ -1,4 +1,4 @@
-#' How the population responds to density dependnece in a landscape.
+#' How the population responds to density dependence in a landscape.
 #'
 #' Pre-defined functions to define population density dependence (e.g. cap) during a simulation.
 #'

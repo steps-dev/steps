@@ -14,4 +14,6 @@
 #' A \link[steps]{simulation} is run on a \link[steps]{landscape} using population
 #' dynamics functions contained in a \link[steps]{population_dynamics-class} object.
 #' \link[steps]{habitat_dynamics-functions} can also be added to the simulation to
-#' modify the habitat during a simulation. 
+#' modify the habitat during a simulation.
+
+steps_stash <- new.env()

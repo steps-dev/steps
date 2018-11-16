@@ -28,8 +28,8 @@ disturbance <- function (disturbance_layers, effect_time = 1) {
   
   dist_fun <- function (landscape, timestep) {
     
-    if (timestep == 1) original_habitat <- landscape[["orig_suitability"]] <- landscape$suitability
-    else original_habitat <- landscape[["orig_suitability"]]
+    if (timestep == 1) original_habitat <- steps_stash$orig_suitability <- landscape$suitability
+    else original_habitat <- steps_stash$orig_suitability
     
     if (raster::nlayers(landscape[[disturbance_layers]]) < timestep ) {
       stop("The number of disturbance layers must match the number of timesteps in the experiment")

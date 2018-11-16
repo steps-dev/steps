@@ -27,8 +27,13 @@
 growth <- function (transition_matrix,
                     demographic_stochasticity = TRUE,
                     global_stochasticity = 0,
-                    local_stochasticity = 0) {
-  
+                    local_stochasticity = 0,
+                    transition_function = NULL) {
+
+  # did the user prpovide a function to overwrite the transition matrices at
+  # each pixel/timestep?
+  is_function <- inherits(transition_function, "function")
+
   idx <- which(transition_matrix != 0)
   is_recruitment <- upper.tri(transition_matrix)[idx]
   upper <- ifelse(is_recruitment, Inf, 1)
@@ -36,13 +41,13 @@ growth <- function (transition_matrix,
   dim <- nrow(transition_matrix)
   
   if (is.matrix(global_stochasticity)) {
-    stopifnot(identical(dim(transition_matrix), dim(global_stochasticity)))
+    stopifnot(identical(c(dim, dim), dim(global_stochasticity)))
     stopifnot(identical(which(global_stochasticity != 0), idx))
     global_stochasticity <- global_stochasticity[idx]
   }
 
   if (is.matrix(local_stochasticity)) {
-    stopifnot(identical(dim(transition_matrix), dim(local_stochasticity)))
+    stopifnot(identical(c(dim, dim), dim(local_stochasticity)))
     stopifnot(identical(which(local_stochasticity != 0), idx))
     local_stochasticity <- local_stochasticity[idx]
   }
@@ -62,18 +67,23 @@ growth <- function (transition_matrix,
     global_noise <- stats::rnorm(length(idx), 0, global_stochasticity)
     local_noise <- stats::rnorm(length(idx) * n_cells, 0, local_stochasticity)
     total_noise <- global_noise + local_noise
-    
-    values <- vals + total_noise
-    values <- pmax(values, 0)
-    values <- pmin(values, rep(upper, n_cells))
-    
-    transition_array <- array(0, c(dim, dim, n_cells))
-    
+
     # pad the index to get corresponding elements in each slice  
     addition <- length(transition_matrix) * (seq_len(n_cells) - 1)
     idx_full <- as.numeric(outer(idx, addition, FUN = "+"))
+    
+    if (is_function) {
+      transition_array <- transition(landscape, timestep)
+      values <- transition_array[idx_full] + total_noise
+    } else {
+      transition_array <- array(0, c(dim, dim, n_cells))
+      values <- vals + total_noise
+    }
+    
+    values <- pmax(values, 0)
+    values <- pmin(values, rep(upper, n_cells))
     transition_array[idx_full] <- values
-
+    
     if (demographic_stochasticity) {
       
       local_t <- array(apply(transition_array, 3,
@@ -118,11 +128,11 @@ growth <- function (transition_matrix,
                              function(x) transition_array[ , , x] %*% matrix(population[x, ])))
       
       # get whole integers
-      population <- t(apply(population,
-                            1,
-                            FUN = function(x) rbinom(prob = (x/ceiling(max(population))),
-                                                     size = ceiling(max(population)),
-                                                     n = 2)))
+      population_min <- floor(population)
+      population_extra <- population - population_min
+      population_extra[] <- rbinom(length(population_extra), 1, population_extra[])
+      population <- population_min + population_extra
+
     }
     
     
@@ -139,52 +149,43 @@ growth <- function (transition_matrix,
 }
 
 
-# spatial_transition <- function (survival_raster,
-#                                 fecundity_raster,
-#                                 demographic_stochasticity = TRUE,
-#                                 global_stochasticity = 0,
-#                                 local_stochasticity = 0) {
+# # a user-defined function to hack temporally-varying survival
+# transition_fun_bespoke <- function (landscape, timestep) {
 #   
-#   # as above
+#   # load in survival rasters for this timestep
+#   survival_juv <- landscape$suitability[] * 0.6
+#   survival_ad <- landscape$suitability[] * 0.9
+#   fecundity_ad <- landscape$suitability[] * 2.6
 #   
-# }
-
-
-# functional_transition <- function (survival_function,
-#                                    fecundity_function,
-#                                    demographic_stochasticity = TRUE,
-#                                    global_stochasticity = 0,
-#                                    local_stochasticity = 0) {
-#   
-#   # as above
-#   
-# }
-
-# # e.g.:
-# survival_fun <- function (landscape) {
-#   cov <- landscape$time_since_fire
-#   if (is.null(suit)) stop ()
-#   
-#   cell_idx <- which(!is.na(raster::getValues(cov)))
-#   cov_vec <- raster::extract(cov, cell_idx)
-#   
-#   multipliers <- c(0.5, 0.3, 0.2)
-#   cov_mat <- outer(log(cov_vec), multipliers, FUN = "*")
-#   plogis(cov_mat)
+#   n_cells <- ncell(landscape$suitability)
+#   transition_array <- array(0, c(2, 2, n_cells))
 # 
-# }
-
-
-# fecundity_fun <- function (landscape) {
-#   cov <- landscape$time_since_fire
-#   if (is.null(suit)) stop ()
+#   transition_array[1, 1, ] <- survival_juv
+#   transition_array[2, 2, ] <- survival_ad
+#   transition_array[2, 1, ] <- fecundity_ad
+#   transition_array[1, 2, ] <- 0.5
 #   
-#   cell_idx <- which(!is.na(raster::getValues(cov)))
-#   cov_vec <- raster::extract(cov, cell_idx)
-#   
-#   fec_vec <- exp(log(cov_vec) * 0.8)
-#   cbind(0, 0, fec_vec)
+#   transition_array
+#     
 # }
+# 
+# 
+# # a user-defined function to hack temporally-varying survival
+# transition_fun <- function (landscape, timestep) {
+#   # load in survival rasters for this timestep
+#   time <- sprintf("%02i", timestep)
+#   lifestages <- c("F01", "F02NR")
+#   survival_fnames <- paste0("Koala_Sur_", lifestages, "_", time, ".tif" )
+#   survival_rasters <- lapply(survival_fnames, raster:raster)
+# 
+#   fecundity_fnames <- paste0("Koala_Fec_", lifestages, "_", time, ".tif" )
+#   fecundity_rasters <- lapply(fecundity_fnames, raster:raster)
+#   
+#   
+#   # build transition array
+# }
+# 
+
 
 ##########################
 ### internal functions ###
