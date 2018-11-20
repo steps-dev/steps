@@ -55,7 +55,3 @@ disturbance <- function (disturbance_layers, effect_time = 1) {
 as.habitat_disturbance <- function (habitat_disturbance) {
   as_class(habitat_disturbance, "habitat_dynamics", "function")
 }
-
-# as.habitat_stochastic_disturbance <- function (habitat_stochastic_disturbance) {
-#   as_class(habitat_stochastic_disturbance, "habitat_dynamics", "function")
-# }

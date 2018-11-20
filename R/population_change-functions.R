@@ -13,6 +13,10 @@
 #'   variability (in standard deviations) in the transition matrix either for
 #'   all populations (\code{global_stochasticity}) or for each population
 #'   separately (\code{local_stochasticity})
+#' @param transition_function A custom function defined by the user specifying
+#'   either modifications to life-stage transitions at each timestep or
+#'   spatially-explicit values (e.g. rasters) for survival and fecundity at
+#'   each timestep.
 #'
 #' @rdname population_change_functions
 #' 
@@ -24,13 +28,14 @@
 #' # population using life-stage transitions:
 #'
 #' test_growth <- growth(egk_mat)
+
 growth <- function (transition_matrix,
                     demographic_stochasticity = TRUE,
                     global_stochasticity = 0,
                     local_stochasticity = 0,
                     transition_function = NULL) {
 
-  # did the user prpovide a function to overwrite the transition matrices at
+  # did the user provide a function to overwrite the transition matrices at
   # each pixel/timestep?
   is_function <- inherits(transition_function, "function")
 
@@ -73,7 +78,7 @@ growth <- function (transition_matrix,
     idx_full <- as.numeric(outer(idx, addition, FUN = "+"))
     
     if (is_function) {
-      transition_array <- transition(landscape, timestep)
+      transition_array <- transition_function(landscape, timestep)
       values <- transition_array[idx_full] + total_noise
     } else {
       transition_array <- array(0, c(dim, dim, n_cells))
@@ -130,7 +135,7 @@ growth <- function (transition_matrix,
       # get whole integers
       population_min <- floor(population)
       population_extra <- population - population_min
-      population_extra[] <- rbinom(length(population_extra), 1, population_extra[])
+      population_extra[] <- stats::rbinom(length(population_extra), 1, population_extra[])
       population <- population_min + population_extra
 
     }
@@ -147,44 +152,6 @@ growth <- function (transition_matrix,
   as.population_growth(pop_dynamics)
   
 }
-
-
-# # a user-defined function to hack temporally-varying survival
-# transition_fun_bespoke <- function (landscape, timestep) {
-#   
-#   # load in survival rasters for this timestep
-#   survival_juv <- landscape$suitability[] * 0.6
-#   survival_ad <- landscape$suitability[] * 0.9
-#   fecundity_ad <- landscape$suitability[] * 2.6
-#   
-#   n_cells <- ncell(landscape$suitability)
-#   transition_array <- array(0, c(2, 2, n_cells))
-# 
-#   transition_array[1, 1, ] <- survival_juv
-#   transition_array[2, 2, ] <- survival_ad
-#   transition_array[2, 1, ] <- fecundity_ad
-#   transition_array[1, 2, ] <- 0.5
-#   
-#   transition_array
-#     
-# }
-# 
-# 
-# # a user-defined function to hack temporally-varying survival
-# transition_fun <- function (landscape, timestep) {
-#   # load in survival rasters for this timestep
-#   time <- sprintf("%02i", timestep)
-#   lifestages <- c("F01", "F02NR")
-#   survival_fnames <- paste0("Koala_Sur_", lifestages, "_", time, ".tif" )
-#   survival_rasters <- lapply(survival_fnames, raster:raster)
-# 
-#   fecundity_fnames <- paste0("Koala_Fec_", lifestages, "_", time, ".tif" )
-#   fecundity_rasters <- lapply(fecundity_fnames, raster:raster)
-#   
-#   
-#   # build transition array
-# }
-# 
 
 
 ##########################

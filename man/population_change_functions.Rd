@@ -6,7 +6,8 @@
 \title{How the population changes in a landscape.}
 \usage{
 growth(transition_matrix, demographic_stochasticity = TRUE,
-  global_stochasticity = 0, local_stochasticity = 0)
+  global_stochasticity = 0, local_stochasticity = 0,
+  transition_function = NULL)
 }
 \arguments{
 \item{transition_matrix}{A symmetrical age-based (Leslie) or stage-based
@@ -20,6 +21,11 @@ matrices (with the same dimension as \code{transition_matrix}) giving
 variability (in standard deviations) in the transition matrix either for
 all populations (\code{global_stochasticity}) or for each population
 separately (\code{local_stochasticity})}
+
+\item{transition_function}{A custom function defined by the user specifying
+either modifications to life-stage transitions at each timestep or
+spatially-explicit values (e.g. rasters) for survival and fecundity at
+each timestep.}
 }
 \description{
 Pre-defined functions to define population change (e.g. growth) during a simulation.

@@ -51,7 +51,7 @@ fast_dispersal <- function(
     
     n_stages <- raster::nlayers(landscape$population)
     
-    poptot <- sum(cellStats(landscape$population, sum))
+    #poptot <- sum(raster::cellStats(landscape$population, sum))
 
     if (length(dispersal_proportion) < n_stages) {
       if (timestep == 1) cat ("    ", n_stages, "life stages exist but", length(dispersal_proportion),"dispersal proportion(s) were specified. Is this what was intended?")
@@ -90,7 +90,7 @@ fast_dispersal <- function(
       
     }
     
-    cat("Pre-Post Population:", poptot, sum(cellStats(landscape$population, sum)), "(Timestep", timestep, ")", "\n")
+    #cat("Pre-Post Population:", poptot, sum(raster::cellStats(landscape$population, sum)), "(Timestep", timestep, ")", "\n")
     
     landscape
     
@@ -126,7 +126,7 @@ kernel_dispersal <- function(
     
     n_stages <- raster::nlayers(landscape$population)
     
-    poptot <- sum(cellStats(landscape$population, sum))
+    #poptot <- sum(raster::cellStats(landscape$population, sum))
     
     # check the required landscape rasters are available
     layers <- arrival_probability
@@ -244,7 +244,7 @@ kernel_dispersal <- function(
       
     }
     
-    cat("Pre-Post Population:", poptot, sum(cellStats(landscape$population, sum)), "(Timestep", timestep, ")", "\n")
+    #cat("Pre-Post Population:", poptot, sum(raster::cellStats(landscape$population, sum)), "(Timestep", timestep, ")", "\n")
     
     landscape
     
@@ -282,7 +282,7 @@ cellular_automata_dispersal <- function (dispersal_distance = 1,
     arrival_prob <- landscape[[arrival_probability]]
     carrying_capacity <- landscape[[carrying_capacity]]
     
-    poptot <- sum(cellStats(landscape$population, sum))
+    #poptot <- sum(raster::cellStats(landscape$population, sum))
     
     # get population as a matrix
     idx <- which(!is.na(raster::getValues(population_raster[[1]])))
@@ -335,7 +335,7 @@ cellular_automata_dispersal <- function (dispersal_distance = 1,
     
     landscape$population <- population_raster
     
-    cat("Pre-Post Population:", poptot, sum(cellStats(landscape$population, sum)), "(Timestep", timestep, ")", "\n")
+    #cat("Pre-Post Population:", poptot, sum(raster::cellStats(landscape$population, sum)), "(Timestep", timestep, ")", "\n")
     
     landscape
   }

@@ -3,7 +3,7 @@
 \name{population_density_dependence_functions}
 \alias{population_density_dependence_functions}
 \alias{population_cap}
-\title{How the population responds to density dependnece in a landscape.}
+\title{How the population responds to density dependence in a landscape.}
 \usage{
 population_cap(stages = NULL)
 }

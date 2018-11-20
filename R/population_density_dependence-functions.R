@@ -43,11 +43,10 @@ population_cap <- function (stages = NULL) {
     population <- sweep(population_matrix, 1, overpopulation, "*")
     
     # get whole integers
-    population <- t(apply(population,
-                          1,
-                          FUN = function(x) rbinom(prob = (x/ceiling(max(population))),
-                                                   size = ceiling(max(population)),
-                                                   n = 2)))
+    population_min <- floor(population)
+    population_extra <- population - population_min
+    population_extra[] <- stats::rbinom(length(population_extra), 1, population_extra[])
+    population <- population_min + population_extra
     
     # put back in the raster
     population_raster[idx] <- population
