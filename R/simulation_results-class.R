@@ -256,7 +256,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                                        col.regions = viridisLite::viridis(length(breaks)-1),
                                        colorkey = list(space = "bottom",
                                                        title = "individuals",
-                                                       width = 0.6),
+                                                       width = 0.4),
                                        main = "population",
                                        layout = panels))
           }
@@ -304,7 +304,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                                        col.regions = viridisLite::viridis(length(breaks)-1),
                                        colorkey = list(space = "bottom",
                                                        title = "individuals",
-                                                       width = 0.6),
+                                                       width = 0.4),
                                        main = "population",
                                        layout = panels))
             
@@ -357,7 +357,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                                    col.regions = viridisLite::viridis(length(breaks)-1),
                                    colorkey = list(space = "bottom",
                                                    title = "index",
-                                                   width = 0.6),
+                                                   width = 0.4),
                                    main = "habitat",
                                    layout = panels))
       }
@@ -408,7 +408,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                                    col.regions = viridisLite::viridis(length(breaks)-1),
                                    colorkey = list(space = "bottom",
                                                    title = "individuals",
-                                                   width = 0.6),
+                                                   width = 0.4),
                                    main = "k",
                                    layout = panels))
       }
@@ -514,6 +514,24 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
   }
   
 }
+
+# @rdname simulation_results
+#
+# @export
+#
+# @examples
+#
+# # Test if object is of the type 'simulation_results'
+#
+# extract_results(results)
+
+#extract_results <- function (x,
+#                             replicate = NULL,
+#                             timestep = NULL,
+#                             landscape_object = NULL,
+#                             stage = NULL) {
+#  egk_results[[replicate]][[timestep]][[landscape_object]][[stage]]
+#}
 
 ##########################
 ### internal functions ###

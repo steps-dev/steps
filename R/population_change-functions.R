@@ -133,10 +133,7 @@ growth <- function (transition_matrix,
                              function(x) transition_array[ , , x] %*% matrix(population[x, ])))
       
       # get whole integers
-      population_min <- floor(population)
-      population_extra <- population - population_min
-      population_extra[] <- stats::rbinom(length(population_extra), 1, population_extra[])
-      population <- population_min + population_extra
+      population <- round_pop(population)
 
     }
     
