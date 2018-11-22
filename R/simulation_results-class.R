@@ -25,6 +25,14 @@
 #'   rasters as a gif?
 #' @param panels the number of columns and rows to use when plotting raster
 #'   timeseries - default is 3 x 3 (e.g. c(3,3) )
+#' @param replicate which replicate to extract a spatial object from a simulation result
+#' @param timestep which timestep to extract a spatial object from a simulation result
+#' @param landscape_object which landscape object to extract a spatial object from a
+#'   simulation result - can be specified by name (e.g. "suitability") or index number
+#' @param stage which life-stage to extract a spatial object from a simulation result
+#'   - only used for 'population' components of the landscape object
+#' @param misc which misc object to extract a spatial object from a simulation result
+#'   - only used for additional spatial objects added to a landscape (e.g. disturbance layers)
 #' @param ... further arguments passed to or from other methods
 #'
 #' @return An object of class \code{simulation_results}
@@ -515,23 +523,33 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
   
 }
 
-# @rdname simulation_results
-#
-# @export
-#
-# @examples
-#
-# # Test if object is of the type 'simulation_results'
-#
-# extract_results(results)
+#' @rdname simulation_results
+#'
+#' @export
+#'
+#' @examples
+#'
+#' # Extract spatial components from a 'simulation_results' object
+#'
+#' extract_results(results)
 
-#extract_results <- function (x,
-#                             replicate = NULL,
-#                             timestep = NULL,
-#                             landscape_object = NULL,
-#                             stage = NULL) {
-#  egk_results[[replicate]][[timestep]][[landscape_object]][[stage]]
-#}
+extract_results <- function (x,
+                            replicate = 1,
+                            timestep = 1,
+                            landscape_object = "population",
+                            stage = 1,
+                            misc = 1) {
+  if (landscape_object == 1 | landscape_object == "population") {
+    x[[replicate]][[timestep]][[landscape_object]][[stage]]
+  }
+  if (landscape_object > 3 |
+      !landscape_object == "population" |
+      !landscape_object == "suitability" |
+      !landscape_object == "carrying_capacity") {
+    x[[replicate]][[timestep]][[landscape_object]][[misc]]
+  }
+
+}
 
 ##########################
 ### internal functions ###

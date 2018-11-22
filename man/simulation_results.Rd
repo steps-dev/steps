@@ -5,6 +5,7 @@
 \alias{is.simulation_results}
 \alias{print.simulation_results}
 \alias{plot.simulation_results}
+\alias{extract_results}
 \title{Run an simulation}
 \usage{
 simulation(landscape, population_dynamics, habitat_dynamics = list(),
@@ -17,6 +18,9 @@ is.simulation_results(x)
 \method{plot}{simulation_results}(x, object = "population",
   type = "graph", stages = NULL, animate = FALSE,
   timesteps = c(1:9), panels = c(3, 3), ...)
+
+extract_results(x, replicate = 1, timestep = 1,
+  landscape_object = "population", stage = 1, misc = 1)
 }
 \arguments{
 \item{landscape}{a landscape object representing the initial habitat and
@@ -52,6 +56,19 @@ rasters as a gif?}
 
 \item{panels}{the number of columns and rows to use when plotting raster
 timeseries - default is 3 x 3 (e.g. c(3,3) )}
+
+\item{replicate}{which replicate to extract a spatial object from a simulation result}
+
+\item{timestep}{which timestep to extract a spatial object from a simulation result}
+
+\item{landscape_object}{which landscape object to extract a spatial object from a
+simulation result - can be specified by name (e.g. "suitability") or index number}
+
+\item{stage}{which life-stage to extract a spatial object from a simulation result
+- only used for 'population' components of the landscape object}
+
+\item{misc}{which misc object to extract a spatial object from a simulation result
+- only used for additional spatial objects added to a landscape (e.g. disturbance layers)}
 }
 \value{
 An object of class \code{simulation_results}
@@ -82,4 +99,8 @@ is.simulation_results(results)
 print(results)
 
 plot(results)
+
+# Extract spatial components from a 'simulation_results' object
+
+extract_results(results)
 }

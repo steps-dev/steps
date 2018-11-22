@@ -20,36 +20,19 @@ egk_mat_stoch <- matrix(c(0.00,0.00,0.20,
                   byrow = TRUE)
 colnames(egk_mat_stoch) <- rownames(egk_mat_stoch) <- c('juvenile','subadult','adult')
 
-#for (i in seq_len(20)) {
-#  writeRaster(egk_hab * 2, paste0("../working/rasters/egk_sf_", sprintf("%02i", i), "_0103.tif"), overwrite=TRUE)
-#}
-
-#for (i in seq_len(20)) {
-#  writeRaster(egk_hab * 0.5, paste0("../working/rasters/egk_sf_", sprintf("%02i", i), "_0201.tif"), overwrite=TRUE)
-#}
-
-#for (i in seq_len(20)) {
-#  writeRaster(egk_hab * 0.85, paste0("../working/rasters/egk_sf_", sprintf("%02i", i), "_0302.tif"), overwrite=TRUE)
-#}
-
-#for (i in seq_len(20)) {
-#  writeRaster(egk_hab * 0.85, paste0("../working/rasters/egk_sf_", sprintf("%02i", i), "_0303.tif"), overwrite=TRUE)
-#}
-
-
-## ---- message = FALSE, fig.align="center"--------------------------------
+## ---- message = FALSE, fig.align = "center", out.width = "100%"----------
 egk_hab
 
 par(mar=c(0,0,0,0), oma=c(0,0,0,0))
 plot(egk_hab, box = FALSE, axes = FALSE)
 
-## ---- message = FALSE, fig.align="center"--------------------------------
+## ---- message = FALSE, fig.align = "center", out.width = "100%"----------
 egk_k
 
 par(mar=c(0,0,0,0), oma=c(0,0,0,0))
 plot(egk_k, box = FALSE, axes = FALSE)
 
-## ---- message = FALSE, fig.align="center"--------------------------------
+## ---- message = FALSE, fig.align = "center", out.width = "100%"----------
 egk_pop
 
 par(mar=c(0,0,0,0), oma=c(0,0,0,0))
@@ -66,7 +49,7 @@ egk_pop_dynamics <- population_dynamics(change = growth(transition_matrix = egk_
                                         modification = NULL,
                                         density_dependence = NULL)
 
-## ---- message = FALSE,  results='hide', progress=FALSE-------------------
+## ---- message = FALSE,  results = 'hide', progress = FALSE---------------
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,
                           habitat_dynamics = NULL,
@@ -74,17 +57,17 @@ egk_results <- simulation(landscape = egk_landscape,
                           replicates = 1,
                           verbose = FALSE)
 
-## ---- message = FALSE, fig.align="center"--------------------------------
+## ---- message = FALSE, fig.align = "center", out.width = "100%"----------
 plot(egk_results)
 
-## ---- message = FALSE, fig.width=4, fig.align="center"-------------------
+## ---- message = FALSE, fig.width = 4, fig.align = "center"---------------
 plot(egk_results, stage = 0)
 
-## ---- message = FALSE, fig.width=4, fig.align="center"-------------------
+## ---- message = FALSE, fig.width = 4, fig.align = "center"---------------
 plot(egk_results, stage = 2, newplot = TRUE)
 
-## ---- message = FALSE, fig.align="center"--------------------------------
-plot(egk_results, type = "raster", stage = 2)
+## ---- message = FALSE, fig.align = "center", out.width = "100%", fig.show='hold'----
+plot(egk_results, type = "raster", stage = 2, timesteps = c(1, 10, 20), panels = c(3, 1))
 
 ## ---- message = FALSE, echo = FALSE--------------------------------------
 
@@ -95,16 +78,16 @@ egk_results <- simulation(landscape = egk_landscape,
                           replicates = 3,
                           verbose = FALSE)
 
-## ---- message = FALSE, fig.width=4, fig.align="center"-------------------
+## ---- message = FALSE, fig.align = "center", out.width = "100%"----------
 plot(egk_results)
 
-## ---- message = FALSE, fig.width=4, fig.align="center"-------------------
+## ---- message = FALSE, fig.width = 4, fig.align = "center"---------------
 plot(egk_results[3], stage = 0)
 
-## ---- message = FALSE, fig.align="center"--------------------------------
-plot(egk_results[1], type = "raster", stage = 2)
+## ---- message = FALSE, fig.align = "center"------------------------------
+plot(egk_results[1], type = "raster", stage = 2, timesteps = c(1, 10, 20), panels = c(3, 1))
 
-## ---- message = FALSE----------------------------------------------------
+## ---- message = FALSE, progress = FALSE, fig.align = "center", out.width = "100%"----
 egk_pop_dynamics <- population_dynamics(change = growth(transition_matrix = egk_mat,
                                                         global_stochasticity = egk_mat_stoch),
                                         dispersal = NULL,
@@ -120,7 +103,7 @@ egk_results <- simulation(landscape = egk_landscape,
 
 plot(egk_results)
 
-## ---- message = FALSE----------------------------------------------------
+## ---- message = FALSE, progress = FALSE, fig.align = "center", out.width = "100%"----
 egk_landscape <- landscape(population = egk_pop,
                            suitability = egk_hab,
                            carrying_capacity = NULL)
@@ -142,59 +125,49 @@ egk_results <- simulation(landscape = egk_landscape,
 
 plot(egk_results)
 
-## ---- message = FALSE----------------------------------------------------
-deterministic_transitions <- function(transition_matrix) {
-  
-  dim <- nrow(transition_matrix)
-  
-  function (landscape, timestep) {
-    
-    #### This assumes that the files are named with a particular convention
-    #### and will not work for all cases. User must change code accordingly.
-    
-    #get metrics and constructor info
-    cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])))
-    current_timestep <- sprintf("%02i", timestep)
-    n_cells <- length(which(!is.na(raster::getValues(landscape$population[[1]]))))
-    
-    #get relevant rasters - note, your working directory will be different
-    files <- list.files("../working/rasters", pattern = paste0("_", current_timestep, "_")) 
-    
-    #initialise array
-    transition_array <- array(0, dim = c(dim, dim, n_cells))
-    
-    #populate array:
-    for (file in files) {
-      r <- as.integer(substr(substr(file, nchar(file) - (8-1), nchar(file)), 1, 2))
-      c <- as.integer(substr(substr(file, nchar(file) - (6-1), nchar(file)), 1, 2))
-      #note, your working directory will be different
-      transition_array[r, c, ] <- raster::raster(paste0("../working/rasters/", file))[cell_idx]
-    }
-    
-    transition_array
-  }
-}
-    
-egk_landscape <- landscape(population = egk_pop,
-                           suitability = egk_hab,
-                           carrying_capacity = NULL)
+## ---- message = FALSE, eval = FALSE--------------------------------------
+#  deterministic_transitions <- function(transition_matrix) {
+#  
+#    dim <- nrow(transition_matrix)
+#  
+#    function (landscape, timestep) {
+#  
+#      #### This assumes that the files are named with a particular convention
+#      #### and will not work for all cases. User must change code below accordingly.
+#  
+#        # get metrics and constructor info
+#        cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])))
+#        current_timestep <- sprintf("%02i", timestep)
+#        n_cells <- length(which(!is.na(raster::getValues(landscape$population[[1]]))))
+#  
+#        # get relevant rasters - note, your working directory will be different
+#        files <- list.files("../working/rasters", pattern = paste0("_", current_timestep, "_"))
+#  
+#        #initialise array
+#        transition_array <- array(0, dim = c(dim, dim, n_cells))
+#  
+#        # populate array:
+#        for (file in files) {
+#          r <- as.integer(substr(substr(file, nchar(file) - (8-1), nchar(file)), 1, 2))
+#          c <- as.integer(substr(substr(file, nchar(file) - (6-1), nchar(file)), 1, 2))
+#          #note, your working directory will be different
+#          transition_array[r, c, ] <- raster::raster(paste0("../working/rasters/", file))[cell_idx]
+#      }
+#  
+#      #### Return array with required dimensions
+#  
+#      transition_array
+#    }
+#  }
+#  
+#  egk_pop_dynamics <- population_dynamics(change = growth(transition_matrix = egk_mat,
+#                                                          transition_function = deterministic_transitions(transition_matrix)),
+#                                          dispersal = NULL,
+#                                          modification = NULL,
+#                                          density_dependence = NULL)
+#  
 
-egk_pop_dynamics <- population_dynamics(change = growth(transition_matrix = egk_mat,
-                                                        transition_function = deterministic_transitions(egk_mat)),
-                                        dispersal = NULL,
-                                        modification = NULL,
-                                        density_dependence = NULL)
-
-egk_results <- simulation(landscape = egk_landscape,
-                          population_dynamics = egk_pop_dynamics,
-                          habitat_dynamics = NULL,
-                          timesteps = 20,
-                          replicates = 3,
-                          verbose = FALSE)
-
-plot(egk_results)
-
-## ---- message = FALSE----------------------------------------------------
+## ---- message = FALSE, progress = FALSE, fig.align = "center", out.width = "100%"----
 egk_landscape <- landscape(population = egk_pop,
                            suitability = egk_hab,
                            carrying_capacity = egk_k)
@@ -214,10 +187,10 @@ egk_results <- simulation(landscape = egk_landscape,
 
 plot(egk_results)
 
-## ---- message = FALSE, fig.align="center"--------------------------------
-plot(egk_results[1], object = "carrying_capacity")
+## ---- message = FALSE, fig.align = "center"------------------------------
+plot(egk_results[1], object = "carrying_capacity", timesteps = c(1, 10, 20), panels = c(3, 1))
 
-## ---- message = FALSE, progress = FALSE----------------------------------
+## ---- message = FALSE, progress = FALSE, fig.align = "center", out.width = "100%"----
 egk_landscape <- landscape(population = egk_pop,
                            suitability = egk_hab,
                            carrying_capacity = egk_k)
@@ -237,10 +210,10 @@ egk_results <- simulation(landscape = egk_landscape,
 
 plot(egk_results)
 
-## ---- message = FALSE, fig.align="center"--------------------------------
-plot(egk_results[1], type = "raster", stage = 3)
+## ---- message = FALSE, fig.align = "center"------------------------------
+plot(egk_results[1], type = "raster", stage = 3, timesteps = c(1, 10, 20), panels = c(3, 1))
 
-## ---- message = FALSE, progress = FALSE----------------------------------
+## ---- message = FALSE, progress = FALSE, fig.align = "center", out.width = "100%"----
 egk_landscape <- landscape(population = egk_pop,
                            suitability = egk_hab,
                            carrying_capacity = egk_k)
@@ -261,7 +234,7 @@ egk_results <- simulation(landscape = egk_landscape,
 
 plot(egk_results)
 
-## ---- message = FALSE, progress = FALSE----------------------------------
+## ---- message = FALSE, progress = FALSE, fig.align = "center", out.width = "100%"----
 egk_landscape <- landscape(population = egk_pop,
                            suitability = egk_hab,
                            carrying_capacity = egk_k)
@@ -282,10 +255,9 @@ egk_results <- simulation(landscape = egk_landscape,
 
 plot(egk_results)
 
-## ---- message = FALSE, progress = FALSE----------------------------------
+## ---- message = FALSE, progress = FALSE, fig.align = "center", out.width = "100%"----
 power_law_dispersal_kernel <- function () {
     fun <- function (r) 0.8*(1 + (r/0.9))^-2.1
-  as.dispersal_function(fun)
 }
 
 egk_landscape <- landscape(population = egk_pop,
@@ -309,7 +281,7 @@ egk_results <- simulation(landscape = egk_landscape,
 
 plot(egk_results)
 
-## ---- message = FALSE----------------------------------------------------
+## ---- message = FALSE, results='hide'------------------------------------
 egk_landscape <- landscape(population = egk_pop,
                            suitability = egk_hab,
                            carrying_capacity = egk_k,
@@ -332,9 +304,24 @@ egk_results <- simulation(landscape = egk_landscape,
 
 plot(egk_results)
 
-## ---- message = FALSE, fig.align="center"--------------------------------
-plot(egk_results[1], type = "raster", stage = 3)
+## ---- message = FALSE, fig.align = "center"------------------------------
+plot(egk_results[1], type = "raster", stage = 3, timesteps = c(1, 10, 20), panels = c(3, 1))
 
-## ---- message = FALSE, fig.align="center"--------------------------------
-plot(egk_results[1], object = "suitability")
+## ---- message = FALSE, fig.align = "center"------------------------------
+plot(egk_results[1], object = "suitability", timesteps = c(1, 10, 20), panels = c(3, 1))
+
+## ---- message = FALSE, fig.align = "center", out.width = "100%"----------
+par(mar = c(0.1, 0.1, 0.1, 0.1))
+plot(egk_results[[2]][[5]][[1]][[1]])
+
+## ---- message = FALSE, fig.align = "center", out.width = "100%"----------
+par(mar = c(0.1, 0.1, 0.1, 0.1))
+plot(egk_results[[2]][[3]][[2]])
+
+## ---- message = FALSE, fig.align = "center", out.width = "100%"----------
+par(mar = c(0.1, 0.1, 0.1, 0.1))
+plot(egk_results[[2]][[3]][["carrying_capacity"]])
+
+## ---- message = FALSE, fig.align = "center", out.width = "100%"----------
+extract_results(egk_results, replicate = 2, timestep = 3, landscape_object = "carrying_capacity")
 
