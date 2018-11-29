@@ -22,12 +22,12 @@
 #' # Use the translocation_population_dynamics object to modify the  
 #' # population using translocations:
 #' 
-#' test_ca_dispersal <- translocation(source_layer = pop_source,
-#'                                        sink_layer = pop_sink,
+#' test_ca_dispersal <- translocation(source_layer = egk_source,
+#'                                        sink_layer = egk_sink,
 #'                                        stages = NULL,
 #'                                        effect_timesteps = 1)
 
-translocation <- function (source_layer, sink_layer, stages = NULL, effect_timesteps = NULL) {
+translocation <- function (source_layer, sink_layer, stages = NULL, effect_timesteps = 1) {
   
   pop_dynamics <- function (landscape, timestep) {
     
@@ -40,8 +40,8 @@ translocation <- function (source_layer, sink_layer, stages = NULL, effect_times
       idx <- which(!is.na(raster::getValues(population_raster[[1]])))
       population_matrix <- raster::extract(population_raster, idx)
       
-      source <- raster::extract(source_layer, idx)
-      sink <- raster::extract(sink_layer, idx)
+      source <- raster::extract(landscape[[source_layer]], idx)
+      sink <- raster::extract(landscape[[sink_layer]], idx)
       
       if (is.null(stages)) stages <- seq_len(nstages)
       

@@ -8,6 +8,8 @@
 #'   \item{egk_mat}{A matrix containing the survival and fecundity of Eastern Grey Kangaroos at each of three life-stages - juvenile, subadult, and adult.}
 #'   \item{egk_mat_stoch}{A matrix containing the uncertainty around survival and fecundity of Eastern Grey Kangaroos at each of three life-stages - juvenile, subadult, and adult.}
 #'   \item{egk_dist}{A raster stack containing values for modifying the habitat - in this case proportion of landscape remaining after fire.}
+#'   \item{egk_source}{A raster stack containing locations and counts of where to move individual kangaroos from.}
+#'   \item{egk_sink}{A raster stack containing locations and counts of where to move individual kangaroos to.}
 #' }
 #' @format Misc data
 #' @name egk
@@ -27,3 +29,9 @@
 
 #' @rdname egk
 "egk_dist"
+
+#' @rdname egk
+"egk_source"
+
+#' @rdname egk
+"egk_sink"

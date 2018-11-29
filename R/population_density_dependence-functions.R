@@ -19,12 +19,17 @@ population_cap <- function (stages = NULL) {
   pop_dynamics <- function (landscape, timestep) {
     
     population_raster <- landscape$population
-    carrying_capacity <- landscape$carrying_capacity
-    
-    # get population as a matrix
+
+    # Get non-NA cells
     idx <- which(!is.na(raster::getValues(population_raster[[1]])))
+    
+    if (exists("carrying_capacity_function", envir = steps_stash)) {
+      landscape$carrying_capacity[idx] <- steps_stash$carrying_capacity_function(landscape$suitability[idx])
+    }
+
+    # get population as a matrix
     population_matrix <- raster::extract(population_raster, idx)
-    carrying_capacity <- raster::extract(carrying_capacity, idx)
+    carrying_capacity <- raster::extract(landscape$carrying_capacity, idx)
     
     # if (is.null(carrying_capacity)) {
     #   stop ("carrying capacity must be specified",

@@ -128,7 +128,7 @@ kernel_dispersal <- function(
     
     #poptot <- sum(raster::cellStats(landscape$population, sum))
     
-    # check the required landscape rasters are available
+    # check the required landscape rasters/functions are available
     layers <- arrival_probability
     if (layers == "both")
       layers <- c("suitability", "carrying_capacity")
@@ -141,6 +141,13 @@ kernel_dispersal <- function(
       
       stop ("kernel_dispersal requires landscape to have ", missing_text,
             call. = FALSE)
+    }
+
+    # Get non-NA cells
+    cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])))
+    
+    if (exists("carrying_capacity_function", envir = steps_stash)) {
+      landscape$carrying_capacity[cell_idx] <- steps_stash$carrying_capacity_function(landscape$suitability[cell_idx])
     }
     
     if (length(dispersal_proportion) < n_stages) {
@@ -222,7 +229,7 @@ kernel_dispersal <- function(
         contribution <- contribution * pop_dispersing[i]
         # Standardise contributions and round them if demographic_stochasticity = TRUE
         if (identical(demographic_stochasticity, FALSE)) return(contribution)
-        ####### What is going on here? #####
+
         contribution_int <- floor(contribution)
         idx <- utils::tail(
           order(contribution - contribution_int),
@@ -279,13 +286,20 @@ cellular_automata_dispersal <- function (dispersal_distance = 1,
   pop_dynamics <- function (landscape, timestep) {
     
     population_raster <- landscape$population
+    
+    # Get non-NA cells
+    idx <- which(!is.na(raster::getValues(population_raster[[1]])))
+    
+    if (exists("carrying_capacity_function", envir = steps_stash)) {
+      landscape$carrying_capacity[idx] <- steps_stash$carrying_capacity_function(landscape$suitability[idx])
+    }
+    
     arrival_prob <- landscape[[arrival_probability]]
     carrying_capacity <- landscape[[carrying_capacity]]
     
     #poptot <- sum(raster::cellStats(landscape$population, sum))
     
     # get population as a matrix
-    idx <- which(!is.na(raster::getValues(population_raster[[1]])))
     population <- raster::extract(population_raster, idx)
 
     n_stages <- raster::nlayers(population_raster)

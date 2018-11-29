@@ -10,13 +10,14 @@
 #' @rdname landscape
 #' 
 #' @param population A raster stack (grid cell-based) with one layer
-#' for each life stage.
+#'  for each life stage.
 #' @param suitability An optional raster layer or stack containing habitat
 #'  suitability values for all cells in a landscape. Note, using a raster
 #'  stack assumes that the user has provided a layer for each intended timestep
 #'  in a simulation.
 #' @param carrying_capacity An optional raster layer specifying carrying capacity
-#'  values for all cells in a landscape.
+#'  values for all cells in a landscape or a function defining how carrying capacity
+#'  is determined by habitat suitability.
 #' @param x A landscape object.
 #' @param ... Named raster objects representing different
 #'  aspects of the landscape used to modify the landscape object in a
@@ -41,8 +42,16 @@ landscape <- function (population, suitability = NULL, carrying_capacity = NULL,
   if(!is.null(suitability)) {
     check_raster_matches_population(suitability, population)
   }
-  if(!is.null(carrying_capacity)) {
+  if(!is.null(carrying_capacity) & identical(class(carrying_capacity)[1], "RasterLayer")) {
     check_raster_matches_population(carrying_capacity, population)
+  }
+  if(!is.null(carrying_capacity) & identical(class(carrying_capacity)[1], "function")){
+    assign("carrying_capacity_function", carrying_capacity, steps_stash)
+    if(is.null(suitability)) stop("A carrying capacity function requires a suitability layer in the landscape object.")
+    cell_idx <- which(!is.na(raster::getValues(suitability)))
+    carrying_capacity <- suitability
+    names(carrying_capacity) <- "k"
+    carrying_capacity[cell_idx] <- steps_stash$carrying_capacity_function(suitability[cell_idx])
   }
   landscape <- list(population = population,
                     suitability = suitability,

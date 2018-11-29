@@ -47,7 +47,9 @@ test_that('simulation_results classes work', {
   landscape <- landscape(population = egk_pop,
                    suitability = egk_hab,
                    carrying_capacity = egk_k,
-                   fires = egk_dist)
+                   fires = egk_dist,
+                   source = pop_source,
+                   sink = pop_sink)
   
   landscape_nohab <- landscape(population = egk_pop,
                          suitability = NULL,
@@ -60,8 +62,8 @@ test_that('simulation_results classes work', {
                                                                     barrier_type = 1,
                                                                     use_barriers = TRUE,
                                                                     barriers_map = disp.bar),
-                                 modification = translocation(source_layer = pop_source,
-                                                     sink_layer = pop_sink,
+                                 modification = translocation(source_layer = "source",
+                                                     sink_layer = "sink",
                                                      stages = NULL,
                                                      effect_timesteps = 2),
                                  density_dependence = population_cap())
@@ -91,8 +93,8 @@ test_that('simulation_results classes work', {
                                                                      barrier_type = 1,
                                                                      use_barriers = TRUE,
                                                                      barriers_map = disp.bar2),
-                                  modification = translocation(source_layer = pop_source,
-                                                      sink_layer = pop_sink,
+                                  modification = translocation(source_layer = "source",
+                                                      sink_layer = "sink",
                                                       stages = 3,
                                                       effect_timesteps = 2),
                                   density_dependence = population_cap())
@@ -106,8 +108,8 @@ test_that('simulation_results classes work', {
                                   dispersal = cellular_automata_dispersal(dispersal_distance=list(0, 10, 0),
                                                                           dispersal_kernel=exponential_dispersal_kernel(distance_decay = 0.1),
                                                                           dispersal_proportion=list(0, 0.25, 0)),
-                                  modification = translocation(source_layer = pop_source,
-                                                               sink_layer = pop_sink,
+                                  modification = translocation(source_layer = "source",
+                                                               sink_layer = "sink",
                                                                stages = 3,
                                                                effect_timesteps = 2),
                                   density_dependence = population_cap())

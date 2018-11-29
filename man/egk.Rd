@@ -9,6 +9,8 @@
 \alias{egk_mat}
 \alias{egk_mat_stoch}
 \alias{egk_dist}
+\alias{egk_source}
+\alias{egk_sink}
 \title{Eastern Grey Kangaroo example data}
 \format{Misc data}
 \usage{
@@ -23,6 +25,10 @@ egk_mat
 egk_mat_stoch
 
 egk_dist
+
+egk_source
+
+egk_sink
 }
 \description{
 Example data for simulate spatial population dynamics of Eastern Greya Kangaroos in ?
@@ -33,6 +39,8 @@ Example data for simulate spatial population dynamics of Eastern Greya Kangaroos
   \item{egk_mat}{A matrix containing the survival and fecundity of Eastern Grey Kangaroos at each of three life-stages - juvenile, subadult, and adult.}
   \item{egk_mat_stoch}{A matrix containing the uncertainty around survival and fecundity of Eastern Grey Kangaroos at each of three life-stages - juvenile, subadult, and adult.}
   \item{egk_dist}{A raster stack containing values for modifying the habitat - in this case proportion of landscape remaining after fire.}
+  \item{egk_source}{A raster stack containing locations and counts of where to move individual kangaroos from.}
+  \item{egk_sink}{A raster stack containing locations and counts of where to move individual kangaroos to.}
 }
 }
 \keyword{datasets}

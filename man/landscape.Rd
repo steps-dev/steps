@@ -23,7 +23,8 @@ stack assumes that the user has provided a layer for each intended timestep
 in a simulation.}
 
 \item{carrying_capacity}{An optional raster layer specifying carrying capacity
-values for all cells in a landscape.}
+values for all cells in a landscape or a function defining how carrying capacity
+is determined by habitat suitability.}
 
 \item{...}{Named raster objects representing different
 aspects of the landscape used to modify the landscape object in a
