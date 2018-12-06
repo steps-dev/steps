@@ -38,7 +38,7 @@ disturbance <- function (disturbance_layers, effect_time = 1) {
       stop("The number of disturbance layers must match the number of timesteps in the experiment")
     }
 
-    modified_habitat <- original_habitat * raster::overlay(landscape[[disturbance_layers]][[utils::tail(seq_len(timestep), effect_time)]], fun = prod)
+    modified_habitat <- original_habitat * raster::overlay((1 - landscape[[disturbance_layers]][[utils::tail(seq_len(timestep), effect_time)]]), fun = prod)
     names(modified_habitat) <- "Habitat"
 
     landscape$suitability <- modified_habitat
