@@ -54,7 +54,7 @@ fast_dispersal <- function(
     #poptot <- sum(raster::cellStats(landscape$population, sum))
 
     if (length(dispersal_proportion) < n_stages) {
-      if (timestep == 1) cat ("    ", n_stages, "life stages exist but", length(dispersal_proportion),"dispersal proportion(s) were specified. Is this what was intended?")
+      if (timestep == 1) cat ("    ", n_stages, "life stages exist but", length(dispersal_proportion),"dispersal proportion(s) of", dispersal_proportion,"were specified. Is this what was intended?")
       dispersal_proportion <- rep(dispersal_proportion, n_stages)
     }
     
@@ -151,7 +151,7 @@ kernel_dispersal <- function(
     }
     
     if (length(dispersal_proportion) < n_stages) {
-      if (timestep == 1) cat ("    ", n_stages, "life stages exist but", length(dispersal_proportion),"dispersal proportion(s) were specified. Is this what was intended?")
+      if (timestep == 1) cat ("    ", n_stages, "life stages exist but", length(dispersal_proportion),"dispersal proportion(s) of", dispersal_proportion,"were specified. Is this what was intended?")
       dispersal_proportion <- rep(dispersal_proportion, n_stages)
     }
     
@@ -305,12 +305,12 @@ cellular_automata_dispersal <- function (dispersal_distance = 1,
     n_stages <- raster::nlayers(population_raster)
     
     if (length(dispersal_proportion) < n_stages) {
-      if (timestep == 1) cat ("    ", n_stages, "life stages exist but", length(dispersal_proportion),"dispersal proportion(s) were specified. Is this what was intended?")
+      if (timestep == 1) cat ("    ", n_stages, "life stages exist but", length(dispersal_proportion),"dispersal proportion(s) of", dispersal_proportion,"were specified. Is this what was intended?")
       dispersal_proportion <- rep(dispersal_proportion, n_stages)
     }
 
     if (length(dispersal_distance) < n_stages) {
-      if (timestep == 1) cat ("    ", n_stages, "life stages exist but", length(dispersal_distance),"dispersal distance(s) were specified. Is this what was intended?")
+      if (timestep == 1) cat ("    ", n_stages, "life stages exist but", length(dispersal_distance),"dispersal distance(s) of", dispersal_distance,"were specified. Is this what was intended?")
       dispersal_distance <- rep(dispersal_distance, n_stages)
     }
     

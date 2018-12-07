@@ -120,21 +120,25 @@ print.simulation_results <- function (x, ...) {
 #'
 #' plot(results)
 
-plot.simulation_results <- function (x, object = "population", type = "graph", stages = NULL, animate = FALSE, timesteps = c(1:9), panels = c(3,3), ...){
+plot.simulation_results <- function (x,
+                                     object = "population",
+                                     type = "graph",
+                                     stages = NULL,
+                                     animate = FALSE,
+                                     timesteps = c(1:9),
+                                     panels = c(3,3),
+                                     ...){
   
   total_stages <- raster::nlayers(x[[1]][[1]]$population)
   stage_names <- names(x[[1]][[1]]$population)
 
-  graph.pal <- c("#94d1c7",
-                 "#cccc2b",
-                 "#bebada",
-                 "#fb8072",
-                 "#80b1d3",
-                 "#fdb462",
-                 "#b3de69",
-                 "#fccde5",
-                 "#969696",
-                 "#bc80bd"
+  graph.pal <- c(
+    "#b4d7b3",
+    "#eb7d75",
+    "#80b1d3",
+    "#bebada",
+    "#f0ab7e",
+    "#969696"
   )
   
   if (length(x) == 1) {
@@ -147,7 +151,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
         
         if (is.null(stages)) {
           
-          graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,total_stages))
+          graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1, total_stages))
           
           for (i in seq_len(total_stages)) {
             
@@ -158,17 +162,12 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                            lwd=3,
                            col=graph.pal[i],
                            ylim=range(pretty(pop)))
-            
-            # if (!is.null(x[[1]][[1]]$carrying_capacity)) {
-            #   graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity, sum)/total_stages,
-            #                    lwd=1,
-            #                    lty=2)
-            # }
+
           }
           
         }
         
-        if(!is.null(stages) && stages == 0) {
+        if (!is.null(stages) && stages == 0) {
           
           graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
           
@@ -179,31 +178,24 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                          lwd=3,
                          col="black",
                          ylim=range(pretty(rowSums(pop))))
-          
-          # if (!is.null(x[[1]][[1]]$carrying_capacity)) {
-          #   graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity, sum),
-          #                    lwd=1,
-          #                    lty=2)
-          # }
+
         }
         
-        if (!is.null(stages) && stages > 0) {
+        if (!is.null(stages) && length(stages) > 0) {
           
-          graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
+          graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,length(stages)))
           
-          graphics::plot(pop[, stages],
-                         type='l',
-                         ylab=paste("Total Population: ",stage_names[stages]),
-                         xlab="Timesteps",
-                         lwd=3,
-                         col=graph.pal[stages],
-                         ylim=range(pretty(pop[, stages])))
+          for (i in stages) {
           
-          # if (!is.null(x[[1]][[1]]$carrying_capacity)) {
-          #   graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity,sum)/stages,
-          #                    lwd=1,
-          #                    lty=2)
-          # }
+            graphics::plot(pop[, i],
+                           type='l',
+                           ylab=paste("Total Population: ",stage_names[stages]),
+                           xlab="Timesteps",
+                           lwd=3,
+                           col=graph.pal[i],
+                           ylim=range(pretty(pop)))
+          }
+
         }
         
       }
@@ -240,22 +232,6 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                             n = 1)
           } else {
             
-            # ts <- seq_len(raster::nlayers(rasters_sum))
-            # groups <- split(ts, ceiling(seq_along(ts)/9))
-            # 
-            # for (i in seq_along(groups)) {
-            #   
-            #   group <- groups[[i]]
-            #   print(rasterVis::levelplot(rasters_sum[[group]],
-            #                              scales = list(draw = FALSE),
-            #                              margin = list(draw = FALSE),
-            #                              at = breaks,
-            #                              col.regions = viridisLite::viridis(length(breaks)-1),
-            #                              colorkey = list(space = "bottom",
-            #                                              title = "individuals",
-            #                                              width = 0.6),
-            #                              main="population"))
-            # }
             graphics::par(mar=c(2, 0, 0, 0), mfrow=c(1,1))
             print(rasterVis::levelplot(rasters_sum[[timesteps]],
                                        scales = list(draw = FALSE),
@@ -287,24 +263,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                             col=viridisLite::viridis(length(breaks)-1),
                             n = 1)
           } else {
-            
-            # ts <- seq_len(raster::nlayers(rasters))
-            # groups <- split(ts, ceiling(seq_along(ts)/9))
-            # 
-            # for (i in seq_along(groups)) {
-            #   
-            #   group <- groups[[i]]
-            #   print(rasterVis::levelplot(rasters[[group]],
-            #                              scales = list(draw = FALSE),
-            #                              margin = list(draw = FALSE),
-            #                              at = breaks,
-            #                              col.regions = viridisLite::viridis(length(breaks)-1),
-            #                              colorkey = list(space = "bottom",
-            #                                              title = "individuals",
-            #                                              width = 0.6),
-            #                              main="population"))
-            # }
-            
+
             print(rasterVis::levelplot(rasters[[timesteps]],
                                        scales = list(draw = FALSE),
                                        margin = list(draw = FALSE),
@@ -340,24 +299,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                         n = 1)
       
       } else {  
-        
-      # ts <- seq_len(raster::nlayers(rasters))
-      # groups <- split(ts, ceiling(seq_along(ts)/9))
-      # 
-      # for (i in seq_along(groups)) {
-      #   
-      #   group <- groups[[i]]
-      #   print(rasterVis::levelplot(rasters[[group]],
-      #                              scales = list(draw = FALSE),
-      #                              margin = list(draw = FALSE),
-      #                              at = breaks,
-      #                              col.regions = viridisLite::viridis(length(breaks)-1),
-      #                              colorkey = list(space = "bottom",
-      #                                              title = "index",
-      #                                              width = 0.6),
-      #                              main="habitat"))
-      # }
-      
+
         print(rasterVis::levelplot(rasters[[timesteps]],
                                    scales = list(draw = FALSE),
                                    margin = list(draw = FALSE),
@@ -391,24 +333,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
                         n = 1)
         
       } else {  
-      
-      # ts <- seq_len(raster::nlayers(rasters))
-      # groups <- split(ts, ceiling(seq_along(ts)/9))
-      # 
-      # for (i in seq_along(groups)) {
-      #   
-      #   group <- groups[[i]]
-      #   print(rasterVis::levelplot(rasters[[group]],
-      #                              scales = list(draw = FALSE),
-      #                              margin = list(draw = FALSE),
-      #                              at = breaks,
-      #                              col.regions = viridisLite::viridis(length(breaks)-1),
-      #                              colorkey = list(space = "bottom",
-      #                                              title = "individuals",
-      #                                              width = 0.6),
-      #                              main="k"))
-      # }
-      
+
         print(rasterVis::levelplot(rasters[[timesteps]],
                                    scales = list(draw = FALSE),
                                    margin = list(draw = FALSE),
@@ -510,12 +435,6 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
         graphics::lines(pop[ , stages, j],
                         col = 'gray')
       }
-      
-      # if (!is.null(x[[1]][[1]]$carrying_capacity)) {
-      #   graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity,sum)/total_stages,
-      #                    lwd=1,
-      #                    lty=2)
-      # }
 
     }
   
