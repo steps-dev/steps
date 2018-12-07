@@ -37,7 +37,10 @@ disturbance <- function (disturbance_layers, effect_time = 1) {
     if (raster::nlayers(landscape[[disturbance_layers]]) < timestep ) {
       stop("The number of disturbance layers must match the number of timesteps in the experiment")
     }
-
+    
+    # replace NA values with zeros
+    landscape[[disturbance_layers]][is.na(landscape[[disturbance_layers]])] <- 0
+    
     modified_habitat <- original_habitat * raster::overlay((1 - landscape[[disturbance_layers]][[utils::tail(seq_len(timestep), effect_time)]]), fun = prod)
     names(modified_habitat) <- "Habitat"
 
@@ -77,6 +80,9 @@ fire_effects <- function (fire_layers,
     if (raster::nlayers(landscape[[fire_layers]]) < timestep ) {
       stop("The number of disturbance layers must match the number of timesteps in the experiment")
     }
+    
+    # replace NA values with zeros
+    landscape[[fire_layers]][is.na(landscape[[fire_layers]])] <- 0
     
     # lags  
     years_since_fire <- c(0, seq_len(lag))
