@@ -55,7 +55,7 @@ fast_dispersal <- function(
 
     if (length(dispersal_proportion) < n_stages) {
       if (timestep == 1) cat ("    ", n_stages, "life stages exist but", length(dispersal_proportion),"dispersal proportion(s) of", dispersal_proportion,"were specified. Is this what was intended?")
-      dispersal_proportion <- rep(dispersal_proportion, n_stages)
+      dispersal_proportion <- rep(dispersal_proportion, n_stages)[1:n_stages]
     }
     
     # Which stages can disperse
@@ -152,7 +152,7 @@ kernel_dispersal <- function(
     
     if (length(dispersal_proportion) < n_stages) {
       if (timestep == 1) cat ("    ", n_stages, "life stages exist but", length(dispersal_proportion),"dispersal proportion(s) of", dispersal_proportion,"were specified. Is this what was intended?")
-      dispersal_proportion <- rep(dispersal_proportion, n_stages)
+      dispersal_proportion <- rep(dispersal_proportion, n_stages)[1:n_stages]
     }
     
     # Which stages can disperse
@@ -306,12 +306,12 @@ cellular_automata_dispersal <- function (dispersal_distance = 1,
     
     if (length(dispersal_proportion) < n_stages) {
       if (timestep == 1) cat ("    ", n_stages, "life stages exist but", length(dispersal_proportion),"dispersal proportion(s) of", dispersal_proportion,"were specified. Is this what was intended?")
-      dispersal_proportion <- rep(dispersal_proportion, n_stages)
+      dispersal_proportion <- rep(dispersal_proportion, n_stages)[1:n_stages]
     }
 
     if (length(dispersal_distance) < n_stages) {
       if (timestep == 1) cat ("    ", n_stages, "life stages exist but", length(dispersal_distance),"dispersal distance(s) of", dispersal_distance,"were specified. Is this what was intended?")
-      dispersal_distance <- rep(dispersal_distance, n_stages)
+      dispersal_distance <- rep(dispersal_distance, n_stages)[1:n_stages]
     }
     
     dispersal_vector <- lapply(dispersal_distance, function(x) dispersal_kernel(seq_len(x)-1))

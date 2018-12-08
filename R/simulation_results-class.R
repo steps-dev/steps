@@ -181,7 +181,7 @@ plot.simulation_results <- function (x,
 
         }
         
-        if (!is.null(stages) && length(stages) > 0) {
+        if (!is.null(stages) && length(stages) > 0 && stages != 0) {
           
           graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,length(stages)))
           
@@ -228,8 +228,11 @@ plot.simulation_results <- function (x,
             graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
             
             raster::animate(rasters_sum[[timesteps]],
-                            col=viridisLite::viridis(length(breaks)-1),
-                            n = 1)
+                            col = viridisLite::viridis(length(breaks)-1),
+                            n = 1,
+                            legend.args = list(text = 'individuals'),
+                            box = FALSE,
+                            axes = FALSE)
           } else {
             
             graphics::par(mar=c(2, 0, 0, 0), mfrow=c(1,1))
@@ -239,9 +242,10 @@ plot.simulation_results <- function (x,
                                        at = breaks,
                                        col.regions = viridisLite::viridis(length(breaks)-1),
                                        colorkey = list(space = "bottom",
-                                                       title = "individuals",
                                                        width = 0.4),
                                        main = "population",
+                                       par.settings=list(layout.heights=list(xlab.key.padding=1)),
+                                       xlab = "individuals",
                                        layout = panels))
           }
           
@@ -260,8 +264,11 @@ plot.simulation_results <- function (x,
             graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
             
             raster::animate(rasters[[timesteps]],
-                            col=viridisLite::viridis(length(breaks)-1),
-                            n = 1)
+                            col = viridisLite::viridis(length(breaks)-1),
+                            n = 1,
+                            legend.args = list(text = 'individuals'),
+                            box = FALSE,
+                            axes = FALSE)
           } else {
 
             print(rasterVis::levelplot(rasters[[timesteps]],
@@ -270,9 +277,10 @@ plot.simulation_results <- function (x,
                                        at = breaks,
                                        col.regions = viridisLite::viridis(length(breaks)-1),
                                        colorkey = list(space = "bottom",
-                                                       title = "individuals",
                                                        width = 0.4),
                                        main = "population",
+                                       par.settings=list(layout.heights=list(xlab.key.padding=1)),
+                                       xlab = "individuals",
                                        layout = panels))
             
           }
@@ -295,8 +303,11 @@ plot.simulation_results <- function (x,
         graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
         
         raster::animate(rasters[[timesteps]],
-                        col=viridisLite::viridis(length(breaks)-1),
-                        n = 1)
+                        col = viridisLite::viridis(length(breaks)-1),
+                        n = 1,
+                        legend.args = list(text = 'index'),
+                        box = FALSE,
+                        axes = FALSE)
       
       } else {  
 
@@ -306,9 +317,10 @@ plot.simulation_results <- function (x,
                                    at = breaks,
                                    col.regions = viridisLite::viridis(length(breaks)-1),
                                    colorkey = list(space = "bottom",
-                                                   title = "index",
                                                    width = 0.4),
                                    main = "habitat",
+                                   par.settings=list(layout.heights=list(xlab.key.padding=1)),
+                                   xlab = "suitability index",
                                    layout = panels))
       }
         
@@ -329,8 +341,11 @@ plot.simulation_results <- function (x,
         graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
         
         raster::animate(rasters[[timesteps]],
-                        col=viridisLite::viridis(length(breaks)-1),
-                        n = 1)
+                        col = viridisLite::viridis(length(breaks)-1),
+                        n = 1,
+                        legend.args = list(text = 'individuals'),
+                        box = FALSE,
+                        axes = FALSE)
         
       } else {  
 
@@ -340,9 +355,10 @@ plot.simulation_results <- function (x,
                                    at = breaks,
                                    col.regions = viridisLite::viridis(length(breaks)-1),
                                    colorkey = list(space = "bottom",
-                                                   title = "individuals",
                                                    width = 0.4),
                                    main = "k",
+                                   par.settings=list(layout.heights=list(xlab.key.padding=1)),
+                                   xlab = "individuals",
                                    layout = panels))
       }
         

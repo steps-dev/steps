@@ -39,12 +39,15 @@
 
 landscape <- function (population, suitability = NULL, carrying_capacity = NULL, ...) {
   if(is.null(population)) stop("Initial population rasters must be provided for the landscape object.")
+  
   if(!is.null(suitability)) {
     check_raster_matches_population(suitability, population)
   }
+  
   if(!is.null(carrying_capacity) & identical(class(carrying_capacity)[1], "RasterLayer")) {
     check_raster_matches_population(carrying_capacity, population)
   }
+  
   if(!is.null(carrying_capacity) & identical(class(carrying_capacity)[1], "function")){
     assign("carrying_capacity_function", carrying_capacity, steps_stash)
     if(is.null(suitability)) stop("A carrying capacity function requires a suitability layer in the landscape object.")
@@ -53,6 +56,7 @@ landscape <- function (population, suitability = NULL, carrying_capacity = NULL,
     names(carrying_capacity) <- "k"
     carrying_capacity[cell_idx] <- steps_stash$carrying_capacity_function(suitability[cell_idx])
   }
+  
   landscape <- list(population = population,
                     suitability = suitability,
                     carrying_capacity = carrying_capacity,
