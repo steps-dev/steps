@@ -62,6 +62,57 @@ population_cap <- function (stages = NULL) {
   
 }
 
+# IN PROGRESS...
+# @rdname population_density_dependence_functions
+#
+# @export
+# 
+# @examples
+# 
+# test_pop_dd <- contest()
+
+# contest <- function (transition_matrix,
+#                      max_growth_rate = 1,
+#                      stages = NULL) {
+#   
+#   pop_dynamics <- function (landscape, timestep) {
+#     
+#     population_raster <- landscape$population
+#     
+#     # Get non-NA cells
+#     idx <- which(!is.na(raster::getValues(population_raster[[1]])))
+#     
+#     if (exists("carrying_capacity_function", envir = steps_stash)) {
+#       landscape$carrying_capacity[idx] <- steps_stash$carrying_capacity_function(landscape$suitability[idx])
+#     }
+#     
+#     # get population as a matrix
+#     population_matrix <- raster::extract(population_raster, idx)
+#     carrying_capacity <- raster::extract(landscape$carrying_capacity, idx)
+# 
+#     # get growth rates
+#     if (!is.null(stages)) {
+#       rate <- (max_growth_rate * as.vector(carrying_capacity)) / 
+#         (max_growth_rate * rowSums(cbind(population_matrix[ , stages], rep(0, length(idx)))) - rowSums(cbind(population_matrix[ , stages], rep(0, length(idx)))) + as.vector(carrying_capacity)
+#     } else {
+#       rate <- max_growth_rate * as.vector(carrying_capacity) / max_growth_rate * rowSums(population_matrix) - rowSums(population_matrix) + as.vector(carrying_capacity)
+#     }
+#     
+#     # get whole integers
+#     population <- round_pop(population)
+#     
+#     # put back in the raster
+#     population_raster[idx] <- population
+#     
+#     landscape$population <- population_raster
+#     
+#     landscape
+#   }
+# 
+# as.population_density_dependence(pop_dynamics)
+# 
+# }
+
 ##########################
 ### internal functions ###
 ##########################

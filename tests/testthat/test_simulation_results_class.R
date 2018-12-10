@@ -24,9 +24,9 @@ test_that('simulation_results classes work', {
   #   r2[c(adjacent(egk_hab, cells, directions = 16, pairs = FALSE), cells)]  <- fireprob
   #   dist_list[[i]] <- r2
   # }
-  # egk_dist <- stack(dist_list)
+  # egk_fire <- stack(dist_list)
   # for (i in c(3,7,14,15,18)) {
-  #   egk_dist[[i]][] <- 1
+  #   egk_fire[[i]][] <- 1
   # }
 
 
@@ -47,7 +47,7 @@ test_that('simulation_results classes work', {
   landscape <- landscape(population = egk_pop,
                    suitability = egk_hab,
                    carrying_capacity = egk_k,
-                   fires = egk_dist,
+                   fires = egk_fire,
                    source = pop_source,
                    sink = pop_sink)
   

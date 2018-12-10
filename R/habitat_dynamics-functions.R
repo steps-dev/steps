@@ -41,7 +41,7 @@ disturbance <- function (disturbance_layers, effect_time = 1) {
     # replace NA values with zeros
     landscape[[disturbance_layers]][is.na(landscape[[disturbance_layers]])] <- 0
     
-    modified_habitat <- original_habitat * raster::overlay((1 - landscape[[disturbance_layers]][[utils::tail(seq_len(timestep), effect_time)]]), fun = prod)
+    modified_habitat <- original_habitat * raster::overlay(landscape[[disturbance_layers]][[utils::tail(seq_len(timestep), effect_time)]], fun = prod)
     names(modified_habitat) <- "Habitat"
 
     landscape$suitability <- modified_habitat
@@ -98,11 +98,11 @@ fire_effects <- function (fire_layers,
     weights <- regeneration[valid]
     
     # apply the regeneration weights to previous fires
-    fires_weighted <- landscape[[fire_layers]][[lags]] * weights
+    annual_impact <- landscape[[fire_layers]][[lags]] * weights
     
     # get habitat reduction in all previous years, downweighted by
     # regeneration time
-    annual_impact <- 1 - fires_weighted
+    #annual_impact <- 1 - fires_weighted
     
     # get the cumulative impact
     if(raster::nlayers(annual_impact) == 1) total_impact <- annual_impact
