@@ -31,8 +31,9 @@ disturbance <- function (disturbance_layers, effect_time = 1) {
   
   dist_fun <- function (landscape, timestep) {
     
-    if (timestep == 1) original_habitat <- steps_stash$orig_suitability <- landscape$suitability
-    else original_habitat <- steps_stash$orig_suitability
+    #if (timestep == 1) original_habitat <- steps_stash$orig_suitability <- landscape$suitability
+    #else original_habitat <- steps_stash$orig_suitability
+    original_habitat <- landscape$suitability
     
     if (raster::nlayers(landscape[[disturbance_layers]]) < timestep ) {
       stop("The number of disturbance layers must match the number of timesteps in the experiment")
@@ -81,8 +82,8 @@ fire_effects <- function (fire_layers,
       stop("The number of disturbance layers must match the number of timesteps in the experiment")
     }
     
-    # replace NA values with zeros
-    landscape[[fire_layers]][is.na(landscape[[fire_layers]])] <- 0
+    # replace NA values with ones
+    landscape[[fire_layers]][is.na(landscape[[fire_layers]])] <- 1
     
     # lags  
     years_since_fire <- c(0, seq_len(lag))
@@ -98,11 +99,11 @@ fire_effects <- function (fire_layers,
     weights <- regeneration[valid]
     
     # apply the regeneration weights to previous fires
-    annual_impact <- landscape[[fire_layers]][[lags]] * weights
-    
+    fires_weighted <- (1 - landscape[[fire_layers]][[lags]]) * weights
+
     # get habitat reduction in all previous years, downweighted by
     # regeneration time
-    #annual_impact <- 1 - fires_weighted
+    annual_impact <- 1 - fires_weighted
     
     # get the cumulative impact
     if(raster::nlayers(annual_impact) == 1) total_impact <- annual_impact

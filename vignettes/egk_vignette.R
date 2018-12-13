@@ -92,7 +92,7 @@ plot(egk_results, type = "raster", stage = 2, timesteps = c(1, 10, 20), panels =
 ## ---- message = FALSE, eval = FALSE--------------------------------------
 #  plot(egk_results, type = "raster", stage = 2, timesteps = c(1, 10, 20), animate = TRUE)
 
-## ---- message = FALSE----------------------------------------------------
+## ---- message = FALSE, progress = FALSE, echo = FALSE--------------------
 plan(multiprocess) # This is how we specify to simulate replicates on separate processors in parallel
 
 egk_results <- simulation(landscape = egk_landscape,
