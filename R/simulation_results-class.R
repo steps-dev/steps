@@ -1,4 +1,4 @@
-#' Run an simulation
+#' Run a simulation
 #'
 #' A simulation changes landscape objects based on selected dynamics over a
 #' specified number of timesteps.
@@ -394,6 +394,10 @@ plot.simulation_results <- function (x,
                           col = 'gray')
         }
         
+        graphics::lines(pop.mn[, i],
+                       lwd = 3,
+                       col = graph.pal[i])
+        
       }
       
     }
@@ -452,6 +456,10 @@ plot.simulation_results <- function (x,
                         col = 'gray')
       }
 
+      graphics::lines(pop.mn[ , stages],
+                     lwd = 3,
+                     col = graph.pal[stages])    
+      
     }
   
   }

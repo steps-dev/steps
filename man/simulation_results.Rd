@@ -6,7 +6,7 @@
 \alias{print.simulation_results}
 \alias{plot.simulation_results}
 \alias{extract_results}
-\title{Run an simulation}
+\title{Run a simulation}
 \usage{
 simulation(landscape, population_dynamics, habitat_dynamics = list(),
   timesteps = 3, replicates = 1, verbose = TRUE)
