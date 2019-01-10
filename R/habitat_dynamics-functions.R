@@ -31,6 +31,7 @@ disturbance <- function (disturbance_layers, effect_time = 1) {
   
   dist_fun <- function (landscape, timestep) {
     
+    #### Add bit here to handle suitability raster stack
     #if (timestep == 1) original_habitat <- steps_stash$orig_suitability <- landscape$suitability
     #else original_habitat <- steps_stash$orig_suitability
     original_habitat <- landscape$suitability
@@ -75,6 +76,7 @@ fire_effects <- function (fire_layers,
   
   dist_fun <- function (landscape, timestep) {
     
+    #### Add bit here to handle suitability raster stack
     if (timestep == 1) original_habitat <- steps_stash$orig_suitability <- landscape$suitability
     else original_habitat <- steps_stash$orig_suitability
     

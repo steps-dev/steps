@@ -18,17 +18,32 @@ colnames(gg_trans_mat) <- rownames(gg_trans_mat) <- c('Newborn','Juvenile','Adul
 
 gg_stable_states <- abs( eigen(gg_trans_mat)$vectors[,1] / base::sum(eigen(gg_trans_mat)$vectors[,1]) ) 
 
-#gg_hab_suit <- raster("working/misc/Petauroides_volans_SDM.GH_PM.tif") / 1000
-gg_hab_suit <- aggregate(raster("working/misc/Petauroides_volans_SDM.GH_PM.tif") / 1000, fact=10, fun=mean)
+# Load spatial mask layer
+ch_rst <- raster("/home/casey/Research/Github/NESP_Greater_Glider/data/grids/VIC_GDA9455_GRID_CENTRALHIGHLANDS_100.tif")
+
+# Gather spatial information from mask layer
+ch_res <- res(ch_rst) * 10
+ch_extent <- extent(ch_rst)
+ch_proj <- ch_rst@crs
+
+system(paste0("gdalwarp -overwrite -tr ",
+              paste(ch_res[1], ch_res[2]),
+              " -s_srs '+proj=lcc +lat_1=-36 +lat_2=-38 +lat_0=-37 +lon_0=145 +x_0=2500000 +y_0=2500000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs' -t_srs '+proj=utm +zone=55 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs' -te ",
+              paste(ch_extent[1], ch_extent[3], ch_extent[2], ch_extent[4]),
+              " /home/casey/OneDrive/RFA/GIS_Data/Grids/gg_hdm2014_20181211/Greater_Glider_Spp11133.ers /home/casey/OneDrive/RFA/GIS_Data/Grids/GG_HDM_GDA9455.tif"))
+
+gg_hab_suit <- raster("/home/casey/OneDrive/RFA/GIS_Data/Grids/GG_HDM_GDA9455.tif") / 100
+
+#gg_hab_suit <- aggregate(raster("working/misc/Petauroides_volans_SDM.GH_PM.tif") / 1000, fact=10, fun=mean)
 names(gg_hab_suit) <- "Habitat"
 #plot(gg_hab_suit, box = FALSE, axes = FALSE, col = viridis(100))
 
-gg_hab_k <- floor(gg_hab_suit*30)
+gg_hab_k <- floor(gg_hab_suit*10)
 gg_hab_k[is.na(gg_hab_k)] <- 0
 names(gg_hab_k) <- "Carrying Capacity"
 #plot(gg_hab_k, box = FALSE, axes = FALSE, col = viridis(3))
 
-gg_popN <- stack(replicate(ncol(gg_trans_mat), floor(gg_hab_suit*30)))
+gg_popN <- stack(replicate(ncol(gg_trans_mat), floor(gg_hab_suit*10)))
 gg_popN <- gg_popN*gg_stable_states
 
 registerDoMC(cores=4)
@@ -80,8 +95,8 @@ gg_landscape <- landscape(population = gg_pop,
 gg_pop_dynamics <- population_dynamics(change = growth(transition_matrix = gg_trans_mat,
                                                        global_stochasticity = 0.1),
                                        dispersal = #fast_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.5),
-                                                                  #dispersal_proportion = c(0,0,0.5)),
-                                                   cellular_automata_dispersal(dispersal_distance = c(0,0,10),
+                                                                  #dispersal_proportion = c(0,0,1)),
+                                                   cellular_automata_dispersal(dispersal_distance = c(0,0,8),
                                                                                dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
                                                                                dispersal_proportion = c(0,0,1)),
                                        modification = NULL,

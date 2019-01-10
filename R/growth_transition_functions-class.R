@@ -34,6 +34,7 @@ modified_transition <- function(transition_matrix,
     
     # pull out survival/fecundity multipliers
     cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])))
+    #### Add bit here to handle suitability raster stack
     surv_mult <- landscape[[survival_layer]][cell_idx]
     fec_mult <- landscape[[fecundity_layer]][cell_idx]
     
