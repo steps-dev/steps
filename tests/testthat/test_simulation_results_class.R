@@ -56,6 +56,14 @@ test_that('simulation_results classes work', {
   landscape_nohab <- landscape(population = egk_pop,
                          suitability = NULL,
                          carrying_capacity = egk_k)
+  
+  expect_error(landscape(population = egk_pop,
+                         suitability = NULL,
+                         carrying_capacity = function(k) k*10))
+
+  landscape_kfun <- landscape(population = egk_pop,
+                               suitability = egk_hab,
+                               carrying_capacity = function(k) k*10)
 
   pop_dyn <- population_dynamics(change = growth(transition_matrix = egk_mat),
                                  dispersal = cellular_automata_dispersal(dispersal_distance=c(0, 10, 0),
@@ -99,6 +107,18 @@ test_that('simulation_results classes work', {
                                                       sink_layer = "sink",
                                                       stages = 3,
                                                       effect_timesteps = 2),
+                                  density_dependence = population_cap())
+  
+  pop_dyn4a <- population_dynamics(change = growth(transition_matrix = egk_mat,
+                                                   global_stochasticity = matrix(c(0.00,0.10,0.00,0.00,0.00,0.10,0.10,0.00,0.10), nrow = 3, ncol = 3),
+                                                   local_stochasticity = matrix(c(0.00,0.10,0.00,0.00,0.00,0.10,0.10,0.00,0.10), nrow = 3, ncol = 3),
+                                                   transition_function = modified_transition(egk_mat,
+                                                                       survival_layer = "suitability",
+                                                                       fecundity_layer = "suitability")),
+                                  dispersal = cellular_automata_dispersal(dispersal_distance=c(10),
+                                                                          dispersal_kernel=exponential_dispersal_kernel(distance_decay = 0.1),
+                                                                          dispersal_proportion=c(0.25)),
+                                  modification = NULL,
                                   density_dependence = population_cap())
   
   pop_dyn5 <- population_dynamics(change = growth(transition_matrix = egk_mat, demographic_stochasticity = FALSE),
@@ -182,6 +202,12 @@ test_that('simulation_results classes work', {
   
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn4,
+                                  habitat_dynamics = NULL,
+                                  timesteps = 10),
+                       "simulation_results"))
+  
+  expect_true(inherits(simulation(landscape = landscape_kfun,
+                                  population_dynamics = pop_dyn4a,
                                   habitat_dynamics = NULL,
                                   timesteps = 10),
                        "simulation_results"))
