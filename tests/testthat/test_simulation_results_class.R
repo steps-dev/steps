@@ -1,5 +1,7 @@
 context('simulation_results-class')
 
+options(mypkg.connection = stdin())
+
 test_that('simulation_results classes work', {
   
   library(raster)
@@ -144,6 +146,11 @@ test_that('simulation_results classes work', {
                                     modification = NULL,
                                     density_dependence = NULL)
   
+  pop_dyn8 <- population_dynamics(change = growth(transition_matrix = egk_mat),
+                                  dispersal = NULL,
+                                  modification = NULL,
+                                  density_dependence = NULL)
+  
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn,
                                   habitat_dynamics = NULL,
@@ -254,6 +261,12 @@ test_that('simulation_results classes work', {
                                                                     effect_time = 2)),
                                 timesteps = 10,
                                 replicates = 5)
+  
+  test_simulation2 <- simulation(landscape = landscape,
+                                population_dynamics = pop_dyn8,
+                                habitat_dynamics = NULL,
+                                timesteps = 30,
+                                replicates = 1)
     
   print(test_simulation)
 
@@ -326,5 +339,26 @@ test_that('simulation_results classes work', {
   expect_error(plot(test_simulation[1],
                     object = "population",
                     type = "raster"))
+  
+  f <- file()
+  options(mypkg.connection = f)
+  ans <- paste(c("yes", "no"), collapse = "\n") # set this to the number of tests you want to run
+  write(ans, f)
+  
+  plot(test_simulation2,
+                    object = "population",
+                    type = "raster",
+                    stage = 0,
+                    timesteps = 1:30)
+  
+  options(mypkg.connection = stdin())
+  close(f)
 
+  expect_true(inherits(extract_results(test_simulation2),
+                       "RasterLayer"))
+  
+  expect_true(inherits(extract_results(test_simulation2,
+                                       landscape_object = 4),
+                       "RasterLayer"))
+  
 })

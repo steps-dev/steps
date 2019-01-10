@@ -207,10 +207,11 @@ plot.simulation_results <- function (x,
         }
         
         if (length(timesteps) > 20) {
-          cat ("Note, you have specified to plot rasters for more than 20 timesteps;",
-               "\nthis could take a while depending on the resolution of your landscape.",
-               "\nPress [enter] to continue, or [esc] to cancel and adjust settings.")
-          line <- readline()
+          cat("Note, you have specified to plot rasters for more than 20 timesteps;",
+              "\nthis could take a while depending on the resolution of your landscape.",
+              "\nAre you sure? Enter [yes] to continue, or [any other key] to cancel and adjust settings.")
+          response <- readLines(con = getOption("mypkg.connection"), n = 1)
+          if (response != "yes") return(NULL)
         }
         
         if(stages == 0) {
@@ -497,6 +498,7 @@ extract_results <- function (x,
 ##########################
 ### internal functions ###
 ##########################
+options(mypkg.connection = stdin())
 
 as.simulation_results <- function (simulation_results) {
   as_class(simulation_results, "simulation_results", "list")
