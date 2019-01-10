@@ -100,7 +100,7 @@ test_that('simulation_results classes work', {
                                   dispersal = cellular_automata_dispersal(dispersal_distance=c(0, 10, 0),
                                                                      dispersal_kernel=exponential_dispersal_kernel(distance_decay = 0.1),
                                                                      dispersal_proportion=c(0, 0.25, 0),
-                                                                     barrier_type = 1,
+                                                                     barrier_type = 0,
                                                                      use_barriers = TRUE,
                                                                      barriers_map = disp.bar2),
                                   modification = translocation(source_layer = "source",
