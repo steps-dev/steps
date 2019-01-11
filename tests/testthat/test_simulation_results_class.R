@@ -236,6 +236,13 @@ test_that('simulation_results classes work', {
                                                                       effect_time = 2)),
                                   timesteps = 10),
                        "simulation_results"))
+  
+  expect_true(inherits(simulation(landscape = landscape,
+                                  population_dynamics = pop_dyn,
+                                  habitat_dynamics = list(fire_effects(fire_layers = "fires",
+                                                                      lag = 2)),
+                                  timesteps = 10),
+                       "simulation_results"))
 
   expect_true(inherits(simulation(landscape = landscape,
                                 population_dynamics = pop_dyn,
@@ -386,5 +393,9 @@ test_that('simulation_results classes work', {
   expect_true(inherits(extract_results(test_simulation2,
                                        landscape_object = 4),
                        "RasterLayer"))
+  
+  exponential_dispersal_kernel()
+  
+  modified_transition(egk_mat)
   
 })

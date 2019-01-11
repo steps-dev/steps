@@ -30,7 +30,7 @@ modified_transition <- function(transition_matrix,
     
     dim <- nrow(transition_matrix)
   
-  function (landscape, timestep) {
+  fun <- function (landscape, timestep) {
     
     # pull out survival/fecundity multipliers
     cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])))
@@ -58,6 +58,8 @@ modified_transition <- function(transition_matrix,
     
   }
 
+  as.transition_function(fun)
+  
 }
 
 #' @rdname transition_function
