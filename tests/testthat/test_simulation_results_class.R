@@ -238,7 +238,7 @@ test_that('simulation_results classes work', {
                        "simulation_results"))
   
   expect_true(inherits(simulation(landscape = landscape,
-                                  population_dynamics = pop_dyn,
+                                  population_dynamics = pop_dyn2,
                                   habitat_dynamics = list(fire_effects(fire_layers = "fires",
                                                                       lag = 2)),
                                   timesteps = 10),
