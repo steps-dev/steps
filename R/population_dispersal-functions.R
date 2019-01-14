@@ -117,7 +117,7 @@ kernel_dispersal <- function(
   dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
   arrival_probability = c("both", "suitability", "carrying_capacity"),
   dispersal_proportion = 1,
-  demographic_stochasticity = FALSE
+  demographic_stochasticity = TRUE
 ) {
   
   arrival_probability <- match.arg(arrival_probability)
@@ -191,7 +191,7 @@ kernel_dispersal <- function(
     
     arrival_prob_values <- switch(
       arrival_probability,
-      both = habitat_suitability_values * (1 - carrying_capacity_proportion), ### I think this should be reduced by the k overage
+      both = habitat_suitability_values * (1 - carrying_capacity_proportion),
       suitability = habitat_suitability_values,
       carrying_capacity = (1 - carrying_capacity_proportion)#,
       #none = replace(habitat_suitability_values, which(!is.na(habitat_suitability_values)), 1)

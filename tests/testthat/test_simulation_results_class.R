@@ -394,8 +394,8 @@ test_that('simulation_results classes work', {
                                        landscape_object = 4),
                        "RasterLayer"))
   
-  exponential_dispersal_kernel()
+  print(exponential_dispersal_kernel())
   
-  modified_transition(egk_mat)
+  print(modified_transition(egk_mat))
   
 })
