@@ -337,6 +337,62 @@ NumericMatrix na_matrix(int nr, int nc){
   return m ;
 }
 
+// [[Rcpp::export]]
+int pointer_compare(
+    const void* a,
+    const void* b
+) {
+  /* Two double-pointers p1 and p2 */
+  double* p1 = *(double**)a;
+  double* p2 = *(double**)b;
+  
+  /* Compare pointers based on the value they point to */
+  if ( *p1 < *p2 ) {
+    return -1;
+  } else if ( *p2 < *p1 ) {
+    return 1;
+  }
+  return 0;
+}
+
+// [[Rcpp::export]]
+IntegerVector reOrder(
+    DoubleVector x
+) {
+  
+  int i, n = x.size();
+  IntegerVector ret(n); 
+  
+  double** p = (double**) malloc(n * sizeof(double*));
+  
+  /*
+  Retrieve the addresses of the elements in x,
+  and store these in the pointer array p.
+  */
+  for ( i = 0; i < n; i++ ) {
+    p[i] = &x[i];
+  }
+  
+  /*
+   Sort the pointers based on their de-referenced
+   values. (i.e. the values of the elements in x)
+   */
+  qsort(p, n, sizeof(double*), pointer_compare);
+  
+  /*
+   'Normalize' the pointers to a range of [0...n-1]
+   by subtracting the address of the first element
+   in x.
+   */
+  for ( i = 0; i < n; i++ ) {
+    ret[i] = p[i] - &x[0];
+  }
+  
+  free(p);
+  
+  return ret;
+}
+
 // //' dispersal function for dynamic metapopulation models
 // //' @param current_distribution raster of current population distribution.
 // //' @param habitat_suitability raster of habitat suitability that has been converted to carrying capacity
@@ -405,11 +461,15 @@ List rcpp_dispersal(NumericMatrix starting_population_state, NumericMatrix poten
 	    **      pixel).
 	    **
 	    ** Loop through the cellular automaton. */
-	    for(i = 0; i < nrows; i++) randcells_i.push_back(i);
-	    for(j = 0; j < ncols; j++) randcells_j.push_back(j);
+	    //for(i = 0; i < nrows; i++) randcells_i.push_back(i);
+	    //for(j = 0; j < ncols; j++) randcells_j.push_back(j);
+
+	    randcells_i = reOrder(Rcpp::runif(nrows));
+	    randcells_j = reOrder(Rcpp::runif(ncols));
+	    //sample(1:100, size = 100, replace = FALSE)
 	    
-	    std::random_shuffle ( randcells_i.begin(), randcells_i.end() );
-	    std::random_shuffle ( randcells_j.begin(), randcells_j.end() );
+	    //std::random_shuffle ( randcells_i.begin(), randcells_i.end() );
+	    //std::random_shuffle ( randcells_j.begin(), randcells_j.end() );
 	    
 	    for(IntegerVector::iterator i = randcells_i.begin(); i != randcells_i.end(); ++i){
 	      for(IntegerVector::iterator j = randcells_j.begin(); j != randcells_j.end(); ++j){
