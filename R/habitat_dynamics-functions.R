@@ -5,11 +5,12 @@
 #'
 #' @name habitat_dynamics_functions
 #'
-#' @param disturbance_layers a raster stack with disturbances (e.g logging) used to alter the habitat object in the experiment (number of layers must match the intended timesteps in the experiment)
+#' @param disturbance_layers a raster stack with disturbances (e.g logging) used to alter the habitat object for each timestep (number of layers must match the intended timesteps)
 #' @param effect_time the number of timesteps that the disturbance layer will act on the habitat object
-#' @param fire_layers a raster stack with fire disturbances used to alter the habitat object in the experiment (number of layers must match the intended timesteps in the experiment)
+#' @param fire_layers a raster stack with fire disturbances used to alter the habitat object for each timestep (number of layers must match the intended timesteps)
 #' @param lag the number of timesteps that the fire layer will act on the habitat object
 #' @param regeneration_function a function that determines how fast the landscape will regenerate after a fire event
+#  @param suitability_layers a raster stack with pre-determined habitat suitability used to replace the habitat object for each timestep in the experiment (number of layers must match the intended timesteps)
 #'
 #' @examples
 #' 
@@ -123,6 +124,35 @@ fire_effects <- function (fire_layers,
   as.habitat_disturbance(dist_fun)
   
 }
+
+# @rdname habitat_dynamics_functions
+#
+# @export
+# 
+# @examples
+# 
+# # Use the replace function to specify the habitat for each timestep
+# # using predetermined habitat layers (stored in the landscape object):
+# 
+# hab_replace <- replace(suitability_layers = "habitat")
+
+# replace <- function (suitability_layers) {
+#   
+#   dist_fun <- function (landscape, timestep) {
+#     
+#     if (raster::nlayers(landscape[[suitability_layers]]) < timestep ) {
+#       stop("The number of replacement layers must match the number of timesteps in the experiment")
+#     }
+# 
+#     landscape$suitability <- landscape[[suitability_layers]][[timestep]]
+#     
+#     landscape
+#     
+#   }
+#   
+#   as.habitat_disturbance(dist_fun)
+#   
+# }
 
 ##########################
 ### internal functions ###

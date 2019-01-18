@@ -293,7 +293,7 @@ test_that('simulation_results classes work', {
                                 habitat_dynamics = list(disturbance(disturbance_layers = "fires",
                                                                     effect_time = 2)),
                                 timesteps = 10,
-                                replicates = 5)
+                                replicates = 2)
   
   test_simulation2 <- simulation(landscape = landscape,
                                 population_dynamics = pop_dyn8,
@@ -375,7 +375,7 @@ test_that('simulation_results classes work', {
   
   f <- file()
   options(mypkg.connection = f)
-  ans <- paste(c("yes", "no"), collapse = "\n") # set this to the number of tests you want to run
+  ans <- paste(c("yes", "no"), collapse = "\n")
   write(ans, f)
   
   plot(test_simulation2,
