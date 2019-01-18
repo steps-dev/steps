@@ -12,11 +12,11 @@ fire_effects(fire_layers, lag = 3,
   regeneration_function = function(time) {     -time })
 }
 \arguments{
-\item{disturbance_layers}{a raster stack with disturbances (e.g logging) used to alter the habitat object in the experiment (number of layers must match the intended timesteps in the experiment)}
+\item{disturbance_layers}{a raster stack with disturbances (e.g logging) used to alter the habitat object for each timestep (number of layers must match the intended timesteps)}
 
 \item{effect_time}{the number of timesteps that the disturbance layer will act on the habitat object}
 
-\item{fire_layers}{a raster stack with fire disturbances used to alter the habitat object in the experiment (number of layers must match the intended timesteps in the experiment)}
+\item{fire_layers}{a raster stack with fire disturbances used to alter the habitat object for each timestep (number of layers must match the intended timesteps)}
 
 \item{lag}{the number of timesteps that the fire layer will act on the habitat object}
 

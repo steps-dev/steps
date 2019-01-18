@@ -293,7 +293,7 @@ test_that('simulation_results classes work', {
                                 habitat_dynamics = list(disturbance(disturbance_layers = "fires",
                                                                     effect_time = 2)),
                                 timesteps = 10,
-                                replicates = 2)
+                                replicates = 3)
   
   test_simulation2 <- simulation(landscape = landscape,
                                 population_dynamics = pop_dyn8,
@@ -313,7 +313,7 @@ test_that('simulation_results classes work', {
   
   plot(test_simulation[1])
   
-  plot(test_simulation[c(2:5)])
+  plot(test_simulation[c(2:3)])
   
   plot(test_simulation[1],
        object = "population",
@@ -373,19 +373,19 @@ test_that('simulation_results classes work', {
                     object = "population",
                     type = "raster"))
   
-  f <- file()
-  options(mypkg.connection = f)
-  ans <- paste(c("yes", "no"), collapse = "\n")
-  write(ans, f)
-  
-  plot(test_simulation2,
-                    object = "population",
-                    type = "raster",
-                    stage = 0,
-                    timesteps = 1:30)
-  
-  options(mypkg.connection = stdin())
-  close(f)
+  # f <- file()
+  # options(mypkg.connection = f)
+  # ans <- paste(c("yes", "no"), collapse = "\n")
+  # write(ans, f)
+  # 
+  # plot(test_simulation2,
+  #                   object = "population",
+  #                   type = "raster",
+  #                   stage = 0,
+  #                   timesteps = 1:30)
+  # 
+  # options(mypkg.connection = stdin())
+  # close(f)
 
   expect_true(inherits(extract_results(test_simulation2),
                        "RasterLayer"))

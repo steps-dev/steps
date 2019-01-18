@@ -206,13 +206,13 @@ plot.simulation_results <- function (x,
           stop("Please provide a life-stage when plotting population rasters or specify zero (0) for a sum of all life-stages")
         }
         
-        if (length(timesteps) > 20) {
-          cat("Note, you have specified to plot rasters for more than 20 timesteps;",
-              "\nthis could take a while depending on the resolution of your landscape.",
-              "\nAre you sure? Enter [yes] to continue, or [any other key] to cancel and adjust settings.")
-          response <- readLines(n = 1)
-          if (response != "yes") return(NULL)
-        }
+        # if (length(timesteps) > 20) {
+        #   cat("Note, you have specified to plot rasters for more than 20 timesteps;",
+        #       "\nthis could take a while depending on the resolution of your landscape.",
+        #       "\nAre you sure? Enter [yes] to continue, or [any other key] to cancel and adjust settings.")
+        #   response <- readLines(n = 1)
+        #   if (response != "yes") return(NULL)
+        # }
         
         if(stages == 0) {
           
