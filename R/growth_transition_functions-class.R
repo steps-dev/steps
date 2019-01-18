@@ -34,9 +34,14 @@ modified_transition <- function(transition_matrix,
     
     # pull out survival/fecundity multipliers
     cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])))
-    #### Add bit here to handle suitability raster stack
-    surv_mult <- landscape[[survival_layer]][cell_idx]
-    fec_mult <- landscape[[fecundity_layer]][cell_idx]
+    
+    if (raster::nlayers(landscape$suitability) > 1) {
+      surv_mult <- landscape[[survival_layer]][[timestep]][cell_idx]
+      fec_mult <- landscape[[fecundity_layer]][[timestep]][cell_idx]
+    } else {
+      surv_mult <- landscape[[survival_layer]][cell_idx]
+      fec_mult <- landscape[[fecundity_layer]][cell_idx]
+    }
     
     # get per-cell versions of fecundity and survival values
     survs <- kronecker(surv_mult, t(surv_vals), "*")

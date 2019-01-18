@@ -57,6 +57,13 @@ test_that('simulation_results classes work', {
                          suitability = NULL,
                          carrying_capacity = egk_k)
   
+  landscape_habstack <- landscape(population = egk_pop,
+                               suitability = stack(replicate(10, egk_hab)),
+                               carrying_capacity = egk_k,
+                               fires = egk_fire,
+                               source = pop_source,
+                               sink = pop_sink)
+  
   expect_error(landscape(population = egk_pop,
                          suitability = NULL,
                          carrying_capacity = function(k) k*10))
@@ -209,6 +216,13 @@ test_that('simulation_results classes work', {
   expect_true(inherits(simulation(landscape = landscape_kfun,
                                   population_dynamics = pop_dyn4a,
                                   habitat_dynamics = NULL,
+                                  timesteps = 10),
+                       "simulation_results"))
+  
+  expect_true(inherits(simulation(landscape = landscape_habstack,
+                                  population_dynamics = pop_dyn4a,
+                                  habitat_dynamics = list(disturbance(disturbance_layers = "fires",
+                                                                      effect_time = 2)),
                                   timesteps = 10),
                        "simulation_results"))
   

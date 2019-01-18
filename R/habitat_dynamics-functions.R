@@ -32,10 +32,8 @@ disturbance <- function (disturbance_layers, effect_time = 1) {
   
   dist_fun <- function (landscape, timestep) {
     
-    #### Add bit here to handle suitability raster stack
-    #if (timestep == 1) original_habitat <- steps_stash$orig_suitability <- landscape$suitability
-    #else original_habitat <- steps_stash$orig_suitability
-    original_habitat <- landscape$suitability
+    if (raster::nlayers(landscape$suitability) > 1) original_habitat <- landscape$suitability[[timestep]]
+    else original_habitat <- landscape$suitability
     
     if (raster::nlayers(landscape[[disturbance_layers]]) < timestep ) {
       stop("The number of disturbance layers must match the number of timesteps in the experiment")
@@ -44,10 +42,13 @@ disturbance <- function (disturbance_layers, effect_time = 1) {
     # replace NA values with zeros
     landscape[[disturbance_layers]][is.na(landscape[[disturbance_layers]])] <- 0
     
-    modified_habitat <- original_habitat * raster::overlay(landscape[[disturbance_layers]][[utils::tail(seq_len(timestep), effect_time)]], fun = prod)
+    modified_habitat <- original_habitat * raster::overlay(landscape[[disturbance_layers]][[utils::tail(seq_len(timestep),
+                                                                                                        effect_time)]],
+                                                           fun = prod)
     names(modified_habitat) <- "Habitat"
 
-    landscape$suitability <- modified_habitat
+    if (raster::nlayers(landscape$suitability) > 1) landscape$suitability[[timestep]] <- modified_habitat
+    else landscape$suitability <- modified_habitat
     
     landscape
     
@@ -77,7 +78,11 @@ fire_effects <- function (fire_layers,
   
   dist_fun <- function (landscape, timestep) {
     
-    #### Add bit here to handle suitability raster stack
+    if (raster::nlayers(landscape$suitability) > 1) {
+      stop("This function only operates on landscape objects with a single initial habitat suitability layer -\n
+           Please check that you have not provided a raster stack as a suitability component of a landscape object.")
+    }
+    
     if (timestep == 1) original_habitat <- steps_stash$orig_suitability <- landscape$suitability
     else original_habitat <- steps_stash$orig_suitability
     

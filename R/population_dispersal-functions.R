@@ -147,7 +147,8 @@ kernel_dispersal <- function(
     cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])))
     
     if (exists("carrying_capacity_function", envir = steps_stash)) {
-      landscape$carrying_capacity[cell_idx] <- steps_stash$carrying_capacity_function(landscape$suitability[cell_idx])
+      if (raster::nlayers(landscape$suitability) > 1) landscape$carrying_capacity[cell_idx] <- steps_stash$carrying_capacity_function(landscape$suitability[[timestep]][cell_idx])
+      else landscape$carrying_capacity[cell_idx] <- steps_stash$carrying_capacity_function(landscape$suitability[cell_idx])
     }
     
     if (length(dispersal_proportion) < n_stages) {
@@ -170,10 +171,10 @@ kernel_dispersal <- function(
     # Rescale locations
     xy <- sweep(xy, 2, raster::res(landscape$population), "/")
     
-    #### Add bit here to handle suitability raster stack
     delayedAssign(
       "habitat_suitability_values",
-      raster::getValues(landscape$suitability)
+      if (raster::nlayers(landscape$suitability) > 1) raster::getValues(landscape$suitability[[timestep]])
+      else raster::getValues(landscape$suitability)
     )
     
     delayedAssign(
@@ -291,12 +292,14 @@ cellular_automata_dispersal <- function (dispersal_distance = 1,
     # Get non-NA cells
     idx <- which(!is.na(raster::getValues(population_raster[[1]])))
     
-    #### Add bit here to handle suitability raster stack
     if (exists("carrying_capacity_function", envir = steps_stash)) {
-      landscape$carrying_capacity[idx] <- steps_stash$carrying_capacity_function(landscape$suitability[idx])
+      if (raster::nlayers(landscape$suitability) > 1) landscape$carrying_capacity[idx] <- steps_stash$carrying_capacity_function(landscape$suitability[[timestep]][idx])
+      else landscape$carrying_capacity[idx] <- steps_stash$carrying_capacity_function(landscape$suitability[idx])
     }
     
-    arrival_prob <- landscape[[arrival_probability]]
+    if (raster::nlayers(landscape$suitability) > 1 & arrival_probability == "suitability") arrival_prob <- landscape[[arrival_probability]][[timestep]]
+    else arrival_prob <- landscape[[arrival_probability]]
+    
     carrying_capacity <- landscape[[carrying_capacity]]
     
     #poptot <- sum(raster::cellStats(landscape$population, sum))

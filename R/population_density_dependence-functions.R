@@ -23,9 +23,9 @@ population_cap <- function (stages = NULL) {
     # Get non-NA cells
     idx <- which(!is.na(raster::getValues(population_raster[[1]])))
     
-    #### Add bit here to handle suitability raster stack
     if (exists("carrying_capacity_function", envir = steps_stash)) {
-      landscape$carrying_capacity[idx] <- steps_stash$carrying_capacity_function(landscape$suitability[idx])
+      if (raster::nlayers(landscape$suitability) > 1) landscape$carrying_capacity[idx] <- steps_stash$carrying_capacity_function(landscape$suitability[[timestep]][idx])
+      else landscape$carrying_capacity[idx] <- steps_stash$carrying_capacity_function(landscape$suitability[idx])
     }
 
     # get population as a matrix
