@@ -17,7 +17,8 @@ rescale <- function (x) {
 
 # regeneration over
 lag_year <- function (timestep = 1,
-                      fire, hs,
+                      fire,
+                      hs,
                       lag = 3,
                       regeneration_function = function (time) {-time}) {
 
@@ -42,10 +43,11 @@ lag_year <- function (timestep = 1,
   annual_impact <- 1 - fires_weighted
   
   # get the cumulative impact
-  impact <- prod(annual_impact)
+  if(raster::nlayers(annual_impact) == 1) total_impact <- annual_impact
+  else total_impact <- prod(annual_impact)
   
   # apply the habitat reduction
-  hs * impact
+  hs * total_impact
   
 }
 

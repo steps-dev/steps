@@ -86,6 +86,29 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// pointer_compare
+int pointer_compare(const void* a, const void* b);
+RcppExport SEXP _steps_pointer_compare(SEXP aSEXP, SEXP bSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const void* >::type a(aSEXP);
+    Rcpp::traits::input_parameter< const void* >::type b(bSEXP);
+    rcpp_result_gen = Rcpp::wrap(pointer_compare(a, b));
+    return rcpp_result_gen;
+END_RCPP
+}
+// reOrder
+IntegerVector reOrder(DoubleVector x);
+RcppExport SEXP _steps_reOrder(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< DoubleVector >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(reOrder(x));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rcpp_dispersal
 List rcpp_dispersal(NumericMatrix starting_population_state, NumericMatrix potential_carrying_capacity, NumericMatrix habitat_suitability_map, NumericMatrix barriers_map, int barrier_type, bool use_barrier, int dispersal_steps, int dispersal_distance, NumericVector dispersal_kernel, double dispersal_proportion);
 RcppExport SEXP _steps_rcpp_dispersal(SEXP starting_population_stateSEXP, SEXP potential_carrying_capacitySEXP, SEXP habitat_suitability_mapSEXP, SEXP barriers_mapSEXP, SEXP barrier_typeSEXP, SEXP use_barrierSEXP, SEXP dispersal_stepsSEXP, SEXP dispersal_distanceSEXP, SEXP dispersal_kernelSEXP, SEXP dispersal_proportionSEXP) {
@@ -113,6 +136,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_steps_clean_matrix", (DL_FUNC) &_steps_clean_matrix, 5},
     {"_steps_proportion_of_population_to_disperse", (DL_FUNC) &_steps_proportion_of_population_to_disperse, 7},
     {"_steps_na_matrix", (DL_FUNC) &_steps_na_matrix, 2},
+    {"_steps_pointer_compare", (DL_FUNC) &_steps_pointer_compare, 2},
+    {"_steps_reOrder", (DL_FUNC) &_steps_reOrder, 1},
     {"_steps_rcpp_dispersal", (DL_FUNC) &_steps_rcpp_dispersal, 10},
     {NULL, NULL, 0}
 };

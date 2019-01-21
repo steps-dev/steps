@@ -5,49 +5,76 @@
 \alias{is.simulation_results}
 \alias{print.simulation_results}
 \alias{plot.simulation_results}
-\title{Run an simulation}
+\alias{extract_results}
+\title{Run a simulation}
 \usage{
-simulation(state, dynamics, timesteps, replicates = 1,
-  parallel = FALSE)
+simulation(landscape, population_dynamics, habitat_dynamics = list(),
+  timesteps = 3, replicates = 1, verbose = TRUE)
 
 is.simulation_results(x)
 
 \method{print}{simulation_results}(x, ...)
 
 \method{plot}{simulation_results}(x, object = "population",
-  type = "graph", stage = NULL, animate = FALSE,
+  type = "graph", stages = NULL, animate = FALSE,
   timesteps = c(1:9), panels = c(3, 3), ...)
+
+extract_results(x, replicate = 1, timestep = 1,
+  landscape_object = "population", stage = 1, misc = 1)
 }
 \arguments{
-\item{state}{a state object - static habitat, population, and demography in a timestep}
+\item{landscape}{a landscape object representing the initial habitat and
+population}
 
-\item{dynamics}{a dynamics object - modules that change habitat, population, and demography during a simulation}
+\item{population_dynamics}{a population_dynamics object describing how
+population changes over time}
 
-\item{timesteps}{number of timesteps used in one simulation or to display when plotting rasters}
+\item{habitat_dynamics}{optional list of functions to modify the landscape at
+each timestep}
+
+\item{timesteps}{number of timesteps used in one simulation or to display
+when plotting rasters}
 
 \item{replicates}{number simulations to perform}
 
-\item{parallel}{should parallel processors be used for simulations (default is FALSE)}
+\item{verbose}{print messages and progress to console? (default is TRUE)}
 
 \item{x}{an simulation_results object}
 
 \item{...}{further arguments passed to or from other methods}
 
-\item{object}{the state object to plot - can be 'population' (default), 'habitat_suitability' or 'carrying_capacity'}
+\item{object}{the simulation_results object to plot - can be 'population'
+(default), 'suitability' or 'carrying_capacity'}
 
 \item{type}{the plot type - 'graph' (default) or 'raster'}
 
-\item{stage}{life-stage to plot - must be specified for 'raster' plot types; default is NULL and all life-stages will be plotted}
+\item{stages}{life-stages to plot - must be specified for 'raster' plot types;
+default is NULL and all life-stages will be plotted}
 
-\item{animate}{if plotting type 'raster' would you like to animate the rasters as a gif?}
+\item{animate}{if plotting type 'raster' would you like to animate the
+rasters as a gif?}
 
-\item{panels}{the number of columns and rows to use when plotting raster timeseries - default is 3 x 3 (e.g. c(3,3) )}
+\item{panels}{the number of columns and rows to use when plotting raster
+timeseries - default is 3 x 3 (e.g. c(3,3) )}
+
+\item{replicate}{which replicate to extract a spatial object from a simulation result}
+
+\item{timestep}{which timestep to extract a spatial object from a simulation result}
+
+\item{landscape_object}{which landscape object to extract a spatial object from a
+simulation result - can be specified by name (e.g. "suitability") or index number}
+
+\item{stage}{which life-stage to extract a spatial object from a simulation result
+- only used for 'population' components of the landscape object}
+
+\item{misc}{which misc object to extract a spatial object from a simulation result
+- only used for additional spatial objects added to a landscape (e.g. disturbance layers)}
 }
 \value{
 An object of class \code{simulation_results}
 }
 \description{
-A simulation changes state objects based on selected dynamics over a
+A simulation changes landscape objects based on selected dynamics over a
 specified number of timesteps.
 }
 \examples{
@@ -57,15 +84,13 @@ library(raster)
 library(future)
 plan(multiprocess)
 
-state <- state(population(egk_pop),
-               habitat(egk_hab, egk_k),
-               demography(egk_mat))
+landscape <- landscape(population = egk_pop,
+               suitability = egk_hab, 
+               carrying_capacity = egk_k)
 
-dynamics <- dynamics(habitat_dynamics(),
-                     demography_dynamics(),
-                     population_dynamics())
+pop_dynamics <- population_dynamics(change = growth(transition_matrix = egk_mat))
 
-results <- simulation(state, dynamics, timesteps = 10, replicates = 5)
+results <- simulation(landscape, pop_dynamics, timesteps = 10, replicates = 5)
 
 # Test if object is of the type 'simulation_results'
 
@@ -74,4 +99,8 @@ is.simulation_results(results)
 print(results)
 
 plot(results)
+
+# Extract spatial components from a 'simulation_results' object
+
+extract_results(results)
 }

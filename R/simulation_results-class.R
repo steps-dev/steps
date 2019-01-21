@@ -1,23 +1,38 @@
-#' Run an simulation
+#' Run a simulation
 #'
-#' A simulation changes state objects based on selected dynamics over a
+#' A simulation changes landscape objects based on selected dynamics over a
 #' specified number of timesteps.
-#' 
-#' 
 #'
 #' @rdname simulation_results
 #'
-#' @param state a state object - static habitat, population, and demography in a timestep
-#' @param dynamics a dynamics object - modules that change habitat, population, and demography during a simulation
-#' @param timesteps number of timesteps used in one simulation or to display when plotting rasters
+#' @param landscape a landscape object representing the initial habitat and
+#'   population
+#' @param population_dynamics a population_dynamics object describing how
+#'   population changes over time
+#' @param habitat_dynamics optional list of functions to modify the landscape at
+#'   each timestep
+#' @param timesteps number of timesteps used in one simulation or to display
+#'   when plotting rasters
 #' @param replicates number simulations to perform
-#' @param parallel should parallel processors be used for simulations (default is FALSE)
+#' @param verbose print messages and progress to console? (default is TRUE)
 #' @param x an simulation_results object
-#' @param object the state object to plot - can be 'population' (default), 'habitat_suitability' or 'carrying_capacity'
+#' @param object the simulation_results object to plot - can be 'population'
+#'   (default), 'suitability' or 'carrying_capacity'
 #' @param type the plot type - 'graph' (default) or 'raster'
-#' @param stage life-stage to plot - must be specified for 'raster' plot types; default is NULL and all life-stages will be plotted
-#' @param animate if plotting type 'raster' would you like to animate the rasters as a gif?
-#' @param panels the number of columns and rows to use when plotting raster timeseries - default is 3 x 3 (e.g. c(3,3) )
+#' @param stages life-stages to plot - must be specified for 'raster' plot types;
+#'   default is NULL and all life-stages will be plotted
+#' @param animate if plotting type 'raster' would you like to animate the
+#'   rasters as a gif?
+#' @param panels the number of columns and rows to use when plotting raster
+#'   timeseries - default is 3 x 3 (e.g. c(3,3) )
+#' @param replicate which replicate to extract a spatial object from a simulation result
+#' @param timestep which timestep to extract a spatial object from a simulation result
+#' @param landscape_object which landscape object to extract a spatial object from a
+#'   simulation result - can be specified by name (e.g. "suitability") or index number
+#' @param stage which life-stage to extract a spatial object from a simulation result
+#'   - only used for 'population' components of the landscape object
+#' @param misc which misc object to extract a spatial object from a simulation result
+#'   - only used for additional spatial objects added to a landscape (e.g. disturbance layers)
 #' @param ... further arguments passed to or from other methods
 #'
 #' @return An object of class \code{simulation_results}
@@ -35,27 +50,29 @@
 #' library(future)
 #' plan(multiprocess)
 #'
-#' state <- state(population(egk_pop),
-#'                habitat(egk_hab, egk_k),
-#'                demography(egk_mat))
+#' landscape <- landscape(population = egk_pop,
+#'                suitability = egk_hab, 
+#'                carrying_capacity = egk_k)
 #'
-#' dynamics <- dynamics(habitat_dynamics(),
-#'                      demography_dynamics(),
-#'                      population_dynamics())
+#' pop_dynamics <- population_dynamics(change = growth(transition_matrix = egk_mat))
 #'
-#' results <- simulation(state, dynamics, timesteps = 10, replicates = 5)
+#' results <- simulation(landscape, pop_dynamics, timesteps = 10, replicates = 5)
 
-simulation <- function(state, dynamics, timesteps, replicates=1, parallel=FALSE){
+simulation <- function(landscape, population_dynamics, habitat_dynamics = list(), timesteps = 3, replicates = 1, verbose = TRUE){
 
-  if (parallel) future::plan(multiprocess)
-  simulation_results <- future.apply::future_lapply(seq_len(replicates),
+  in_parallel <- !inherits(future::plan(), "sequential")
+  lapply_fun <- ifelse(in_parallel,
+                       future.apply::future_lapply,
+                       base::lapply)
+  
+  simulation_results <- lapply_fun(seq_len(replicates),
                                       FUN = simulate,
-                                      state = state,
-                                      dynamics = dynamics,
+                                      landscape = landscape,
+                                      population_dynamics = population_dynamics,
+                                      habitat_dynamics = habitat_dynamics,
                                       timesteps = timesteps,
-                                      future.seed = FALSE)
+                                      verbose = verbose)
 
-  future::plan("default")
   as.simulation_results(simulation_results)
 }
 
@@ -103,21 +120,25 @@ print.simulation_results <- function (x, ...) {
 #'
 #' plot(results)
 
-plot.simulation_results <- function (x, object = "population", type = "graph", stage = NULL, animate = FALSE, timesteps = c(1:9), panels = c(3,3), ...){
+plot.simulation_results <- function (x,
+                                     object = "population",
+                                     type = "graph",
+                                     stages = NULL,
+                                     animate = FALSE,
+                                     timesteps = c(1:9),
+                                     panels = c(3,3),
+                                     ...){
   
-  stages <- raster::nlayers(x[[1]][[1]]$population$population_raster)
-  stage_names <- colnames(x[[1]][[1]]$demography$global_transition_matrix)
+  total_stages <- raster::nlayers(x[[1]][[1]]$population)
+  stage_names <- names(x[[1]][[1]]$population)
 
-  graph.pal <- c("#94d1c7",
-                 "#cccc2b",
-                 "#bebada",
-                 "#fb8072",
-                 "#80b1d3",
-                 "#fdb462",
-                 "#b3de69",
-                 "#fccde5",
-                 "#969696",
-                 "#bc80bd"
+  graph.pal <- c(
+    "#b4d7b3",
+    "#eb7d75",
+    "#80b1d3",
+    "#bebada",
+    "#f0ab7e",
+    "#969696"
   )
   
   if (length(x) == 1) {
@@ -128,82 +149,74 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
       
       if (type == "graph") {
         
-        if (is.null(stage)) {
+        if (is.null(stages)) {
           
-          graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,stages))
+          graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1, total_stages))
           
-          for (i in seq_len(stages)) {
+          for (i in seq_len(total_stages)) {
             
             graphics::plot(pop[ , i],
                            type='l',
                            ylab=paste("Total Population: ",stage_names[i]),
-                           xlab="Time (years)",
+                           xlab="Timesteps",
                            lwd=3,
                            col=graph.pal[i],
-                           ylim=c(pretty(floor(min(pop)))[1], pretty(ceiling(max(pop)))[2]))
-            
-            graphics::abline(h=raster::cellStats(x[[1]][[1]]$habitat$carrying_capacity,sum)/stages,
-                             lwd=1,
-                             lty=2)
-            
+                           ylim=range(pretty(pop)))
+
           }
           
         }
         
-        if(!is.null(stage) && stage == 0) {
+        if (!is.null(stages) && stages == 0) {
           
           graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
           
           graphics::plot(rowSums(pop),
                          type='l',
                          ylab="Total Population (all stages)",
-                         xlab="Time (years)",
+                         xlab="Timesteps",
                          lwd=3,
                          col="black",
-                         ylim=c(pretty(floor(min(rowSums(pop))))[1], pretty(ceiling(max(rowSums(pop))))[2]))
-          
-          graphics::abline(h=raster::cellStats(x[[1]][[1]]$habitat$carrying_capacity,sum),
-                           lwd=1,
-                           lty=2)
-          
+                         ylim=range(pretty(rowSums(pop))))
+
         }
         
-        if (!is.null(stage) && stage > 0) {
+        if (!is.null(stages) && length(stages) > 0 && stages != 0) {
           
-          graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
+          graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,length(stages)))
           
-          graphics::plot(pop[, stage],
-                         type='l',
-                         ylab=paste("Total Population: ",stage_names[stage]),
-                         xlab="Time (years)",
-                         lwd=3,
-                         col=graph.pal[stage],
-                         ylim=c(pretty(floor(min(pop[, stage])))[1], pretty(ceiling(max(pop[, stage])))[2]))
+          for (i in stages) {
           
-          graphics::abline(h=raster::cellStats(x[[1]][[1]]$habitat$carrying_capacity,sum)/stages,
-                           lwd=1,
-                           lty=2)
-          
+            graphics::plot(pop[, i],
+                           type='l',
+                           ylab=paste("Total Population: ",stage_names[stages]),
+                           xlab="Timesteps",
+                           lwd=3,
+                           col=graph.pal[i],
+                           ylim=range(pretty(pop)))
+          }
+
         }
         
       }
       
       if (type == "raster") {
         
-        if (is.null(stage)) {
-          stop("Please provide a life-stage when plotting \npopulation rasters or specify zero (0) for a sum of all life-stages")
+        if (is.null(stages)) {
+          stop("Please provide a life-stage when plotting population rasters or specify zero (0) for a sum of all life-stages")
         }
         
-        if (length(timesteps) > 20) {
-          cat ("Note, you have specified to plot rasters for more than 20 timesteps;",
-               "\nthis could take a while depending on the resolution of your landscape.",
-               "\nPress [enter] to continue, or [esc] to cancel and adjust settings.")
-          line <- readline()
-        }
+        # if (length(timesteps) > 20) {
+        #   cat("Note, you have specified to plot rasters for more than 20 timesteps;",
+        #       "\nthis could take a while depending on the resolution of your landscape.",
+        #       "\nAre you sure? Enter [yes] to continue, or [any other key] to cancel and adjust settings.")
+        #   response <- readLines(n = 1)
+        #   if (response != "yes") return(NULL)
+        # }
         
-        if(stage == 0) {
+        if(stages == 0) {
           
-          rasters_sum <- raster::stack(lapply(x[[1]], function (state) sum(state$population$population_raster)))
+          rasters_sum <- raster::stack(lapply(x[[1]], function (landscape) sum(landscape$population)))
           
           # Find maximum and minimum population value in raster cells for all timesteps for life-stage
           scale_max <- ceiling(max(raster::cellStats(rasters_sum, max)))
@@ -216,43 +229,30 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
             graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
             
             raster::animate(rasters_sum[[timesteps]],
-                            col=viridisLite::viridis(length(breaks)-1),
-                            n = 1)
+                            col = viridisLite::viridis(length(breaks)-1),
+                            n = 1,
+                            legend.args = list(text = 'individuals'),
+                            box = FALSE,
+                            axes = FALSE)
           } else {
             
-            # ts <- seq_len(raster::nlayers(rasters_sum))
-            # groups <- split(ts, ceiling(seq_along(ts)/9))
-            # 
-            # for (i in seq_along(groups)) {
-            #   
-            #   group <- groups[[i]]
-            #   print(rasterVis::levelplot(rasters_sum[[group]],
-            #                              scales = list(draw = FALSE),
-            #                              margin = list(draw = FALSE),
-            #                              at = breaks,
-            #                              col.regions = viridisLite::viridis(length(breaks)-1),
-            #                              colorkey = list(space = "bottom",
-            #                                              title = "individuals",
-            #                                              width = 0.6),
-            #                              main="population"))
-            # }
-           
+            graphics::par(mar=c(2, 0, 0, 0), mfrow=c(1,1))
             print(rasterVis::levelplot(rasters_sum[[timesteps]],
                                        scales = list(draw = FALSE),
                                        margin = list(draw = FALSE),
                                        at = breaks,
                                        col.regions = viridisLite::viridis(length(breaks)-1),
                                        colorkey = list(space = "bottom",
-                                                       title = "individuals",
-                                                       width = 0.6),
+                                                       width = 0.4),
                                        main = "population",
+                                       par.settings=list(layout.heights=list(xlab.key.padding=1)),
+                                       xlab = "individuals",
                                        layout = panels))
-            
           }
-
+          
         } else {
           
-          rasters <- raster::stack(lapply(x[[1]], function (state) state$population$population_raster[[stage]]))
+          rasters <- raster::stack(lapply(x[[1]], function (landscape) landscape$population[[stages]]))
           
           # Find maximum and minimum population value in raster cells for all timesteps for life-stage
           scale_max <- ceiling(max(raster::cellStats(rasters, max)))
@@ -265,36 +265,23 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
             graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
             
             raster::animate(rasters[[timesteps]],
-                            col=viridisLite::viridis(length(breaks)-1),
-                            n = 1)
+                            col = viridisLite::viridis(length(breaks)-1),
+                            n = 1,
+                            legend.args = list(text = 'individuals'),
+                            box = FALSE,
+                            axes = FALSE)
           } else {
-            
-            # ts <- seq_len(raster::nlayers(rasters))
-            # groups <- split(ts, ceiling(seq_along(ts)/9))
-            # 
-            # for (i in seq_along(groups)) {
-            #   
-            #   group <- groups[[i]]
-            #   print(rasterVis::levelplot(rasters[[group]],
-            #                              scales = list(draw = FALSE),
-            #                              margin = list(draw = FALSE),
-            #                              at = breaks,
-            #                              col.regions = viridisLite::viridis(length(breaks)-1),
-            #                              colorkey = list(space = "bottom",
-            #                                              title = "individuals",
-            #                                              width = 0.6),
-            #                              main="population"))
-            # }
-            
+
             print(rasterVis::levelplot(rasters[[timesteps]],
                                        scales = list(draw = FALSE),
                                        margin = list(draw = FALSE),
                                        at = breaks,
                                        col.regions = viridisLite::viridis(length(breaks)-1),
                                        colorkey = list(space = "bottom",
-                                                       title = "individuals",
-                                                       width = 0.6),
+                                                       width = 0.4),
                                        main = "population",
+                                       par.settings=list(layout.heights=list(xlab.key.padding=1)),
+                                       xlab = "individuals",
                                        layout = panels))
             
           }
@@ -302,9 +289,9 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
       }
     }
     
-    if (object == "habitat_suitability") {
+    if (object == "suitability") {
       
-      rasters <- raster::stack(lapply(x[[1]], function (state) state$habitat$habitat_suitability))
+      rasters <- raster::stack(lapply(x[[1]], function (landscape) landscape$suitability))
       
       # Find maximum and minimum population value in raster cells for all timesteps for life-stage
       scale_max <- ceiling(max(raster::cellStats(rasters, max)))
@@ -317,37 +304,24 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
         graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
         
         raster::animate(rasters[[timesteps]],
-                        col=viridisLite::viridis(length(breaks)-1),
-                        n = 1)
+                        col = viridisLite::viridis(length(breaks)-1),
+                        n = 1,
+                        legend.args = list(text = 'index'),
+                        box = FALSE,
+                        axes = FALSE)
       
       } else {  
-        
-      # ts <- seq_len(raster::nlayers(rasters))
-      # groups <- split(ts, ceiling(seq_along(ts)/9))
-      # 
-      # for (i in seq_along(groups)) {
-      #   
-      #   group <- groups[[i]]
-      #   print(rasterVis::levelplot(rasters[[group]],
-      #                              scales = list(draw = FALSE),
-      #                              margin = list(draw = FALSE),
-      #                              at = breaks,
-      #                              col.regions = viridisLite::viridis(length(breaks)-1),
-      #                              colorkey = list(space = "bottom",
-      #                                              title = "index",
-      #                                              width = 0.6),
-      #                              main="habitat"))
-      # }
-      
+
         print(rasterVis::levelplot(rasters[[timesteps]],
                                    scales = list(draw = FALSE),
                                    margin = list(draw = FALSE),
                                    at = breaks,
                                    col.regions = viridisLite::viridis(length(breaks)-1),
                                    colorkey = list(space = "bottom",
-                                                   title = "index",
-                                                   width = 0.6),
+                                                   width = 0.4),
                                    main = "habitat",
+                                   par.settings=list(layout.heights=list(xlab.key.padding=1)),
+                                   xlab = "suitability index",
                                    layout = panels))
       }
         
@@ -355,7 +329,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
     
     if (object == "carrying_capacity") {
       
-      rasters <- raster::stack(lapply(x[[1]], function (state) state$habitat$carrying_capacity))
+      rasters <- raster::stack(lapply(x[[1]], function (landscape) landscape$carrying_capacity))
       
       # Find maximum and minimum population value in raster cells for all timesteps for life-stage
       scale_max <- ceiling(max(raster::cellStats(rasters, max)))
@@ -368,37 +342,24 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
         graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
         
         raster::animate(rasters[[timesteps]],
-                        col=viridisLite::viridis(length(breaks)-1),
-                        n = 1)
+                        col = viridisLite::viridis(length(breaks)-1),
+                        n = 1,
+                        legend.args = list(text = 'individuals'),
+                        box = FALSE,
+                        axes = FALSE)
         
       } else {  
-      
-      # ts <- seq_len(raster::nlayers(rasters))
-      # groups <- split(ts, ceiling(seq_along(ts)/9))
-      # 
-      # for (i in seq_along(groups)) {
-      #   
-      #   group <- groups[[i]]
-      #   print(rasterVis::levelplot(rasters[[group]],
-      #                              scales = list(draw = FALSE),
-      #                              margin = list(draw = FALSE),
-      #                              at = breaks,
-      #                              col.regions = viridisLite::viridis(length(breaks)-1),
-      #                              colorkey = list(space = "bottom",
-      #                                              title = "individuals",
-      #                                              width = 0.6),
-      #                              main="k"))
-      # }
-      
+
         print(rasterVis::levelplot(rasters[[timesteps]],
                                    scales = list(draw = FALSE),
                                    margin = list(draw = FALSE),
                                    at = breaks,
                                    col.regions = viridisLite::viridis(length(breaks)-1),
                                    colorkey = list(space = "bottom",
-                                                   title = "individuals",
-                                                   width = 0.6),
+                                                   width = 0.4),
                                    main = "k",
+                                   par.settings=list(layout.heights=list(xlab.key.padding=1)),
+                                   xlab = "individuals",
                                    layout = panels))
       }
         
@@ -411,37 +372,38 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
     pop <- get_pop_simulation(x)
     pop.mn <- round(apply(pop, c(1,2), mean), 0)
     
-    if (type == "raster" | object == "habitat_suitability" | object == "carrying_capacity") {
+    if (type == "raster" | object == "suitability" | object == "carrying_capacity") {
       stop("Raster plotting is only available for single simulations")
     }
     
-    if (is.null(stage)) {
+    if (is.null(stages)) {
       
-      graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,stages))
+      graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,total_stages))
       
-      for (i in seq_len(stages)) {
+      for (i in seq_len(total_stages)) {
         
         graphics::plot(pop.mn[, i],
                        type = 'l',
                        ylab = paste("Total Population: ",stage_names[i]),
-                       xlab = "Time (years)",
+                       xlab = "Timesteps",
                        lwd = 3,
-                       col = graph.pal[i])
+                       col = graph.pal[i],
+                       ylim=range(pretty(pop)))
 
         for (j in seq_along(x)) {
           graphics::lines(pop[ , i, j],
                           col = 'gray')
         }
-                
-        #graphics::abline(h=raster::cellStats(x[[1]][[1]]$habitat$carrying_capacity,sum)/stages,
-                         #lwd=1,
-                         #lty=2)
+        
+        graphics::lines(pop.mn[, i],
+                       lwd = 3,
+                       col = graph.pal[i])
         
       }
       
     }
     
-    if(!is.null(stage) && stage == 0) {
+    if(!is.null(stages) && stages == 0) {
       
       graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
       
@@ -453,7 +415,7 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
       graphics::plot(quants[,2],#rowSums(pop[ , , 1]),
                      type = 'l',
                      ylab = "Total Population (all stages)",
-                     xlab = "Time (years)",
+                     xlab = "Timesteps",
                      lwd = 3,
                      col = 'black')
       
@@ -471,87 +433,114 @@ plot.simulation_results <- function (x, object = "population", type = "graph", s
             lwd = 2,
             col = grDevices::grey(0.4))
       
-      
-      graphics::abline(h=raster::cellStats(x[[1]][[1]]$habitat$carrying_capacity,sum),
-                       lwd=1,
-                       lty=2)
-      
+      if (!is.null(x[[1]][[1]]$carrying_capacity)) {
+        graphics::abline(h=raster::cellStats(x[[1]][[1]]$carrying_capacity,sum),
+                         lwd=1,
+                         lty=2)
+      }
+
     }
     
-    if (!is.null(stage) && stage > 0) {
+    if (!is.null(stages) && stages > 0) {
       
       graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
       
-      graphics::plot(pop.mn[ , stage],
+      graphics::plot(pop.mn[ , stages],
                      type = 'l',
-                     ylab = paste("Total Population: ",stage_names[stage]),
-                     xlab = "Time (years)",
+                     ylab = paste("Total Population: ",stage_names[stages]),
+                     xlab = "Timesteps",
                      lwd = 3,
-                     col = graph.pal[stage])
+                     col = graph.pal[stages])
       
       for (j in seq_along(x)) {
-        graphics::lines(pop[ , stage, j],
+        graphics::lines(pop[ , stages, j],
                         col = 'gray')
       }
-      
-      graphics::abline(h=raster::cellStats(x[[1]][[1]]$habitat$carrying_capacity,sum)/stages,
-                       lwd=1,
-                       lty=2)
+
+      graphics::lines(pop.mn[ , stages],
+                     lwd = 3,
+                     col = graph.pal[stages])    
       
     }
   
   }
   
+}
+
+#' @rdname simulation_results
+#'
+#' @export
+#'
+#' @examples
+#'
+#' # Extract spatial components from a 'simulation_results' object
+#'
+#' extract_results(results)
+
+extract_results <- function (x,
+                            replicate = 1,
+                            timestep = 1,
+                            landscape_object = "population",
+                            stage = 1,
+                            misc = 1) {
+  if (landscape_object == 1 | landscape_object == "population") {
+    x[[replicate]][[timestep]][[landscape_object]][[stage]]
+  }
+  if (landscape_object > 3 |
+      !landscape_object == "population" |
+      !landscape_object == "suitability" |
+      !landscape_object == "carrying_capacity") {
+    x[[replicate]][[timestep]][[landscape_object]][[misc]]
+  }
+
 }
 
 ##########################
 ### internal functions ###
 ##########################
-
 as.simulation_results <- function (simulation_results) {
   as_class(simulation_results, "simulation_results", "list")
 }
 
-simulate <- function (i, state, dynamics, timesteps = 100) {
+simulate <- function (i, landscape, population_dynamics, habitat_dynamics, timesteps, verbose) {
   timesteps <- seq_len(timesteps)
-  output_states <- iterate_system(state, dynamics, timesteps)
-  as_class(output_states, "replicate", "list")
-}
-
-iterate_system <- function (state, dynamics, timesteps) {
-
-  output_states <- list()
-
-  pb <- utils::txtProgressBar(min = 0, max = max(timesteps), style = 3)
+  if (verbose == TRUE) pb <- utils::txtProgressBar(min = 0, max = max(timesteps), style = 3)
+  
+  output_landscapes <- list()
+  
   for (timestep in timesteps) {
-    for (dynamic_function in dynamics) {
-      state <- dynamic_function(state, timestep)
+    
+    landscape <- population_dynamics(landscape, timestep)
+    
+    for (dynamic_function in habitat_dynamics) {
+      landscape <- dynamic_function(landscape, timestep)
     }
-    output_states[[timestep]] <- state
-    utils::setTxtProgressBar(pb, timestep)
+    
+    output_landscapes[[timestep]] <- landscape
+    if (verbose == TRUE) utils::setTxtProgressBar(pb, timestep)
   }
-  close(pb)
-
-  output_states
-
+  
+  if (verbose == TRUE) close(pb)
+  
+  as_class(output_landscapes, "replicate", "list")
 }
 
 # extract populations from a simulation
 get_pop_replicate <- function(x, ...) {
-  stages <- raster::nlayers(x[[1]]$population$population_raster)
-  idx <- which(!is.na(raster::getValues(x[[1]]$population$population_raster[[1]])))
-  pops <- lapply(x, function(x) raster::extract(x$population$population_raster, idx))
+  total_stages <- raster::nlayers(x[[1]]$population)
+  idx <- which(!is.na(raster::getValues(x[[1]]$population[[1]])))
+  pops <- lapply(x, function(x) raster::extract(x$population, idx))
   pop_sums <- lapply(pops, function(x) colSums(x))
-  pop_matrix <- matrix(unlist(pop_sums), ncol = stages, byrow = TRUE)
+  pop_matrix <- matrix(unlist(pop_sums), ncol = total_stages, byrow = TRUE)
   return(pop_matrix)
 }
 
 get_pop_simulation <- function(x, ...) {
-  stages <- raster::nlayers(x[[1]][[1]]$population$population_raster)
+  total_stages <- raster::nlayers(x[[1]][[1]]$population)
   timesteps <- length(x[[1]])
   sims <- length(x)
   
-  pop_array <- array(dim=c(timesteps,stages,sims))
+  pop_array <- array(dim=c(timesteps,total_stages,sims))
   
   for(i in seq_len(sims)) {
     pop_array[, , i] <- get_pop_replicate(x[[i]])

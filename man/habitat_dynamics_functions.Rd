@@ -2,18 +2,25 @@
 % Please edit documentation in R/habitat_dynamics-functions.R
 \name{habitat_dynamics_functions}
 \alias{habitat_dynamics_functions}
-\alias{disturbance_fires}
-\title{Functions to modify the habitat in a state object.}
+\alias{disturbance}
+\alias{fire_effects}
+\title{Functions to modify the habitat in a landscape object.}
 \usage{
-disturbance_fires(habitat_suitability, disturbance_layers,
-  effect_time = 1)
+disturbance(disturbance_layers, effect_time = 1)
+
+fire_effects(fire_layers, lag = 3,
+  regeneration_function = function(time) {     -time })
 }
 \arguments{
-\item{habitat_suitability}{a raster layer or stack containing habitat suitability for each cell}
-
-\item{disturbance_layers}{a raster stack with fire disturbances used to alter the habitat object in the experiment (number of layers must match the intended timesteps in the experiment)}
+\item{disturbance_layers}{a raster stack with disturbances (e.g logging) used to alter the habitat object for each timestep (number of layers must match the intended timesteps)}
 
 \item{effect_time}{the number of timesteps that the disturbance layer will act on the habitat object}
+
+\item{fire_layers}{a raster stack with fire disturbances used to alter the habitat object for each timestep (number of layers must match the intended timesteps)}
+
+\item{lag}{the number of timesteps that the fire layer will act on the habitat object}
+
+\item{regeneration_function}{a function that determines how fast the landscape will regenerate after a fire event}
 }
 \description{
 Pre-defined functions to operate on a habitat and carrying capacity
@@ -24,10 +31,17 @@ during a simulation.
 library(steps)
 
 
-# Use the disturbance_fires function to modify the habitat using spatial
-# fire history layers:
+# Use the disturbance function to modify the habitat using spatial
+# layers (stored in the landscape object):
 
-test_fires <- disturbance_fires(habitat_suitability = r / cellStats(r, "max"),
-                                    disturbance_layers = dist,
-                                    effect_time = 1)
+logging <- disturbance(disturbance_layers = "logging",
+                    effect_time = 1)
+
+# Use the fire_effects function to modify the habitat using spatial
+# fire layers (stored in the landscape object) and a regeneration
+# function:
+
+fire <- fire_effects(fire_layers = "fires",
+                    lag = 5,
+                    regeneration_function = function (time) {-time})
 }

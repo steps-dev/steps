@@ -11,4 +11,9 @@
 #' found in existing software and uses common spatial inputs that are derived
 #' from many other software packages.
 #'
-#' 
+#' A \link[steps]{simulation} is run on a \link[steps]{landscape} using population
+#' dynamics functions contained in a \link[steps]{population_dynamics} object.
+#' \link[steps]{habitat_dynamics_functions} can also be added to the simulation to
+#' modify the habitat during a simulation.
+
+steps_stash <- new.env()
