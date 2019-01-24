@@ -292,7 +292,7 @@ plot(egk_results[1], type = "raster", stage = 2, timesteps = c(1, 10, 20), panel
 The components of the landscape object are stored for each timestep (if they are specified) so it is possible to also view the carrying capacity throughout a single simulation (i.e. egk_results[1]). Note, only timesteps one, ten, and twenty are shown - this is controlled by specifying the 'panels' parameter in the plot call:
 
 ```{r, message = FALSE, fig.align = "center"}
-plot(egk_results[1], object = "carrying_capacity", timesteps = c(1, 10, 20), panels = c(3, 1))
+plot(egk_results[1], object = "carrying_capacity", type = "raster", timesteps = c(1, 10, 20), panels = c(3, 1))
 ```
 
 The simulation results object (egk_results in our example) is a list of lists containing spatial objects and is depicted by the following tree diagram:
@@ -358,14 +358,14 @@ egk_results[[2]][[3]][["carrying_capacity"]]
 Based on this structure, we have also provided an extraction function to return components of a simulation results object. For example, to return the same object as in the previous example:
 
 ```{r, message = FALSE, fig.align = "center", out.width = "100%"}
-extract_results(egk_results, replicate = 2, timestep = 3, landscape_object = "carrying_capacity")
+extract_spatial(egk_results, replicate = 2, timestep = 3, landscape_object = "carrying_capacity")
 ```
 
 By default, the extract function will return a population raster (landscape object = 1 or landscape object = "population"), for the first life-stage (stage = 1), for the first iteration (timestep = 1), for the first simulation run (replicate = 1). These values can be specified accordingly to return the spatial object of your choosing. Here, we plot the default object from the extract function:
 
 ```{r, message = FALSE, fig.align = "center", out.width = "100%"}
 par(mar = c(0.1, 0.1, 0.1, 0.1))
-plot(extract_results(egk_results), box = FALSE, axes = FALSE, col = viridis(100))
+plot(extract_spatial(egk_results), box = FALSE, axes = FALSE, col = viridis(100))
 ```
 
 So far, the populations are only changing within their cells without any movement between cells. We can either specify assisted species movements (i.e. translocations or reintroductions) or natural species movements (dispersal) in the model simulations. 

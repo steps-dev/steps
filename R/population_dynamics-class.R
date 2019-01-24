@@ -58,6 +58,30 @@ population_dynamics <- function (change,
   
 }
 
+################# Working ###################
+# population_dynamics <- function (change,
+#                                  dispersal = NULL,
+#                                  modification = NULL,
+#                                  density_dependence = NULL) {
+# 
+#   ordered_functions <- list()
+#   
+#   pop_dynamics <- function (landscape, timestep) {
+#     
+#     for (dynamic_function in ordered_functions) {
+#       landscape <- dynamic_function(landscape, timestep)
+#     }
+#     
+#     landscape <- change(landscape, timestep)
+# 
+#     landscape
+#   }
+# 
+#   as.population_dynamics(pop_dynamics)
+# 
+# }
+#########################################
+
 as.population_dynamics <- function (population_dynamics_function) {
   as_class(population_dynamics_function, "population_dynamics", "function")
 }

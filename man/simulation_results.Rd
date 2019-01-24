@@ -5,7 +5,7 @@
 \alias{is.simulation_results}
 \alias{print.simulation_results}
 \alias{plot.simulation_results}
-\alias{extract_results}
+\alias{extract_spatial}
 \title{Run a simulation}
 \usage{
 simulation(landscape, population_dynamics, habitat_dynamics = list(),
@@ -17,9 +17,9 @@ is.simulation_results(x)
 
 \method{plot}{simulation_results}(x, object = "population",
   type = "graph", stages = NULL, animate = FALSE,
-  timesteps = c(1:9), panels = c(3, 3), ...)
+  timesteps = c(1:9), panels = c(3, 3), emp = FALSE, ...)
 
-extract_results(x, replicate = 1, timestep = 1,
+extract_spatial(x, replicate = 1, timestep = 1,
   landscape_object = "population", stage = 1, misc = 1)
 }
 \arguments{
@@ -56,6 +56,8 @@ rasters as a gif?}
 
 \item{panels}{the number of columns and rows to use when plotting raster
 timeseries - default is 3 x 3 (e.g. c(3,3) )}
+
+\item{emp}{should the expected minimum population of the simulation be plotted?}
 
 \item{replicate}{which replicate to extract a spatial object from a simulation result}
 
@@ -102,5 +104,5 @@ plot(results)
 
 # Extract spatial components from a 'simulation_results' object
 
-extract_results(results)
+extract_spatial(results)
 }

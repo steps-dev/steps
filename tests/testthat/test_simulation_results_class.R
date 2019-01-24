@@ -401,10 +401,10 @@ test_that('simulation_results classes work', {
   # options(mypkg.connection = stdin())
   # close(f)
 
-  expect_true(inherits(extract_results(test_simulation2),
+  expect_true(inherits(extract_spatial(test_simulation2),
                        "RasterLayer"))
   
-  expect_true(inherits(extract_results(test_simulation2,
+  expect_true(inherits(extract_spatial(test_simulation2,
                                        landscape_object = 4),
                        "RasterLayer"))
   

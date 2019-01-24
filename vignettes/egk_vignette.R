@@ -223,11 +223,11 @@ egk_results[[2]][[3]][[2]]
 egk_results[[2]][[3]][["carrying_capacity"]]
 
 ## ---- message = FALSE, fig.align = "center", out.width = "100%"----------
-extract_results(egk_results, replicate = 2, timestep = 3, landscape_object = "carrying_capacity")
+extract_spatial(egk_results, replicate = 2, timestep = 3, landscape_object = "carrying_capacity")
 
 ## ---- message = FALSE, fig.align = "center", out.width = "100%"----------
 par(mar = c(0.1, 0.1, 0.1, 0.1))
-plot(extract_results(egk_results), box = FALSE, axes = FALSE, col = viridis(100))
+plot(extract_spatial(egk_results), box = FALSE, axes = FALSE, col = viridis(100))
 
 ## ---- message = FALSE, progress = FALSE, fig.align = "center", out.width = "100%"----
 egk_landscape <- landscape(population = egk_pop,
