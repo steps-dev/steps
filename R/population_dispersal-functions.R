@@ -13,12 +13,10 @@ NULL
 #'   kernel functions
 #' @param dispersal_proportion proportions of individuals (0 to 1) that can
 #'   disperse in each life stage
-#' @param distance_function defines distance between source cells and all
-#'   potential sink cells for dispersal
 #' @param arrival_probability a raster layer that controls where individuals can
 #'   disperse to (e.g. habitat suitability)
-#' @param dispersal_distance the distances (in cell units) that each life stage
-#'   can disperse
+#' @param dispersal_distance the maximum distance (in cells) that each life stage
+#'   can disperse (in kernel-based dispersal this truncates the dispersal curve)
 #' @param barrier_type if barrier map is used, does it stop (0 - default) or
 #'   kill (1) individuals
 #' @param dispersal_steps number of dispersal steps to take before stopping
@@ -113,8 +111,8 @@ fast_dispersal <- function(
 #'
 #' test_kern_dispersal <- kernel_dispersal()
 kernel_dispersal <- function(
-  distance_function = function(from, to) sqrt(rowSums(sweep(to, 2, from)^2)),
-  dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
+  dispersal_kernel = exponential_dispersal_kernel(distance_decay = 10000),
+  dispersal_distance = Inf,
   arrival_probability = c("both", "suitability", "carrying_capacity"),
   dispersal_proportion = 1,
   demographic_stochasticity = TRUE
@@ -124,10 +122,31 @@ kernel_dispersal <- function(
   
   pop_dynamics <- function(landscape, timestep) {
     
+    # extract locations as x and y coordinates from landscape (ncells x 2)
+    xy <- raster::xyFromCell(
+      landscape$population,
+      seq(raster::ncell(landscape$population))
+    )
+    
+    # rescale locations
+    xy <- sweep(xy, 2, raster::res(landscape$population), "/")
+
+    distance_info <- steps_stash$distance_info
+    
+    # if (is.null(dist_list)) {
+    #   dist_mat <- as.matrix(dist(xy))
+    #   dist_mat[dist_mat > dispersal_distance] <- NA
+    #   dist_list <- apply(dist_mat, 1, function(x) which(!is.na(x)))
+    # }
+    
+    if (is.null(distance_info)) {
+      distance_info <- get_distance_info(res = raster::res(landscape$population),
+                                                      max_distance = dispersal_distance)
+    }
+
+    # how many life stages?
     n_stages <- raster::nlayers(landscape$population)
-    
-    #poptot <- sum(raster::cellStats(landscape$population, sum))
-    
+
     # check the required landscape rasters/functions are available
     layers <- arrival_probability
     if (layers == "both")
@@ -143,7 +162,7 @@ kernel_dispersal <- function(
             call. = FALSE)
     }
 
-    # Get non-NA cells
+    # get non-NA cells
     cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])))
     
     if (exists("carrying_capacity_function", envir = steps_stash)) {
@@ -161,15 +180,6 @@ kernel_dispersal <- function(
     
     # Which stages contribute to density dependence.
     which_stages_density <- which(dispersal_proportion > 0)
-    
-    # Extract locations as x and y coordinates from landscape (ncells x 2)
-    xy <- raster::xyFromCell(
-      landscape$population,
-      seq(raster::ncell(landscape$population))
-    )
-    
-    # Rescale locations
-    xy <- sweep(xy, 2, raster::res(landscape$population), "/")
     
     delayedAssign(
       "habitat_suitability_values",
@@ -194,13 +204,12 @@ kernel_dispersal <- function(
       arrival_probability,
       both = habitat_suitability_values * (1 - carrying_capacity_proportion),
       suitability = habitat_suitability_values,
-      carrying_capacity = (1 - carrying_capacity_proportion)#,
-      #none = replace(habitat_suitability_values, which(!is.na(habitat_suitability_values)), 1)
+      carrying_capacity = (1 - carrying_capacity_proportion)
     )
     
     # Only non-zero arrival prob cells can receive individuals
     can_arriv <- which(arrival_prob_values > 0 & !is.na(arrival_prob_values))
-    
+
     for (stage in which_stages_disperse) {
       
       # Extract the population values
@@ -221,24 +230,62 @@ kernel_dispersal <- function(
       # Only non-zero population cells can contribute - needs to be a binomial
       # realisation of a proportion disperses function
       has_pop <- which(pop_dispersing > 0 & !is.na(pop_dispersing))
-      
-      contribute <- function(i) {
-        # distance btw ith cell and all the cells that it can contribute to.
-        contribution <- distance_function(xy[i, ], xy[can_arriv, ])
-        contribution <- dispersal_kernel(contribution)
-        contribution <- contribution * arrival_prob_values[can_arriv]
-        contribution <- contribution / sum(contribution)
-        contribution <- contribution * pop_dispersing[i]
-        # Standardise contributions and round them if demographic_stochasticity = TRUE
-        if (identical(demographic_stochasticity, FALSE)) return(contribution)
 
-        contribution_int <- floor(contribution)
+      contribute <- function(i) {
+        
+        # distance btw ith cell and all the cells that it can contribute to.
+        #dists <- sqrt(rowSums(sweep(xy[can_arriv, ], 2, xy[i, ])^2))
+        
+        # which cells are within the maximum distance
+        #in_range <- which(dists <= dispersal_distance)
+
+        # what are the probabilities of dispersing given the distances
+        #contribution <- rep(0, length(dists))
+        #contribution[in_range] <- dispersal_kernel(dists[in_range])
+        
+        # what cells can be dispersed to based on the distance cap
+        # within_dist <- which(round(local_dist_matrix[[i]][[1]], 3) <= dispersal_distance)
+        
+        # arriv_dist <- intersect(within_dist, can_arriv)
+        
+        #contribution <- distance_function(xy[i, ], xy[can_arriv, ])
+        
+        destinations <- get_ids_dists(cell_id = i,
+                               distance_info = distance_info,
+                               raster_dim = dim(landscape$population[[1]])[-3])
+        
+        destination_ids <- destinations[, 1]
+        destination_dists <- destinations[, 2]
+
+        # account for arrival posibility
+        keep_destination <- destination_ids %in% intersect(can_arriv, destination_ids)
+        destination_ids <- destination_ids[keep_destination]
+        destination_dists <- destination_dists[keep_destination]
+        
+        contribution <- dispersal_kernel(destination_dists)
+        
+        # probability of dispersing multiplied by probability of arrival 
+        contribution <- contribution * arrival_prob_values[destination_ids]
+        
+        # standardise contributions
+        contribution <- contribution / sum(contribution)
+        
+        # estimate population dispersing based on contribution
+        contribution <- contribution * pop_dispersing[i]
+        
+        final_pop <- rep(0, length(can_arriv))
+        final_pop[destination_ids] <- contribution
+        
+        # round contributions if demographic_stochasticity = TRUE
+        if (identical(demographic_stochasticity, FALSE)) return(final_pop)
+
+        final_pop_int <- floor(final_pop)
         idx <- utils::tail(
-          order(contribution - contribution_int),
-          round(sum(contribution)) - sum(contribution_int)
+          order(final_pop - final_pop_int),
+          round(sum(final_pop)) - sum(final_pop_int)
         )
-        contribution_int[idx] <- contribution_int[idx] + 1
-        contribution_int
+        final_pop_int[idx] <- final_pop_int[idx] + 1
+        final_pop_int
         ####################################
       }
       
@@ -508,20 +555,18 @@ dispersalFFT <- function (popmat, fs) {
   # extract the section of the torus representing our 2D plane and return
   pop_new <- pop_torus_new[fs$yidx, fs$xidx]
   
-  # check for missing values and replace with zeros
-  # if (any(is.na(pop_new))) {
-  #   pop_new[is.na(pop_new)] <- 0
-  # }
-  
   # get proportion of population that dispersed into NA areas
   prop_out <- sum(pop_new[is.na(popmat_orig)]) / sum(pop_new[!is.na(popmat_orig)])
-  
+
+  # check for NaN and replace with zero
+  if (is.nan(prop_out)) prop_out <- 0
+    
   # return NA values to matrix
   pop_new[is.na(popmat_orig)] <- NA
   
   # increase all non-NA cells by inverse of proportion in NA areas
   pop_new[!is.na(popmat_orig)] <- pop_new[!is.na(popmat_orig)] * (1 + prop_out)
-  
+
   # make sure none are lost or gained (unless all are zeros)
   if (any(pop_new[!is.na(popmat_orig)] > 0)) {
     pop_new[!is.na(popmat_orig)] <- stats::rmultinom(1, size = sum(popmat), prob = pop_new[!is.na(popmat_orig)])    
@@ -530,5 +575,89 @@ dispersalFFT <- function (popmat, fs) {
   pop_new
 }
 
-
 seq_range <- function (range, by = 1) seq(range[1], range[2], by = by)
+
+# compute the *relative* distances to all neightbouring cells within a maximum
+# distance
+get_distance_info <- function(res, max_distance) {
+  
+  width <- ceiling(max_distance / min(res)) + 1
+  id <- (1:width) - 1
+  xy <- expand.grid(id * res[1], id * res[2])
+  cell_coord <- expand.grid(id, id)
+  cell_coord <- as.matrix(cell_coord)
+  colnames(cell_coord) <- NULL
+  dists <- as.matrix(dist(xy))[1, ]
+  keep <- dists < max_distance
+  
+  # relative coordinates of cells that are within the distance
+  ur <- cell_coord[keep, ]
+  ul <- cbind(-ur[, 1], ur[, 2])
+  ll <- -ur
+  lr <- cbind(ur[, 1], -ur[, 2])
+  
+  # all coordinates in the circle
+  coords <- rbind(ur, ul, ll, lr)
+  
+  # add on their distances
+  cbind(coords, rep(dists[keep], 4))
+  
+}
+
+# given a cell id, find the coordinates (in number of cells from the origin)
+id2coord <- function (id, dim) {
+  # get coordinates in cell numbers. 
+  # index from 0
+  id0 <- id - 1
+  
+  # how many rows have been covered
+  row0 <- id0 %/% dim[1]
+  # how many columns have been covered in the most recent row
+  col0 <- id0 %% dim[1]
+  # combine and switch back to indexing from 1
+  coord <- cbind(col0, row0) + 1
+  # make sure they are within the raster (for completeness)
+  max_id <- prod(dim)
+  invalid_id <- id > max_id | id < 1
+  coord[invalid_id, ] <- NA
+  coord
+  
+}
+
+# returns NAs where the coords are outside the raster. coord must be a 2-column
+# matrix
+coord2id <- function (coord, dim) {
+  start_of_row <- (coord[, 2] - 1) * dim[2]
+  id <- start_of_row + coord[, 1]
+  
+  max_id <- prod(dim)
+  invalid_id <- id > max_id | id < 1
+  id[invalid_id] <- NA
+  id
+  
+}
+
+# given a cell number, compute the cell ids that are within the maximum
+# distance, and get the distances to those
+get_ids_dists <- function(cell_id, distance_info, raster_dim) {
+  
+  # get origin coordinate  
+  origin_coord <- id2coord(cell_id, raster_dim)  
+  
+  # relative coordinates (in numbers of cells) of cells within max distance, and
+  # their distances from this cell
+  rel_coords <- distance_info[, 1:2]
+  dists <- distance_info[, 3]
+  
+  # compute absolute coordinates
+  abs_coords <- sweep(rel_coords, 2, origin_coord, "+") 
+  
+  cell_ids <- coord2id(abs_coords, raster_dim)
+  valid <- !is.na(cell_ids)
+  
+  # return a 2-column matrix of cells id and distances for all cells within the
+  # maximum distances, and within the raster
+  cbind(cell_ids[valid], dists[valid])
+  
+}
+

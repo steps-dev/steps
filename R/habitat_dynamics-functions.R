@@ -83,7 +83,7 @@ fire_effects <- function (fire_layers,
            Please check that you have not provided a raster stack as a suitability component of a landscape object.")
     }
     
-    if (timestep == 1) original_habitat <- steps_stash$orig_suitability <- landscape$suitability
+    if (is.null(steps_stash$orig_suitability)) original_habitat <- steps_stash$orig_suitability <- landscape$suitability
     else original_habitat <- steps_stash$orig_suitability
     
     if (raster::nlayers(landscape[[fire_layers]]) < timestep ) {

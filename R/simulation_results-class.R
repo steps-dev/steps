@@ -126,7 +126,7 @@ plot.simulation_results <- function (x,
                                      type = "graph",
                                      stages = NULL,
                                      animate = FALSE,
-                                     timesteps = c(1:9),
+                                     timesteps = c(1:3),
                                      panels = c(3,3),
                                      emp = FALSE,
                                      ...){
@@ -222,8 +222,8 @@ plot.simulation_results <- function (x,
           rasters_sum[rasters_sum == 0] <- NA
           
           # Find maximum and minimum population value in raster cells for all timesteps for life-stage
-          scale_max <- ceiling(max(raster::cellStats(rasters_sum, max)))
-          scale_min <- floor(min(raster::cellStats(rasters_sum, min)))
+          scale_max <- ceiling(max(na.omit(raster::cellStats(rasters_sum, max))))
+          scale_min <- floor(min(na.omit(raster::cellStats(rasters_sum, min))))
           
           # Produce scale of values
           breaks <- seq(scale_min, scale_max, (scale_max-scale_min)/100)
@@ -259,8 +259,8 @@ plot.simulation_results <- function (x,
           rasters[rasters == 0] <- NA
           
           # Find maximum and minimum population value in raster cells for all timesteps for life-stage
-          scale_max <- ceiling(max(raster::cellStats(rasters, max)))
-          scale_min <- floor(min(raster::cellStats(rasters, min)))
+          scale_max <- ceiling(max(na.omit(raster::cellStats(rasters, max))))
+          scale_min <- floor(min(na.omit(raster::cellStats(rasters, min))))
           
           # Produce scale of values
           breaks <- seq(scale_min, scale_max, (scale_max-scale_min)/100)
@@ -298,8 +298,8 @@ plot.simulation_results <- function (x,
       rasters <- raster::stack(lapply(x[[1]], function (landscape) landscape$suitability))
       
       # Find maximum and minimum population value in raster cells for all timesteps for life-stage
-      scale_max <- ceiling(max(raster::cellStats(rasters, max)))
-      scale_min <- floor(min(raster::cellStats(rasters, min)))
+      scale_max <- ceiling(max(na.omit(raster::cellStats(rasters, max))))
+      scale_min <- floor(min(na.omit(raster::cellStats(rasters, min))))
       
       # Produce scale of values
       breaks <- seq(scale_min, scale_max, (scale_max-scale_min)/100)
@@ -354,8 +354,8 @@ plot.simulation_results <- function (x,
         rasters <- raster::stack(lapply(x[[1]], function (landscape) landscape$carrying_capacity))
         
         # Find maximum and minimum population value in raster cells for all timesteps for life-stage
-        scale_max <- ceiling(max(raster::cellStats(rasters, max)))
-        scale_min <- floor(min(raster::cellStats(rasters, min)))
+        scale_max <- ceiling(max(na.omit(raster::cellStats(rasters, max))))
+        scale_min <- floor(min(na.omit(raster::cellStats(rasters, min))))
         
         # Produce scale of values10
         breaks <- seq(scale_min, scale_max, (scale_max-scale_min)/100)
@@ -395,7 +395,7 @@ plot.simulation_results <- function (x,
     pop.mn <- round(apply(pop, c(1,2), mean), 0)
     
     if (type == "raster" | object == "suitability" | object == "carrying_capacity") {
-      stop("Raster plotting or graphic carrying_capacity is only\n
+      stop("Raster plotting or graphic carrying_capacity is only 
            available for single replicates of simulations")
     }
     
