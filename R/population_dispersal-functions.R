@@ -110,8 +110,9 @@ fast_dispersal <- function(
 #' # and an arrival probability layers (e.g. habitat suitability):
 #'
 #' test_kern_dispersal <- kernel_dispersal()
+
 kernel_dispersal <- function(
-  dispersal_kernel = exponential_dispersal_kernel(distance_decay = 10000),
+  dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1),
   dispersal_distance = Inf,
   arrival_probability = c("both", "suitability", "carrying_capacity"),
   dispersal_proportion = 1,
@@ -123,13 +124,13 @@ kernel_dispersal <- function(
   pop_dynamics <- function(landscape, timestep) {
     
     # extract locations as x and y coordinates from landscape (ncells x 2)
-    xy <- raster::xyFromCell(
-      landscape$population,
-      seq(raster::ncell(landscape$population))
-    )
+    # xy <- raster::xyFromCell(
+    #   landscape$population,
+    #   seq(raster::ncell(landscape$population))
+    # )
     
     # rescale locations
-    xy <- sweep(xy, 2, raster::res(landscape$population), "/")
+    # xy <- sweep(xy, 2, raster::res(landscape$population), "/")
 
     distance_info <- steps_stash$distance_info
     
@@ -323,7 +324,7 @@ kernel_dispersal <- function(
 #' test_ca_dispersal <- cellular_automata_dispersal()
 
 cellular_automata_dispersal <- function (dispersal_distance = 1,
-                                         dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
+                                         dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1),
                                          dispersal_proportion = 1,
                                          barrier_type = 0,
                                          dispersal_steps = 1,
