@@ -222,8 +222,8 @@ plot.simulation_results <- function (x,
           rasters_sum[rasters_sum == 0] <- NA
           
           # Find maximum and minimum population value in raster cells for all timesteps for life-stage
-          scale_max <- ceiling(max(na.omit(raster::cellStats(rasters_sum, max))))
-          scale_min <- floor(min(na.omit(raster::cellStats(rasters_sum, min))))
+          scale_max <- ceiling(max(stats::na.omit(raster::cellStats(rasters_sum, max))))
+          scale_min <- floor(min(stats::na.omit(raster::cellStats(rasters_sum, min))))
           
           # Produce scale of values
           breaks <- seq(scale_min, scale_max, (scale_max-scale_min)/100)
@@ -259,8 +259,8 @@ plot.simulation_results <- function (x,
           rasters[rasters == 0] <- NA
           
           # Find maximum and minimum population value in raster cells for all timesteps for life-stage
-          scale_max <- ceiling(max(na.omit(raster::cellStats(rasters, max))))
-          scale_min <- floor(min(na.omit(raster::cellStats(rasters, min))))
+          scale_max <- ceiling(max(stats::na.omit(raster::cellStats(rasters, max))))
+          scale_min <- floor(min(stats::na.omit(raster::cellStats(rasters, min))))
           
           # Produce scale of values
           breaks <- seq(scale_min, scale_max, (scale_max-scale_min)/100)
@@ -298,8 +298,8 @@ plot.simulation_results <- function (x,
       rasters <- raster::stack(lapply(x[[1]], function (landscape) landscape$suitability))
       
       # Find maximum and minimum population value in raster cells for all timesteps for life-stage
-      scale_max <- ceiling(max(na.omit(raster::cellStats(rasters, max))))
-      scale_min <- floor(min(na.omit(raster::cellStats(rasters, min))))
+      scale_max <- ceiling(max(stats::na.omit(raster::cellStats(rasters, max))))
+      scale_min <- floor(min(stats::na.omit(raster::cellStats(rasters, min))))
       
       # Produce scale of values
       breaks <- seq(scale_min, scale_max, (scale_max-scale_min)/100)
@@ -354,8 +354,8 @@ plot.simulation_results <- function (x,
         rasters <- raster::stack(lapply(x[[1]], function (landscape) landscape$carrying_capacity))
         
         # Find maximum and minimum population value in raster cells for all timesteps for life-stage
-        scale_max <- ceiling(max(na.omit(raster::cellStats(rasters, max))))
-        scale_min <- floor(min(na.omit(raster::cellStats(rasters, min))))
+        scale_max <- ceiling(max(stats::na.omit(raster::cellStats(rasters, max))))
+        scale_min <- floor(min(stats::na.omit(raster::cellStats(rasters, min))))
         
         # Produce scale of values10
         breaks <- seq(scale_min, scale_max, (scale_max-scale_min)/100)

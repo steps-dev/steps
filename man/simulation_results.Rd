@@ -17,7 +17,7 @@ is.simulation_results(x)
 
 \method{plot}{simulation_results}(x, object = "population",
   type = "graph", stages = NULL, animate = FALSE,
-  timesteps = c(1:9), panels = c(3, 3), emp = FALSE, ...)
+  timesteps = c(1:3), panels = c(3, 3), emp = FALSE, ...)
 
 extract_spatial(x, replicate = 1, timestep = 1,
   landscape_object = "population", stage = 1, misc = 1)

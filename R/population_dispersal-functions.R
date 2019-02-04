@@ -145,6 +145,11 @@ kernel_dispersal <- function(
                                                       max_distance = dispersal_distance)
     }
 
+    # what are dimensions of raster (lazyeval was causing this to be rerun on
+    # every contribute() call! so force execution of this here)
+    raster_dim <- dim(landscape$population[[1]])[-3]
+    raster_dim <- force(raster_dim)
+    
     # how many life stages?
     n_stages <- raster::nlayers(landscape$population)
 
@@ -209,7 +214,7 @@ kernel_dispersal <- function(
     )
     
     # Only non-zero arrival prob cells can receive individuals
-    can_arriv <- which(arrival_prob_values > 0 & !is.na(arrival_prob_values))
+    can_arriv_ids <- which(arrival_prob_values > 0 & !is.na(arrival_prob_values))
 
     for (stage in which_stages_disperse) {
       
@@ -230,75 +235,72 @@ kernel_dispersal <- function(
       
       # Only non-zero population cells can contribute - needs to be a binomial
       # realisation of a proportion disperses function
-      has_pop <- which(pop_dispersing > 0 & !is.na(pop_dispersing))
+      has_pop_ids <- which(pop_dispersing > 0 & !is.na(pop_dispersing))
 
       contribute <- function(i) {
-        
-        # distance btw ith cell and all the cells that it can contribute to.
-        #dists <- sqrt(rowSums(sweep(xy[can_arriv, ], 2, xy[i, ])^2))
-        
-        # which cells are within the maximum distance
-        #in_range <- which(dists <= dispersal_distance)
 
-        # what are the probabilities of dispersing given the distances
-        #contribution <- rep(0, length(dists))
-        #contribution[in_range] <- dispersal_kernel(dists[in_range])
-        
-        # what cells can be dispersed to based on the distance cap
-        # within_dist <- which(round(local_dist_matrix[[i]][[1]], 3) <= dispersal_distance)
-        
-        # arriv_dist <- intersect(within_dist, can_arriv)
-        
-        #contribution <- distance_function(xy[i, ], xy[can_arriv, ])
-        
+        # this is more than a third of the total simulation time. Better to compute
+        # and cache these as a list above and pass in as distance_list
         destinations <- get_ids_dists(cell_id = i,
                                distance_info = distance_info,
-                               raster_dim = dim(landscape$population[[1]])[-3])
+                               raster_dim = raster_dim)
         
-        destination_ids <- destinations[, 1]
-        destination_dists <- destinations[, 2]
-
-        # account for arrival posibility
-        keep_destination <- destination_ids %in% intersect(can_arriv, destination_ids)
+        destination_ids <- as.integer(destinations[, 1])
+        destination_dists <- as.vector(destinations[, 2])
+        
+        # index to cells in raster
+        valid_arriv <- destination_ids[match(can_arriv_ids, destination_ids, 0L)]
+        
+        # index to cells in can_arriv_ids
+        arrival_index <- match(valid_arriv, can_arriv_ids)
+        
+        # account for arrival possibility
+        keep_destination <- destination_ids %in% valid_arriv
         destination_ids <- destination_ids[keep_destination]
         destination_dists <- destination_dists[keep_destination]
-        
+
         contribution <- dispersal_kernel(destination_dists)
-        
+
         # probability of dispersing multiplied by probability of arrival 
         contribution <- contribution * arrival_prob_values[destination_ids]
-        
+
         # standardise contributions
         contribution <- contribution / sum(contribution)
         
         # estimate population dispersing based on contribution
         contribution <- contribution * pop_dispersing[i]
         
-        final_pop <- rep(0, length(can_arriv))
-        final_pop[destination_ids] <- contribution
+        # final_pop has same length as can_arriv_ids (the cells we are going to
+        # return values for) arrival_index gives the elements of that vector
+        # that are represented in destination_ids, contribute, etc.
+        final_pop <- rep(0, length(can_arriv_ids))
+        final_pop[arrival_index] <- contribution
         
         # round contributions if demographic_stochasticity = TRUE
         if (identical(demographic_stochasticity, FALSE)) return(final_pop)
 
+        # this is ~20% of run time, find a more efficient way
+        
+        # all integers get assigned
         final_pop_int <- floor(final_pop)
-        idx <- utils::tail(
-          order(final_pop - final_pop_int),
-          round(sum(final_pop)) - sum(final_pop_int)
-        )
+        
+        # remaining fractional individuals get summed
+        remainder <- round(sum(final_pop)) - sum(final_pop_int)
+        
+        # and redistributed, preferentially in order of remaining fractions
+        assignment_order <- order(final_pop - final_pop_int, decreasing = TRUE)
+        idx <- utils::head(assignment_order, remainder)
+        
+        # increment the populations for these
         final_pop_int[idx] <- final_pop_int[idx] + 1
         final_pop_int
         ####################################
       }
       
-      landscape$population[[stage]][can_arriv] <- rowSums(
-        vapply(has_pop, contribute, as.numeric(can_arriv))
-      ) + pop_staying[can_arriv]
-      
-      #values(pop_dispersing) <- pop_dispersed
-      #pop <- pop_staying + pop_dispersing
-      #landscape$population[[stage]] <- pop
-      
-      
+      landscape$population[[stage]][can_arriv_ids] <- rowSums(
+        vapply(has_pop_ids, contribute, as.numeric(can_arriv_ids))
+      ) + pop_staying[can_arriv_ids]
+
     }
     
     #cat("Pre-Post Population:", poptot, sum(raster::cellStats(landscape$population, sum)), "(Timestep", timestep, ")", "\n")
@@ -588,7 +590,7 @@ get_distance_info <- function(res, max_distance) {
   cell_coord <- expand.grid(id, id)
   cell_coord <- as.matrix(cell_coord)
   colnames(cell_coord) <- NULL
-  dists <- as.matrix(dist(xy))[1, ]
+  dists <- as.matrix(stats::dist(xy))[1, ]
   keep <- dists < max_distance
   
   # relative coordinates of cells that are within the distance
@@ -600,8 +602,8 @@ get_distance_info <- function(res, max_distance) {
   # all coordinates in the circle
   coords <- rbind(ur, ul, ll, lr)
   
-  # add on their distances
-  cbind(coords, rep(dists[keep], 4))
+  # add on their distances & remove duplicates
+  unique(cbind(coords, rep(dists[keep], 4)))
   
 }
 
