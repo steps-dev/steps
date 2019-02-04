@@ -219,11 +219,13 @@ plot.simulation_results <- function (x,
         if(stages == 0) {
           
           rasters_sum <- raster::stack(lapply(x[[1]], function (landscape) sum(landscape$population)))
-          rasters_sum[rasters_sum == 0] <- NA
+          #rasters_sum[rasters_sum == 0] <- NA
           
           # Find maximum and minimum population value in raster cells for all timesteps for life-stage
-          scale_max <- ceiling(max(stats::na.omit(raster::cellStats(rasters_sum, max))))
-          scale_min <- floor(min(stats::na.omit(raster::cellStats(rasters_sum, min))))
+          scale_max <- ceiling(max(raster::cellStats(rasters_sum, max)))
+          scale_min <- floor(min(raster::cellStats(rasters_sum, min)))
+          #scale_max <- ceiling(max(stats::na.omit(raster::cellStats(rasters_sum, max))))
+          #scale_min <- floor(min(stats::na.omit(raster::cellStats(rasters_sum, min))))
           
           # Produce scale of values
           breaks <- seq(scale_min, scale_max, (scale_max-scale_min)/100)
@@ -232,7 +234,7 @@ plot.simulation_results <- function (x,
             graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
             
             raster::animate(rasters_sum[[timesteps]],
-                            col = viridisLite::viridis(length(breaks)-1),
+                            col = c("#F0F0F0FF", viridisLite::viridis(length(breaks)-1)),
                             n = 1,
                             legend.args = list(text = 'individuals'),
                             box = FALSE,
@@ -244,7 +246,7 @@ plot.simulation_results <- function (x,
                                        scales = list(draw = FALSE),
                                        margin = list(draw = FALSE),
                                        at = breaks,
-                                       col.regions = viridisLite::viridis(length(breaks)-1),
+                                       col.regions = c("#F0F0F0FF", viridisLite::viridis(length(breaks)-1)),
                                        colorkey = list(space = "bottom",
                                                        width = 0.4),
                                        main = "population",
@@ -256,11 +258,13 @@ plot.simulation_results <- function (x,
         } else {
           
           rasters <- raster::stack(lapply(x[[1]], function (landscape) landscape$population[[stages]]))
-          rasters[rasters == 0] <- NA
+          #rasters[rasters == 0] <- NA
           
           # Find maximum and minimum population value in raster cells for all timesteps for life-stage
-          scale_max <- ceiling(max(stats::na.omit(raster::cellStats(rasters, max))))
-          scale_min <- floor(min(stats::na.omit(raster::cellStats(rasters, min))))
+          scale_max <- ceiling(max(raster::cellStats(rasters, max)))
+          scale_min <- floor(min(raster::cellStats(rasters, min)))
+          #scale_max <- ceiling(max(stats::na.omit(raster::cellStats(rasters, max))))
+          #scale_min <- floor(min(stats::na.omit(raster::cellStats(rasters, min))))
           
           # Produce scale of values
           breaks <- seq(scale_min, scale_max, (scale_max-scale_min)/100)
@@ -269,7 +273,7 @@ plot.simulation_results <- function (x,
             graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
             
             raster::animate(rasters[[timesteps]],
-                            col = viridisLite::viridis(length(breaks)-1),
+                            col = c("#F0F0F0FF", viridisLite::viridis(length(breaks)-1)),
                             n = 1,
                             legend.args = list(text = 'individuals'),
                             box = FALSE,
@@ -280,7 +284,7 @@ plot.simulation_results <- function (x,
                                        scales = list(draw = FALSE),
                                        margin = list(draw = FALSE),
                                        at = breaks,
-                                       col.regions = viridisLite::viridis(length(breaks)-1),
+                                       col.regions = c("#F0F0F0FF", viridisLite::viridis(length(breaks)-1)),
                                        colorkey = list(space = "bottom",
                                                        width = 0.4),
                                        main = "population",
@@ -308,7 +312,7 @@ plot.simulation_results <- function (x,
         graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
         
         raster::animate(rasters[[timesteps]],
-                        col = viridisLite::viridis(length(breaks)-1),
+                        col = c("#F0F0F0FF", viridisLite::viridis(length(breaks)-1)),
                         n = 1,
                         legend.args = list(text = 'index'),
                         box = FALSE,
@@ -320,7 +324,7 @@ plot.simulation_results <- function (x,
                                    scales = list(draw = FALSE),
                                    margin = list(draw = FALSE),
                                    at = breaks,
-                                   col.regions = viridisLite::viridis(length(breaks)-1),
+                                   col.regions = c("#F0F0F0FF", viridisLite::viridis(length(breaks)-1)),
                                    colorkey = list(space = "bottom",
                                                    width = 0.4),
                                    main = "habitat",
@@ -364,7 +368,7 @@ plot.simulation_results <- function (x,
           graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
           
           raster::animate(rasters[[timesteps]],
-                          col = viridisLite::viridis(length(breaks)-1),
+                          col = c("#F0F0F0FF", viridisLite::viridis(length(breaks)-1)),
                           n = 1,
                           legend.args = list(text = 'individuals'),
                           box = FALSE,
@@ -376,7 +380,7 @@ plot.simulation_results <- function (x,
                                      scales = list(draw = FALSE),
                                      margin = list(draw = FALSE),
                                      at = breaks,
-                                     col.regions = viridisLite::viridis(length(breaks)-1),
+                                     col.regions = c("#F0F0F0FF", viridisLite::viridis(length(breaks)-1)),
                                      colorkey = list(space = "bottom",
                                                      width = 0.4),
                                      main = "k",
