@@ -93,8 +93,7 @@ test_that('simulation_results classes work', {
   pop_dyn3 <- population_dynamics(change = growth(transition_matrix = egk_mat),
                                   dispersal = kernel_dispersal(dispersal_kernel=exponential_dispersal_kernel(distance_decay = 8000),
                                                                dispersal_distance = 8000,
-                                                               arrival_probability="suitability",
-                                                               demographic_stochasticity = TRUE),
+                                                               arrival_probability="suitability"),
                                   modification = NULL,
                                   density_dependence = NULL)
   
@@ -130,7 +129,7 @@ test_that('simulation_results classes work', {
                                    modification = NULL,
                                    density_dependence = population_cap())
   
-  pop_dyn5 <- population_dynamics(change = growth(transition_matrix = egk_mat, demographic_stochasticity = FALSE),
+  pop_dyn5 <- population_dynamics(change = growth(transition_matrix = egk_mat),
                                   dispersal = kernel_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay = 8000),
                                                                dispersal_distance = 8000),
                                   modification = NULL,
@@ -190,25 +189,27 @@ test_that('simulation_results classes work', {
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn,
                                   habitat_dynamics = NULL,
+                                  demo_stochasticity = "deterministic_redistribution",
                                   timesteps = 5),
                        "simulation_results"))
   
   expect_true(is.simulation_results(simulation(landscape = landscape,
                                                population_dynamics = pop_dyn,
                                                habitat_dynamics = NULL,
+                                               demo_stochasticity = "stochastic_redistribution",
                                                timesteps = 10)))
   
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn2,
                                   habitat_dynamics = NULL,
+                                  demo_stochasticity = "none",
                                   timesteps = 10),
                        "simulation_results"))
   
-  expect_true(inherits(simulation(landscape = landscape,
+  simulation(landscape = landscape,
                                   population_dynamics = pop_dyn3,
                                   habitat_dynamics = NULL,
-                                  timesteps = 10),
-                       "simulation_results"))
+                                  timesteps = 10)
   
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn4,

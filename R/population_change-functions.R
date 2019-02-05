@@ -6,8 +6,6 @@
 #'
 #' @param transition_matrix A symmetrical age-based (Leslie) or stage-based
 #'   population structure matrix.
-#' @param demographic_stochasticity should demographic stochasticity be used in
-#'   population change?
 #' @param global_stochasticity,local_stochasticity either scalar values or
 #'   matrices (with the same dimension as \code{transition_matrix}) giving
 #'   variability (in standard deviations) in the transition matrix either for
@@ -30,7 +28,6 @@
 #' test_growth <- growth(egk_mat)
 
 growth <- function (transition_matrix,
-                    demographic_stochasticity = TRUE,
                     global_stochasticity = 0,
                     local_stochasticity = 0,
                     transition_function = NULL) {
@@ -89,7 +86,7 @@ growth <- function (transition_matrix,
     values <- pmin(values, rep(upper, n_cells))
     transition_array[idx_full] <- values
     
-    if (demographic_stochasticity) {
+    if (steps_stash$demo_stochasticity == "full") {
       
       local_t <- array(apply(transition_array, 3,
                              function(x) {

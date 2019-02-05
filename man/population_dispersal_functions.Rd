@@ -9,13 +9,12 @@
 \usage{
 
   fast_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay
-  = 0.1), dispersal_proportion = 1, demographic_stochasticity = FALSE)
+  = 0.1), dispersal_proportion = 1)
 
 
   kernel_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay
   = 1), dispersal_distance = Inf, arrival_probability = c("both",
-  "suitability", "carrying_capacity"), dispersal_proportion = 1,
-  demographic_stochasticity = TRUE)
+  "suitability", "carrying_capacity"), dispersal_proportion = 1)
 
 cellular_automata_dispersal(dispersal_distance = 1,
   dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1),
@@ -30,9 +29,6 @@ kernel functions}
 
 \item{dispersal_proportion}{proportions of individuals (0 to 1) that can
 disperse in each life stage}
-
-\item{demographic_stochasticity}{should demographic stochasticity be used in
-dispersal?}
 
 \item{dispersal_distance}{the maximum distance (in cells) that each life stage
 can disperse (in kernel-based dispersal this truncates the dispersal curve)}

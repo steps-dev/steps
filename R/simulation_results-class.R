@@ -11,6 +11,13 @@
 #'   population changes over time
 #' @param habitat_dynamics optional list of functions to modify the landscape at
 #'   each timestep
+#' @param demo_stochasticity how should population rounding occur if at all -
+#'   "full" uses a multinomial draw to return rounded cell populations (default);
+#'   "deterministic_redistribution" redistributes the decimal overages to the
+#'   cells with the largest overages; "stochastic_redistribution" redistributes
+#'   the decimal overages to the cells based on binomial draws using the
+#'   overages as probabilities; "none" returns non-integer cell populations (no
+#'   rounding)
 #' @param timesteps number of timesteps used in one simulation or to display
 #'   when plotting rasters
 #' @param replicates number simulations to perform
@@ -19,27 +26,32 @@
 #' @param object the simulation_results object to plot - can be 'population'
 #'   (default), 'suitability' or 'carrying_capacity'
 #' @param type the plot type - 'graph' (default) or 'raster'
-#' @param stages life-stages to plot - must be specified for 'raster' plot types;
-#'   default is NULL and all life-stages will be plotted
+#' @param stages life-stages to plot - must be specified for 'raster' plot
+#'   types; default is NULL and all life-stages will be plotted
 #' @param animate if plotting type 'raster' would you like to animate the
 #'   rasters as a gif?
 #' @param panels the number of columns and rows to use when plotting raster
 #'   timeseries - default is 3 x 3 (e.g. c(3,3) )
-#' @param emp should the expected minimum population of the simulation be plotted?
-#' @param replicate which replicate to extract a spatial object from a simulation result
-#' @param timestep which timestep to extract a spatial object from a simulation result
-#' @param landscape_object which landscape object to extract a spatial object from a
-#'   simulation result - can be specified by name (e.g. "suitability") or index number
-#' @param stage which life-stage to extract a spatial object from a simulation result
-#'   - only used for 'population' components of the landscape object
-#' @param misc which misc object to extract a spatial object from a simulation result
-#'   - only used for additional spatial objects added to a landscape (e.g. disturbance layers)
+#' @param emp should the expected minimum population of the simulation be
+#'   plotted?
+#' @param replicate which replicate to extract a spatial object from a
+#'   simulation result
+#' @param timestep which timestep to extract a spatial object from a simulation
+#'   result
+#' @param landscape_object which landscape object to extract a spatial object
+#'   from a simulation result - can be specified by name (e.g. "suitability") or
+#'   index number
+#' @param stage which life-stage to extract a spatial object from a simulation
+#'   result - only used for 'population' components of the landscape object
+#' @param misc which misc object to extract a spatial object from a simulation
+#'   result - only used for additional spatial objects added to a landscape
+#'   (e.g. disturbance layers)
 #' @param ... further arguments passed to or from other methods
 #'
 #' @return An object of class \code{simulation_results}
 #'
 #' @export
-#' 
+#'
 #' @importFrom future plan multiprocess future values
 #' @importFrom raster animate
 #' @importFrom viridisLite viridis
@@ -52,14 +64,22 @@
 #' plan(multiprocess)
 #'
 #' landscape <- landscape(population = egk_pop,
-#'                suitability = egk_hab, 
+#'                suitability = egk_hab,
 #'                carrying_capacity = egk_k)
 #'
 #' pop_dynamics <- population_dynamics(change = growth(transition_matrix = egk_mat))
 #'
 #' results <- simulation(landscape, pop_dynamics, timesteps = 10, replicates = 5)
 
-simulation <- function(landscape, population_dynamics, habitat_dynamics = list(), timesteps = 3, replicates = 1, verbose = TRUE){
+simulation <- function(landscape,
+                       population_dynamics,
+                       habitat_dynamics = list(),
+                       demo_stochasticity = c("full", "deterministic_redistribution", "stochastic_redistribution", "none"),
+                       timesteps = 3,
+                       replicates = 1,
+                       verbose = TRUE){
+  
+  steps_stash$demo_stochasticity <- match.arg(demo_stochasticity)
   
   in_parallel <- !inherits(future::plan(), "sequential")
   lapply_fun <- ifelse(in_parallel,

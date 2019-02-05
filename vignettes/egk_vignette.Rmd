@@ -168,12 +168,11 @@ egk_results <- simulation(landscape = egk_landscape,
 plot(egk_results)
 ```
 
-Note that the plot above looks very similar to the single replicate simulation. This is because we have not added any major stochastic dynamics to the landscape. However, demographic stochasticity IS on by default because it's incorporated into the transition probabilities that the growth function uses - this behaviour can be disabled by setting "demographic_stochasticity = FALSE". Let's try adding some globally acting environmental stochasticity to the growth function:
+Note that the plot above looks very similar to the single replicate simulation. This is because we have not added any major stochastic dynamics to the landscape. However, demographic stochasticity IS on by default because it's incorporated into the transition probabilities that the growth function uses - this behaviour can be disabled by setting 'demo_stochasticity = "none"' in the simulation. Let's try adding some globally acting environmental stochasticity to the growth function:
 
 ```{r, message = FALSE, progress = FALSE, fig.align = "center", out.width = "100%"}
 egk_pop_dynamics <- population_dynamics(change = growth(transition_matrix = egk_mat,
-                                                        global_stochasticity = egk_mat_stoch,
-                                                        demographic_stochasticity = TRUE),
+                                                        global_stochasticity = egk_mat_stoch),
                                         dispersal = NULL,
                                         modification = NULL,
                                         density_dependence = NULL)
@@ -181,6 +180,7 @@ egk_pop_dynamics <- population_dynamics(change = growth(transition_matrix = egk_
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,
                           habitat_dynamics = NULL,
+                          demo_stochasticity = "none",
                           timesteps = 20,
                           replicates = 3,
                           verbose = FALSE)
@@ -483,7 +483,7 @@ egk_results <- simulation(landscape = egk_landscape,
 plot(egk_results)
 ```
 
-The 'number of cells' representation of distance should be carefully considered when specifying custom distance kernel functions. For example, below we have specified a power law distance function where "r" represents the number of cells - in this case a cell is 500 meters. How we specify the function will depend on the ecology of the species and known dispersal distances. The function should return zero when the maximum dispersal distances (in number of cells) is specified for "r": 
+The 'number of cells' representation of distance should be carefully considered when specifying custom distance kernel functions. For example, below we have specified an exponential distance decay function where "r" represents the number of cells - in this case a cell is 500 meters. How we specify the function will depend on the ecology of the species and known dispersal distances. The function should return zero when the maximum dispersal distances (in number of cells) is specified for "r": 
 
 ```{r, message = FALSE, progress = FALSE, fig.align = "center", out.width = "100%"}
 egk_landscape <- landscape(population = egk_pop,

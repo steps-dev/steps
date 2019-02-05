@@ -9,7 +9,9 @@
 \title{Run a simulation}
 \usage{
 simulation(landscape, population_dynamics, habitat_dynamics = list(),
-  timesteps = 3, replicates = 1, verbose = TRUE)
+  demo_stochasticity = c("full", "deterministic_redistribution",
+  "stochastic_redistribution", "none"), timesteps = 3, replicates = 1,
+  verbose = TRUE)
 
 is.simulation_results(x)
 
@@ -32,6 +34,14 @@ population changes over time}
 \item{habitat_dynamics}{optional list of functions to modify the landscape at
 each timestep}
 
+\item{demo_stochasticity}{how should population rounding occur if at all -
+"full" uses a multinomial draw to return rounded cell populations (default);
+"deterministic_redistribution" redistributes the decimal overages to the
+cells with the largest overages; "stochastic_redistribution" redistributes
+the decimal overages to the cells based on binomial draws using the
+overages as probabilities; "none" returns non-integer cell populations (no
+rounding)}
+
 \item{timesteps}{number of timesteps used in one simulation or to display
 when plotting rasters}
 
@@ -48,8 +58,8 @@ when plotting rasters}
 
 \item{type}{the plot type - 'graph' (default) or 'raster'}
 
-\item{stages}{life-stages to plot - must be specified for 'raster' plot types;
-default is NULL and all life-stages will be plotted}
+\item{stages}{life-stages to plot - must be specified for 'raster' plot
+types; default is NULL and all life-stages will be plotted}
 
 \item{animate}{if plotting type 'raster' would you like to animate the
 rasters as a gif?}
@@ -57,20 +67,25 @@ rasters as a gif?}
 \item{panels}{the number of columns and rows to use when plotting raster
 timeseries - default is 3 x 3 (e.g. c(3,3) )}
 
-\item{emp}{should the expected minimum population of the simulation be plotted?}
+\item{emp}{should the expected minimum population of the simulation be
+plotted?}
 
-\item{replicate}{which replicate to extract a spatial object from a simulation result}
+\item{replicate}{which replicate to extract a spatial object from a
+simulation result}
 
-\item{timestep}{which timestep to extract a spatial object from a simulation result}
+\item{timestep}{which timestep to extract a spatial object from a simulation
+result}
 
-\item{landscape_object}{which landscape object to extract a spatial object from a
-simulation result - can be specified by name (e.g. "suitability") or index number}
+\item{landscape_object}{which landscape object to extract a spatial object
+from a simulation result - can be specified by name (e.g. "suitability") or
+index number}
 
-\item{stage}{which life-stage to extract a spatial object from a simulation result
-- only used for 'population' components of the landscape object}
+\item{stage}{which life-stage to extract a spatial object from a simulation
+result - only used for 'population' components of the landscape object}
 
-\item{misc}{which misc object to extract a spatial object from a simulation result
-- only used for additional spatial objects added to a landscape (e.g. disturbance layers)}
+\item{misc}{which misc object to extract a spatial object from a simulation
+result - only used for additional spatial objects added to a landscape
+(e.g. disturbance layers)}
 }
 \value{
 An object of class \code{simulation_results}
@@ -87,7 +102,7 @@ library(future)
 plan(multiprocess)
 
 landscape <- landscape(population = egk_pop,
-               suitability = egk_hab, 
+               suitability = egk_hab,
                carrying_capacity = egk_k)
 
 pop_dynamics <- population_dynamics(change = growth(transition_matrix = egk_mat))

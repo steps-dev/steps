@@ -5,16 +5,12 @@
 \alias{growth}
 \title{How the population changes in a landscape.}
 \usage{
-growth(transition_matrix, demographic_stochasticity = TRUE,
-  global_stochasticity = 0, local_stochasticity = 0,
-  transition_function = NULL)
+growth(transition_matrix, global_stochasticity = 0,
+  local_stochasticity = 0, transition_function = NULL)
 }
 \arguments{
 \item{transition_matrix}{A symmetrical age-based (Leslie) or stage-based
 population structure matrix.}
-
-\item{demographic_stochasticity}{should demographic stochasticity be used in
-population change?}
 
 \item{global_stochasticity, local_stochasticity}{either scalar values or
 matrices (with the same dimension as \code{transition_matrix}) giving

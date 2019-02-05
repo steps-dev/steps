@@ -106,8 +106,7 @@ plot(egk_results)
 
 ## ---- message = FALSE, progress = FALSE, fig.align = "center", out.width = "100%"----
 egk_pop_dynamics <- population_dynamics(change = growth(transition_matrix = egk_mat,
-                                                        global_stochasticity = egk_mat_stoch,
-                                                        demographic_stochasticity = TRUE),
+                                                        global_stochasticity = egk_mat_stoch),
                                         dispersal = NULL,
                                         modification = NULL,
                                         density_dependence = NULL)
@@ -115,6 +114,7 @@ egk_pop_dynamics <- population_dynamics(change = growth(transition_matrix = egk_
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,
                           habitat_dynamics = NULL,
+                          demo_stochasticity = "none",
                           timesteps = 20,
                           replicates = 3,
                           verbose = FALSE)
@@ -211,7 +211,7 @@ plot(egk_results)
 plot(egk_results[1], type = "raster", stage = 2, timesteps = c(1, 10, 20), panels = c(3, 1))
 
 ## ---- message = FALSE, fig.align = "center"------------------------------
-plot(egk_results[1], object = "carrying_capacity", timesteps = c(1, 10, 20), panels = c(3, 1))
+plot(egk_results[1], object = "carrying_capacity", type = "raster", timesteps = c(1, 10, 20), panels = c(3, 1))
 
 ## ---- message = FALSE, fig.align = "center", out.width = "100%"----------
 egk_results[[2]][[5]][[1]][[1]]
@@ -262,7 +262,9 @@ egk_landscape <- landscape(population = egk_pop,
 egk_pop_dynamics <- population_dynamics(
   change = growth(transition_matrix = egk_mat,
                   global_stochasticity = egk_mat_stoch),
-  dispersal = kernel_dispersal(arrival_probability = "suitability"),
+  dispersal = kernel_dispersal(arrival_probability = "suitability",
+                               dispersal_distance = 5000,
+                               dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000)),
   density_dependence = population_cap(stages = 3))
 
 egk_results <- simulation(landscape = egk_landscape,
@@ -286,6 +288,8 @@ egk_pop_dynamics <- population_dynamics(
   change = growth(transition_matrix = egk_mat,
                   global_stochasticity = egk_mat_stoch),
   dispersal = kernel_dispersal(arrival_probability = "suitability",
+                               dispersal_distance = 5000,
+                               dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000),
                                dispersal_proportion = c(0, 0.5, 1)),
   modification = NULL,
   density_dependence = population_cap(stages = 3))
@@ -330,7 +334,8 @@ egk_pop_dynamics <- population_dynamics(
   change = growth(transition_matrix = egk_mat,
                   global_stochasticity = egk_mat_stoch),
   dispersal = kernel_dispersal(arrival_probability = "suitability",
-                               dispersal_kernel = function (r) 0.8*(1 + (r/0.9))^-2.1,
+                               dispersal_distance = 5000,
+                               dispersal_kernel = function (r) exp(-r / 5000),
                                dispersal_proportion = c(0, 0.5, 1)),
   modification = NULL,
   density_dependence = population_cap(stages = 3))
@@ -354,6 +359,8 @@ egk_pop_dynamics <- population_dynamics(
   change = growth(transition_matrix = egk_mat,
                   global_stochasticity = egk_mat_stoch),
   dispersal = kernel_dispersal(arrival_probability = "suitability",
+                               dispersal_distance = 5000,
+                               dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000),
                                dispersal_proportion = 0.5),
   modification = NULL,
   density_dependence = population_cap(stages = 3))
@@ -389,6 +396,8 @@ egk_pop_dynamics <- population_dynamics(
   change = growth(transition_matrix = egk_mat,
                   global_stochasticity = egk_mat_stoch),
   dispersal = kernel_dispersal(arrival_probability = "suitability",
+                               dispersal_distance = 5000,
+                               dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000),
                                dispersal_proportion = 0.5),
   modification = NULL,
   density_dependence = population_cap(stages = 3))
@@ -420,6 +429,8 @@ egk_pop_dynamics <- population_dynamics(
   change = growth(transition_matrix = egk_mat,
                   global_stochasticity = egk_mat_stoch),
   dispersal = kernel_dispersal(arrival_probability = "suitability",
+                               dispersal_distance = 5000,
+                               dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000),
                                dispersal_proportion = 0.5),
   modification = NULL,
   density_dependence = population_cap(stages = 3))

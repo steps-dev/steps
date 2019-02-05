@@ -7,8 +7,6 @@ NULL
 #'
 #' @name population_dispersal_functions
 #'
-#' @param demographic_stochasticity should demographic stochasticity be used in
-#'   dispersal?
 #' @param dispersal_kernel a single or list of user-defined distance dispersal
 #'   kernel functions
 #' @param dispersal_proportion proportions of individuals (0 to 1) that can
@@ -41,8 +39,7 @@ NULL
 
 fast_dispersal <- function(
   dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
-  dispersal_proportion = 1,
-  demographic_stochasticity = FALSE
+  dispersal_proportion = 1
 ) {
   
   pop_dynamics <- function(landscape, timestep) {
@@ -115,8 +112,7 @@ kernel_dispersal <- function(
   dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1),
   dispersal_distance = Inf,
   arrival_probability = c("both", "suitability", "carrying_capacity"),
-  dispersal_proportion = 1,
-  demographic_stochasticity = TRUE
+  dispersal_proportion = 1
 ) {
   
   arrival_probability <- match.arg(arrival_probability)
@@ -276,25 +272,10 @@ kernel_dispersal <- function(
         final_pop <- rep(0, length(can_arriv_ids))
         final_pop[arrival_index] <- contribution
         
-        # round contributions if demographic_stochasticity = TRUE
-        if (identical(demographic_stochasticity, FALSE)) return(final_pop)
-
-        # this is ~20% of run time, find a more efficient way
+        # run through rounding algorithm
+        if (any(final_pop > 0)) round_pop(final_pop)
+        final_pop
         
-        # all integers get assigned
-        final_pop_int <- floor(final_pop)
-        
-        # remaining fractional individuals get summed
-        remainder <- round(sum(final_pop)) - sum(final_pop_int)
-        
-        # and redistributed, preferentially in order of remaining fractions
-        assignment_order <- order(final_pop - final_pop_int, decreasing = TRUE)
-        idx <- utils::head(assignment_order, remainder)
-        
-        # increment the populations for these
-        final_pop_int[idx] <- final_pop_int[idx] + 1
-        final_pop_int
-        ####################################
       }
       
       landscape$population[[stage]][can_arriv_ids] <- rowSums(
@@ -572,7 +553,8 @@ dispersalFFT <- function (popmat, fs) {
 
   # make sure none are lost or gained (unless all are zeros)
   if (any(pop_new[!is.na(popmat_orig)] > 0)) {
-    pop_new[!is.na(popmat_orig)] <- stats::rmultinom(1, size = sum(popmat), prob = pop_new[!is.na(popmat_orig)])    
+    pop_new[!is.na(popmat_orig)] <- round_pop(pop_new[!is.na(popmat_orig)])
+    #pop_new[!is.na(popmat_orig)] <- stats::rmultinom(1, size = sum(popmat), prob = pop_new[!is.na(popmat_orig)])    
   }
   
   pop_new
