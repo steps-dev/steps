@@ -116,39 +116,27 @@ kernel_dispersal <- function(
 ) {
   
   arrival_probability <- match.arg(arrival_probability)
-  
+
   pop_dynamics <- function(landscape, timestep) {
     
-    # extract locations as x and y coordinates from landscape (ncells x 2)
-    # xy <- raster::xyFromCell(
-    #   landscape$population,
-    #   seq(raster::ncell(landscape$population))
-    # )
-    
-    # rescale locations
-    # xy <- sweep(xy, 2, raster::res(landscape$population), "/")
-
-    distance_info <- steps_stash$distance_info
-    
-    # if (is.null(dist_list)) {
-    #   dist_mat <- as.matrix(dist(xy))
-    #   dist_mat[dist_mat > dispersal_distance] <- NA
-    #   dist_list <- apply(dist_mat, 1, function(x) which(!is.na(x)))
-    # }
-    
-    if (is.null(distance_info)) {
+    distance_list <- steps_stash$distance_list
+    if (is.null(distance_list)) {
+      # what are dimensions of raster (lazyeval was causing this to be rerun on
+      # every contribute() call! so force execution of this here)
+      raster_dim <- dim(landscape$population[[1]])[-3]
+      raster_dim <- force(raster_dim)
+      
       distance_info <- get_distance_info(res = raster::res(landscape$population),
-                                                      max_distance = dispersal_distance)
+                                         max_distance = dispersal_distance)
+      distance_list <- steps_stash$distance_list <- lapply(seq_len(ncell(landscape$population)),
+                                                           function (x) get_ids_dists(cell_id = x,
+                                                                                      distance_info = distance_info,
+                                                                                      raster_dim = raster_dim))
     }
-
-    # what are dimensions of raster (lazyeval was causing this to be rerun on
-    # every contribute() call! so force execution of this here)
-    raster_dim <- dim(landscape$population[[1]])[-3]
-    raster_dim <- force(raster_dim)
     
     # how many life stages?
     n_stages <- raster::nlayers(landscape$population)
-
+    
     # check the required landscape rasters/functions are available
     layers <- arrival_probability
     if (layers == "both")
@@ -163,17 +151,9 @@ kernel_dispersal <- function(
       stop ("kernel_dispersal requires landscape to have ", missing_text,
             call. = FALSE)
     }
-
-    # get non-NA cells
-    cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])))
-    
-    if (exists("carrying_capacity_function", envir = steps_stash)) {
-      if (raster::nlayers(landscape$suitability) > 1) landscape$carrying_capacity[cell_idx] <- steps_stash$carrying_capacity_function(landscape$suitability[[timestep]][cell_idx])
-      else landscape$carrying_capacity[cell_idx] <- steps_stash$carrying_capacity_function(landscape$suitability[cell_idx])
-    }
     
     if (length(dispersal_proportion) < n_stages) {
-      if (timestep == 1) cat ("    ", n_stages, "life stages exist but", length(dispersal_proportion),"dispersal proportion(s) of", dispersal_proportion,"were specified. Is this what was intended?")
+      cat ("    ", n_stages, "life stages exist but", length(dispersal_proportion),"dispersal proportion(s) of", dispersal_proportion,"were specified. Is this what was intended?")
       dispersal_proportion <- rep(dispersal_proportion, n_stages)[1:n_stages]
     }
     
@@ -182,6 +162,14 @@ kernel_dispersal <- function(
     
     # Which stages contribute to density dependence.
     which_stages_density <- which(dispersal_proportion > 0)
+
+    # get non-NA cells
+    cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])))
+    
+    if (exists("carrying_capacity_function", envir = steps_stash)) {
+      if (raster::nlayers(landscape$suitability) > 1) landscape$carrying_capacity[cell_idx] <- steps_stash$carrying_capacity_function(landscape$suitability[[timestep]][cell_idx])
+      else landscape$carrying_capacity[cell_idx] <- steps_stash$carrying_capacity_function(landscape$suitability[cell_idx])
+    }
     
     delayedAssign(
       "habitat_suitability_values",
@@ -234,12 +222,13 @@ kernel_dispersal <- function(
       has_pop_ids <- which(pop_dispersing > 0 & !is.na(pop_dispersing))
 
       contribute <- function(i) {
-
         # this is more than a third of the total simulation time. Better to compute
         # and cache these as a list above and pass in as distance_list
-        destinations <- get_ids_dists(cell_id = i,
-                               distance_info = distance_info,
-                               raster_dim = raster_dim)
+        # destinations <- get_ids_dists(cell_id = i,
+        #                        distance_info = distance_info,
+        #                        raster_dim = raster_dim)
+
+        destinations <- distance_list[[i]]
         
         destination_ids <- as.integer(destinations[, 1])
         destination_dists <- as.vector(destinations[, 2])
@@ -273,8 +262,7 @@ kernel_dispersal <- function(
         final_pop[arrival_index] <- contribution
         
         # run through rounding algorithm
-        if (any(final_pop > 0)) round_pop(final_pop)
-        final_pop
+        round_pop(final_pop)
         
       }
       

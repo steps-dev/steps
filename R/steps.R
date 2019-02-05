@@ -17,3 +17,8 @@
 #' modify the habitat during a simulation.
 
 steps_stash <- new.env()
+flush_stash <- function() {
+  for (name in names(steps_stash)) {
+    steps_stash[[name]] <- NULL
+  }
+}

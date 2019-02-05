@@ -16,14 +16,12 @@ as_class <- function (object, name, type = c("function", "list")) {
   object
 }
 
-set.seed(123)
-population <- runif(10) + runif(10)
-
 round_pop <- function (population) {
 
   population_min <- floor(population)
 
   if (steps_stash$demo_stochasticity == "full") {
+    if (sum(population) == 0) return(population)
     return(stats::rmultinom(1, sum(population), population)[, 1])
   }
   

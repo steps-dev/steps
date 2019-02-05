@@ -79,6 +79,9 @@ simulation <- function(landscape,
                        replicates = 1,
                        verbose = TRUE){
   
+  # clear out the stash every time we begin a simulation
+  flush_stash()
+  
   steps_stash$demo_stochasticity <- match.arg(demo_stochasticity)
   
   in_parallel <- !inherits(future::plan(), "sequential")
@@ -563,6 +566,7 @@ as.simulation_results <- function (simulation_results) {
 }
 
 simulate <- function (i, landscape, population_dynamics, habitat_dynamics, timesteps, verbose) {
+  
   timesteps <- seq_len(timesteps)
   if (verbose == TRUE && inherits(future::plan(), "sequential")) pb <- utils::txtProgressBar(min = 0, max = max(timesteps), style = 3)
   
