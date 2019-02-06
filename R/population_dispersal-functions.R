@@ -230,8 +230,8 @@ kernel_dispersal <- function(
 
         destinations <- distance_list[[i]]
         
-        destination_ids <- as.integer(destinations[, 1])
-        destination_dists <- as.vector(destinations[, 2])
+        destination_ids <- destinations[, 1]
+        destination_dists <- destinations[, 2]
         
         # index to cells in raster
         valid_arriv <- destination_ids[match(can_arriv_ids, destination_ids, 0L)]
@@ -254,7 +254,7 @@ kernel_dispersal <- function(
         
         # estimate population dispersing based on contribution
         contribution <- contribution * pop_dispersing[i]
-        
+
         # final_pop has same length as can_arriv_ids (the cells we are going to
         # return values for) arrival_index gives the elements of that vector
         # that are represented in destination_ids, contribute, etc.
@@ -265,10 +265,10 @@ kernel_dispersal <- function(
         round_pop(final_pop)
         
       }
-      
-      landscape$population[[stage]][can_arriv_ids] <- rowSums(
-        vapply(has_pop_ids, contribute, as.numeric(can_arriv_ids))
-      ) + pop_staying[can_arriv_ids]
+
+       pops <- vapply(has_pop_ids, contribute, as.numeric(can_arriv_ids))
+       total_pops <- rowSums(pops) + pop_staying[can_arriv_ids]
+       landscape$population[[stage]][can_arriv_ids] <- total_pops
 
     }
     
@@ -603,9 +603,12 @@ coord2id <- function (coord, dim) {
   start_of_row <- (coord[, 2] - 1) * dim[2]
   id <- start_of_row + coord[, 1]
   
-  max_id <- prod(dim)
-  invalid_id <- id > max_id | id < 1
-  id[invalid_id] <- NA
+  # find coordinates outside the raster
+  bad_row <- coord[, 2] < 1 | coord[, 2] > dim[1]
+  bad_col <- coord[, 1] < 1 | coord[, 1] > dim[2]
+  invalid <- bad_row | bad_col
+
+  id[invalid] <- NA
   id
   
 }
@@ -623,7 +626,7 @@ get_ids_dists <- function(cell_id, distance_info, raster_dim) {
   dists <- distance_info[, 3]
   
   # compute absolute coordinates
-  abs_coords <- sweep(rel_coords, 2, origin_coord, "+") 
+  abs_coords <- sweep(rel_coords, 2, origin_coord, "+")
   
   cell_ids <- coord2id(abs_coords, raster_dim)
   valid <- !is.na(cell_ids)
@@ -631,6 +634,6 @@ get_ids_dists <- function(cell_id, distance_info, raster_dim) {
   # return a 2-column matrix of cells id and distances for all cells within the
   # maximum distances, and within the raster
   cbind(cell_ids[valid], dists[valid])
-  
+
 }
 
