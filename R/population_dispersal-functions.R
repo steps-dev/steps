@@ -118,7 +118,7 @@ kernel_dispersal <- function(
   arrival_probability <- match.arg(arrival_probability)
 
   pop_dynamics <- function(landscape, timestep) {
-    
+
     distance_list <- steps_stash$distance_list
     if (is.null(distance_list)) {
       # what are dimensions of raster (lazyeval was causing this to be rerun on
@@ -128,10 +128,19 @@ kernel_dispersal <- function(
       
       distance_info <- get_distance_info(res = raster::res(landscape$population),
                                          max_distance = dispersal_distance)
-      distance_list <- steps_stash$distance_list <- lapply(seq_len(ncell(landscape$population)),
-                                                           function (x) get_ids_dists(cell_id = x,
-                                                                                      distance_info = distance_info,
-                                                                                      raster_dim = raster_dim))
+      
+      sys_mem_available <- raster:::.availableRAM(1)
+      
+      n_elem <- nrow(distance_info) * ncell(landscape$population)
+      sys_mem_required <- (n_elem * (64 + 32)) / 8
+      
+      if (sys_mem_required < sys_mem_available) {
+        distance_list <- steps_stash$distance_list <- lapply(seq_len(ncell(landscape$population)),
+                                                             function (x) get_ids_dists(cell_id = x,
+                                                                                        distance_info = distance_info,
+                                                                                        raster_dim = raster_dim))
+      }
+
     }
     
     # how many life stages?
@@ -222,14 +231,14 @@ kernel_dispersal <- function(
       has_pop_ids <- which(pop_dispersing > 0 & !is.na(pop_dispersing))
 
       contribute <- function(i) {
-        # this is more than a third of the total simulation time. Better to compute
-        # and cache these as a list above and pass in as distance_list
-        # destinations <- get_ids_dists(cell_id = i,
-        #                        distance_info = distance_info,
-        #                        raster_dim = raster_dim)
+        if (is.null(distance_list)) {
+          destinations <- get_ids_dists(cell_id = i,
+                                        distance_info = distance_info,
+                                        raster_dim = raster_dim)
+        } else {
+          destinations <- distance_list[[i]]
+        }
 
-        destinations <- distance_list[[i]]
-        
         destination_ids <- destinations[, 1]
         destination_dists <- destinations[, 2]
         
@@ -266,9 +275,16 @@ kernel_dispersal <- function(
         
       }
 
-       pops <- vapply(has_pop_ids, contribute, as.numeric(can_arriv_ids))
-       total_pops <- rowSums(pops) + pop_staying[can_arriv_ids]
-       landscape$population[[stage]][can_arriv_ids] <- total_pops
+      total_pops <- rep(0, length(can_arriv_ids))
+      for(i in seq_along(has_pop_ids)) {
+        new_pops <- contribute(has_pop_ids[i])
+        total_pops <- total_pops + new_pops
+      }
+      
+      # pops <- do.call(cbind, pops_list)
+      # pops <- vapply(has_pop_ids, contribute, as.numeric(can_arriv_ids))
+      # total_pops <- rowSums(pops) + pop_staying[can_arriv_ids]
+      landscape$population[[stage]][can_arriv_ids] <- total_pops
 
     }
     
@@ -312,8 +328,7 @@ cellular_automata_dispersal <- function (dispersal_distance = 1,
     idx <- which(!is.na(raster::getValues(population_raster[[1]])))
     
     if (exists("carrying_capacity_function", envir = steps_stash)) {
-      if (raster::nlayers(landscape$suitability) > 1) landscape$carrying_capacity[idx] <- steps_stash$carrying_capacity_function(landscape$suitability[[timestep]][idx])
-      else landscape$carrying_capacity[idx] <- steps_stash$carrying_capacity_function(landscape$suitability[idx])
+      landscape$carrying_capacity[idx] <- steps_stash$carrying_capacity_function(landscape$suitability[[timestep]][idx])
     }
     
     if (raster::nlayers(landscape$suitability) > 1 & arrival_probability == "suitability") arrival_prob <- landscape[[arrival_probability]][[timestep]]

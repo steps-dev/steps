@@ -48,7 +48,6 @@ landscape <- function (population, suitability = NULL, carrying_capacity = NULL,
     check_raster_matches_population(carrying_capacity, population)
   }
   
-  #### Add bit here to handle suitability raster stack
   if(!is.null(carrying_capacity) & identical(class(carrying_capacity)[1], "function")){
     assign("carrying_capacity_function", carrying_capacity, steps_stash)
     if(is.null(suitability)) stop("A carrying capacity function requires a suitability layer in the landscape object.")

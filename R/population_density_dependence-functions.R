@@ -24,8 +24,7 @@ population_cap <- function (stages = NULL) {
     idx <- which(!is.na(raster::getValues(population_raster[[1]])))
     
     if (exists("carrying_capacity_function", envir = steps_stash)) {
-      if (raster::nlayers(landscape$suitability) > 1) landscape$carrying_capacity[idx] <- steps_stash$carrying_capacity_function(landscape$suitability[[timestep]][idx])
-      else landscape$carrying_capacity[idx] <- steps_stash$carrying_capacity_function(landscape$suitability[idx])
+      landscape$carrying_capacity[idx] <- steps_stash$carrying_capacity_function(landscape$suitability[[timestep]][idx])
     }
 
     # get population as a matrix

@@ -43,3 +43,4 @@ round_pop <- function (population) {
   if (steps_stash$demo_stochasticity == "none") return(population)
   
 }
+
