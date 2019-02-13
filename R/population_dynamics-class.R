@@ -38,6 +38,19 @@ population_dynamics <- function (change,
                                  modification = NULL,
                                  density_dependence = NULL) {
   
+  if (!is.null(density_dependence)) {
+    
+    # transfer information about the density dependence- contributing stages to the functions that need it
+    dd_stages <- attr(density_dependence, "density_dependence_stages")
+    
+    if (!is.null(dispersal)) {
+      # create an object called "density_dependence_stages" in the environment
+      # in which dispersal() runs
+      environment(dispersal)$density_dependence_stages <- dd_stages
+    }
+    
+  }
+  
   pop_dynamics <- function (landscape, timestep) {
     
     landscape <- change(landscape, timestep)

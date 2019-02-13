@@ -44,3 +44,42 @@ round_pop <- function (population) {
   
 }
 
+get_carrying_capacity <- function(landscape, timestep) {
+  
+  cc <- landscape$carrying_capacity
+  if (is.null(cc)) {
+    
+    # if there's no carrying capacity specified, return a NULL
+    res <- NULL
+    
+  } else if (inherits(cc, "RasterLayer")) {
+    
+    
+    # if there's a carrying capacity raster, use that
+    
+    # # in a future set up where lots of carrying capacity rasters could be passed in
+    # if (raster::nlayers(cc) > 1) {
+    #   res <- cc[[timestep]])
+    # } else {
+    #   res <- cc
+    # }
+    
+    res <- cc
+    
+  } else if (is.function(cc)) {
+    
+    # if it's a function, run it on landscape
+    res <- cc(landscape, timestep)
+    
+  } else {
+    
+    # otherwise, we don't support it
+    stop ("invalid carrying capacity argument",
+          call. = FALSE)
+    
+  }
+  
+  res
+  
+}
+

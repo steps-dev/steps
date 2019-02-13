@@ -81,8 +81,17 @@ simulation <- function(landscape,
   
   # clear out the stash every time we begin a simulation
   flush_stash()
-  
+
   steps_stash$demo_stochasticity <- match.arg(demo_stochasticity)
+  
+  # if(!is.null(landscape$carrying_capacity) && identical(class(landscape$carrying_capacity)[1], "function")){
+  #   steps_stash$carrying_capacity_function <- landscape$carrying_capacity
+  #   if(is.null(landscape$suitability)) stop("A carrying capacity function requires a suitability layer in the landscape object.")
+  #   cell_idx <- which(!is.na(raster::getValues(landscape$suitability)))
+  #   landscape$carrying_capacity <- landscape$suitability
+  #   names(landscape$carrying_capacity) <- "k"
+  #   landscape$carrying_capacity[cell_idx] <- steps_stash$carrying_capacity_function(landscape$suitability[cell_idx])
+  # }
   
   in_parallel <- !inherits(future::plan(), "sequential")
   lapply_fun <- ifelse(in_parallel,
@@ -362,8 +371,8 @@ plot.simulation_results <- function (x,
       
       if (type == "graph") {
         
-        idx <- which(!is.na(raster::getValues(x[[1]][[1]]$carrying_capacity)))
-        k <- lapply(x[[1]], function(x) sum(raster::extract(x$carrying_capacity, idx)))
+        idx <- which(!is.na(raster::getValues(get_carrying_capacity(x[[1]][[1]]))))
+        k <- lapply(x[[1]], function(x) sum(raster::extract(get_carrying_capacity(x), idx)))
         
         graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
         
@@ -378,8 +387,8 @@ plot.simulation_results <- function (x,
       
       if (type == "raster") {
         
-        rasters <- raster::stack(lapply(x[[1]], function (landscape) landscape$carrying_capacity))
-        
+        rasters <- raster::stack(lapply(x[[1]], get_carrying_capacity))
+                                 
         # Find maximum and minimum population value in raster cells for all timesteps for life-stage
         scale_max <- ceiling(max(stats::na.omit(raster::cellStats(rasters, max))))
         scale_min <- floor(min(stats::na.omit(raster::cellStats(rasters, min))))
@@ -421,9 +430,8 @@ plot.simulation_results <- function (x,
     pop <- get_pop_simulation(x)
     pop.mn <- round(apply(pop, c(1,2), mean), 0)
     
-    if (type == "raster" | object == "suitability" | object == "carrying_capacity") {
-      stop("Raster plotting or graphic carrying_capacity is only 
-           available for single replicates of simulations")
+    if (type == "raster") {
+      stop("Raster plotting is only available for single replicates of simulations")
     }
     
     if (is.null(stages)) {

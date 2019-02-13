@@ -2,10 +2,10 @@
 % Please edit documentation in R/population_density_dependence-functions.R
 \name{population_density_dependence_functions}
 \alias{population_density_dependence_functions}
-\alias{population_cap}
+\alias{ceiling_density}
 \title{How the population responds to density dependence in a landscape.}
 \usage{
-population_cap(stages = NULL)
+ceiling_density(stages = NULL)
 }
 \arguments{
 \item{stages}{which life-stages contribute to density dependence - default is all}
@@ -15,5 +15,5 @@ Pre-defined functions to define population density dependence (e.g. cap) during 
 }
 \examples{
 
-test_pop_dd <- population_cap()
+test_pop_dd <- ceiling_density()
 }

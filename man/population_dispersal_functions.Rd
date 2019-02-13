@@ -16,7 +16,7 @@
   = 1), dispersal_distance = Inf, arrival_probability = c("both",
   "suitability", "carrying_capacity"), dispersal_proportion = 1)
 
-cellular_automata_dispersal(dispersal_distance = 1,
+cellular_automata_dispersal(dispersal_distance = Inf,
   dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1),
   dispersal_proportion = 1, barrier_type = 0, dispersal_steps = 1,
   use_barriers = FALSE, barriers_map = NULL,
@@ -30,8 +30,9 @@ kernel functions}
 \item{dispersal_proportion}{proportions of individuals (0 to 1) that can
 disperse in each life stage}
 
-\item{dispersal_distance}{the maximum distance (in cells) that each life stage
-can disperse (in kernel-based dispersal this truncates the dispersal curve)}
+\item{dispersal_distance}{the maximum distance that each life stage can
+disperse in spatial units (in kernel-based dispersal this truncates the
+dispersal curve) - must be specified}
 
 \item{arrival_probability}{a raster layer that controls where individuals can
 disperse to (e.g. habitat suitability)}

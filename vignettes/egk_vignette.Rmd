@@ -80,7 +80,7 @@ For this example, we have used equal numbers of kangaroos in each cell for each 
 library(foreach)
 stable_states <- abs( eigen(egk_mat)$vectors[,1] / sum(eigen(egk_mat)$vectors[,1]))
 popN <- stack(replicate(ncol(egk_mat), egk_k)) * stable_states
-idx <- which(!is.na(raster::getValues(popN[[1]])))
+idx <- which(!is.na(getValues(popN[[1]])))
 pop <- stack(
   foreach(i = 1:nlayers(popN)) %do% {
     max_pop <- ceiling(cellStats(popN[[i]], max, na.rm = T))
@@ -260,7 +260,7 @@ egk_pop_dynamics <- population_dynamics(
 
 ```
 
-Now let's add some other population dynamics. We can specify ceiling density dependence with the population_cap function (i.e., the population will grow according to the transition matrix until it reaches a ceiling carrying capacity, at which point it will stop) but must provide a carrying capacity layer in the landscape for this to work. By default all life-stages contribute to density dependence, however, here we specify that it is based on the number of adults only (stage = 3 in the population_cap function). Type '?population_cap' for more information.
+Now let's add some other population dynamics. We can specify ceiling density dependence with the ceiling_density function (i.e., the population will grow according to the transition matrix until it reaches a ceiling carrying capacity, at which point it will stop) but must provide a carrying capacity layer in the landscape for this to work. By default all life-stages contribute to density dependence, however, here we specify that it is based on the number of adults only (stage = 3 in the ceiling_density function). Type '?ceiling_density' for more information.
 
 ```{r, message = FALSE, progress = FALSE, fig.align = "center", out.width = "100%"}
 egk_landscape <- landscape(population = egk_pop,
@@ -271,7 +271,7 @@ egk_pop_dynamics <- population_dynamics(change = growth(transition_matrix = egk_
                                                         global_stochasticity = egk_mat_stoch),
                                         dispersal = NULL,
                                         modification = NULL,
-                                        density_dependence = population_cap(stages = 3))
+                                        density_dependence = ceiling_density(stages = 3))
 
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,
@@ -411,7 +411,7 @@ egk_pop_dynamics <- population_dynamics(
   dispersal = kernel_dispersal(arrival_probability = "suitability",
                                dispersal_distance = 5000,
                                dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000)),
-  density_dependence = population_cap(stages = 3))
+  density_dependence = ceiling_density(stages = 3))
 
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,
@@ -444,7 +444,7 @@ egk_pop_dynamics <- population_dynamics(
                                dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000),
                                dispersal_proportion = c(0, 0.5, 1)),
   modification = NULL,
-  density_dependence = population_cap(stages = 3))
+  density_dependence = ceiling_density(stages = 3))
 
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,
@@ -456,9 +456,9 @@ egk_results <- simulation(landscape = egk_landscape,
 plot(egk_results)
 ```
 
-Maximum dispersal distances can also be specified for one of the alternative dispersal functions, cellular automata. Distances are expressed as number of cells which correspond to Euclidean distances based on the resolution of the raster layers. For example, the kangaroo rasters are 500 meter resolution so a distance of 3 (cells) would correspond to 1500 meters. Maximum distances (in number of cells) are explicitly defined for the cellular automata dispersal function. In the cellular automata dispersal function, individuals move horizontally or vertically but not diagonally.
+Maximum dispersal distances can also be specified for one of the alternative dispersal functions, cellular automata. Distances are expressed as spatial units (in this case meters). Maximum distances are explicitly defined for the cellular automata dispersal function. In the cellular automata dispersal function, individuals move horizontally or vertically but not diagonally.
 
-As with the proportions, a single number will indicate maximum dispersal distances for all life-stages whilst a vector of distances (equal in length to the number of life-stages) can also be specified. In the example below, no juveniles (stage 1) disperse, subadults (stage 2) only disperse up to 5 cells (2500 meters), and adults (stage 3) disperse up to 10 cells (5000 meters):
+As with the proportions, a single number will indicate maximum dispersal distances for all life-stages whilst a vector of distances (equal in length to the number of life-stages) can also be specified. In the example below, no juveniles (stage 1) disperse, subadults (stage 2) only disperse up to 2500 meters (5 cells) , and adults (stage 3) disperse up to 5000 meters (10 cells):
 
 ```{r, message = FALSE, progress = FALSE, fig.align = "center", out.width = "100%"}
 egk_landscape <- landscape(population = egk_pop,
@@ -468,10 +468,10 @@ egk_landscape <- landscape(population = egk_pop,
 egk_pop_dynamics <- population_dynamics(
   change = growth(transition_matrix = egk_mat,
                   global_stochasticity = egk_mat_stoch),
-  dispersal = cellular_automata_dispersal(dispersal_distance = c(0, 5, 10),
+  dispersal = cellular_automata_dispersal(dispersal_distance = c(0, 2500, 5000),
                                           dispersal_proportion = c(0, 0.5, 1)),
   modification = NULL,
-  density_dependence = population_cap(stages = 3))
+  density_dependence = ceiling_density(stages = 3))
 
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,
@@ -483,7 +483,7 @@ egk_results <- simulation(landscape = egk_landscape,
 plot(egk_results)
 ```
 
-The 'number of cells' representation of distance should be carefully considered when specifying custom distance kernel functions. For example, below we have specified an exponential distance decay function where "r" represents the number of cells - in this case a cell is 500 meters. How we specify the function will depend on the ecology of the species and known dispersal distances. The function should return zero when the maximum dispersal distances (in number of cells) is specified for "r": 
+The 'number of cells' representation of distance should be carefully considered when specifying custom distance kernel functions. For example, below we have specified an exponential distance decay function where "r" represents spatial units - in this case 5000 meters (10 cells). How we specify the function will depend on the ecology of the species and known dispersal distances. The function should return a vlue close to zero when the maximum dispersal distances is specified for "r": 
 
 ```{r, message = FALSE, progress = FALSE, fig.align = "center", out.width = "100%"}
 egk_landscape <- landscape(population = egk_pop,
@@ -495,10 +495,10 @@ egk_pop_dynamics <- population_dynamics(
                   global_stochasticity = egk_mat_stoch),
   dispersal = kernel_dispersal(arrival_probability = "suitability",
                                dispersal_distance = 5000,
-                               dispersal_kernel = function (r) exp(-r / 5000),
+                               dispersal_kernel = function (r) exp(-r / 2000),
                                dispersal_proportion = c(0, 0.5, 1)),
   modification = NULL,
-  density_dependence = population_cap(stages = 3))
+  density_dependence = ceiling_density(stages = 3))
 
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,
@@ -526,7 +526,7 @@ egk_pop_dynamics <- population_dynamics(
                                dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000),
                                dispersal_proportion = 0.5),
   modification = NULL,
-  density_dependence = population_cap(stages = 3))
+  density_dependence = ceiling_density(stages = 3))
 
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,
@@ -555,9 +555,20 @@ plot(egk_results[1], object = "suitability", timesteps = c(1, 10, 20), panels = 
 In all of the examples above, carrying capacity has remained unchanged throughout a simulation. However, carrying capacity is often derived from dynamically changing habitat suitabilities. A function of this relationship can be specified in place of the carrying_capacity raster layer when constructing the landscape object. Internally, the carrying capacity raster will be constructed by applying the function to the habitat suitability raster at each timestep. Here we have created a function that produces decending integers from our hypothetical maximum carrying capacity population of 75 based on decreasing values of habitat suitability (one to zero):
 
 ```{r, message = FALSE, results='hide'}
-carrying_cap_fun <- function (x) 75 - round(75 * dlogis(x, scale = 0.25), 0)
-
-carrying_cap_fun(seq(1,0,-0.1))
+carrying_cap_fun <- function (landscape, timestep) {
+  
+  fun <- function(suitability) {
+     75 - round(75 * dlogis(suitability, scale = 0.25))
+  }
+  
+  suit <- landscape$suitability
+  if (raster::nlayers(suit) > 1) {
+    suit <- suit[[timestep]]
+  }
+  
+  calc(suit, fun)
+  
+}
 
 egk_landscape <- landscape(population = egk_pop,
                            suitability = egk_hab,
@@ -572,7 +583,7 @@ egk_pop_dynamics <- population_dynamics(
                                dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000),
                                dispersal_proportion = 0.5),
   modification = NULL,
-  density_dependence = population_cap(stages = 3))
+  density_dependence = ceiling_density(stages = 3))
 
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,
@@ -590,9 +601,20 @@ plot(egk_results[1], object = "carrying_capacity", timesteps = c(1, 10, 20), pan
 One may specify multiple disturbances affecting the habitat throughout a simulation. To do so, simply add habitat dynamic functions to the list in the simulation function - note, these will be executed in the order that they are listed. To demonstrate this functionality, we have added another disturbance - a road being constructed through the landscape over five years. There is an existing spatial dataset of a road in the steps package ("egk_road") which we store in the landscape object. Since we have already accomodated the movement of the road construction across the landscape, and the vegetation will not regenerate, we specify the effect time as one.
 
 ```{r, message = FALSE, results='hide'}
-carrying_cap_fun <- function (x) 75 - round(75 * dlogis(x, scale = 0.25), 0)
-
-carrying_cap_fun(seq(1,0,-0.1))
+carrying_cap_fun <- function (landscape, timestep) {
+  
+  fun <- function(suitability) {
+     75 - round(75 * dlogis(suitability, scale = 0.25))
+  }
+  
+  suit <- landscape$suitability
+  if (raster::nlayers(suit) > 1) {
+    suit <- suit[[timestep]]
+  }
+  
+  calc(suit, fun)
+  
+}
 
 egk_landscape <- landscape(population = egk_pop,
                            suitability = egk_hab,
@@ -608,7 +630,7 @@ egk_pop_dynamics <- population_dynamics(
                                dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000),
                                dispersal_proportion = 0.5),
   modification = NULL,
-  density_dependence = population_cap(stages = 3))
+  density_dependence = ceiling_density(stages = 3))
 
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,

@@ -13,8 +13,9 @@ NULL
 #'   disperse in each life stage
 #' @param arrival_probability a raster layer that controls where individuals can
 #'   disperse to (e.g. habitat suitability)
-#' @param dispersal_distance the maximum distance (in cells) that each life stage
-#'   can disperse (in kernel-based dispersal this truncates the dispersal curve)
+#' @param dispersal_distance the maximum distance that each life stage can
+#'   disperse in spatial units (in kernel-based dispersal this truncates the
+#'   dispersal curve) - must be specified
 #' @param barrier_type if barrier map is used, does it stop (0 - default) or
 #'   kill (1) individuals
 #' @param dispersal_steps number of dispersal steps to take before stopping
@@ -100,6 +101,7 @@ fast_dispersal <- function(
 #' 
 #' @export
 #' 
+#' @importFrom memuse Sys.meminfo mu.size
 #' @examples
 #' 
 #' # Use the probabilistic kernel-based dispersal function to modify the  
@@ -129,13 +131,15 @@ kernel_dispersal <- function(
       distance_info <- get_distance_info(res = raster::res(landscape$population),
                                          max_distance = dispersal_distance)
       
-      sys_mem_available <- raster:::.availableRAM(1)
+      sys_mem_available <- memuse::Sys.meminfo()$freeram
       
-      n_elem <- nrow(distance_info) * ncell(landscape$population)
+      sys_mem_available <- memuse::mu.size(sys_mem_available, as.is = FALSE)
+      
+      n_elem <- nrow(distance_info) * raster::ncell(landscape$population)
       sys_mem_required <- (n_elem * (64 + 32)) / 8
       
       if (sys_mem_required < sys_mem_available) {
-        distance_list <- steps_stash$distance_list <- lapply(seq_len(ncell(landscape$population)),
+        distance_list <- steps_stash$distance_list <- lapply(seq_len(raster::ncell(landscape$population)),
                                                              function (x) get_ids_dists(cell_id = x,
                                                                                         distance_info = distance_info,
                                                                                         raster_dim = raster_dim))
@@ -162,42 +166,59 @@ kernel_dispersal <- function(
     }
     
     if (length(dispersal_proportion) < n_stages) {
-      cat ("    ", n_stages, "life stages exist but", length(dispersal_proportion),"dispersal proportion(s) of", dispersal_proportion,"were specified. Is this what was intended?")
+      if (timestep == 1) cat ("    ", n_stages, "life stages exist but", length(dispersal_proportion),"dispersal proportion(s) of", dispersal_proportion,"were specified. Is this what was intended?")
       dispersal_proportion <- rep(dispersal_proportion, n_stages)[1:n_stages]
     }
     
     # Which stages can disperse
     which_stages_disperse <- which(dispersal_proportion > 0)
     
-    # Which stages contribute to density dependence.
-    which_stages_density <- which(dispersal_proportion > 0)
+    # # Which stages contribute to density dependence.
+    # which_stages_density <- which(dispersal_proportion > 0)
 
     # get non-NA cells
     cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])))
     
-    if (exists("carrying_capacity_function", envir = steps_stash)) {
-      if (raster::nlayers(landscape$suitability) > 1) landscape$carrying_capacity[cell_idx] <- steps_stash$carrying_capacity_function(landscape$suitability[[timestep]][cell_idx])
-      else landscape$carrying_capacity[cell_idx] <- steps_stash$carrying_capacity_function(landscape$suitability[cell_idx])
-    }
-    
+    # carrying_capacity_function <- steps_stash$carrying_capacity_function
+    # if (!is.null(carrying_capacity_function)) {
+    #   if (raster::nlayers(landscape$suitability) > 1) landscape$carrying_capacity[cell_idx] <- carrying_capacity_function(landscape$suitability[[timestep]][cell_idx])
+    #   else landscape$carrying_capacity[cell_idx] <- carrying_capacity_function(landscape$suitability[cell_idx])
+    # }
+    # 
     delayedAssign(
       "habitat_suitability_values",
       if (raster::nlayers(landscape$suitability) > 1) raster::getValues(landscape$suitability[[timestep]])
       else raster::getValues(landscape$suitability)
     )
     
-    delayedAssign(
-      "carrying_capacity_proportion",
-      raster::getValues(
-        raster::calc(
-          raster::stack(landscape$population)[[
-            which_stages_density
-            ]],
-          sum
-        ) /
-          landscape$carrying_capacity
+    if ("carrying_capacity" %in% layers) {
+      
+      cc <- get_carrying_capacity(landscape, timestep)
+      
+      if (is.null(cc)) {
+        stop ("carrying capacity must be specified in the landscape object to use carrying capacity arrival probabilities",
+              call. = FALSE)
+      }
+      
+      # find out which stages contribute to density. population dynamics will have
+      # copied this information over from the population density dependence
+      # function, if it was specified. Otherwise, use all stages
+      if (!exists("density_dependence_stages")) {
+        density_dependence_stages <- seq_len(raster::nlayers(landscape$population))
+      }
+      
+      delayedAssign(
+        "carrying_capacity_proportion",
+        raster::getValues(
+          raster::calc(
+            raster::stack(landscape$population)[[
+              density_dependence_stages
+              ]],
+            sum
+          ) / cc
+        )
       )
-    )
+    }
     
     arrival_prob_values <- switch(
       arrival_probability,
@@ -310,7 +331,7 @@ kernel_dispersal <- function(
 #' 
 #' test_ca_dispersal <- cellular_automata_dispersal()
 
-cellular_automata_dispersal <- function (dispersal_distance = 1,
+cellular_automata_dispersal <- function (dispersal_distance = Inf,
                                          dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1),
                                          dispersal_proportion = 1,
                                          barrier_type = 0,
@@ -327,14 +348,25 @@ cellular_automata_dispersal <- function (dispersal_distance = 1,
     # Get non-NA cells
     idx <- which(!is.na(raster::getValues(population_raster[[1]])))
     
-    if (exists("carrying_capacity_function", envir = steps_stash)) {
-      landscape$carrying_capacity[idx] <- steps_stash$carrying_capacity_function(landscape$suitability[[timestep]][idx])
+    # carrying_capacity_function <- steps_stash$carrying_capacity_function
+    # if (!is.null(carrying_capacity_function)) {
+    #   if (raster::nlayers(landscape$suitability) > 1) landscape$carrying_capacity[cell_idx] <- carrying_capacity_function(landscape$suitability[[timestep]][cell_idx])
+    #   else landscape$carrying_capacity[cell_idx] <- carrying_capacity_function(landscape$suitability[cell_idx])
+    # }
+    if (arrival_probability == "suitability" & is.null(landscape$suitability)) {
+      stop("A habitat suitability raster is missing from the landscape object")
     }
     
-    if (raster::nlayers(landscape$suitability) > 1 & arrival_probability == "suitability") arrival_prob <- landscape[[arrival_probability]][[timestep]]
+    if (arrival_probability == "suitability" & raster::nlayers(landscape$suitability) > 1) arrival_prob <- landscape[[arrival_probability]][[timestep]]
     else arrival_prob <- landscape[[arrival_probability]]
     
-    carrying_capacity <- landscape[[carrying_capacity]]
+    # carrying_capacity <- landscape[[carrying_capacity]]
+    
+    if (carrying_capacity == "carrying_capacity") {
+      cc <- get_carrying_capacity(landscape, timestep)
+    } else {
+      cc <- landscape[[carrying_capacity]]
+    }
     
     #poptot <- sum(raster::cellStats(landscape$population, sum))
     
@@ -352,6 +384,8 @@ cellular_automata_dispersal <- function (dispersal_distance = 1,
       if (timestep == 1) cat ("    ", n_stages, "life stages exist but", length(dispersal_distance),"dispersal distance(s) of", dispersal_distance,"were specified. Is this what was intended?")
       dispersal_distance <- rep(dispersal_distance, n_stages)[1:n_stages]
     }
+    
+    dispersal_distance <- ceiling(dispersal_distance / min(raster::res(landscape$population)))
     
     dispersal_vector <- lapply(dispersal_distance, function(x) dispersal_kernel(seq_len(x)-1))
         
@@ -373,7 +407,7 @@ cellular_automata_dispersal <- function (dispersal_distance = 1,
     # could do this in parallel
     for (i in which_stages_disperse){
       population_raster[[i]][] <- rcpp_dispersal(raster::as.matrix(population_raster[[i]]),
-                                                 raster::as.matrix(carrying_capacity),
+                                                 raster::as.matrix(cc),
                                                  raster::as.matrix(arrival_prob),
                                                  raster::as.matrix(barriers_map),
                                                  as.integer(barrier_type),

@@ -96,11 +96,11 @@ gg_pop_dynamics <- population_dynamics(change = growth(transition_matrix = gg_tr
                                                        global_stochasticity = 0.1),
                                        dispersal = #fast_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.5),
                                                                   #dispersal_proportion = c(0,0,1)),
-                                                   cellular_automata_dispersal(dispersal_distance = c(0,0,8),
+                                                   cellular_automata_dispersal(dispersal_distance = c(0,0,8000),
                                                                                dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
                                                                                dispersal_proportion = c(0,0,1)),
                                        modification = NULL,
-                                       density_dependence = population_cap(stages = 3))
+                                       density_dependence = ceiling_density(stages = 3))
 
 gg_results <- simulation(landscape = gg_landscape,
                          population_dynamics = gg_pop_dynamics,

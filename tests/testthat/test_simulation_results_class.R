@@ -46,6 +46,21 @@ test_that('simulation_results classes work', {
                   cellStats(pop_source, sum))] <- 1
   #plot(pop_sink, box = FALSE, axes = FALSE)
   
+  carrying_cap_fun <- function (landscape, timestep) {
+    
+    fun <- function(suitability) {
+      75 - round(75 * dlogis(suitability, scale = 0.25))
+    }
+    
+    suit <- landscape$suitability
+    if (raster::nlayers(suit) > 1) {
+      suit <- suit[[timestep]]
+    }
+    
+    calc(suit, fun)
+    
+  }
+  
   landscape <- landscape(population = egk_pop,
                          suitability = egk_hab,
                          carrying_capacity = egk_k,
@@ -64,16 +79,16 @@ test_that('simulation_results classes work', {
                                   source = pop_source,
                                   sink = pop_sink)
   
-  expect_error(landscape(population = egk_pop,
+  landscape_nohab2 <- landscape(population = egk_pop,
                          suitability = NULL,
-                         carrying_capacity = function(k) k*10))
+                         carrying_capacity = carrying_cap_fun)
   
   landscape_kfun <- landscape(population = egk_pop,
                               suitability = egk_hab,
-                              carrying_capacity = function(k) k*10)
+                              carrying_capacity = carrying_cap_fun)
   
   pop_dyn <- population_dynamics(change = growth(transition_matrix = egk_mat),
-                                 dispersal = cellular_automata_dispersal(dispersal_distance=c(0, 16, 0),
+                                 dispersal = cellular_automata_dispersal(dispersal_distance=c(0, 16000, 0),
                                                                          dispersal_kernel=exponential_dispersal_kernel(distance_decay = 16),
                                                                          dispersal_proportion=c(0, 0.25, 0),
                                                                          barrier_type = 1,
@@ -83,7 +98,7 @@ test_that('simulation_results classes work', {
                                                               sink_layer = "sink",
                                                               stages = NULL,
                                                               effect_timesteps = 2),
-                                 density_dependence = population_cap())
+                                 density_dependence = ceiling_density())
   
   pop_dyn2 <- population_dynamics(change = growth(transition_matrix = egk_mat),
                                   dispersal = fast_dispersal(dispersal_kernel=exponential_dispersal_kernel(distance_decay = 8000)),
@@ -105,7 +120,7 @@ test_that('simulation_results classes work', {
                                    density_dependence = NULL)
   
   pop_dyn4 <- population_dynamics(change = growth(transition_matrix = egk_mat),
-                                  dispersal = cellular_automata_dispersal(dispersal_distance=c(0, 16, 0),
+                                  dispersal = cellular_automata_dispersal(dispersal_distance=c(0, 16000, 0),
                                                                           dispersal_kernel=exponential_dispersal_kernel(distance_decay = 16),
                                                                           dispersal_proportion=c(0, 0.25, 0),
                                                                           barrier_type = 0,
@@ -115,7 +130,7 @@ test_that('simulation_results classes work', {
                                                                sink_layer = "sink",
                                                                stages = 3,
                                                                effect_timesteps = 2),
-                                  density_dependence = population_cap())
+                                  density_dependence = ceiling_density())
   
   pop_dyn4a <- population_dynamics(change = growth(transition_matrix = egk_mat,
                                                    global_stochasticity = matrix(c(0.00,0.10,0.00,0.00,0.00,0.10,0.10,0.00,0.10), nrow = 3, ncol = 3),
@@ -123,27 +138,27 @@ test_that('simulation_results classes work', {
                                                    transition_function = modified_transition(egk_mat,
                                                                                              survival_layer = "suitability",
                                                                                              fecundity_layer = "suitability")),
-                                   dispersal = cellular_automata_dispersal(dispersal_distance=c(16),
+                                   dispersal = cellular_automata_dispersal(dispersal_distance=c(16000),
                                                                            dispersal_kernel=exponential_dispersal_kernel(distance_decay = 16),
                                                                            dispersal_proportion=c(0.25)),
                                    modification = NULL,
-                                   density_dependence = population_cap())
+                                   density_dependence = ceiling_density())
   
   pop_dyn5 <- population_dynamics(change = growth(transition_matrix = egk_mat),
                                   dispersal = kernel_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay = 8000),
                                                                dispersal_distance = 8000),
                                   modification = NULL,
-                                  density_dependence = population_cap(stages = c(2,3)))
+                                  density_dependence = ceiling_density(stages = c(2,3)))
   
   pop_dyn6 <- population_dynamics(change = growth(transition_matrix = egk_mat),
-                                  dispersal = cellular_automata_dispersal(dispersal_distance=list(0, 16, 0),
-                                                                          dispersal_kernel=exponential_dispersal_kernel(distance_decay = 16),
-                                                                          dispersal_proportion=list(0, 0.25, 0)),
+                                  dispersal = cellular_automata_dispersal(dispersal_distance=c(0, 16000, 0),
+                                                                          dispersal_kernel=exponential_dispersal_kernel(distance_decay = 16000),
+                                                                          dispersal_proportion=c(0, 0.25, 0)),
                                   modification = translocation(source_layer = "source",
                                                                sink_layer = "sink",
                                                                stages = 3,
                                                                effect_timesteps = 2),
-                                  density_dependence = population_cap())
+                                  density_dependence = ceiling_density())
   
   pop_dyn7 <- population_dynamics(change = growth(transition_matrix = egk_mat),
                                   dispersal = fast_dispersal(dispersal_kernel=exponential_dispersal_kernel(distance_decay = 0.1,
@@ -269,11 +284,15 @@ test_that('simulation_results classes work', {
                                   replicates = 2),
                        "simulation_results"))
   
-  expect_error(inherits(simulation(landscape = landscape_nohab,
+  expect_error(simulation(landscape = landscape_nohab,
+                                   population_dynamics = pop_dyn,
+                                   habitat_dynamics = NULL,
+                                   timesteps = 10))
+  
+  expect_error(simulation(landscape = landscape_nohab,
                                    population_dynamics = pop_dyn3e,
                                    habitat_dynamics = NULL,
-                                   timesteps = 10),
-                        "simulation_results"))
+                                   timesteps = 10))
   
   expect_error(inherits(simulation(landscape = landscape,
                                    population_dynamics = pop_dyn7e,
@@ -380,12 +399,6 @@ test_that('simulation_results classes work', {
   expect_error(plot(test_simulation,
                     object = "population",
                     type = "raster"))
-  
-  expect_error(plot(test_simulation,
-                    object = "suitability"))
-  
-  expect_error(plot(test_simulation,
-                    object = "carrying_capacity"))
   
   expect_error(plot(test_simulation[1],
                     object = "population",
