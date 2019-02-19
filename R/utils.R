@@ -83,3 +83,6 @@ get_carrying_capacity <- function(landscape, timestep) {
   
 }
 
+not_missing <- function(raster) {
+  which(!is.na(raster::getValues(raster)))
+}

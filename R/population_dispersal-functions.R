@@ -66,6 +66,12 @@ fast_dispersal <- function(
       pop_dispersing <- landscape$population[[stage]] * dispersal_proportion[[stage]]
       pop_staying <- pop - pop_dispersing
       
+      # round population staying
+      idx <- not_missing(pop_staying)
+      pop_staying_vec <- raster::extract(pop_staying, idx)
+      pop_staying_vec <- round_pop(pop_staying_vec)
+      pop_staying[idx] <- pop_staying_vec
+      
       pop_dispersed <- dispersalFFT(
         popmat = raster::as.matrix(
           pop_dispersing
@@ -179,12 +185,6 @@ kernel_dispersal <- function(
     # get non-NA cells
     cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])))
     
-    # carrying_capacity_function <- steps_stash$carrying_capacity_function
-    # if (!is.null(carrying_capacity_function)) {
-    #   if (raster::nlayers(landscape$suitability) > 1) landscape$carrying_capacity[cell_idx] <- carrying_capacity_function(landscape$suitability[[timestep]][cell_idx])
-    #   else landscape$carrying_capacity[cell_idx] <- carrying_capacity_function(landscape$suitability[cell_idx])
-    # }
-    # 
     delayedAssign(
       "habitat_suitability_values",
       if (raster::nlayers(landscape$suitability) > 1) raster::getValues(landscape$suitability[[timestep]])
@@ -242,13 +242,17 @@ kernel_dispersal <- function(
       
       # Calculate the proportion not dispersing
       pop_staying <- pop - pop_dispersing
+      
+      # round population staying
+      idx <- not_missing(pop_staying)
+      pop_staying_vec <- raster::extract(pop_staying, idx)
+      pop_staying_vec <- round_pop(pop_staying_vec)
 
       # does cell have dispersing individuals?
       # multiply by proportion that disperses...
       # has_disperse <- which(proportion_disperses > 0 & !is.na(proportion_disperses))
       
-      # Only non-zero population cells can contribute - needs to be a binomial
-      # realisation of a proportion disperses function
+      # Only non-zero population cells can contribute
       has_pop_ids <- which(pop_dispersing > 0 & !is.na(pop_dispersing))
 
       contribute <- function(i) {
@@ -301,11 +305,11 @@ kernel_dispersal <- function(
         new_pops <- contribute(has_pop_ids[i])
         total_pops <- total_pops + new_pops
       }
-      
+
       # pops <- do.call(cbind, pops_list)
       # pops <- vapply(has_pop_ids, contribute, as.numeric(can_arriv_ids))
       # total_pops <- rowSums(pops) + pop_staying[can_arriv_ids]
-      landscape$population[[stage]][can_arriv_ids] <- total_pops
+      landscape$population[[stage]][can_arriv_ids] <- total_pops + pop_staying_vec[can_arriv_ids]
 
     }
     
