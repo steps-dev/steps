@@ -42,10 +42,12 @@ landscape <- function (population, suitability = NULL, carrying_capacity = NULL,
   
   if(!is.null(suitability)) {
     check_raster_matches_population(suitability, population)
+    check_raster_na_matches(suitability, population)
   }
   
   if(!is.null(carrying_capacity) & identical(class(carrying_capacity)[1], "RasterLayer")) {
     check_raster_matches_population(carrying_capacity, population)
+    check_raster_na_matches(carrying_capacity, population)
   }
 
   landscape <- list(population = population,
@@ -98,6 +100,15 @@ as.landscape <- function (landscape) {
 }
 
 check_raster_matches_population <- function (raster, population) {
-  stopifnot(identical(raster::res(raster), raster::res(population)))
-  stopifnot(identical(raster::extent(raster), raster::extent(population)))
+  if (!identical(raster::res(raster), raster::res(population))) stop("Landscape rasters do not have matching resolution. ",
+                                                                     "This must be corrected before running a simulation.")
+  if (!identical(raster::extent(raster), raster::extent(population))) stop("Landscape rasters do not have matching extents. ",
+                                                                           "This must be corrected before running a simulation.")
+}
+
+check_raster_na_matches <- function (raster, population) {
+  ras_na <- which(is.na(getValues(raster)))
+  pop_na <- which(is.na(getValues(population[[1]])))
+  if (!identical(ras_na, pop_na)) stop("Landscape rasters do not have matching NA cells. ",
+                                       "This must be corrected before running a simulation.")
 }

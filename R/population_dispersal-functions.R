@@ -229,16 +229,14 @@ kernel_dispersal <- function(
     
     # Only non-zero arrival prob cells can receive individuals
     can_arriv_ids <- which(arrival_prob_values > 0 & !is.na(arrival_prob_values))
-
+  
     for (stage in which_stages_disperse) {
       
       # Extract the population values
       pop <- landscape$population[[stage]]
       
       # Calculate the proportion dispersing
-      pop_dispersing <- raster::getValues(
-        landscape$population[[stage]] * dispersal_proportion[[stage]]
-      )
+      pop_dispersing <- landscape$population[[stage]] * dispersal_proportion[[stage]]
       
       # Calculate the proportion not dispersing
       pop_staying <- pop - pop_dispersing
@@ -246,14 +244,11 @@ kernel_dispersal <- function(
       # round population staying
       idx <- not_missing(pop_staying)
       pop_staying_vec <- raster::extract(pop_staying, idx)
-      pop_staying_vec <- round_pop(pop_staying_vec)
+      pop_staying[idx] <- round_pop(pop_staying_vec)
 
-      # does cell have dispersing individuals?
-      # multiply by proportion that disperses...
-      # has_disperse <- which(proportion_disperses > 0 & !is.na(proportion_disperses))
-      
       # Only non-zero population cells can contribute
-      has_pop_ids <- which(pop_dispersing > 0 & !is.na(pop_dispersing))
+      pop_dispersing_vec <- pop_dispersing[]
+      has_pop_ids <- which(pop_dispersing_vec > 0 & !is.na(pop_dispersing_vec))
 
       contribute <- function(i) {
         if (is.null(distance_list)) {
@@ -305,11 +300,15 @@ kernel_dispersal <- function(
         new_pops <- contribute(has_pop_ids[i])
         total_pops <- total_pops + new_pops
       }
+      
+      pop_dispersing <- pop_dispersing * 0
+      
+      pop_dispersing[can_arriv_ids] <- total_pops
 
       # pops <- do.call(cbind, pops_list)
       # pops <- vapply(has_pop_ids, contribute, as.numeric(can_arriv_ids))
       # total_pops <- rowSums(pops) + pop_staying[can_arriv_ids]
-      landscape$population[[stage]][can_arriv_ids] <- total_pops + pop_staying_vec[can_arriv_ids]
+      landscape$population[[stage]] <- pop_dispersing + pop_staying
 
     }
     
@@ -557,9 +556,10 @@ dispersalFFT <- function (popmat, fs) {
   # duplicate popmat to create 'before' condition
   popmat_orig <- popmat
   
+  missing <- is.na(popmat)
   # check for missing values and replace with zeros
-  if (any(is.na(popmat))) {
-    popmat[is.na(popmat)] <- 0
+  if (any(missing)) {
+    popmat[missing] <- 0
   }
     
   # insert population matrix into the torus population
@@ -579,22 +579,20 @@ dispersalFFT <- function (popmat, fs) {
   
   # extract the section of the torus representing our 2D plane and return
   pop_new <- pop_torus_new[fs$yidx, fs$xidx]
-  
-  # get proportion of population that dispersed into NA areas
-  prop_out <- sum(pop_new[is.na(popmat_orig)]) / sum(pop_new[!is.na(popmat_orig)])
 
-  # check for NaN and replace with zero
-  if (is.nan(prop_out)) prop_out <- 0
-    
   # return NA values to matrix
-  pop_new[is.na(popmat_orig)] <- NA
+  pop_new[missing] <- NA
   
-  # increase all non-NA cells by inverse of proportion in NA areas
-  pop_new[!is.na(popmat_orig)] <- pop_new[!is.na(popmat_orig)] * (1 + prop_out)
+  # get proportion of population that dispersed into valid (non-NA, inside the
+  # plane) cells
+  prop_in <- sum(pop_new, na.rm = TRUE) / sum(popmat_orig, na.rm = TRUE)
+
+  # increase all non-NA cells by inverse of proportion in valid cells
+  pop_new[!missing] <- pop_new[!missing] / prop_in
 
   # make sure none are lost or gained (unless all are zeros)
-  if (any(pop_new[!is.na(popmat_orig)] > 0)) {
-    pop_new[!is.na(popmat_orig)] <- round_pop(pop_new[!is.na(popmat_orig)])
+  if (any(pop_new[!missing] > 0)) {
+    pop_new[!missing] <- round_pop(pop_new[!missing])
     #pop_new[!is.na(popmat_orig)] <- stats::rmultinom(1, size = sum(popmat), prob = pop_new[!is.na(popmat_orig)])    
   }
   
