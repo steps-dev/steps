@@ -295,6 +295,8 @@ kernel_dispersal <- function(
         
       }
 
+      # add parallelisation here
+      
       total_pops <- rep(0, length(can_arriv_ids))
       for(i in seq_along(has_pop_ids)) {
         new_pops <- contribute(has_pop_ids[i])
