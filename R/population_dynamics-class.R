@@ -17,6 +17,7 @@
 #' @param dispersal a single or list of \link[steps]{population_dispersal_functions} to define how the population disperses at each timestep (default is exponential kernel)
 #' @param modification a single or list of \link[steps]{population_modification_functions} to define any deterministic changes to the population - such as translocation - at each timestep
 #' @param density_dependence a single or list of \link[steps]{population_density_dependence_functions} to control density dependence effects on the population at each timestep
+#' @param dynamics_order the order in which the population dynamics should be executed on the landscape object - default is NULL which applies all four dynamics in the order that they are specified in the population_dynamics function. Note, if population dynamics are reordered, only the dynamics listed in dynamics_order will be run.
 #' @param x a population_dynamic object
 #' @param ... further arguments passed to or from other methods
 #'
@@ -36,7 +37,8 @@
 population_dynamics <- function (change,
                                  dispersal = NULL,
                                  modification = NULL,
-                                 density_dependence = NULL) {
+                                 density_dependence = NULL,
+                                 dynamics_order = NULL) {
   
   if (!is.null(density_dependence)) {
     
@@ -52,17 +54,28 @@ population_dynamics <- function (change,
   }
   
   pop_dynamics <- function (landscape, timestep) {
+
+    if (!is.null(dynamics_order)) {
+      
+      for (i in dynamics_order) {
+        if (is.null(get(i))) next
+        landscape <- do.call(i, list(landscape, timestep))
+      }
+      
+    } else {
     
-    landscape <- change(landscape, timestep)
+      landscape <- change(landscape, timestep)
+      
+      if (!is.null(dispersal))
+        landscape <- dispersal(landscape, timestep)
+      
+      if (!is.null(modification))
+        landscape <- modification(landscape, timestep)
+      
+      if (!is.null(density_dependence))
+        landscape <- density_dependence(landscape, timestep)
     
-    if (!is.null(dispersal))
-      landscape <- dispersal(landscape, timestep)
-    
-    if (!is.null(modification))
-      landscape <- modification(landscape, timestep)
-    
-    if (!is.null(density_dependence))
-      landscape <- density_dependence(landscape, timestep)
+    }
     
     landscape
   }

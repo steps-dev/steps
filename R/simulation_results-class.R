@@ -266,7 +266,7 @@ plot.simulation_results <- function (x,
             graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
             
             raster::animate(rasters_sum[[timesteps]],
-                            col = c("#F0F0F0FF", viridisLite::viridis(length(breaks)-1)),
+                            col = c("#bfbfbfff", viridisLite::viridis(length(breaks)-1)),
                             n = 1,
                             legend.args = list(text = 'individuals'),
                             box = FALSE,
@@ -278,7 +278,7 @@ plot.simulation_results <- function (x,
                                        scales = list(draw = FALSE),
                                        margin = list(draw = FALSE),
                                        at = breaks,
-                                       col.regions = c("#F0F0F0FF", viridisLite::viridis(length(breaks)-1)),
+                                       col.regions = c("#bfbfbfff", viridisLite::viridis(length(breaks)-1)),
                                        colorkey = list(space = "bottom",
                                                        width = 0.4),
                                        main = "population",
@@ -305,7 +305,7 @@ plot.simulation_results <- function (x,
             graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
             
             raster::animate(rasters[[timesteps]],
-                            col = c("#F0F0F0FF", viridisLite::viridis(length(breaks)-1)),
+                            col = c("#bfbfbfff", viridisLite::viridis(length(breaks)-1)),
                             n = 1,
                             legend.args = list(text = 'individuals'),
                             box = FALSE,
@@ -316,7 +316,7 @@ plot.simulation_results <- function (x,
                                        scales = list(draw = FALSE),
                                        margin = list(draw = FALSE),
                                        at = breaks,
-                                       col.regions = c("#F0F0F0FF", viridisLite::viridis(length(breaks)-1)),
+                                       col.regions = c("#bfbfbfff", viridisLite::viridis(length(breaks)-1)),
                                        colorkey = list(space = "bottom",
                                                        width = 0.4),
                                        main = "population",
@@ -344,7 +344,7 @@ plot.simulation_results <- function (x,
         graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
         
         raster::animate(rasters[[timesteps]],
-                        col = c("#F0F0F0FF", viridisLite::viridis(length(breaks)-1)),
+                        col = c("#bfbfbfff", viridisLite::viridis(length(breaks)-1)),
                         n = 1,
                         legend.args = list(text = 'index'),
                         box = FALSE,
@@ -356,7 +356,7 @@ plot.simulation_results <- function (x,
                                    scales = list(draw = FALSE),
                                    margin = list(draw = FALSE),
                                    at = breaks,
-                                   col.regions = c("#F0F0F0FF", viridisLite::viridis(length(breaks)-1)),
+                                   col.regions = c("#bfbfbfff", viridisLite::viridis(length(breaks)-1)),
                                    colorkey = list(space = "bottom",
                                                    width = 0.4),
                                    main = "habitat",
@@ -400,7 +400,7 @@ plot.simulation_results <- function (x,
           graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
           
           raster::animate(rasters[[timesteps]],
-                          col = c("#F0F0F0FF", viridisLite::viridis(length(breaks)-1)),
+                          col = c("#bfbfbfff", viridisLite::viridis(length(breaks)-1)),
                           n = 1,
                           legend.args = list(text = 'individuals'),
                           box = FALSE,
@@ -412,7 +412,7 @@ plot.simulation_results <- function (x,
                                      scales = list(draw = FALSE),
                                      margin = list(draw = FALSE),
                                      at = breaks,
-                                     col.regions = c("#F0F0F0FF", viridisLite::viridis(length(breaks)-1)),
+                                     col.regions = c("#bfbfbfff", viridisLite::viridis(length(breaks)-1)),
                                      colorkey = list(space = "bottom",
                                                      width = 0.4),
                                      main = "k",
@@ -586,6 +586,10 @@ simulate <- function (i, landscape, population_dynamics, habitat_dynamics, times
     
     for (dynamic_function in habitat_dynamics) {
       landscape <- dynamic_function(landscape, timestep)
+    }
+    
+    if (!is.null(landscape$suitability) && raster::nlayers(landscape$suitability) > 1) {
+      landscape$suitability <- landscape$suitability[[timestep]]
     }
     
     output_landscapes[[timestep]] <- landscape
