@@ -7,7 +7,7 @@
 \title{Define population dynamics.}
 \usage{
 population_dynamics(change, dispersal = NULL, modification = NULL,
-  density_dependence = NULL)
+  density_dependence = NULL, dynamics_order = NULL)
 
 is.population_dynamics(x)
 
@@ -21,6 +21,8 @@ is.population_dynamics(x)
 \item{modification}{a single or list of \link[steps]{population_modification_functions} to define any deterministic changes to the population - such as translocation - at each timestep}
 
 \item{density_dependence}{a single or list of \link[steps]{population_density_dependence_functions} to control density dependence effects on the population at each timestep}
+
+\item{dynamics_order}{the order in which the population dynamics should be executed on the landscape object - default is NULL which applies all four dynamics in the order that they are specified in the population_dynamics function. Note, if population dynamics are reordered, only the dynamics listed in dynamics_order will be run.}
 
 \item{x}{a population_dynamic object}
 
