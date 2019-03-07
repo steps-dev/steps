@@ -143,15 +143,21 @@ growth <- function (transition_matrix,
     landscape
   }
   
-  as.population_growth(pop_dynamics)
+  as.population_growth(pop_dynamics, info = list(transition_matrix = transition_matrix ,
+                                                 global_stochasticity = global_stochasticity,
+                                                 local_stochasticity = local_stochasticity,
+                                                 transition_function = transition_function))
   
 }
-
 
 ##########################
 ### internal functions ###
 ##########################
 
-as.population_growth <- function (simple_growth) {
-  as_class(simple_growth, "population_dynamics", "function")
+as.population_growth <- function (simple_growth, info = NULL) {
+  as_class(simple_growth, "population_growth", "function", info = info)
+}
+
+print.population_growth <- function (x, ...) {
+  print_info(x)
 }

@@ -63,29 +63,35 @@ modified_transition <- function(transition_matrix,
     
   }
 
-  as.transition_function(fun)
+  as.transition_function(fun, info = list(transition_matrix = transition_matrix,
+                                          survival_layer =  survival_layer,
+                                          fecundity_layer = fecundity_layer))
   
 }
 
-#' @rdname transition_function
-#'
-#' @param x an object to print or test as a transition_function object
-#' @param ... further arguments passed to or from other methods
-#'
-#' @export
-#'
-#' @examples
-#'
-#' print(test_transition_function)
-
-print.transition_function <- function (x, ...) {
-  cat("This is a transition_function object")
-}
+# #' @rdname transition_function
+# #'
+# #' @param x an object to print or test as a transition_function object
+# #' @param ... further arguments passed to or from other methods
+# #'
+# #' @export
+# #'
+# #' @examples
+# #'
+# #' print(test_transition_function)
+# 
+# print.transition_function <- function (x, ...) {
+#   cat("This is a transition_function object")
+# }
 
 ##########################
 ### internal functions ###
 ##########################
 
-as.transition_function <- function (transition_function) {
-  as_class(transition_function, "transition_function", "function")
+as.transition_function <- function (transition_function, info = NULL) {
+  as_class(transition_function, "transition_function", "function", info = info)
+}
+
+print.dispersal_function <- function (x, ...) {
+  print_info(x)
 }

@@ -3,16 +3,27 @@
 # to use magrittr shortcut
 utils::globalVariables(".")
 
-# to set object classes
-# set_class <- function (x, class) {
-#   class(x) <- c(class, class(x))
-#   x
-# }
+print_info <- function (x) {
+  info <- attr(x, "info")
+  if (!is.null(info) && !identical(info, list())) {
+    for (member in names(info)) {
+      obj <- info[[member]]
+      if (!is.null(obj)) {
+        if("function" %in% class(obj)) msg <- paste0(toupper(member), " FUNCTION:\n\n")
+        else msg <- paste0(member, ":\n\n")
+        cat(msg)
+        print(obj)
+        cat("\n")
+      }
+    }
+  }
+}
 
-as_class <- function (object, name, type = c("function", "list")) {
+as_class <- function (object, name, type = c("function", "list"), info = list()) {
   type <- match.arg(type)
   stopifnot(inherits(object, type))
   class(object) <- c(name, class(object))
+  attr(object, "info") <- info
   object
 }
 

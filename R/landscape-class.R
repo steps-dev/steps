@@ -85,9 +85,9 @@ print.landscape <- function (x, ...) {
   r.res <- raster::res(x[['population']])
   
   cat("This is a landscape object that contains initial populations for", raster::nlayers(x[['population']]),
-      "stage(s). Each grid cell is", r.res[1], "by", r.res[2], "map",
-      "units (based on projection) in size and the grid cells are arranged in",
-      r.dims[1], "rows and", r.dims[2], "columns.")
+      "stage(s).\nEach grid cell is", r.res[1], "by", r.res[2], "map",
+      "units (based on projection) in size\nand a total of", prod(r.dims),
+      "grid cells are arranged in", r.dims[1], "rows and", r.dims[2], "columns.")
   
 }
 

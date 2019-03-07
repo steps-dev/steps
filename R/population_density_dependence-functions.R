@@ -63,7 +63,7 @@ ceiling_density <- function (stages = NULL) {
     landscape
   }
 
-  result <- as.population_density_dependence(pop_dynamics)
+  result <- as.population_density_dependence(pop_dynamics, info = list(stages = stages))
   
   attr(result, "density_dependence_stages") <- stages
   return(result)
@@ -126,6 +126,10 @@ ceiling_density <- function (stages = NULL) {
 ### internal functions ###
 ##########################
 
-as.population_density_dependence <- function (density_dependence) {
-  as_class(density_dependence, "population_dynamics", "function")
+as.population_density_dependence <- function (density_dependence, info = NULL) {
+  as_class(density_dependence, "population_density_dependence", "function", info = info)
+}
+
+print.population_density_dependence <- function (x, ...) {
+  print_info(x)
 }

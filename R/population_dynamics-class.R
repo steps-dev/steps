@@ -7,18 +7,18 @@
 #' and defines how populations change between timesteps. Note, some dynamics
 #' functions can be executed at non-regular intervals (i.e. only timesteps
 #' explicitly defined by the user). The \code{population_dynamics} function is
-#' used to construct a population dynamics object consisting of several population
+#' used to construct an object with several population
 #' dynamics functions and their associated parameters. These functions specify how
 #' the population in the landscape object will be modified throughout a simulation. 
 #'
 #' @rdname population_dynamics
 #'
 #' @param change \link[steps]{population_change_functions} to define how population growth occurs at each timestep
-#' @param dispersal a single or list of \link[steps]{population_dispersal_functions} to define how the population disperses at each timestep (default is exponential kernel)
-#' @param modification a single or list of \link[steps]{population_modification_functions} to define any deterministic changes to the population - such as translocation - at each timestep
-#' @param density_dependence a single or list of \link[steps]{population_density_dependence_functions} to control density dependence effects on the population at each timestep
-#' @param dynamics_order the order in which the population dynamics should be executed on the landscape object - default is NULL which applies all four dynamics in the order that they are specified in the population_dynamics function. Note, if population dynamics are reordered, only the dynamics listed in dynamics_order will be run.
-#' @param x a population_dynamic object
+#' @param dispersal \link[steps]{population_dispersal_functions} to define how the population disperses at each timestep
+#' @param modification \link[steps]{population_modification_functions} to define any deterministic changes to the population - such as translocations or population control - at each timestep
+#' @param density_dependence \link[steps]{population_density_dependence_functions} to control density dependence effects on the population at each timestep
+#' @param dynamics_order the order in which the population dynamics should be executed on the landscape object - default is "change" -> "dispersal" -> "modification" -> "density_dependence". Note, if population dynamics are reordered, all dynamics must be listed in dynamics_order.
+#' @param x a population_dynamics object
 #' @param ... further arguments passed to or from other methods
 #'
 #' @return An object of class \code{population_dynamics}
@@ -30,15 +30,16 @@
 #' library(steps)
 #' library(raster)
 #' 
-#' # Construct a population dynamics object - note non-specified parameters
-#' # uses default population growth function based on transition matrices
+#' # Construct a population dynamics object - note non-specified
+#' # parameters uses default population growth function based on
+#' # transition matrices
 #' pop_dynamics <- population_dynamics()
 
 population_dynamics <- function (change,
                                  dispersal = NULL,
                                  modification = NULL,
                                  density_dependence = NULL,
-                                 dynamics_order = NULL) {
+                                 dynamics_order = c("change", "dispersal", "modification", "density_dependence")) {
   
   if (!is.null(density_dependence)) {
     
@@ -55,61 +56,28 @@ population_dynamics <- function (change,
   
   pop_dynamics <- function (landscape, timestep) {
 
-    if (!is.null(dynamics_order)) {
-      
-      for (i in dynamics_order) {
-        if (is.null(get(i))) next
-        landscape <- do.call(i, list(landscape, timestep))
-      }
-      
-    } else {
+    order_sorted <- sort(dynamics_order)
+    order_sorted_target <- c("change", "density_dependence", "dispersal", "modification")
     
-      landscape <- change(landscape, timestep)
-      
-      if (!is.null(dispersal))
-        landscape <- dispersal(landscape, timestep)
-      
-      if (!is.null(modification))
-        landscape <- modification(landscape, timestep)
-      
-      if (!is.null(density_dependence))
-        landscape <- density_dependence(landscape, timestep)
-    
+    if (!identical(order_sorted, order_sorted_target)) {
+      stop ("You must specify all population dynamics regardless of whether they are\n",
+            "used or not (set to NULL). Please correct and re-run the simulation.")
     }
-    
+  
+    for (i in dynamics_order) {
+      if (is.null(get(i))) next
+      landscape <- do.call(i, list(landscape, timestep))
+    }
+      
     landscape
   }
   
-  as.population_dynamics(pop_dynamics)
+  as.population_dynamics(pop_dynamics, info = list(change = change,
+                                                   dispersal = dispersal,
+                                                   modification = modification,
+                                                   density_dependence = density_dependence,
+                                                   dynamics_order = dynamics_order))
   
-}
-
-################# Working ###################
-# population_dynamics <- function (change,
-#                                  dispersal = NULL,
-#                                  modification = NULL,
-#                                  density_dependence = NULL) {
-# 
-#   ordered_functions <- list()
-#   
-#   pop_dynamics <- function (landscape, timestep) {
-#     
-#     for (dynamic_function in ordered_functions) {
-#       landscape <- dynamic_function(landscape, timestep)
-#     }
-#     
-#     landscape <- change(landscape, timestep)
-# 
-#     landscape
-#   }
-# 
-#   as.population_dynamics(pop_dynamics)
-# 
-# }
-#########################################
-
-as.population_dynamics <- function (population_dynamics_function) {
-  as_class(population_dynamics_function, "population_dynamics", "function")
 }
 
 
@@ -136,5 +104,14 @@ is.population_dynamics <- function (x) {
 #' print(pop_dynamics)
 
 print.population_dynamics <- function (x, ...) {
-  cat("This is a population_dynamics object")
+  cat("This is a population_dynamics object that specifies the population will\nutilise the following objects and parameters:\n")
+  print_info(x)
+}
+
+##########################
+### internal functions ###
+##########################
+
+as.population_dynamics <- function (population_dynamics_function, info = NULL) {
+  as_class(population_dynamics_function, "population_dynamics", "function", info = info)
 }

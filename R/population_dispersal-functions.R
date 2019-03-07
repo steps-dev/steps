@@ -98,7 +98,8 @@ fast_dispersal <- function(
     
   }
   
-  as.population_fast_dispersal(pop_dynamics)
+  as.population_dispersal(pop_dynamics, info = list(dispersal_kernel = print(dispersal_kernel),
+                                                    dispersal_proportion = dispersal_proportion))
   
 }
 
@@ -320,7 +321,10 @@ kernel_dispersal <- function(
     
   }
   
-  as.population_kernel_dispersal(pop_dynamics)
+  as.population_dispersal(pop_dynamics, info = list(dispersal_kernel = print(dispersal_kernel),
+                                                    dispersal_distance = dispersal_distance,
+                                                    arrival_probability = arrival_probability,
+                                                    dispersal_proportion = dispersal_proportion))
   
 }
 
@@ -432,7 +436,15 @@ cellular_automata_dispersal <- function (dispersal_distance = Inf,
     landscape
   }
   
-  as.population_ca_dispersal(pop_dynamics)
+  as.population_dispersal(pop_dynamics, info = list(dispersal_distance = dispersal_distance,
+                                                       dispersal_kernel = print(dispersal_kernel),
+                                                       dispersal_proportion = dispersal_proportion,
+                                                       barrier_type = barrier_type,
+                                                       dispersal_steps = dispersal_steps,
+                                                       use_barriers = use_barriers,
+                                                       barriers_map = barriers_map,
+                                                       arrival_probability = arrival_probability,
+                                                       carrying_capacity = carrying_capacity))
   
 }
 
@@ -441,18 +453,25 @@ cellular_automata_dispersal <- function (dispersal_distance = Inf,
 ### internal functions ###
 ##########################
 
-as.population_fast_dispersal <- function (fast_dispersal) {
-  as_class(fast_dispersal, "population_dynamics", "function")
+as.population_dispersal <- function (dispersal, info = NULL) {
+  as_class(dispersal, "population_dispersal", "function", info = info)
 }
 
-as.population_kernel_dispersal <- function (kernel_dispersal) {
-  as_class(kernel_dispersal, "population_dynamics", "function")
-}
+# as.population_fast_dispersal <- function (fast_dispersal, info = NULL) {
+#   as_class(fast_dispersal, "population_fast_dispersal", "function", info = info)
+# }
+# 
+# as.population_kernel_dispersal <- function (kernel_dispersal, info = NULL) {
+#   as_class(kernel_dispersal, "population_kernel_dispersal", "function", info = info)
+# }
+# 
+# as.population_ca_dispersal <- function (ca_dispersal, info = NULL) {
+#   as_class(ca_dispersal, "population_ca_dispersal", "function", info = info)
+# }
 
-as.population_ca_dispersal <- function (ca_dispersal) {
-  as_class(ca_dispersal, "population_dynamics", "function")
+print.population_dispersal <- function (x, ...) {
+  print_info(x)
 }
-
 
 extend <- function (x, factor = 2) {
   # given an evenly-spaced vector `x` of cell centre locations, extend it to the

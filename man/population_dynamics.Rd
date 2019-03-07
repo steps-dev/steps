@@ -7,7 +7,8 @@
 \title{Define population dynamics.}
 \usage{
 population_dynamics(change, dispersal = NULL, modification = NULL,
-  density_dependence = NULL, dynamics_order = NULL)
+  density_dependence = NULL, dynamics_order = c("change", "dispersal",
+  "modification", "density_dependence"))
 
 is.population_dynamics(x)
 
@@ -16,15 +17,15 @@ is.population_dynamics(x)
 \arguments{
 \item{change}{\link[steps]{population_change_functions} to define how population growth occurs at each timestep}
 
-\item{dispersal}{a single or list of \link[steps]{population_dispersal_functions} to define how the population disperses at each timestep (default is exponential kernel)}
+\item{dispersal}{\link[steps]{population_dispersal_functions} to define how the population disperses at each timestep}
 
-\item{modification}{a single or list of \link[steps]{population_modification_functions} to define any deterministic changes to the population - such as translocation - at each timestep}
+\item{modification}{\link[steps]{population_modification_functions} to define any deterministic changes to the population - such as translocations or population control - at each timestep}
 
-\item{density_dependence}{a single or list of \link[steps]{population_density_dependence_functions} to control density dependence effects on the population at each timestep}
+\item{density_dependence}{\link[steps]{population_density_dependence_functions} to control density dependence effects on the population at each timestep}
 
-\item{dynamics_order}{the order in which the population dynamics should be executed on the landscape object - default is NULL which applies all four dynamics in the order that they are specified in the population_dynamics function. Note, if population dynamics are reordered, only the dynamics listed in dynamics_order will be run.}
+\item{dynamics_order}{the order in which the population dynamics should be executed on the landscape object - default is "change" -> "dispersal" -> "modification" -> "density_dependence". Note, if population dynamics are reordered, all dynamics must be listed in dynamics_order.}
 
-\item{x}{a population_dynamic object}
+\item{x}{a population_dynamics object}
 
 \item{...}{further arguments passed to or from other methods}
 }
@@ -40,7 +41,7 @@ A population_dynamics object is passed to \link[steps]{simulation}
 and defines how populations change between timesteps. Note, some dynamics
 functions can be executed at non-regular intervals (i.e. only timesteps
 explicitly defined by the user). The \code{population_dynamics} function is
-used to construct a population dynamics object consisting of several population
+used to construct an object with several population
 dynamics functions and their associated parameters. These functions specify how
 the population in the landscape object will be modified throughout a simulation.
 }
@@ -49,8 +50,9 @@ the population in the landscape object will be modified throughout a simulation.
 library(steps)
 library(raster)
 
-# Construct a population dynamics object - note non-specified parameters
-# uses default population growth function based on transition matrices
+# Construct a population dynamics object - note non-specified
+# parameters uses default population growth function based on
+# transition matrices
 pop_dynamics <- population_dynamics()
 
 # Test if object is of the type 'population dynamics'
