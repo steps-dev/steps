@@ -1,14 +1,20 @@
 #' Create a growth transition function
 #'
-#' @description A growth transition function defines how spatial objects influence survival and fecundity. 
-#' Functions that use elements of the landscape object to modify survival and fecundity are built-in for the user to select, however, a user may also provide a custom written growth function.
+#' @description A growth transition function defines how spatial objects or custom functions influence
+#' survival and fecundity.
+#' 
+#' In the built-in modified_transition function, the values of fecundity and
+#' survival in local cell-based transition matrices are multiplied by values in the spatial objects
+#' for each cell. The spatial objects can be rasters that are stored in the landscape object. A user
+#' may also provide a custom written growth function to modify survival and fecundity throughout a
+#' simulation.
 #' 
 #' @rdname transition_function
 #'
 #' @param transition_matrix a symmetrical age-based (Leslie) or stage-based
 #'   population structure matrix.
-#' @param survival_layer a spatial object within the landscape object used to modify survival values.
-#' @param fecundity_layer a spatial object within the landscape object used to modify fecundity values.
+#' @param survival_layer the name of a spatial layer in the landscape object used to modify survival values.
+#' @param fecundity_layer the name of a spatial layer in the landscape object used to modify fecundity values.
 #' 
 #' @return An object of class \code{transition_function}
 #' 

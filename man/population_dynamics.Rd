@@ -6,9 +6,10 @@
 \alias{print.population_dynamics}
 \title{Define population dynamics.}
 \usage{
-population_dynamics(change, dispersal = NULL, modification = NULL,
-  density_dependence = NULL, dynamics_order = c("change", "dispersal",
-  "modification", "density_dependence"))
+population_dynamics(change = NULL, dispersal = NULL,
+  modification = NULL, density_dependence = NULL,
+  dynamics_order = c("change", "dispersal", "modification",
+  "density_dependence"))
 
 is.population_dynamics(x)
 

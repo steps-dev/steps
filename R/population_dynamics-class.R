@@ -7,9 +7,9 @@
 #' and defines how populations change between timesteps. Note, some dynamics
 #' functions can be executed at non-regular intervals (i.e. only timesteps
 #' explicitly defined by the user). The \code{population_dynamics} function is
-#' used to construct an object with several population
-#' dynamics functions and their associated parameters. These functions specify how
-#' the population in the landscape object will be modified throughout a simulation. 
+#' used to construct an object with several population dynamics functions and
+#' their associated parameters. These functions specify how the population in
+#' the landscape object will be modified throughout a simulation. 
 #'
 #' @rdname population_dynamics
 #'
@@ -30,12 +30,9 @@
 #' library(steps)
 #' library(raster)
 #' 
-#' # Construct a population dynamics object - note non-specified
-#' # parameters uses default population growth function based on
-#' # transition matrices
 #' pop_dynamics <- population_dynamics()
 
-population_dynamics <- function (change,
+population_dynamics <- function (change = NULL,
                                  dispersal = NULL,
                                  modification = NULL,
                                  density_dependence = NULL,

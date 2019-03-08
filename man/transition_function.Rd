@@ -20,7 +20,10 @@ An object of class \code{transition_function}
 }
 \description{
 A growth transition function defines how spatial objects influence survival and fecundity. 
-Functions that use elements of the landscape object to modify survival and fecundity are built-in for the user to select, however, a user may also provide a custom written growth function.
+In the built-in modified_transition function, the values of fecundity and survival in local cell-based
+transition matrices are multiplied by values in the spatial objects for each cell. The spatial objects
+can be rasters that are stored in the landscape object. A user may also provide a custom written growth
+function to modify survival and fecundity throughout a simulation.
 }
 \examples{
 

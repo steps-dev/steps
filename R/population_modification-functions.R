@@ -5,13 +5,13 @@
 #' @name population_modification_functions
 #'
 #' @param stages which life-stages are modified - default is all
-#' @param source_layer a spatial layer with the locations and number of
-#'   individuals to translocate from - note, this layer will only have zero
+#' @param source_layer the name of a spatial layer in the landscape object with the locations
+#'   and number of individuals to translocate from. Note, this layer will have only zero
 #'   values if individuals are being introduced from outside the study area
-#' @param sink_layer a spatial layer with the locations and number of
-#'   individuals to translocate to
-#' @param effect_timesteps which timesteps in a single simulation do the
-#'   translocations take place
+#' @param sink_layer the name of a spatial layer in the landscape object with the locations
+#'   and number of individuals to translocate to.
+#' @param effect_timesteps which timesteps in a single simulation do the translocations
+#'   take place
 #'
 #' @rdname population_modification_functions
 #'
@@ -22,8 +22,8 @@
 #' # Use the translocation_population_dynamics object to modify the  
 #' # population using translocations:
 #' 
-#' test_ca_dispersal <- translocation(source_layer = egk_source,
-#'                                        sink_layer = egk_sink,
+#' test_ca_dispersal <- translocation(source_layer = "egk_source",
+#'                                        sink_layer = "egk_sink",
 #'                                        stages = NULL,
 #'                                        effect_timesteps = 1)
 

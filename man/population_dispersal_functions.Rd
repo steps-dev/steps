@@ -18,58 +18,64 @@
 
 cellular_automata_dispersal(dispersal_distance = Inf,
   dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1),
-  dispersal_proportion = 1, barrier_type = 0, dispersal_steps = 1,
-  use_barriers = FALSE, barriers_map = NULL,
+  dispersal_proportion = 1, barrier_effect = c("obstructing",
+  "lethal"), dispersal_steps = 1, barriers_map = NULL,
   arrival_probability = "suitability",
   carrying_capacity = "carrying_capacity")
 }
 \arguments{
-\item{dispersal_kernel}{a single or list of user-defined distance dispersal
-kernel functions}
+\item{dispersal_kernel}{a single built-in or user-defined distance dispersal
+kernel function}
 
 \item{dispersal_proportion}{proportions of individuals (0 to 1) that can
 disperse in each life stage}
 
 \item{dispersal_distance}{the maximum distance that each life stage can
-disperse in spatial units (in kernel-based dispersal this truncates the
-dispersal curve) - must be specified}
+disperse in spatial units of the landscape (in kernel-based dispersal
+this truncates the dispersal curve) - must be specified}
 
-\item{arrival_probability}{a raster layer that controls where individuals can
-disperse to (e.g. habitat suitability)}
+\item{arrival_probability}{the name of a raster layer in the landscape object
+that controls where individuals can disperse to (e.g. habitat suitability)}
 
-\item{barrier_type}{if barrier map is used, does it stop (0 - default) or
-kill (1) individuals}
+\item{barrier_effect}{if a barrier map is used, it either stops individuals
+("obstructing" - default) or kills individuals ("lethal").}
 
-\item{dispersal_steps}{number of dispersal steps to take before stopping}
+\item{dispersal_steps}{the number of dispersal steps to take before stopping}
 
-\item{use_barriers}{should dispersal barriers be used? If so, a barriers map
-must be provided}
+\item{barriers_map}{the name of a raster layer in the landscape object that
+contains cell values of 0 (no barrier) and 1 (barrier).}
 
-\item{barriers_map}{a raster layer that contains cell values of 0 (no
-barrier) and 1 (barrier)}
-
-\item{carrying_capacity}{a raster layer that specifies the carrying capacity
-in each cell}
+\item{carrying_capacity}{the name of a raster layer in the landscape object
+that specifies the carrying capacity in each cell}
 }
 \description{
-Pre-defined functions to define population dispersal during a simulation.
+Pre-defined functions to define population dispersal during a simulation. Each dispersal method
+uses different computing resources and may be applicable to different simulation scenarios.
+}
+\details{
+The fast_dispersal function uses kernel-based dispersal
+to modify the population with a user-defined diffusion distribution and
+a fast-fourier transformation (FFT) computational algorithm. It is
+computationally efficient and very fast, however, only useful for
+situations where dispersal barriers or arrival based on habitat or
+carrying capacity are not required. In other words, organisms
+can disperse in all directions and to all cells in the landscape.
+
+The kernel_dispersal function employs a probabilistic
+kernel-based dispersal algorithm to modify the population
+using a user-defined diffusion distribution, arrival
+probability layers (e.g. habitat suitability), and growth
+limiting layers (e.g. carrying capacity).
+
+The cellular_automata_dispersal function modifies  
+populations using rule-based cell movements. This function allows
+the use of barriers in the landscape to influence dispersal.
 }
 \examples{
 
-# Use the fast kernel-based dispersal function to modify the  
-# population using a user-defined diffusion distribution and
-# a fast-fourier transformation (FFT) computational algorithm:
-
 test_kern_dispersal <- fast_dispersal()
 
-# Use the probabilistic kernel-based dispersal function to modify the  
-# population using a user-defined diffusion distribution
-# and an arrival probability layers (e.g. habitat suitability):
-
 test_kern_dispersal <- kernel_dispersal()
-
-# Use the cellular automata dispersal function to modify  
-# the population using rule-based cell movements:
 
 test_ca_dispersal <- cellular_automata_dispersal()
 }
