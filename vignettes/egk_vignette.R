@@ -47,7 +47,7 @@ spplot(egk_pop, col.regions = viridis(100))
 library(foreach)
 stable_states <- abs( eigen(egk_mat)$vectors[,1] / sum(eigen(egk_mat)$vectors[,1]))
 popN <- stack(replicate(ncol(egk_mat), egk_k)) * stable_states
-idx <- which(!is.na(raster::getValues(popN[[1]])))
+idx <- which(!is.na(getValues(popN[[1]])))
 pop <- stack(
   foreach(i = 1:nlayers(popN)) %do% {
     max_pop <- ceiling(cellStats(popN[[i]], max, na.rm = T))
@@ -196,7 +196,7 @@ egk_pop_dynamics <- population_dynamics(change = growth(transition_matrix = egk_
                                                         global_stochasticity = egk_mat_stoch),
                                         dispersal = NULL,
                                         modification = NULL,
-                                        density_dependence = population_cap(stages = 3))
+                                        density_dependence = ceiling_density(stages = 3))
 
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,
@@ -265,7 +265,7 @@ egk_pop_dynamics <- population_dynamics(
   dispersal = kernel_dispersal(arrival_probability = "suitability",
                                dispersal_distance = 5000,
                                dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000)),
-  density_dependence = population_cap(stages = 3))
+  density_dependence = ceiling_density(stages = 3))
 
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,
@@ -292,7 +292,7 @@ egk_pop_dynamics <- population_dynamics(
                                dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000),
                                dispersal_proportion = c(0, 0.5, 1)),
   modification = NULL,
-  density_dependence = population_cap(stages = 3))
+  density_dependence = ceiling_density(stages = 3))
 
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,
@@ -311,10 +311,10 @@ egk_landscape <- landscape(population = egk_pop,
 egk_pop_dynamics <- population_dynamics(
   change = growth(transition_matrix = egk_mat,
                   global_stochasticity = egk_mat_stoch),
-  dispersal = cellular_automata_dispersal(dispersal_distance = c(0, 5, 10),
+  dispersal = cellular_automata_dispersal(dispersal_distance = c(0, 2500, 5000),
                                           dispersal_proportion = c(0, 0.5, 1)),
   modification = NULL,
-  density_dependence = population_cap(stages = 3))
+  density_dependence = ceiling_density(stages = 3))
 
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,
@@ -335,10 +335,10 @@ egk_pop_dynamics <- population_dynamics(
                   global_stochasticity = egk_mat_stoch),
   dispersal = kernel_dispersal(arrival_probability = "suitability",
                                dispersal_distance = 5000,
-                               dispersal_kernel = function (r) exp(-r / 5000),
+                               dispersal_kernel = function (r) exp(-r / 2000),
                                dispersal_proportion = c(0, 0.5, 1)),
   modification = NULL,
-  density_dependence = population_cap(stages = 3))
+  density_dependence = ceiling_density(stages = 3))
 
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,
@@ -363,7 +363,7 @@ egk_pop_dynamics <- population_dynamics(
                                dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000),
                                dispersal_proportion = 0.5),
   modification = NULL,
-  density_dependence = population_cap(stages = 3))
+  density_dependence = ceiling_density(stages = 3))
 
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,
@@ -383,9 +383,20 @@ plot(egk_results[1], type = "raster", stage = 3, timesteps = c(1, 10, 20), panel
 plot(egk_results[1], object = "suitability", timesteps = c(1, 10, 20), panels = c(3, 1))
 
 ## ---- message = FALSE, results='hide'------------------------------------
-carrying_cap_fun <- function (x) 75 - round(75 * dlogis(x, scale = 0.25), 0)
-
-carrying_cap_fun(seq(1,0,-0.1))
+carrying_cap_fun <- function (landscape, timestep) {
+  
+  fun <- function(suitability) {
+     75 - round(75 * dlogis(suitability, scale = 0.25))
+  }
+  
+  suit <- landscape$suitability
+  if (raster::nlayers(suit) > 1) {
+    suit <- suit[[timestep]]
+  }
+  
+  calc(suit, fun)
+  
+}
 
 egk_landscape <- landscape(population = egk_pop,
                            suitability = egk_hab,
@@ -400,7 +411,7 @@ egk_pop_dynamics <- population_dynamics(
                                dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000),
                                dispersal_proportion = 0.5),
   modification = NULL,
-  density_dependence = population_cap(stages = 3))
+  density_dependence = ceiling_density(stages = 3))
 
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,
@@ -415,9 +426,20 @@ egk_results <- simulation(landscape = egk_landscape,
 plot(egk_results[1], object = "carrying_capacity", timesteps = c(1, 10, 20), panels = c(3, 1))
 
 ## ---- message = FALSE, results='hide'------------------------------------
-carrying_cap_fun <- function (x) 75 - round(75 * dlogis(x, scale = 0.25), 0)
-
-carrying_cap_fun(seq(1,0,-0.1))
+carrying_cap_fun <- function (landscape, timestep) {
+  
+  fun <- function(suitability) {
+     75 - round(75 * dlogis(suitability, scale = 0.25))
+  }
+  
+  suit <- landscape$suitability
+  if (raster::nlayers(suit) > 1) {
+    suit <- suit[[timestep]]
+  }
+  
+  calc(suit, fun)
+  
+}
 
 egk_landscape <- landscape(population = egk_pop,
                            suitability = egk_hab,
@@ -433,7 +455,7 @@ egk_pop_dynamics <- population_dynamics(
                                dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000),
                                dispersal_proportion = 0.5),
   modification = NULL,
-  density_dependence = population_cap(stages = 3))
+  density_dependence = ceiling_density(stages = 3))
 
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,

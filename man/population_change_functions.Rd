@@ -13,18 +13,16 @@ growth(transition_matrix, global_stochasticity = 0,
 population structure matrix.}
 
 \item{global_stochasticity, local_stochasticity}{either scalar values or
-matrices (with the same dimension as \code{transition_matrix}) giving
-variability (in standard deviations) in the transition matrix either for
-all populations (\code{global_stochasticity}) or for each population
-separately (\code{local_stochasticity})}
+matrices (with the same dimension as \code{transition_matrix}) specifying
+the variability (in standard deviations) in the transition matrix either for
+populations in all grid cells (\code{global_stochasticity}) or for each
+grid cell population separately (\code{local_stochasticity})}
 
 \item{transition_function}{A custom function defined by the user specifying
-either modifications to life-stage transitions at each timestep or
-spatially-explicit values (e.g. rasters) for survival and fecundity at
-each timestep.}
+modifications to life-stage transitions at each timestep. See \link[steps]{transition_function}.}
 }
 \description{
-Pre-defined functions to define population change (e.g. growth) during a simulation.
+Pre-defined or custom functions to define population change during a simulation.
 }
 \examples{
 

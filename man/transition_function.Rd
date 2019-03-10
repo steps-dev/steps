@@ -8,22 +8,25 @@ modified_transition(transition_matrix, survival_layer = "suitability",
   fecundity_layer = "suitability")
 }
 \arguments{
-\item{transition_matrix}{a symmetrical age-based (Leslie) or stage-based
-population structure matrix.}
+\item{transition_matrix}{a symmetrical age-based (Leslie) or stage-based population
+structure matrix.}
 
-\item{survival_layer}{a spatial object within the landscape object used to modify survival values.}
+\item{survival_layer}{the name of a spatial layer in the landscape object used to modify survival values.}
 
-\item{fecundity_layer}{a spatial object within the landscape object used to modify fecundity values.}
+\item{fecundity_layer}{the name of a spatial layer in the landscape object used to modify fecundity values.}
 }
 \value{
 An object of class \code{transition_function}
 }
 \description{
-A growth transition function defines how spatial objects influence survival and fecundity. 
-In the built-in modified_transition function, the values of fecundity and survival in local cell-based
-transition matrices are multiplied by values in the spatial objects for each cell. The spatial objects
-can be rasters that are stored in the landscape object. A user may also provide a custom written growth
-function to modify survival and fecundity throughout a simulation.
+A growth transition function defines how spatial objects or custom functions influence
+survival and fecundity.
+
+In the built-in \code{modified_transition function}, the values of fecundity and survival
+in local cell-based transition matrices are multiplied by values in the named spatial objects
+for each cell. The spatial objects can be rasters that are stored in the landscape object. A user
+may also provide a custom written growth function to modify survival and fecundity throughout a
+simulation.
 }
 \examples{
 

@@ -34,11 +34,13 @@ egk_sink
 egk_road
 }
 \description{
-Example data for simulate spatial population dynamics of Eastern Greya Kangaroos in ?
+Example data for simulating spatial population dynamics of Eastern Grey Kangaroos in a hypothetical landscape.
+}
+\details{
 \describe{
   \item{egk_hab}{A raster layer containing the predicted relative habitat suitability for the Eastern Grey Kangaroo.}
   \item{egk_pop}{A raster stack containing intital populations for each life-stage of the Eastern Grey Kangaroo.}
-  \item{egk_k}{A raster stack containing the total number of Eastern Grey Kangaroos each grid cell can support.}
+  \item{egk_k}{A raster layer containing the total number of Eastern Grey Kangaroos each grid cell can support.}
   \item{egk_mat}{A matrix containing the survival and fecundity of Eastern Grey Kangaroos at each of three life-stages - juvenile, subadult, and adult.}
   \item{egk_mat_stoch}{A matrix containing the uncertainty around survival and fecundity of Eastern Grey Kangaroos at each of three life-stages - juvenile, subadult, and adult.}
   \item{egk_fire}{A raster stack containing values for modifying the habitat - in this case the proportion of landscape remaining after fire.}

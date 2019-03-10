@@ -1,20 +1,18 @@
 #' How the population changes in a landscape.
 #'
-#' Pre-defined functions to define population change (e.g. growth) during a simulation.
+#' Pre-defined or custom functions to define population change during a simulation.
 #'
 #' @name population_change_functions
 #'
 #' @param transition_matrix A symmetrical age-based (Leslie) or stage-based
 #'   population structure matrix.
 #' @param global_stochasticity,local_stochasticity either scalar values or
-#'   matrices (with the same dimension as \code{transition_matrix}) giving
-#'   variability (in standard deviations) in the transition matrix either for
-#'   all populations (\code{global_stochasticity}) or for each population
-#'   separately (\code{local_stochasticity})
+#'   matrices (with the same dimension as \code{transition_matrix}) specifying
+#'   the variability (in standard deviations) in the transition matrix either for
+#'   populations in all grid cells (\code{global_stochasticity}) or for each
+#'   grid cell population separately (\code{local_stochasticity})
 #' @param transition_function A custom function defined by the user specifying
-#'   either modifications to life-stage transitions at each timestep or
-#'   spatially-explicit values (e.g. rasters) for survival and fecundity at
-#'   each timestep.
+#'   modifications to life-stage transitions at each timestep. See \link[steps]{transition_function}.
 #'
 #' @rdname population_change_functions
 #' 

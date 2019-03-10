@@ -11,7 +11,7 @@ ceiling_density(stages = NULL)
 \item{stages}{which life-stages contribute to density dependence - default is all}
 }
 \description{
-Pre-defined functions to define population density dependence (e.g. cap) during a simulation.
+Pre-defined or custom functions to define population density dependence (e.g. ceiling) during a simulation.
 }
 \examples{
 

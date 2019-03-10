@@ -552,7 +552,7 @@ Since we are using habitat dynamics we may want to have a look at how the habita
 plot(egk_results[1], object = "suitability", timesteps = c(1, 10, 20), panels = c(3, 1))
 ```
 
-In all of the examples above, carrying capacity has remained unchanged throughout a simulation. However, carrying capacity is often derived from dynamically changing habitat suitabilities. A function of this relationship can be specified in place of the carrying_capacity raster layer when constructing the landscape object. Internally, the carrying capacity raster will be constructed by applying the function to the habitat suitability raster at each timestep. Here we have created a function that produces decending integers from our hypothetical maximum carrying capacity population of 75 based on decreasing values of habitat suitability (one to zero):
+In all of the examples above, carrying capacity has remained unchanged throughout a simulation. However, carrying capacity is often derived from dynamically changing habitat suitabilities. A function of this relationship can be specified in place of the carrying_capacity raster layer when constructing the landscape object. Internally, the carrying capacity raster will be constructed by applying the function to the habitat suitability raster at each timestep. Here we have created a function that produces descending integers from our hypothetical maximum carrying capacity population of 75 based on decreasing values of habitat suitability (one to zero):
 
 ```{r, message = FALSE, results='hide'}
 carrying_cap_fun <- function (landscape, timestep) {

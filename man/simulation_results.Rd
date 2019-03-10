@@ -25,44 +25,45 @@ extract_spatial(x, replicate = 1, timestep = 1,
   landscape_object = "population", stage = 1, misc = 1)
 }
 \arguments{
-\item{landscape}{a landscape object representing the initial habitat and
+\item{landscape}{a \link[steps]{landscape} object representing the initial habitat and
 population}
 
-\item{population_dynamics}{a population_dynamics object describing how
+\item{population_dynamics}{a \link[steps]{population_dynamics} object describing how
 population changes over time}
 
 \item{habitat_dynamics}{optional list of functions to modify the landscape at
-each timestep}
+each timestep - see \link[steps]{habitat_dynamics_functions}}
 
-\item{demo_stochasticity}{how should population rounding occur if at all -
+\item{demo_stochasticity}{how should population rounding occur, if at all -
 "full" uses a multinomial draw to return rounded cell populations (default);
 "deterministic_redistribution" redistributes the decimal overages to the
 cells with the largest overages; "stochastic_redistribution" redistributes
 the decimal overages to the cells based on binomial draws using the
 overages as probabilities; "none" returns non-integer cell populations (no
-rounding)}
+rounding). Note, this parameter specification is used consistently throughout
+all functions in a simulation.}
 
-\item{timesteps}{number of timesteps used in one simulation or to display
-when plotting rasters}
+\item{timesteps}{number of timesteps used in one simulation or timesteps to
+display when plotting rasters}
 
-\item{replicates}{number simulations to perform}
+\item{replicates}{number of simulations to perform}
 
 \item{verbose}{print messages and progress to console? (default is TRUE)}
 
-\item{x}{an simulation_results object}
+\item{x}{a simulation_results object}
 
 \item{...}{further arguments passed to or from other methods}
 
-\item{object}{the simulation_results object to plot - can be 'population'
+\item{object}{the \code{simulation_results} object to plot - can be 'population'
 (default), 'suitability' or 'carrying_capacity'}
 
 \item{type}{the plot type - 'graph' (default) or 'raster'}
 
 \item{stages}{life-stages to plot - must be specified for 'raster' plot
-types; default is NULL and all life-stages will be plotted}
+types; by default all life-stages will be plotted}
 
 \item{animate}{if plotting type 'raster' would you like to animate the
-rasters as a gif?}
+rasters?}
 
 \item{panels}{the number of columns and rows to use when plotting raster
 timeseries - default is 3 x 3 (e.g. c(3,3) )}
@@ -70,21 +71,21 @@ timeseries - default is 3 x 3 (e.g. c(3,3) )}
 \item{emp}{should the expected minimum population of the simulation be
 plotted?}
 
-\item{replicate}{which replicate to extract a spatial object from a
-simulation result}
+\item{replicate}{which replicate to extract from a \code{simulation_results}
+object}
 
-\item{timestep}{which timestep to extract a spatial object from a simulation
-result}
+\item{timestep}{which timestep(s) to extract from a \code{simulation_results}
+object}
 
-\item{landscape_object}{which landscape object to extract a spatial object
-from a simulation result - can be specified by name (e.g. "suitability") or
-index number}
+\item{landscape_object}{which landscape object to extract from a
+\code{simulation_results} object - can be specified by name
+(e.g. "suitability") or index number}
 
-\item{stage}{which life-stage to extract a spatial object from a simulation
-result - only used for 'population' components of the landscape object}
+\item{stage}{which life-stage to extract from a \code{simulation_results}
+object - only used for 'population' components of the landscape object}
 
-\item{misc}{which misc object to extract a spatial object from a simulation
-result - only used for additional spatial objects added to a landscape
+\item{misc}{which misc object to extract from a \code{simulation_results}
+object - only used for additional spatial objects added to a landscape
 (e.g. disturbance layers)}
 }
 \value{

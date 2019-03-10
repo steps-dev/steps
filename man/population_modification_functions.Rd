@@ -9,17 +9,18 @@ translocation(source_layer, sink_layer, stages = NULL,
   effect_timesteps = 1)
 }
 \arguments{
-\item{source_layer}{a spatial layer with the locations and number of
-individuals to translocate from - note, this layer will only have zero
+\item{source_layer}{the name of a spatial layer in the landscape object with the locations
+and number of individuals to translocate from. Note, this layer will have only zero
 values if individuals are being introduced from outside the study area}
 
-\item{sink_layer}{a spatial layer with the locations and number of
-individuals to translocate to}
+\item{sink_layer}{the name of a spatial layer in the landscape object with the locations
+and number of individuals to translocate to. Note, this layer will have only zero
+values if individuals are being controlled (e.g. culling)}
 
 \item{stages}{which life-stages are modified - default is all}
 
-\item{effect_timesteps}{which timesteps in a single simulation do the
-translocations take place}
+\item{effect_timesteps}{which timesteps in a single simulation do the translocations
+take place}
 }
 \description{
 Pre-defined functions to define population modification (e.g. translocation) during a simulation.
@@ -29,8 +30,8 @@ Pre-defined functions to define population modification (e.g. translocation) dur
 # Use the translocation_population_dynamics object to modify the  
 # population using translocations:
 
-test_ca_dispersal <- translocation(source_layer = egk_source,
-                                       sink_layer = egk_sink,
+test_ca_dispersal <- translocation(source_layer = "egk_source",
+                                       sink_layer = "egk_sink",
                                        stages = NULL,
                                        effect_timesteps = 1)
 }

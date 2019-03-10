@@ -34,7 +34,7 @@ disperse in each life stage}
 disperse in spatial units of the landscape (in kernel-based dispersal
 this truncates the dispersal curve) - must be specified}
 
-\item{arrival_probability}{the name of a raster layer in the landscape object
+\item{arrival_probability}{the name of a spatial layer in the landscape object
 that controls where individuals can disperse to (e.g. habitat suitability)}
 
 \item{barrier_effect}{if a barrier map is used, it either stops individuals
@@ -42,21 +42,22 @@ that controls where individuals can disperse to (e.g. habitat suitability)}
 
 \item{dispersal_steps}{the number of dispersal steps to take before stopping}
 
-\item{barriers_map}{the name of a raster layer in the landscape object that
+\item{barriers_map}{the name of a spatial layer in the landscape object that
 contains cell values of 0 (no barrier) and 1 (barrier).}
 
-\item{carrying_capacity}{the name of a raster layer in the landscape object
+\item{carrying_capacity}{the name of a spatial layer in the landscape object
 that specifies the carrying capacity in each cell}
 }
 \description{
-Pre-defined functions to define population dispersal during a simulation. Each dispersal method
-uses different computing resources and may be applicable to different simulation scenarios.
+Pre-defined or custom functions to define population dispersal during a
+simulation. Each dispersal method uses different computing resources
+and may be applicable to different simulation scenarios.
 }
 \details{
 The fast_dispersal function uses kernel-based dispersal
-to modify the population with a user-defined diffusion distribution and
-a fast-fourier transformation (FFT) computational algorithm. It is
-computationally efficient and very fast, however, only useful for
+to modify the population with a user-defined diffusion distribution
+and a fast-fourier transformation (FFT) computational algorithm. It
+is computationally efficient and very fast, however, only useful for
 situations where dispersal barriers or arrival based on habitat or
 carrying capacity are not required. In other words, organisms
 can disperse in all directions and to all cells in the landscape.
@@ -65,11 +66,21 @@ The kernel_dispersal function employs a probabilistic
 kernel-based dispersal algorithm to modify the population
 using a user-defined diffusion distribution, arrival
 probability layers (e.g. habitat suitability), and growth
-limiting layers (e.g. carrying capacity).
+limiting layers (e.g. carrying capacity). This function is much
+slower than the fast_dispersal, however, respects dispersal
+limitations which may be more ecologically appropriate. Further, 
+the kernel-based dispersal function utilises a mechanism to
+optimise computational performance in which it switches between
+pre-allocating cell movements based on the available memory of
+the host computer (faster but more memory intensive) or executing
+cell movements in sequence (slower but less memory intensive).
 
-The cellular_automata_dispersal function modifies  
-populations using rule-based cell movements. This function allows
-the use of barriers in the landscape to influence dispersal.
+The cellular_automata_dispersal function modifies populations
+using rule-based cell movements. This function allows the use
+of barriers in the landscape to influence dispersal. The
+function is also computationally efficient, however, this scales
+with the maximum dispersal distances, similar to kernel-based
+dispersal.
 }
 \examples{
 

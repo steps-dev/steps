@@ -7,16 +7,20 @@
 exponential_dispersal_kernel(distance_decay = 0.5, normalize = FALSE)
 }
 \arguments{
-\item{distance_decay}{a parameter to control the rate at which the population disperses with distance}
+\item{distance_decay}{(exponential dispersal parameter) controls the rate at which the population disperses with distance}
 
-\item{normalize}{should the normalising constant be used - default is false.}
+\item{normalize}{(exponential dispersal parameter) should the normalising constant be used - default is FALSE.}
 }
 \value{
 An object of class \code{dispersal_function}
 }
 \description{
-A dispersal kernal function is mathematical representation of how species redistribute across the landscape. 
-More common kernels are built-in for the user to select, however, a user may also provide a custom written dispersal kernel.
+A dispersal kernal function is a mathematical representation of how species redistribute
+across the landscape.
+ 
+A common dispersal kernel is provided in the software for the user to select (see
+\link[steps]{exponential_dispersal_kernel}), however, a user may also provide a
+custom written dispersal kernel.
 }
 \examples{
 

@@ -18,8 +18,8 @@ changes in the landscape resulting from environmental phenomena, managerial
 actions or anthropogenic activities. This data is crucial for modelling,
 however, current software that incorporates this information has limited
 flexibility, transparency, and availability. \code{steps} extends the features
-found in existing software and uses common spatial inputs that are derived
-from many other software packages.
+found in existing software and accepts common spatial inputs that are derived
+from many other existing software packages.
 
 A \link[steps]{simulation} is run on a \link[steps]{landscape} using population
 dynamics functions contained in a \link[steps]{population_dynamics} object.

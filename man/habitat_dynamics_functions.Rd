@@ -12,19 +12,22 @@ fire_effects(fire_layers, lag = 3,
   regeneration_function = function(time) {     -time })
 }
 \arguments{
-\item{disturbance_layers}{a raster stack with disturbances (e.g logging) used to alter the habitat object for each timestep (number of layers must match the intended timesteps)}
+\item{disturbance_layers}{the name(s) of spatial layer(s) in the landscape object with disturbances used
+to alter the habitat object for each timestep (number of layers must match the intended timesteps)}
 
 \item{effect_time}{the number of timesteps that the disturbance layer will act on the habitat object}
 
-\item{fire_layers}{a raster stack with fire disturbances used to alter the habitat object for each timestep (number of layers must match the intended timesteps)}
+\item{fire_layers}{the name(s) of spatial layer(s) in the landscape object with fire disturbances used
+to alter the habitat object for each timestep (number of layers must match the intended timesteps)}
 
 \item{lag}{the number of timesteps that the fire layer will act on the habitat object}
 
-\item{regeneration_function}{a function that determines how fast the landscape will regenerate after a fire event}
+\item{regeneration_function}{a function that determines how fast the landscape will regenerate after a
+fire event}
 }
 \description{
-Pre-defined functions to operate on a habitat and carrying capacity
-during a simulation.
+Pre-defined functions to operate on habitat suitability (and carrying capacity if a function
+is used) during a simulation.
 }
 \examples{
 
@@ -32,14 +35,14 @@ library(steps)
 
 
 # Use the disturbance function to modify the habitat using spatial
-# layers (stored in the landscape object):
+# layers (stored in the landscape object and called "logging"):
 
 logging <- disturbance(disturbance_layers = "logging",
                     effect_time = 1)
 
 # Use the fire_effects function to modify the habitat using spatial
-# fire layers (stored in the landscape object) and a regeneration
-# function:
+# fire layers (stored in the landscape object and called "fires")
+# and a regeneration function:
 
 fire <- fire_effects(fire_layers = "fires",
                     lag = 5,

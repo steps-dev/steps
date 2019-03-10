@@ -1,29 +1,28 @@
 #' Create a landscape object.
 #'
 #' A landscape object is used to store spatially-explicit information on population,
-#' habitat suitability and carrying_capacity.
+#' habitat suitability, carrying_capacity and miscellaneous landscape information.
 #' 
-#' A landscape object is modified in each timestep of a simulation. During a simulation, a
-#' landscape object tracks changes in population, habitat suitability or carrying capacity
+#' A landscape object is modified in each timestep of a simulation. During a simulation,
+#' population, habitat suitability or carrying capacity in a landscape object are changed 
 #' based on dynamic functions selected or created by the user.
 #' 
 #' @rdname landscape
 #' 
-#' @param population A raster stack (grid cell-based) with one layer
-#'  for each life stage.
-#' @param suitability An optional raster layer or stack containing habitat
-#'  suitability values for all cells in a landscape. Note, using a raster
+#' @param population a raster stack (grid cell-based) with one layer for each life
+#'  stage.
+#' @param suitability an optional raster layer or stack (multiple layers) containing
+#'  habitat suitability values for all cells in a landscape. Note, using a raster
 #'  stack assumes that the user has provided a layer for each intended timestep
 #'  in a simulation.
-#' @param carrying_capacity An optional raster layer specifying carrying capacity
+#' @param carrying_capacity an optional raster layer specifying carrying capacity
 #'  values for all cells in a landscape or a function defining how carrying capacity
 #'  is determined by habitat suitability.
-#' @param x A landscape object.
-#' @param ... Named raster objects representing different
-#'  aspects of the landscape used to modify the landscape object in a
-#'  simulation. Note, this is intended to store objects that are accessed
-#'  and used to modify the landscape with custom developed dynamic
-#'  functions. Also, further arguments passed to or from other methods.
+#' @param x a landscape object.
+#' @param ... named raster objects representing different aspects of the landscape
+#'  used to modify the landscape object in a simulation. Note, this is intended to
+#'  store objects that are accessed by dynamic functions and used to modify the
+#'  landscape in a simulation. Also, further arguments passed to or from other methods.
 #'
 #' @return An object of class \code{landscape}
 #' 

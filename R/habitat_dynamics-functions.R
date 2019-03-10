@@ -1,16 +1,18 @@
 #' Functions to modify the habitat in a landscape object.
 #' 
-#' Pre-defined functions to operate on a habitat and carrying capacity
-#' during a simulation.
+#' Pre-defined functions to operate on habitat suitability (and carrying capacity if a function
+#' is used) during a simulation.
 #'
 #' @name habitat_dynamics_functions
 #'
-#' @param disturbance_layers a raster stack with disturbances (e.g logging) used to alter the habitat object for each timestep (number of layers must match the intended timesteps)
+#' @param disturbance_layers the name(s) of spatial layer(s) in the landscape object with disturbances used
+#'   to alter the habitat object for each timestep (number of layers must match the intended timesteps)
 #' @param effect_time the number of timesteps that the disturbance layer will act on the habitat object
-#' @param fire_layers a raster stack with fire disturbances used to alter the habitat object for each timestep (number of layers must match the intended timesteps)
+#' @param fire_layers the name(s) of spatial layer(s) in the landscape object with fire disturbances used
+#'   to alter the habitat object for each timestep (number of layers must match the intended timesteps)
 #' @param lag the number of timesteps that the fire layer will act on the habitat object
-#' @param regeneration_function a function that determines how fast the landscape will regenerate after a fire event
-#  @param suitability_layers a raster stack with pre-determined habitat suitability used to replace the habitat object for each timestep in the experiment (number of layers must match the intended timesteps)
+#' @param regeneration_function a function that determines how fast the landscape will regenerate after a
+#'   fire event
 #'
 #' @examples
 #' 
@@ -23,7 +25,7 @@
 #' @examples
 #' 
 #' # Use the disturbance function to modify the habitat using spatial
-#' # layers (stored in the landscape object):
+#' # layers (stored in the landscape object and called "logging"):
 #' 
 #' logging <- disturbance(disturbance_layers = "logging",
 #'                     effect_time = 1)
@@ -65,8 +67,8 @@ disturbance <- function (disturbance_layers, effect_time = 1) {
 #' @examples
 #' 
 #' # Use the fire_effects function to modify the habitat using spatial
-#' # fire layers (stored in the landscape object) and a regeneration
-#' # function:
+#' # fire layers (stored in the landscape object and called "fires")
+#' # and a regeneration function:
 #' 
 #' fire <- fire_effects(fire_layers = "fires",
 #'                     lag = 5,
@@ -130,34 +132,6 @@ fire_effects <- function (fire_layers,
   
 }
 
-# @rdname habitat_dynamics_functions
-#
-# @export
-# 
-# @examples
-# 
-# # Use the replace function to specify the habitat for each timestep
-# # using predetermined habitat layers (stored in the landscape object):
-# 
-# hab_replace <- replace(suitability_layers = "habitat")
-
-# replace <- function (suitability_layers) {
-#   
-#   dist_fun <- function (landscape, timestep) {
-#     
-#     if (raster::nlayers(landscape[[suitability_layers]]) < timestep ) {
-#       stop("The number of replacement layers must match the number of timesteps in the experiment")
-#     }
-# 
-#     landscape$suitability <- landscape[[suitability_layers]][[timestep]]
-#     
-#     landscape
-#     
-#   }
-#   
-#   as.habitat_disturbance(dist_fun)
-#   
-# }
 
 ##########################
 ### internal functions ###

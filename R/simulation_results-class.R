@@ -5,46 +5,47 @@
 #'
 #' @rdname simulation_results
 #'
-#' @param landscape a landscape object representing the initial habitat and
+#' @param landscape a \link[steps]{landscape} object representing the initial habitat and
 #'   population
-#' @param population_dynamics a population_dynamics object describing how
+#' @param population_dynamics a \link[steps]{population_dynamics} object describing how
 #'   population changes over time
 #' @param habitat_dynamics optional list of functions to modify the landscape at
-#'   each timestep
-#' @param demo_stochasticity how should population rounding occur if at all -
+#'   each timestep - see \link[steps]{habitat_dynamics_functions}
+#' @param demo_stochasticity how should population rounding occur, if at all -
 #'   "full" uses a multinomial draw to return rounded cell populations (default);
 #'   "deterministic_redistribution" redistributes the decimal overages to the
 #'   cells with the largest overages; "stochastic_redistribution" redistributes
 #'   the decimal overages to the cells based on binomial draws using the
 #'   overages as probabilities; "none" returns non-integer cell populations (no
-#'   rounding)
-#' @param timesteps number of timesteps used in one simulation or to display
-#'   when plotting rasters
-#' @param replicates number simulations to perform
+#'   rounding). Note, this parameter specification is used consistently throughout
+#'   all functions in a simulation.
+#' @param timesteps number of timesteps used in one simulation or timesteps to
+#'   display when plotting rasters
+#' @param replicates number of simulations to perform
 #' @param verbose print messages and progress to console? (default is TRUE)
-#' @param x an simulation_results object
-#' @param object the simulation_results object to plot - can be 'population'
+#' @param x a simulation_results object
+#' @param object the \code{simulation_results} object to plot - can be 'population'
 #'   (default), 'suitability' or 'carrying_capacity'
 #' @param type the plot type - 'graph' (default) or 'raster'
 #' @param stages life-stages to plot - must be specified for 'raster' plot
-#'   types; default is NULL and all life-stages will be plotted
+#'   types; by default all life-stages will be plotted
 #' @param animate if plotting type 'raster' would you like to animate the
-#'   rasters as a gif?
+#'   rasters?
 #' @param panels the number of columns and rows to use when plotting raster
 #'   timeseries - default is 3 x 3 (e.g. c(3,3) )
 #' @param emp should the expected minimum population of the simulation be
 #'   plotted?
-#' @param replicate which replicate to extract a spatial object from a
-#'   simulation result
-#' @param timestep which timestep to extract a spatial object from a simulation
-#'   result
-#' @param landscape_object which landscape object to extract a spatial object
-#'   from a simulation result - can be specified by name (e.g. "suitability") or
-#'   index number
-#' @param stage which life-stage to extract a spatial object from a simulation
-#'   result - only used for 'population' components of the landscape object
-#' @param misc which misc object to extract a spatial object from a simulation
-#'   result - only used for additional spatial objects added to a landscape
+#' @param replicate which replicate to extract from a \code{simulation_results}
+#'   object
+#' @param timestep which timestep(s) to extract from a \code{simulation_results}
+#'   object
+#' @param landscape_object which landscape object to extract from a
+#'   \code{simulation_results} object - can be specified by name
+#'   (e.g. "suitability") or index number
+#' @param stage which life-stage to extract from a \code{simulation_results}
+#'   object - only used for 'population' components of the landscape object
+#' @param misc which misc object to extract from a \code{simulation_results}
+#'   object - only used for additional spatial objects added to a landscape
 #'   (e.g. disturbance layers)
 #' @param ... further arguments passed to or from other methods
 #'

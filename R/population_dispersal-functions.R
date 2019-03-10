@@ -4,13 +4,14 @@ NULL
 
 #' How the population disperses in a landscape.
 #'
-#' Pre-defined functions to define population dispersal during a simulation. Each dispersal method
-#' uses different computing resources and may be applicable to different simulation scenarios.
+#' Pre-defined or custom functions to define population dispersal during a
+#' simulation. Each dispersal method uses different computing resources
+#' and may be applicable to different simulation scenarios.
 #' 
 #' The fast_dispersal function uses kernel-based dispersal
-#' to modify the population with a user-defined diffusion distribution and
-#' a fast-fourier transformation (FFT) computational algorithm. It is
-#' computationally efficient and very fast, however, only useful for
+#' to modify the population with a user-defined diffusion distribution
+#' and a fast-fourier transformation (FFT) computational algorithm. It
+#' is computationally efficient and very fast, however, only useful for
 #' situations where dispersal barriers or arrival based on habitat or
 #' carrying capacity are not required. In other words, organisms
 #' can disperse in all directions and to all cells in the landscape.
@@ -19,11 +20,21 @@ NULL
 #' kernel-based dispersal algorithm to modify the population
 #' using a user-defined diffusion distribution, arrival
 #' probability layers (e.g. habitat suitability), and growth
-#' limiting layers (e.g. carrying capacity).
+#' limiting layers (e.g. carrying capacity). This function is much
+#' slower than the fast_dispersal, however, respects dispersal
+#' limitations which may be more ecologically appropriate. Further, 
+#' the kernel-based dispersal function utilises a mechanism to
+#' optimise computational performance in which it switches between
+#' pre-allocating cell movements based on the available memory of
+#' the host computer (faster but more memory intensive) or executing
+#' cell movements in sequence (slower but less memory intensive).
 #' 
-#' The cellular_automata_dispersal function modifies  
-#' populations using rule-based cell movements. This function allows
-#' the use of barriers in the landscape to influence dispersal.
+#' The cellular_automata_dispersal function modifies populations
+#' using rule-based cell movements. This function allows the use
+#' of barriers in the landscape to influence dispersal. The
+#' function is also computationally efficient, however, this scales
+#' with the maximum dispersal distances, similar to kernel-based
+#' dispersal.
 #'
 #' @name population_dispersal_functions
 #'

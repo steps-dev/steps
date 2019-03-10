@@ -1,15 +1,16 @@
 #' Create a dispersal function
 #'
-#' @description A dispersal kernal function is mathematical representation of how species redistribute
+#' @description A dispersal kernal function is a mathematical representation of how species redistribute
 #' across the landscape.
 #'  
-#' More common kernels are built-in for the user to select (see exponential_dispersal_kernel), however,
-#' a user may also provide a custom written dispersal kernel.
+#' A common dispersal kernel is provided in the software for the user to select (see
+#' \link[steps]{exponential_dispersal_kernel}), however, a user may also provide a
+#' custom written dispersal kernel.
 #' 
 #' @rdname dispersal_function
 #'
-#' @param distance_decay a parameter to control the rate at which the population disperses with distance
-#' @param normalize should the normalising constant be used - default is FALSE.
+#' @param distance_decay (exponential dispersal parameter) controls the rate at which the population disperses with distance
+#' @param normalize (exponential dispersal parameter) should the normalising constant be used - default is FALSE.
 #' 
 #' @return An object of class \code{dispersal_function}
 #' 

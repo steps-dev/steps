@@ -9,15 +9,23 @@
 #' explicitly defined by the user). The \code{population_dynamics} function is
 #' used to construct an object with several population dynamics functions and
 #' their associated parameters. These functions specify how the population in
-#' the landscape object will be modified throughout a simulation. 
+#' the landscape object will be modified throughout a simulation. The dynamics
+#' can be executed in any order that is specified by the user.
 #'
 #' @rdname population_dynamics
 #'
-#' @param change \link[steps]{population_change_functions} to define how population growth occurs at each timestep
-#' @param dispersal \link[steps]{population_dispersal_functions} to define how the population disperses at each timestep
-#' @param modification \link[steps]{population_modification_functions} to define any deterministic changes to the population - such as translocations or population control - at each timestep
-#' @param density_dependence \link[steps]{population_density_dependence_functions} to control density dependence effects on the population at each timestep
-#' @param dynamics_order the order in which the population dynamics should be executed on the landscape object - default is "change" -> "dispersal" -> "modification" -> "density_dependence". Note, if population dynamics are reordered, all dynamics must be listed in dynamics_order.
+#' @param change \link[steps]{population_change_functions} to define how population
+#'  growth occurs at each timestep
+#' @param dispersal \link[steps]{population_dispersal_functions} to define how the
+#'  population disperses at each timestep
+#' @param modification \link[steps]{population_modification_functions} to define any
+#'  deterministic changes to the population - such as translocations or population
+#'  control - at each timestep
+#' @param density_dependence \link[steps]{population_density_dependence_functions}
+#'  to control density dependence effects on the population at each timestep
+#' @param dynamics_order the order in which the population dynamics should be executed
+#'  on the landscape object - default is "change" -> "dispersal" -> "modification" -> "density_dependence". 
+#'  Note, if population dynamics are reordered, all dynamics must be listed in \code{dynamics_order}.
 #' @param x a population_dynamics object
 #' @param ... further arguments passed to or from other methods
 #'

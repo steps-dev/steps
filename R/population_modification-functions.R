@@ -9,7 +9,8 @@
 #'   and number of individuals to translocate from. Note, this layer will have only zero
 #'   values if individuals are being introduced from outside the study area
 #' @param sink_layer the name of a spatial layer in the landscape object with the locations
-#'   and number of individuals to translocate to.
+#'   and number of individuals to translocate to. Note, this layer will have only zero
+#'   values if individuals are being controlled (e.g. culling)
 #' @param effect_timesteps which timesteps in a single simulation do the translocations
 #'   take place
 #'
