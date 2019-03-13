@@ -137,12 +137,8 @@ fire_effects <- function (fire_layers,
 ### internal functions ###
 ##########################
 
-as.habitat_disturbance <- function (habitat_disturbance, info = NULL) {
-  as_class(habitat_disturbance, "habitat_dynamics", "function", info = info)
-}
-
-print.habitat_disturbance <- function (x, ...) {
-  print_info(x)
+as.habitat_disturbance <- function (habitat_disturbance) {
+  as_class(habitat_disturbance, "habitat_dynamics", "function")
 }
 
 rescale <- function (x) {

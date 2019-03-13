@@ -84,16 +84,7 @@ simulation <- function(landscape,
   flush_stash()
 
   steps_stash$demo_stochasticity <- match.arg(demo_stochasticity)
-  
-  # if(!is.null(landscape$carrying_capacity) && identical(class(landscape$carrying_capacity)[1], "function")){
-  #   steps_stash$carrying_capacity_function <- landscape$carrying_capacity
-  #   if(is.null(landscape$suitability)) stop("A carrying capacity function requires a suitability layer in the landscape object.")
-  #   cell_idx <- which(!is.na(raster::getValues(landscape$suitability)))
-  #   landscape$carrying_capacity <- landscape$suitability
-  #   names(landscape$carrying_capacity) <- "k"
-  #   landscape$carrying_capacity[cell_idx] <- steps_stash$carrying_capacity_function(landscape$suitability[cell_idx])
-  # }
-  
+
   in_parallel <- !inherits(future::plan(), "sequential")
   lapply_fun <- ifelse(in_parallel,
                        future.apply::future_lapply,
@@ -142,7 +133,7 @@ is.simulation_results <- function (x) {
 
 print.simulation_results <- function (x, ...) {
   cat("This is an simulation results object, for", length(x), "replicates")
-  
+
 }
 
 

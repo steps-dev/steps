@@ -69,9 +69,7 @@ modified_transition <- function(transition_matrix,
     
   }
 
-  as.transition_function(fun, info = list(transition_matrix = transition_matrix,
-                                          survival_layer =  survival_layer,
-                                          fecundity_layer = fecundity_layer))
+  as.transition_function(fun)
   
 }
 
@@ -94,10 +92,6 @@ modified_transition <- function(transition_matrix,
 ### internal functions ###
 ##########################
 
-as.transition_function <- function (transition_function, info = NULL) {
-  as_class(transition_function, "transition_function", "function", info = info)
-}
-
-print.dispersal_function <- function (x, ...) {
-  print_info(x)
+as.transition_function <- function (transition_function) {
+  as_class(transition_function, "transition_function", "function")
 }

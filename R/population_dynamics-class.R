@@ -77,11 +77,7 @@ population_dynamics <- function (change = NULL,
     landscape
   }
   
-  as.population_dynamics(pop_dynamics, info = list(change = change,
-                                                   dispersal = dispersal,
-                                                   modification = modification,
-                                                   density_dependence = density_dependence,
-                                                   dynamics_order = dynamics_order))
+  as.population_dynamics(pop_dynamics)
   
 }
 
@@ -109,14 +105,13 @@ is.population_dynamics <- function (x) {
 #' print(pop_dynamics)
 
 print.population_dynamics <- function (x, ...) {
-  cat("This is a population_dynamics object that specifies the population will\nutilise the following objects and parameters:\n")
-  print_info(x)
+  cat("This is a population_dynamics object.")
 }
 
 ##########################
 ### internal functions ###
 ##########################
 
-as.population_dynamics <- function (population_dynamics_function, info = NULL) {
-  as_class(population_dynamics_function, "population_dynamics", "function", info = info)
+as.population_dynamics <- function (population_dynamics_function) {
+  as_class(population_dynamics_function, "population_dynamics", "function")
 }

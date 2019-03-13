@@ -122,8 +122,7 @@ fast_dispersal <- function(dispersal_kernel = exponential_dispersal_kernel(dista
     
   }
   
-  as.population_dispersal(pop_dynamics, info = list(dispersal_kernel = print(dispersal_kernel),
-                                                    dispersal_proportion = dispersal_proportion))
+  as.population_dispersal(pop_dynamics)
   
 }
 
@@ -146,7 +145,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
   arrival_probability <- match.arg(arrival_probability)
   
   pop_dynamics <- function(landscape, timestep) {
-    
+
     distance_list <- steps_stash$distance_list
     if (is.null(distance_list)) {
       # what are dimensions of raster (lazyeval was causing this to be rerun on
@@ -340,10 +339,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
     
   }
   
-  as.population_dispersal(pop_dynamics, info = list(dispersal_kernel = print(dispersal_kernel),
-                                                    dispersal_distance = dispersal_distance,
-                                                    arrival_probability = arrival_probability,
-                                                    dispersal_proportion = dispersal_proportion))
+  as.population_dispersal(pop_dynamics)
   
 }
 
@@ -460,14 +456,7 @@ cellular_automata_dispersal <- function (dispersal_distance = Inf,
     landscape
   }
   
-  as.population_dispersal(pop_dynamics, info = list(dispersal_distance = dispersal_distance,
-                                                    dispersal_kernel = print(dispersal_kernel),
-                                                    dispersal_proportion = dispersal_proportion,
-                                                    barrier_effect = barrier_effect,
-                                                    dispersal_steps = dispersal_steps,
-                                                    barriers_map = barriers_map,
-                                                    arrival_probability = arrival_probability,
-                                                    carrying_capacity = carrying_capacity))
+  as.population_dispersal(pop_dynamics)
   
 }
 
@@ -476,8 +465,8 @@ cellular_automata_dispersal <- function (dispersal_distance = Inf,
 ### internal functions ###
 ##########################
 
-as.population_dispersal <- function (dispersal, info = NULL) {
-  as_class(dispersal, "population_dispersal", "function", info = info)
+as.population_dispersal <- function (dispersal) {
+  as_class(dispersal, "population_dispersal", "function")
 }
 
 # as.population_fast_dispersal <- function (fast_dispersal, info = NULL) {
@@ -491,10 +480,6 @@ as.population_dispersal <- function (dispersal, info = NULL) {
 # as.population_ca_dispersal <- function (ca_dispersal, info = NULL) {
 #   as_class(ca_dispersal, "population_ca_dispersal", "function", info = info)
 # }
-
-print.population_dispersal <- function (x, ...) {
-  print_info(x)
-}
 
 extend <- function (x, factor = 2) {
   # given an evenly-spaced vector `x` of cell centre locations, extend it to the

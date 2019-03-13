@@ -67,10 +67,7 @@ translocation <- function (source_layer, sink_layer, stages = NULL, effect_times
     
   }
   
-  as.population_translocation(pop_dynamics, info = list(source_layer = print(source_layer),
-                                                        sink_layer = print(sink_layer),
-                                                        stages = stages,
-                                                        effect_timesteps = effect_timesteps))
+  as.population_translocation(pop_dynamics)
   
 }
 
@@ -78,10 +75,6 @@ translocation <- function (source_layer, sink_layer, stages = NULL, effect_times
 ### internal functions ###
 ##########################
 
-as.population_translocation <- function (translocation, info = NULL) {
-  as_class(translocation, "population_translocation", "function", info = info)
-}
-
-print.population_translocation <- function (x, ...) {
-  print_info(x)
+as.population_translocation <- function (translocation) {
+  as_class(translocation, "population_translocation", "function")
 }

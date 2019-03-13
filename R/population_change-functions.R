@@ -83,55 +83,84 @@ growth <- function (transition_matrix,
     values <- pmax(values, 0)
     values <- pmin(values, rep(upper, n_cells))
     transition_array[idx_full] <- values
-    
+
     if (steps_stash$demo_stochasticity == "full") {
+
+      n_cell <- nrow(population)
+      n_stage <- ncol(population)
       
-      local_t <- array(apply(transition_array, 3,
-                             function(x) {
-                               rbind(0,
-                                     x[-1,],
-                                     if (is.vector(x[-1, ])) {
-                                       x[-1,]
-                                     } else {
-                                       1 - apply(x[-1, ], 2, sum)
-                                     })
-                             }),
-                       dim = c(dim + 1,
-                               dim,
-                               n_cells))
+      survival_array <- transition_array
+      survival_array[1, , ] <- 0
+
+      # loop through stages, getting the stages to which they move (if they survive)
+      survival_stochastic <- matrix(0, n_cell, n_stage)
+      for (stage in seq_len(n_stage)) {
+        
+        # get the populations that have any of this stage
+        pop <- population[, stage]
+        any <- pop > 0
+        n_any <- sum(any)
+        
+        # how many to transition
+        sizes <- pop[any]
+
+        # probability of transitioning to each other stage
+        probs <- t(survival_array[, stage, any])
+        
+        # add on probability of dying
+        surv_prob <- rowSums(probs)
+        probs <- cbind(probs, 1 - surv_prob)
+        
+        # loop through cells with population (rmultinom is not vectorised on probabilities)
+        new_stages <- matrix(NA, n_any, n_stage)
+        idx <- seq_len(n_stage)
+        for (i in seq_len(n_any)) {
+          new_stages[i, ] <- stats::rmultinom(1, sizes[i], probs[i, ])[idx, ]
+        }
+        
+        # update the population
+        survival_stochastic[any, ] <- survival_stochastic[any, ] + new_stages
+
+      }
       
-      local_f <- transition_array
-      local_f[-1, , ] <- 0
+      # do reproduction all in one go
       
-      pop_tmp <- cbind(population, rep(0, n_cells))
+      # fecundity
       
-      survival_stochastic <- sapply(seq_len(ncol(population)),
-                                    function(y) sapply(seq_len(nrow(population)),
-                                                       function(x) stats::rmultinom(n = 1,
-                                                                                    size = pop_tmp[x, y],
-                                                                                    prob = local_t[, y, x])),
-                                    simplify = 'array')
+      # only look at sites with any individuals
+      total_pop <- rowSums(population)
+      any <- total_pop > 0
+      n_any <- sum(any)
+
+      pop_any <- population[any, ]
       
-      
-      new_offspring_deterministic <- sapply(seq_len(nrow(population)), function(x) local_f[ , , x] %*% matrix(population[x, ]))
-      new_offspring_stochastic <- matrix(stats::rpois(n = length(c(new_offspring_deterministic)),
-                                                      lambda = c(new_offspring_deterministic)),
-                                         nrow = nrow(new_offspring_deterministic))
-      new_offspring <- apply(new_offspring_stochastic, 2, sum)
-      
-      population <- t(apply(survival_stochastic[seq_len(ncol(population)), , ], c(1, 2), sum))
-      population[ , 1] <- population[ , 1] + new_offspring
-      
+      # get fecundities
+      # N.B. assumes we can only recruit into the first stage!
+      fecundities <- t(transition_array[1, , any])
+
+      # get expected number, then do a poisson draw about this
+      expected_offspring <- fecundities * pop_any
+      new_offspring_stochastic <- expected_offspring
+      new_offspring_stochastic[] <- stats::rpois(length(expected_offspring), expected_offspring[])
+
+      # sum stage 1s created by all other stages
+      new_offspring <- rowSums(new_offspring_stochastic)
+
+      # combinethe survivals and fecundities
+      population <- survival_stochastic
+      population[any, 1] <- population[any , 1] + new_offspring
+
     } else {
       
-      population <- t(sapply(seq_len(n_cells),
-                             function(x) transition_array[ , , x] %*% matrix(population[x, ])))
+      population <- sapply(seq_len(n_cells),
+                           function(x) transition_array[ , , x] %*% matrix(population[x, ]))
+      
+      population <- t(population)
       
       # get whole integers
       population <- round_pop(population)
 
     }
-    
     
     # put back in the raster
     population_raster[cell_idx] <- population
@@ -141,21 +170,15 @@ growth <- function (transition_matrix,
     landscape
   }
   
-  as.population_growth(pop_dynamics, info = list(transition_matrix = transition_matrix ,
-                                                 global_stochasticity = global_stochasticity,
-                                                 local_stochasticity = local_stochasticity,
-                                                 transition_function = transition_function))
-  
+  result <- as.population_growth(pop_dynamics)
+  # browser()
+  result
 }
 
 ##########################
 ### internal functions ###
 ##########################
 
-as.population_growth <- function (simple_growth, info = NULL) {
-  as_class(simple_growth, "population_growth", "function", info = info)
-}
-
-print.population_growth <- function (x, ...) {
-  print_info(x)
+as.population_growth <- function (simple_growth) {
+  as_class(simple_growth, "population_growth", "function")
 }

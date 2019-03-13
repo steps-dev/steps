@@ -26,8 +26,7 @@ exponential_dispersal_kernel <- function (distance_decay = 0.5, normalize = FALS
   } else {
     fun <- function (r) exp(-r/distance_decay)
   }
-  as.dispersal_function(fun, info = list(distance_decay = distance_decay,
-                                         normalize = normalize))
+  as.dispersal_function(fun)
 }
 
 # #' @rdname dispersal_function
@@ -49,10 +48,6 @@ exponential_dispersal_kernel <- function (distance_decay = 0.5, normalize = FALS
 ### internal functions ###
 ##########################
 
-as.dispersal_function <- function (dispersal_function, info = NULL) {
-  as_class(dispersal_function, "dispersal_function", "function", info = info)
-}
-
-print.dispersal_function <- function (x, ...) {
-  print_info(x)
+as.dispersal_function <- function (dispersal_function) {
+  as_class(dispersal_function, "dispersal_function", "function")
 }

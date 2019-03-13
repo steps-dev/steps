@@ -82,12 +82,12 @@ is.landscape <- function (x) {
 print.landscape <- function (x, ...) {
   r.dims <- dim(x[['population']])
   r.res <- raster::res(x[['population']])
-  
+
   cat("This is a landscape object that contains initial populations for", raster::nlayers(x[['population']]),
       "stage(s).\nEach grid cell is", r.res[1], "by", r.res[2], "map",
       "units (based on projection) in size\nand a total of", prod(r.dims),
       "grid cells are arranged in", r.dims[1], "rows and", r.dims[2], "columns.")
-  
+
 }
 
 ##########################
