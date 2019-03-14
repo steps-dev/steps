@@ -158,7 +158,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
       
       sys_mem_available <- memuse::Sys.meminfo()$freeram
       
-      sys_mem_available <- memuse::mu.size(sys_mem_available, as.is = FALSE)
+      sys_mem_available <- memuse::mu.size(sys_mem_available, as.is = FALSE) * 0.8
       
       n_elem <- nrow(distance_info) * raster::ncell(landscape$population)
       sys_mem_required <- (n_elem * (64 + 32)) / 8
@@ -332,7 +332,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
       landscape$population[[stage]] <- pop_dispersing + pop_staying
       
     }
-    
+
     #cat("Pre-Post Population:", poptot, sum(raster::cellStats(landscape$population, sum)), "(Timestep", timestep, ")", "\n")
     
     landscape

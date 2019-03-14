@@ -148,7 +148,7 @@ growth <- function (transition_matrix,
 
       # combinethe survivals and fecundities
       population <- survival_stochastic
-      population[any, 1] <- population[any , 1] + new_offspring
+      population[any, 1] <- population[any, 1] + new_offspring
 
     } else {
       
