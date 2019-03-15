@@ -25,12 +25,6 @@ ceiling_density <- function (stages = NULL) {
     
     cc <- get_carrying_capacity(landscape, timestep)
 
-    # carrying_capacity_function <- steps_stash$carrying_capacity_function
-    # if (!is.null(carrying_capacity_function)) {
-    #   if (raster::nlayers(landscape$suitability) > 1) carrying_capacity[cell_idx] <- carrying_capacity_function(landscape$suitability[[timestep]][cell_idx])
-    #   else landscape$carrying_capacity[cell_idx] <- carrying_capacity_function(landscape$suitability[cell_idx])
-    # }
-
     if (is.null(cc)) {
       stop ("carrying capacity must be specified in the landscape object to use ceiling_density",
             call. = FALSE)
@@ -39,7 +33,6 @@ ceiling_density <- function (stages = NULL) {
     # get population as a matrix
     population_matrix <- raster::extract(population_raster, idx)
     carrying_capacity <- raster::extract(cc, idx)
-    
     
     # get degree of overpopulation, and shrink accordingly
     if (!is.null(stages)) {
@@ -69,57 +62,61 @@ ceiling_density <- function (stages = NULL) {
   return(result)
 }
 
-# IN PROGRESS...
-# @rdname population_density_dependence_functions
-#
-# @export
-#
-# @examples
-#
-# test_pop_dd <- contest()
 
-# contest <- function (transition_matrix,
-#                      max_growth_rate = 1,
-#                      stages = NULL) {
-#
+# #' @rdname population_density_dependence_functions
+# #' @export
+# #' 
+# #' @examples
+# #' 
+# #' test_pop_dd <- contest_density()
+
+# contest_density <- function (transition_matrix,
+#                              stages = NULL) {
+# 
 #   pop_dynamics <- function (landscape, timestep) {
-#
+# 
 #     population_raster <- landscape$population
-#
+# 
 #     # Get non-NA cells
 #     idx <- which(!is.na(raster::getValues(population_raster[[1]])))
-#
-# carrying_capacity_function <- steps_stash$carrying_capacity_function
-# if (!is.null(carrying_capacity_function)) {
-#   if (raster::nlayers(landscape$suitability) > 1) carrying_capacity[cell_idx] <- carrying_capacity_function(landscape$suitability[[timestep]][cell_idx])
-#   else landscape$carrying_capacity[cell_idx] <- carrying_capacity_function(landscape$suitability[cell_idx])
-# }
-#
+# 
+#     cc <- get_carrying_capacity(landscape, timestep)
+# 
+#     if (is.null(cc)) {
+#       stop ("carrying capacity must be specified in the landscape object to use contest_density",
+#             call. = FALSE)
+#     }
+# 
+#     r <- abs(eigen(transition_matrix)$values[1])
+# 
 #     # get population as a matrix
-#     population_matrix <- raster::extract(population_raster, idx)
-#     carrying_capacity <- raster::extract(landscape$carrying_capacity, idx)
-#
+#     N <- raster::extract(population_raster, idx)
+#     k <- raster::extract(cc, idx)
+# 
 #     # get growth rates
 #     if (!is.null(stages)) {
-#       rate <- (max_growth_rate * as.vector(carrying_capacity)) /
-#         (max_growth_rate * rowSums(cbind(population_matrix[ , stages], rep(0, length(idx)))) - rowSums(cbind(population_matrix[ , stages], rep(0, length(idx)))) + as.vector(carrying_capacity)
+#       rate <- (k * rowSums(N[ , stages])) / rowSums(N[ , stages]) + (k - rowSums(N[ , stages])) * exp(-r)
 #     } else {
-#       rate <- max_growth_rate * as.vector(carrying_capacity) / max_growth_rate * rowSums(population_matrix) - rowSums(population_matrix) + as.vector(carrying_capacity)
+#       rate <- (k * rowSums(N)) / rowSums(N) + (k - rowSums(N)) * exp(-r)
+#       rate[is.na(rate)] <- 0
 #     }
-#
+# 
 #     # get whole integers
-#     population <- round_pop(population)
-#
+#     population <- round_pop(rate)
+# 
 #     # put back in the raster
 #     population_raster[idx] <- population
-#
+# 
 #     landscape$population <- population_raster
-#
+# 
 #     landscape
 #   }
-#
-# as.population_density_dependence(pop_dynamics)
-#
+# 
+#   result <- as.population_density_dependence(pop_dynamics)
+# 
+#   attr(result, "density_dependence_stages") <- stages
+#   return(result)
+# 
 # }
 
 ##########################
