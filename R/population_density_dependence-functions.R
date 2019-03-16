@@ -63,62 +63,6 @@ ceiling_density <- function (stages = NULL) {
 }
 
 
-# #' @rdname population_density_dependence_functions
-# #' @export
-# #' 
-# #' @examples
-# #' 
-# #' test_pop_dd <- contest_density()
-
-# contest_density <- function (transition_matrix,
-#                              stages = NULL) {
-# 
-#   pop_dynamics <- function (landscape, timestep) {
-# 
-#     population_raster <- landscape$population
-# 
-#     # Get non-NA cells
-#     idx <- which(!is.na(raster::getValues(population_raster[[1]])))
-# 
-#     cc <- get_carrying_capacity(landscape, timestep)
-# 
-#     if (is.null(cc)) {
-#       stop ("carrying capacity must be specified in the landscape object to use contest_density",
-#             call. = FALSE)
-#     }
-# 
-#     r <- abs(eigen(transition_matrix)$values[1])
-# 
-#     # get population as a matrix
-#     N <- raster::extract(population_raster, idx)
-#     k <- raster::extract(cc, idx)
-# 
-#     # get growth rates
-#     if (!is.null(stages)) {
-#       rate <- (k * rowSums(N[ , stages])) / rowSums(N[ , stages]) + (k - rowSums(N[ , stages])) * exp(-r)
-#     } else {
-#       rate <- (k * rowSums(N)) / rowSums(N) + (k - rowSums(N)) * exp(-r)
-#       rate[is.na(rate)] <- 0
-#     }
-# 
-#     # get whole integers
-#     population <- round_pop(rate)
-# 
-#     # put back in the raster
-#     population_raster[idx] <- population
-# 
-#     landscape$population <- population_raster
-# 
-#     landscape
-#   }
-# 
-#   result <- as.population_density_dependence(pop_dynamics)
-# 
-#   attr(result, "density_dependence_stages") <- stages
-#   return(result)
-# 
-# }
-
 ##########################
 ### internal functions ###
 ##########################

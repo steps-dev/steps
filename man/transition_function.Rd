@@ -2,10 +2,13 @@
 % Please edit documentation in R/growth_transition_functions-class.R
 \name{modified_transition}
 \alias{modified_transition}
+\alias{competition_density}
 \title{Create a growth transition function}
 \usage{
 modified_transition(transition_matrix, survival_layer = "suitability",
   fecundity_layer = "suitability")
+
+competition_density(transition_matrix, stages = NULL, mask = NULL)
 }
 \arguments{
 \item{transition_matrix}{a symmetrical age-based (Leslie) or stage-based population
@@ -14,21 +17,30 @@ structure matrix.}
 \item{survival_layer}{the name of a spatial layer in the landscape object used to modify survival values.}
 
 \item{fecundity_layer}{the name of a spatial layer in the landscape object used to modify fecundity values.}
+
+\item{stages}{which life-stages contribute to density dependence - default is all}
+
+\item{mask}{a matrix of boolean values (TRUE/FALSE), equal in dimensions to the life-stage transition matrix
+and specifying which vital rates (i.e. survival and fecundity) are to be modified by the function}
 }
 \value{
 An object of class \code{transition_function}
 }
 \description{
 A growth transition function defines how spatial objects or custom functions influence
-survival and fecundity.
+survival and fecundity. A user may select from built-in functions or provide a custom written function
+to modify survival and fecundity throughout a simulation.
 
 In the built-in \code{modified_transition function}, the values of fecundity and survival
 in local cell-based transition matrices are multiplied by values in the named spatial objects
-for each cell. The spatial objects can be rasters that are stored in the landscape object. A user
-may also provide a custom written growth function to modify survival and fecundity throughout a
-simulation.
+for each cell. The spatial objects can be rasters that are stored in the landscape object.
+
+A commonly used \code{competition_density} dependence function is also provided in the software for
+the user to select, however, a user may also provide other custom written density dependence functions.
 }
 \examples{
 
 test_transition_function <- modified_transition(egk_mat)
+
+test_transition_function <- competition_density(egk_mat)
 }
