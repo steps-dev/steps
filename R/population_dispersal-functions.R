@@ -366,6 +366,9 @@ cellular_automata_dispersal <- function (dispersal_distance = Inf,
   if (barrier_effect == "lethal") barrier_type <- 0
   else barrier_type <- 1
   
+  suit <- identical(arrival_probability, "suitability")
+  carrying_cap <- identical(carrying_capacity, "carrying_capacity")
+  
   pop_dynamics <- function (landscape, timestep) {
     
     population_raster <- landscape$population
@@ -373,27 +376,22 @@ cellular_automata_dispersal <- function (dispersal_distance = Inf,
     # Get non-NA cells
     idx <- which(!is.na(raster::getValues(population_raster[[1]])))
     
-    # carrying_capacity_function <- steps_stash$carrying_capacity_function
-    # if (!is.null(carrying_capacity_function)) {
-    #   if (raster::nlayers(landscape$suitability) > 1) landscape$carrying_capacity[cell_idx] <- carrying_capacity_function(landscape$suitability[[timestep]][cell_idx])
-    #   else landscape$carrying_capacity[cell_idx] <- carrying_capacity_function(landscape$suitability[cell_idx])
-    # }
-    if (arrival_probability == "suitability" & is.null(landscape$suitability)) {
+    if (suit & is.null(landscape$suitability)) {
       stop("A habitat suitability raster is missing from the landscape object")
     }
     
-    if (arrival_probability == "suitability" & raster::nlayers(landscape$suitability) > 1) arrival_prob <- landscape[[arrival_probability]][[timestep]]
+    if (suit & raster::nlayers(landscape$suitability) > 1) arrival_prob <- landscape[[arrival_probability]][[timestep]]
     else arrival_prob <- landscape[[arrival_probability]]
-    
-    # carrying_capacity <- landscape[[carrying_capacity]]
-    
-    if (carrying_capacity == "carrying_capacity") {
+
+    if (carrying_cap & is.null(landscape$carrying_capacity)) {
+      stop("A carrying capacity object is missing from the landscape object")
+    }
+        
+    if (carrying_cap) {
       cc <- get_carrying_capacity(landscape, timestep)
     } else {
       cc <- landscape[[carrying_capacity]]
     }
-    
-    #poptot <- sum(raster::cellStats(landscape$population, sum))
     
     # get population as a matrix
     population <- raster::extract(population_raster, idx)
@@ -427,11 +425,6 @@ cellular_automata_dispersal <- function (dispersal_distance = Inf,
       use_barriers <- TRUE
       barriers_map <- landscape[[barriers_map]]
     }
-    
-    # if(inherits(params$barriers_map,c("RasterStack","RasterBrick"))){
-    #   bm <- params$barriers_map[[time_step]]
-    #   params$barriers_map <- bm
-    # }
     
     # could do this in parallel
     for (i in which_stages_disperse){
