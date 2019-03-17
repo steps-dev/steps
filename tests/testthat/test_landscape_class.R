@@ -15,19 +15,19 @@ test_that('landscape classes work', {
   expect_error(landscape(population = NULL,
                          suitability = egk_hab,
                          carrying_capacity = egk_k))
-  
-  pop2 <- egk_pop
-  res(pop2) <- 10
-  expect_error(landscape(population = pop2,
+
+  egk_pop2 <- egk_pop
+  res(egk_pop2) <- 250
+  expect_error(landscape(population = egk_pop2,
                          suitability = egk_hab,
-                         carrying_capacity = egk_k))
+                         carrying_capacity = NULL))
   
-  pop3 <- egk_pop
-  extent(pop3) <- c(-160, 180, -90, 90)
-  res(pop3) <- 5
-  expect_error(landscape(population = pop3,
+  egk_pop3 <- egk_pop
+  extent(egk_pop3) <- extent(329000, 337000, 5817000, 5834500)
+  res(egk_pop3) <- 500
+  expect_error(landscape(population = egk_pop3,
                          suitability = egk_hab,
-                         carrying_capacity = egk_k))
+                         carrying_capacity = NULL))
   
   print(landscape(population = egk_pop,
                   suitability = egk_hab,

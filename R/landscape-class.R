@@ -80,6 +80,7 @@ is.landscape <- function (x) {
 #' print(egk_ls)
 
 print.landscape <- function (x, ...) {
+  
   r.dims <- dim(x[['population']])
   r.res <- raster::res(x[['population']])
 

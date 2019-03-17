@@ -38,7 +38,7 @@
 #' library(steps)
 #' library(raster)
 #' 
-#' pop_dynamics <- population_dynamics()
+#' test_pop_dynamics <- population_dynamics()
 
 population_dynamics <- function (change = NULL,
                                  dispersal = NULL,
@@ -59,17 +59,18 @@ population_dynamics <- function (change = NULL,
     
   }
   
+  order_sorted <- sort(dynamics_order)
+  order_sorted_target <- c("change", "density_dependence", "dispersal", "modification")
+  
+  if (!identical(order_sorted, order_sorted_target)) {
+    stop ("You must specify all population dynamics regardless of whether they are\n",
+          "used or not (set to NULL). Please correct and re-run the simulation.")
+  }
+  
   pop_dynamics <- function (landscape, timestep) {
 
-    order_sorted <- sort(dynamics_order)
-    order_sorted_target <- c("change", "density_dependence", "dispersal", "modification")
-    
-    if (!identical(order_sorted, order_sorted_target)) {
-      stop ("You must specify all population dynamics regardless of whether they are\n",
-            "used or not (set to NULL). Please correct and re-run the simulation.")
-    }
-  
     for (i in dynamics_order) {
+      browser()
       if (is.null(get(i))) next
       landscape <- do.call(i, list(landscape, timestep))
     }
@@ -89,7 +90,7 @@ population_dynamics <- function (change = NULL,
 #' @examples
 #'
 #' # Test if object is of the type 'population dynamics'
-#' is.population_dynamics(pop_dynamics)
+#' is.population_dynamics(test_pop_dynamics)
 
 is.population_dynamics <- function (x) {
   inherits(x, 'population_dynamics')
@@ -102,7 +103,7 @@ is.population_dynamics <- function (x) {
 #' @examples
 #'
 #' # Print details about the 'population_dynamics' object 
-#' print(pop_dynamics)
+#' print(test_pop_dynamics)
 
 print.population_dynamics <- function (x, ...) {
   cat("This is a population_dynamics object.")

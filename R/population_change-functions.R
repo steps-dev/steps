@@ -175,6 +175,7 @@ growth <- function (transition_matrix,
   result
 }
 
+
 ##########################
 ### internal functions ###
 ##########################

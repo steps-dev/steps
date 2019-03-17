@@ -29,20 +29,20 @@ exponential_dispersal_kernel <- function (distance_decay = 0.5, normalize = FALS
   as.dispersal_function(fun)
 }
 
-# #' @rdname dispersal_function
-# #'
-# #' @param x an object to print or test as a dispersal_function object
-# #' @param ... further arguments passed to or from other methods
-# #'
-# #' @export
-# #'
-# #' @examples
-# #'
-# #' print(test_dispersal_function)
-# 
-# print.dispersal_function <- function (x, ...) {
-#   cat("This is a dispersal_function object")
-# }
+#' @rdname dispersal_function
+#'
+#' @param x an object to print or test as a dispersal_function object
+#' @param ... further arguments passed to or from other methods
+#'
+#' @export
+#'
+#' @examples
+#'
+#' print(test_dispersal_function)
+
+print.dispersal_function <- function (x, ...) {
+  cat("This is a dispersal_function object")
+}
 
 ##########################
 ### internal functions ###

@@ -3,12 +3,15 @@
 \name{modified_transition}
 \alias{modified_transition}
 \alias{competition_density}
+\alias{print.transition_function}
 \title{Create a growth transition function}
 \usage{
 modified_transition(transition_matrix, survival_layer = "suitability",
   fecundity_layer = "suitability")
 
 competition_density(transition_matrix, stages = NULL, mask = NULL)
+
+\method{print}{transition_function}(x, ...)
 }
 \arguments{
 \item{transition_matrix}{a symmetrical age-based (Leslie) or stage-based population
@@ -22,6 +25,10 @@ structure matrix.}
 
 \item{mask}{a matrix of boolean values (TRUE/FALSE), equal in dimensions to the life-stage transition matrix
 and specifying which vital rates (i.e. survival and fecundity) are to be modified by the function}
+
+\item{x}{an object to print or test as a transition_function object}
+
+\item{...}{further arguments passed to or from other methods}
 }
 \value{
 An object of class \code{transition_function}
@@ -43,4 +50,6 @@ the user to select, however, a user may also provide other custom written densit
 test_transition_function <- modified_transition(egk_mat)
 
 test_transition_function <- competition_density(egk_mat)
+
+print(test_transition_function)
 }

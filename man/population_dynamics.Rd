@@ -59,11 +59,11 @@ can be executed in any order that is specified by the user.
 library(steps)
 library(raster)
 
-pop_dynamics <- population_dynamics()
+test_pop_dynamics <- population_dynamics()
 
 # Test if object is of the type 'population dynamics'
-is.population_dynamics(pop_dynamics)
+is.population_dynamics(test_pop_dynamics)
 
 # Print details about the 'population_dynamics' object 
-print(pop_dynamics)
+print(test_pop_dynamics)
 }

@@ -56,7 +56,7 @@ disturbance <- function (disturbance_layers, effect_time = 1) {
     
   }
   
-  as.habitat_disturbance(dist_fun)
+  as.habitat_dynamics(dist_fun)
   
 }
 
@@ -128,7 +128,7 @@ fire_effects <- function (fire_layers,
     
   }
   
-  as.habitat_disturbance(dist_fun)
+  as.habitat_dynamics(dist_fun)
   
 }
 
@@ -137,7 +137,7 @@ fire_effects <- function (fire_layers,
 ### internal functions ###
 ##########################
 
-as.habitat_disturbance <- function (habitat_disturbance) {
+as.habitat_dynamics <- function (habitat_disturbance) {
   as_class(habitat_disturbance, "habitat_dynamics", "function")
 }
 

@@ -326,9 +326,6 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
       
       pop_dispersing[can_arriv_ids] <- total_pops
       
-      # pops <- do.call(cbind, pops_list)
-      # pops <- vapply(has_pop_ids, contribute, as.numeric(can_arriv_ids))
-      # total_pops <- rowSums(pops) + pop_staying[can_arriv_ids]
       landscape$population[[stage]] <- pop_dispersing + pop_staying
       
     }
