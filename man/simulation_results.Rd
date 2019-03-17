@@ -3,7 +3,6 @@
 \name{simulation}
 \alias{simulation}
 \alias{is.simulation_results}
-\alias{print.simulation_results}
 \alias{plot.simulation_results}
 \alias{extract_spatial}
 \title{Run a simulation}
@@ -14,8 +13,6 @@ simulation(landscape, population_dynamics, habitat_dynamics = list(),
   verbose = TRUE)
 
 is.simulation_results(x)
-
-\method{print}{simulation_results}(x, ...)
 
 \method{plot}{simulation_results}(x, object = "population",
   type = "graph", stages = NULL, animate = FALSE,
@@ -52,8 +49,6 @@ display when plotting rasters}
 
 \item{x}{a simulation_results object}
 
-\item{...}{further arguments passed to or from other methods}
-
 \item{object}{the \code{simulation_results} object to plot - can be 'population'
 (default), 'suitability' or 'carrying_capacity'}
 
@@ -70,6 +65,8 @@ timeseries - default is 3 x 3 (e.g. c(3,3) )}
 
 \item{emp}{should the expected minimum population of the simulation be
 plotted?}
+
+\item{...}{further arguments passed to or from other methods}
 
 \item{replicate}{which replicate to extract from a \code{simulation_results}
 object}
@@ -113,8 +110,6 @@ results <- simulation(landscape, pop_dynamics, timesteps = 10, replicates = 5)
 # Test if object is of the type 'simulation_results'
 
 is.simulation_results(results)
-
-print(results)
 
 plot(results)
 

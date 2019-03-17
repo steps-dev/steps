@@ -3,7 +3,6 @@
 \name{population_dynamics}
 \alias{population_dynamics}
 \alias{is.population_dynamics}
-\alias{print.population_dynamics}
 \title{Define population dynamics.}
 \usage{
 population_dynamics(change = NULL, dispersal = NULL,
@@ -12,8 +11,6 @@ population_dynamics(change = NULL, dispersal = NULL,
   "density_dependence"))
 
 is.population_dynamics(x)
-
-\method{print}{population_dynamics}(x, ...)
 }
 \arguments{
 \item{change}{\link[steps]{population_change_functions} to define how population
@@ -63,7 +60,4 @@ test_pop_dynamics <- population_dynamics()
 
 # Test if object is of the type 'population dynamics'
 is.population_dynamics(test_pop_dynamics)
-
-# Print details about the 'population_dynamics' object 
-print(test_pop_dynamics)
 }

@@ -9,7 +9,13 @@ test_that('population_dynamics classes work', {
   expect_true(is.population_dynamics(population_dynamics(func)))
 
   expect_error(as.population_dynamics(1))
+  
+  expect_error(population_dynamics(change = NULL,
+                                   dispersal = NULL,
+                                   modification = NULL,
+                                   density_dependence = NULL,
+                                   dynamics_order = "change"))
     
-  print(population_dynamics(func))
+  # print(population_dynamics(func))
   
 })

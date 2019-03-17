@@ -162,24 +162,10 @@ test_that('simulation_results classes work', {
                                   density_dependence = NULL)
   
   pop_dyn7e <- population_dynamics(change = growth(transition_matrix = egk_mat,
-                                                   global_stochasticity = matrix(c(0,0,0,0), nrow = 2, ncol = 2)),
-                                   dispersal = fast_dispersal(dispersal_kernel=exponential_dispersal_kernel(distance_decay = 8000)),
-                                   modification = NULL,
-                                   density_dependence = NULL,
-                                   dynamics_order = "change")
-  
-  pop_dyn7e2 <- population_dynamics(change = growth(transition_matrix = egk_mat,
                                                     global_stochasticity = matrix(c(0,0,0,0,0,1,1,1,1), nrow = 3, ncol = 3)),
                                     dispersal = fast_dispersal(dispersal_kernel=exponential_dispersal_kernel(distance_decay = 8000)),
                                     modification = NULL,
                                     density_dependence = NULL)
-  
-  pop_dyn7e3 <- population_dynamics(change = growth(transition_matrix = egk_mat,
-                                                   global_stochasticity = 0),
-                                   dispersal = fast_dispersal(dispersal_kernel=exponential_dispersal_kernel(distance_decay = 8000)),
-                                   modification = NULL,
-                                   density_dependence = NULL,
-                                   dynamics_order = "change")
   
   pop_dyn8 <- population_dynamics(change = growth(transition_matrix = egk_mat),
                                   dispersal = NULL,
@@ -324,13 +310,9 @@ test_that('simulation_results classes work', {
                           habitat_dynamics = NULL,
                           timesteps = 3))
   
-  expect_error(simulation(landscape = landscape,
-                          population_dynamics = pop_dyn7e,
-                          habitat_dynamics = NULL,
-                          timesteps = 10))
   
   expect_error(simulation(landscape = landscape,
-                          population_dynamics = pop_dyn7e2,
+                          population_dynamics = pop_dyn7e,
                           habitat_dynamics = NULL,
                           timesteps = 10))
   

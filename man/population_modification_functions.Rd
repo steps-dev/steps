@@ -30,7 +30,7 @@ Pre-defined functions to define population modification (e.g. translocation) dur
 # Use the translocation_population_dynamics object to modify the  
 # population using translocations:
 
-test_ca_dispersal <- translocation(source_layer = "egk_source",
+test_translocation <- translocation(source_layer = "egk_source",
                                        sink_layer = "egk_sink",
                                        stages = NULL,
                                        effect_timesteps = 1)

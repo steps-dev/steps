@@ -70,7 +70,6 @@ population_dynamics <- function (change = NULL,
   pop_dynamics <- function (landscape, timestep) {
 
     for (i in dynamics_order) {
-      browser()
       if (is.null(get(i))) next
       landscape <- do.call(i, list(landscape, timestep))
     }
@@ -96,18 +95,18 @@ is.population_dynamics <- function (x) {
   inherits(x, 'population_dynamics')
 }
 
-#' @rdname population_dynamics
-#'
-#' @export
-#'
-#' @examples
-#'
-#' # Print details about the 'population_dynamics' object 
-#' print(test_pop_dynamics)
-
-print.population_dynamics <- function (x, ...) {
-  cat("This is a population_dynamics object.")
-}
+# #' @rdname population_dynamics
+# #'
+# #' @export
+# #'
+# #' @examples
+# #'
+# #' # Print details about the 'population_dynamics' object 
+# #' print(test_pop_dynamics)
+# 
+# print.population_dynamics <- function (x, ...) {
+#   cat("This is a population_dynamics object.")
+# }
 
 ##########################
 ### internal functions ###

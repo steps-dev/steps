@@ -3,15 +3,12 @@
 \name{landscape}
 \alias{landscape}
 \alias{is.landscape}
-\alias{print.landscape}
 \title{Create a landscape object.}
 \usage{
 landscape(population, suitability = NULL, carrying_capacity = NULL,
   ...)
 
 is.landscape(x)
-
-\method{print}{landscape}(x, ...)
 }
 \arguments{
 \item{population}{a raster stack (grid cell-based) with one layer for each life
@@ -55,7 +52,4 @@ egk_ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capaci
 
 # Test if object is of the type 'landscape'
 is.landscape(egk_ls)
-
-# Print information about the 'landscape' object
-print(egk_ls)
 }

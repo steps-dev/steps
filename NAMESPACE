@@ -2,11 +2,6 @@
 
 S3method("[",simulation_results)
 S3method(plot,simulation_results)
-S3method(print,dispersal_function)
-S3method(print,landscape)
-S3method(print,population_dynamics)
-S3method(print,simulation_results)
-S3method(print,transition_function)
 export(ceiling_density)
 export(cellular_automata_dispersal)
 export(competition_density)

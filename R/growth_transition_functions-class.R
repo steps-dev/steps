@@ -86,7 +86,9 @@ modified_transition <- function(transition_matrix,
 #'
 #' @examples
 #' 
+#' \dontrun{
 #' test_transition_function <- competition_density(egk_mat)
+#' }
 
 competition_density <- function(transition_matrix, stages = NULL, mask = NULL) {
   
@@ -134,20 +136,20 @@ competition_density <- function(transition_matrix, stages = NULL, mask = NULL) {
 }
 
 
-#' @rdname transition_function
-#'
-#' @param x an object to print or test as a transition_function object
-#' @param ... further arguments passed to or from other methods
-#'
-#' @export
-#'
-#' @examples
-#'
-#' print(test_transition_function)
-
-print.transition_function <- function (x, ...) {
-  cat("This is a transition_function object")
-}
+# #' @rdname transition_function
+# #'
+# #' @param x an object to print or test as a transition_function object
+# #' @param ... further arguments passed to or from other methods
+# #'
+# #' @export
+# #'
+# #' @examples
+# #'
+# #' print(test_transition_function)
+# 
+# print.transition_function <- function (x, ...) {
+#   cat("This is a transition_function object")
+# }
 
 ##########################
 ### internal functions ###

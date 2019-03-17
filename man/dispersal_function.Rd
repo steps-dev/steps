@@ -2,21 +2,14 @@
 % Please edit documentation in R/dispersal_kernel_functions-class.R
 \name{exponential_dispersal_kernel}
 \alias{exponential_dispersal_kernel}
-\alias{print.dispersal_function}
 \title{Create a dispersal function}
 \usage{
 exponential_dispersal_kernel(distance_decay = 0.5, normalize = FALSE)
-
-\method{print}{dispersal_function}(x, ...)
 }
 \arguments{
 \item{distance_decay}{(exponential dispersal parameter) controls the rate at which the population disperses with distance}
 
 \item{normalize}{(exponential dispersal parameter) should the normalising constant be used - default is FALSE.}
-
-\item{x}{an object to print or test as a dispersal_function object}
-
-\item{...}{further arguments passed to or from other methods}
 }
 \value{
 An object of class \code{dispersal_function}
@@ -32,6 +25,4 @@ custom written dispersal kernel.
 \examples{
 
 test_dispersal_function <- exponential_dispersal_kernel()
-
-print(test_dispersal_function)
 }

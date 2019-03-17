@@ -123,19 +123,19 @@ is.simulation_results <- function (x) {
   inherits(x, 'simulation_results')
 }
 
-#' @rdname simulation_results
-#'
-#' @export
-#'
-#' @examples
-#'
-#' print(results)
-
-print.simulation_results <- function (x, ...) {
-  
-  cat("This is an simulation results object, for", length(x), "replicates")
-
-}
+# #' @rdname simulation_results
+# #'
+# #' @export
+# #'
+# #' @examples
+# #'
+# #' print(results)
+# 
+# print.simulation_results <- function (x, ...) {
+# 
+#   cat("This is an simulation results object, for", length(x), "replicates")
+# 
+# }
 
 
 #' @rdname simulation_results

@@ -29,9 +29,9 @@ test_that('landscape classes work', {
                          suitability = egk_hab,
                          carrying_capacity = NULL))
   
-  print(landscape(population = egk_pop,
-                  suitability = egk_hab,
-                  carrying_capacity = egk_k))
+  # print(landscape(population = egk_pop,
+  #                 suitability = egk_hab,
+  #                 carrying_capacity = egk_k))
   
 })
  
