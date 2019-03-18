@@ -86,16 +86,18 @@ modified_transition <- function(transition_matrix,
 #'
 #' @examples
 #' 
-#' \dontrun{
 #' test_transition_function <- competition_density(egk_mat)
-#' }
 
-competition_density <- function(transition_matrix, stages = NULL, mask = NULL) {
+competition_density <- function(transition_matrix,
+                                stages = NULL,
+                                mask = NULL,
+                                R_max = NULL,
+                                initial_stages = NULL) {
   
   dim <- nrow(transition_matrix)
-  
+
   fun <- function (landscape, timestep) {
-    
+
     # get metrics and constructor info
     cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])))
     n_cells <- length(cell_idx)
@@ -113,13 +115,14 @@ competition_density <- function(transition_matrix, stages = NULL, mask = NULL) {
     } else {
       N <- rowSums(population)
     }
-    
+
     # initialise an array for all of the populations
-    transition_array <- array(0, dim = c(dim, dim, n_cells))
+    transition_array <- array(transition_matrix, dim = c(dim, dim, n_cells))
     
+    cells_over <- which(N - K > 0)
     
     # modify life-stage transition matrix and add to array
-    for (i in seq_len(n_cells)) {
+    for (i in cells_over) {
       transition_array[, , i] <- density_modified_transition(N = N[i],
                                                              K = K[i],
                                                              transition_matrix = transition_matrix,
