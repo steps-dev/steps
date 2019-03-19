@@ -53,9 +53,6 @@ can be executed in any order that is specified by the user.
 }
 \examples{
 
-library(steps)
-library(raster)
-
 test_pop_dynamics <- population_dynamics()
 
 # Test if object is of the type 'population dynamics'

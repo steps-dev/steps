@@ -9,33 +9,37 @@
 \usage{
 
   fast_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay
-  = 0.1), dispersal_proportion = 1)
+  = 0.1), dispersal_proportion = all_dispersing())
 
 
   kernel_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay
   = 1), dispersal_distance = Inf, arrival_probability = c("both",
-  "suitability", "carrying_capacity"), dispersal_proportion = 1)
+  "suitability", "carrying_capacity", "none"),
+  dispersal_proportion = all_dispersing())
 
 cellular_automata_dispersal(dispersal_distance = Inf,
   dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1),
-  dispersal_proportion = 1, barrier_effect = c("obstructing",
-  "lethal"), dispersal_steps = 1, barriers_map = NULL,
-  arrival_probability = "suitability",
+  dispersal_proportion = all_dispersing(),
+  barrier_effect = c("obstructing", "lethal"), dispersal_steps = 1,
+  barriers_map = NULL, arrival_probability = "suitability",
   carrying_capacity = "carrying_capacity")
 }
 \arguments{
 \item{dispersal_kernel}{a single built-in or user-defined distance dispersal
-kernel function}
+kernel function.}
 
 \item{dispersal_proportion}{proportions of individuals (0 to 1) that can
-disperse in each life stage}
+disperse in each life stage. Can also be a custom function that relates
+the proportion dispersing to a spatial layer in the landscape object
+(e.g. carrying capacity).}
 
 \item{dispersal_distance}{the maximum distance that each life stage can
 disperse in spatial units of the landscape (in kernel-based dispersal
-this truncates the dispersal curve) - must be specified}
+this truncates the dispersal curve) - must be specified.}
 
 \item{arrival_probability}{the name of a spatial layer in the landscape object
-that controls where individuals can disperse to (e.g. habitat suitability)}
+that controls where individuals can disperse to (e.g. "suitability") or
+"none" to allow individuals to disperse to all non-NA cells.}
 
 \item{barrier_effect}{if a barrier map is used, it either stops individuals
 ("obstructing" - default) or kills individuals ("lethal").}
@@ -46,7 +50,7 @@ that controls where individuals can disperse to (e.g. habitat suitability)}
 contains cell values of 0 (no barrier) and 1 (barrier).}
 
 \item{carrying_capacity}{the name of a spatial layer in the landscape object
-that specifies the carrying capacity in each cell}
+that specifies the carrying capacity in each cell.}
 }
 \description{
 Pre-defined or custom functions to define population dispersal during a
@@ -84,7 +88,7 @@ dispersal.
 }
 \examples{
 
-test_kern_dispersal <- fast_dispersal()
+test_fast_dispersal <- fast_dispersal()
 
 test_kern_dispersal <- kernel_dispersal()
 

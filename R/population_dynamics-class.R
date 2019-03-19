@@ -35,9 +35,6 @@
 #'
 #' @examples
 #' 
-#' library(steps)
-#' library(raster)
-#' 
 #' test_pop_dynamics <- population_dynamics()
 
 population_dynamics <- function (change = NULL,
@@ -53,7 +50,7 @@ population_dynamics <- function (change = NULL,
     
     if (!is.null(dispersal)) {
       # create an object called "density_dependence_stages" in the environment
-      # in which dispersal() runs
+      # in which dispersal runs
       environment(dispersal)$density_dependence_stages <- dd_stages
     }
     

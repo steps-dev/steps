@@ -2,6 +2,8 @@
 
 S3method("[",simulation_results)
 S3method(plot,simulation_results)
+export(all_dispersing)
+export(carrying_capacity_dispersal)
 export(ceiling_density)
 export(cellular_automata_dispersal)
 export(competition_density)

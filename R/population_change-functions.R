@@ -171,7 +171,7 @@ growth <- function (transition_matrix,
   }
   
   result <- as.population_growth(pop_dynamics)
-  # browser()
+
   result
 }
 

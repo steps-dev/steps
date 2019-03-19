@@ -65,7 +65,7 @@ NULL
 #' 
 #' @examples
 #' 
-#' test_kern_dispersal <- fast_dispersal()
+#' test_fast_dispersal <- fast_dispersal()
 
 fast_dispersal <- function(dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
                            dispersal_proportion = all_dispersing()) {
@@ -74,7 +74,7 @@ fast_dispersal <- function(dispersal_kernel = exponential_dispersal_kernel(dista
     
     n_stages <- raster::nlayers(landscape$population)
     
-    dispersal_proportion <- dispersal_proportion()
+    dispersal_proportion <- dispersal_proportion(landscape, timestep)
     
     # Which stages can disperse
     which_stages_disperse <- which(dispersal_proportion > 0)
@@ -192,12 +192,18 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
             call. = FALSE)
     }
     
+    # find out which stages contribute to density. population dynamics will have
+    # copied this information over from the population density dependence
+    # function, if it was specified. Otherwise, use all stages
+    if (!exists("density_dependence_stages")) {
+      density_dependence_stages <- seq_len(raster::nlayers(landscape$population))
+    }
+    
+    dispersal_proportion <- dispersal_proportion(landscape, timestep)
+    
     # Which stages can disperse
     which_stages_disperse <- which(dispersal_proportion > 0)
-    
-    # # Which stages contribute to density dependence.
-    # which_stages_density <- which(dispersal_proportion > 0)
-    
+
     # get non-NA cells
     cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])))
     
@@ -215,16 +221,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
         stop ("carrying capacity must be specified in the landscape object to use carrying capacity arrival probabilities",
               call. = FALSE)
       }
-      
-      # find out which stages contribute to density. population dynamics will have
-      # copied this information over from the population density dependence
-      # function, if it was specified. Otherwise, use all stages
-      if (!exists("density_dependence_stages")) {
-        density_dependence_stages <- seq_len(raster::nlayers(landscape$population))
-      }
-      
-      dispersal_proportion <- dispersal_proportion()
-      
+
       delayedAssign(
         "carrying_capacity_proportion",
         raster::getValues(
@@ -237,7 +234,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
         )
       )
       
-      cc_values <- getValues(cc)
+      cc_values <- raster::getValues(cc)
       
     } else {
       
@@ -267,20 +264,24 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
     # store the original population, so that individuals don't disperse twice
     original_pop <- pop
 
-      
     for (origin in sample(has_pop_ids)) {
       for (stage in sample(which_stages_disperse)) {
-        pop <- disperse(origin,
-                        stage,
-                        pop,
-                        original_pop,
-                        proportion_dispersing,
-                        cc_values,
-                        density_dependence_stages)
+        pop <- disperse(origin = origin,
+                        stage = stage,
+                        pop = pop,
+                        original_pop = original_pop,
+                        prop_dispersing = dispersal_proportion,
+                        can_arriv_ids = can_arriv_ids,
+                        arrival_prob_values = arrival_prob_values,
+                        dispersal_kernel = dispersal_kernel,
+                        carrying_capacity = cc_values,
+                        density_dependence_stages = density_dependence_stages,
+                        distance_list = distance_list,
+                        distance_info = distance_info,
+                        raster_dim = raster_dim)
       }
     }
-    
-    
+
     landscape$population[] <- pop
     
     #cat("Pre-Post Population:", poptot, sum(raster::cellStats(landscape$population, sum)), "(Timestep", timestep, ")", "\n")
@@ -310,32 +311,47 @@ cellular_automata_dispersal <- function (dispersal_distance = Inf,
                                          arrival_probability = "suitability",
                                          carrying_capacity = "carrying_capacity") {
   
+  # read in value for barrier_effect - if none, default is "obstructing"
   barrier_effect <- match.arg(barrier_effect)
   
-  if (barrier_effect == "lethal") barrier_type <- 0
-  else barrier_type <- 1
+  # set barrier type based on barrier_effect value
+  if (barrier_effect == "lethal") {
+    barrier_type <- 0
+  } else {
+    barrier_type <- 1
+  }
   
+  # are there suitability and carrying_capacity landscape objects specified?
   suit <- identical(arrival_probability, "suitability")
   carrying_cap <- identical(carrying_capacity, "carrying_capacity")
   
   pop_dynamics <- function (landscape, timestep) {
     
+    # read population raster stack from landscape
     population_raster <- landscape$population
     
-    # Get non-NA cells
+    # get non-NA cells
     idx <- which(!is.na(raster::getValues(population_raster[[1]])))
     
+    # is suitability specified without raster existing in landscape?
     if (suit & is.null(landscape$suitability)) {
       stop("A habitat suitability raster is missing from the landscape object")
     }
     
-    if (suit & raster::nlayers(landscape$suitability) > 1) arrival_prob <- landscape[[arrival_probability]][[timestep]]
-    else arrival_prob <- landscape[[arrival_probability]]
+    # handle input suitability raster stacks
+    if (suit & raster::nlayers(landscape$suitability) > 1) {
+      arrival_prob <- landscape[[arrival_probability]][[timestep]]
+    } else {
+      arrival_prob <- landscape[[arrival_probability]]
+    }
     
+    # is carrying_capacity specified without raster existing in landscape?
     if (carrying_cap & is.null(landscape$carrying_capacity)) {
       stop("A carrying capacity object is missing from the landscape object")
     }
     
+    # handle carrying_capacity as raster, function, or other spatial object in
+    # landscape
     if (carrying_cap) {
       cc <- get_carrying_capacity(landscape, timestep)
     } else {
@@ -345,24 +361,37 @@ cellular_automata_dispersal <- function (dispersal_distance = Inf,
     # get population as a matrix
     population <- raster::extract(population_raster, idx)
     
+    # get number of life-stages
     n_stages <- raster::nlayers(population_raster)
     
-    dispersal_proportion <- dispersal_proportion()
+    # work out dispersal proportions for eligible life-stages with input function
+    dispersal_proportion <- dispersal_proportion(landscape, timestep)
     
-    if (length(dispersal_distance) < n_stages) {
-      if (timestep == 1) cat ("    ", n_stages, "life stages exist but", length(dispersal_distance),"dispersal distance(s) of", dispersal_distance,"were specified. Is this what was intended?")
-      dispersal_distance <- rep(dispersal_distance, n_stages)[1:n_stages]
+    # handle dispersal distances as both scalars and vectors
+    if (length(dispersal_distance) < n_stages | length(dispersal_distance) > n_stages ) {
+      if (timestep == 1) cat ("    ",
+                              n_stages,
+                              "life stages exist but",
+                              length(dispersal_distance),
+                              "dispersal distance(s) of",
+                              paste(dispersal_distance, collapse = ", "),
+                              "were specified. Please check your values.")
+
+      dispersal_distance <- rep_len(dispersal_distance, n_stages)
     }
     
+    # rescale dispersal distances to number of grid cells based on spatial resolution. This
+    # is required for inputting into the Rcpp dispersal function.
     dispersal_distance <- ceiling(dispersal_distance / min(raster::res(landscape$population)))
-    
-    dispersal_vector <- lapply(dispersal_distance, function(x) dispersal_kernel(seq_len(x)-1))
-    
+
+    # create dispersal vector from the specified dispersal kernel and rescaled distances
+    dispersal_vector <- lapply(dispersal_distance,
+                               function(x) dispersal_kernel((seq_len(x) - 1) * min(raster::res(landscape$population))))    
+
     # identify dispersing stages
     which_stages_disperse <- which(dispersal_proportion > 0)
-    n_dispersing_stages <- length(which_stages_disperse)
     
-    #if barriers is NULL create a barriers matrix all == 0.
+    # if no barrier map is specified, create a barriers matrix with all zeros.
     if (is.null(barriers_map)) {
       use_barriers <- FALSE
       barriers_map <- raster::calc(arrival_prob,
@@ -374,17 +403,18 @@ cellular_automata_dispersal <- function (dispersal_distance = Inf,
     
     # could do this in parallel
     for (i in which_stages_disperse){
-      population_raster[[i]][] <- rcpp_dispersal(raster::as.matrix(population_raster[[i]]),
-                                                 raster::as.matrix(cc),
-                                                 raster::as.matrix(arrival_prob),
-                                                 raster::as.matrix(barriers_map),
-                                                 as.integer(barrier_type),
-                                                 use_barriers,
-                                                 as.integer(dispersal_steps),
-                                                 as.integer(dispersal_distance[i]),
-                                                 as.numeric(unlist(dispersal_vector[i])),
-                                                 as.numeric(dispersal_proportion[i])
-      )$dispersed_population
+      dispersed <- rcpp_dispersal(raster::as.matrix(population_raster[[i]]),
+                                  raster::as.matrix(cc),
+                                  raster::as.matrix(arrival_prob),
+                                  raster::as.matrix(barriers_map),
+                                  as.integer(barrier_type),
+                                  use_barriers,
+                                  as.integer(dispersal_steps),
+                                  as.integer(dispersal_distance[i]),
+                                  as.numeric(dispersal_vector[[i]]),
+                                  as.numeric(dispersal_proportion[i]))
+      
+      population_raster[[i]][] <- dispersed$dispersed_population
       
     }
     
@@ -656,7 +686,19 @@ get_ids_dists <- function(cell_id, distance_info, raster_dim) {
   
 }
 
-disperse <- function (origin, stage, pop, original_pop, prop_dispersing, carrying_capacity = NULL, density_dependence_stages = NULL) {
+disperse <- function (origin,
+                      stage,
+                      pop,
+                      original_pop,
+                      prop_dispersing,
+                      can_arriv_ids,
+                      arrival_prob_values,
+                      dispersal_kernel,
+                      carrying_capacity = NULL,
+                      density_dependence_stages = NULL,
+                      distance_list = NULL,
+                      distance_info = NULL,
+                      raster_dim = NULL) {
   
   if (is.null(distance_list)) {
     

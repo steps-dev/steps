@@ -8,7 +8,8 @@
 modified_transition(transition_matrix, survival_layer = "suitability",
   fecundity_layer = "suitability")
 
-competition_density(transition_matrix, stages = NULL, mask = NULL)
+competition_density(transition_matrix, stages = NULL, mask = NULL,
+  R_max = NULL, initial_stages = NULL)
 }
 \arguments{
 \item{transition_matrix}{a symmetrical age-based (Leslie) or stage-based population
@@ -22,6 +23,10 @@ structure matrix.}
 
 \item{mask}{a matrix of boolean values (TRUE/FALSE), equal in dimensions to the life-stage transition matrix
 and specifying which vital rates (i.e. survival and fecundity) are to be modified by the function}
+
+\item{R_max}{optional value of maximum growth rate (lambda) if known}
+
+\item{initial_stages}{optional vector of stable age distributions if known}
 }
 \value{
 An object of class \code{transition_function}
@@ -40,9 +45,7 @@ the user to select, however, a user may also provide other custom written densit
 }
 \examples{
 
-test_transition_function <- modified_transition(egk_mat)
+test_mod_transition <- modified_transition(egk_mat)
 
-\dontrun{
-test_transition_function <- competition_density(egk_mat)
-}
+test_comp_transition <- competition_density(egk_mat)
 }

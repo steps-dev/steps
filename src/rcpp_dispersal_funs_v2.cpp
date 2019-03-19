@@ -20,7 +20,7 @@ bool barrier_to_dispersal(int sink_x, int sink_y, int source_x, int source_y, Nu
   */
   dist_x = source_x - sink_x;
   dist_y = source_y - sink_y;
-  if (abs (dist_x) >= abs (dist_y)){
+  if (abs(dist_x) >= abs(dist_y)){
     distance_max = abs(dist_x);
   } else {
     distance_max = abs(dist_y);
@@ -405,7 +405,7 @@ IntegerVector reOrder(
 // //' @param dispersal_proportion the proportion of species that will disperse from source cell, needs to be between 0 and 1. e.g 0.2 means that 20% of the cell's population disperses. 
 // [[Rcpp::export]]
 List rcpp_dispersal(NumericMatrix starting_population_state, NumericMatrix potential_carrying_capacity,
-  NumericMatrix habitat_suitability_map,NumericMatrix barriers_map, int barrier_type, bool use_barrier, int dispersal_steps,
+  NumericMatrix habitat_suitability_map, NumericMatrix barriers_map, int barrier_type, bool use_barrier, int dispersal_steps,
   int dispersal_distance, NumericVector dispersal_kernel, double dispersal_proportion){
 
 	  int ncols = starting_population_state.ncol();

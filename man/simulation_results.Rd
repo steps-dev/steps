@@ -97,7 +97,7 @@ specified number of timesteps.
 library(steps)
 library(raster)
 library(future)
-plan(multiprocess)
+plan(sequential)
 
 landscape <- landscape(population = egk_pop,
                suitability = egk_hab,
@@ -105,7 +105,7 @@ landscape <- landscape(population = egk_pop,
 
 pop_dynamics <- population_dynamics(change = growth(transition_matrix = egk_mat))
 
-results <- simulation(landscape, pop_dynamics, timesteps = 10, replicates = 5)
+results <- simulation(landscape, pop_dynamics, timesteps = 10, replicates = 3)
 
 # Test if object is of the type 'simulation_results'
 

@@ -22,9 +22,9 @@
 
 exponential_dispersal_kernel <- function (distance_decay = 0.5, normalize = FALSE) {
   if (normalize) {
-    fun <- function (r) (1 / (2 * pi * distance_decay ^ 2)) * exp(-r/distance_decay)
+    fun <- function (r) (1 / (2 * pi * distance_decay ^ 2)) * exp(-r / distance_decay)
   } else {
-    fun <- function (r) exp(-r/distance_decay)
+    fun <- function (r) exp(-r / distance_decay)
   }
   as.dispersal_function(fun)
 }

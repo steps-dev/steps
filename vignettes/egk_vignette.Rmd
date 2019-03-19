@@ -429,7 +429,7 @@ Let's have a look at how the adult population is changing in the first replicate
 plot(egk_results[1], type = "raster", stage = 3, timesteps = c(1, 10, 20), panels = c(3, 1))
 ```
 
-The proportion of individuals dispersing can also be specified in the dispersal functions. If dispersal proportions are not specified, the default behaviour is to disperse all individuals in all life-stages. If proportions are specified as a single number, then all life-stages disperse with that proportion, however, a vector of proportions (equal in length to the number of life-stages) can also be specified. Note, if a vector of numbers is specified that has fewer elements than life stages, than the vector will be recycled to match its number of elements to life stages (i.e. dispersal_proportion = c(0, 0.5, 1) with five life-stages will become 0, 0.5, 1, 0, 0.5). In the example below, no juveniles (stage 1) disperse, only fifty-percent of subadults (stage 2) disperse, and all adults (stage 3) disperse:
+The proportion of individuals dispersing can also be specified in the dispersal functions. If dispersal proportions are not specified, the default behaviour is to disperse all individuals in all life-stages. This is done using a default function called 'all_dispersing'. This default function uses a parameter called 'proportions'. If proportions are specified as a single number, then all life-stages disperse with that proportion, however, a vector of proportions (equal in length to the number of life-stages) can also be specified. Note, if a vector of numbers is specified that has fewer elements than life stages, than the vector will be recycled to match its number of elements to life stages (i.e. dispersal_proportion = c(0, 0.5, 1) with five life-stages will become 0, 0.5, 1, 0, 0.5). Alternatively, a user can provide a custom function to influence the proportions of populations in life-stages dispersing based on features of the landscape.  In the example below, the proportions of populations for each life-stage dispersing are based on the carrying capacity - a built-in function of the software:
 
 ```{r, message = FALSE, progress = FALSE, fig.align = "center", out.width = "100%"}
 egk_landscape <- landscape(population = egk_pop,
@@ -442,7 +442,7 @@ egk_pop_dynamics <- population_dynamics(
   dispersal = kernel_dispersal(arrival_probability = "suitability",
                                dispersal_distance = 5000,
                                dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000),
-                               dispersal_proportion = c(0, 0.5, 1)),
+                               dispersal_proportion = carrying_capacity_dispersal()),
   modification = NULL,
   density_dependence = ceiling_density(stages = 3))
 
@@ -458,7 +458,7 @@ plot(egk_results)
 
 Maximum dispersal distances can also be specified for one of the alternative dispersal functions, cellular automata. Distances are expressed as spatial units (in this case meters). Maximum distances are explicitly defined for the cellular automata dispersal function. In the cellular automata dispersal function, individuals move horizontally or vertically but not diagonally.
 
-As with the proportions, a single number will indicate maximum dispersal distances for all life-stages whilst a vector of distances (equal in length to the number of life-stages) can also be specified. In the example below, no juveniles (stage 1) disperse, subadults (stage 2) only disperse up to 2500 meters (5 cells) , and adults (stage 3) disperse up to 5000 meters (10 cells):
+Specifying a single number will indicate maximum dispersal distances for all life-stages whilst a vector of distances (equal in length to the number of life-stages) can also be specified. In the example below, no juveniles (stage 1) disperse, subadults (stage 2) only disperse up to 2500 meters (5 cells) , and adults (stage 3) disperse up to 5000 meters (10 cells):
 
 ```{r, message = FALSE, progress = FALSE, fig.align = "center", out.width = "100%"}
 egk_landscape <- landscape(population = egk_pop,
@@ -468,8 +468,7 @@ egk_landscape <- landscape(population = egk_pop,
 egk_pop_dynamics <- population_dynamics(
   change = growth(transition_matrix = egk_mat,
                   global_stochasticity = egk_mat_stoch),
-  dispersal = cellular_automata_dispersal(dispersal_distance = c(0, 2500, 5000),
-                                          dispersal_proportion = c(0, 0.5, 1)),
+  dispersal = cellular_automata_dispersal(dispersal_distance = c(0, 2500, 5000)),
   modification = NULL,
   density_dependence = ceiling_density(stages = 3))
 
@@ -483,7 +482,7 @@ egk_results <- simulation(landscape = egk_landscape,
 plot(egk_results)
 ```
 
-The 'number of cells' representation of distance should be carefully considered when specifying custom distance kernel functions. For example, below we have specified an exponential distance decay function where "r" represents spatial units - in this case 5000 meters (10 cells). How we specify the function will depend on the ecology of the species and known dispersal distances. The function should return a vlue close to zero when the maximum dispersal distances is specified for "r": 
+The 'number of cells' representation of distance should be carefully considered when specifying custom distance kernel functions. For example, below we have specified an exponential distance decay function where "r" represents spatial units - in this case 5000 meters (10 cells). How we specify the function will depend on the ecology of the species and known dispersal distances. The function should return a value close to zero when the maximum dispersal distances is specified for "r": 
 
 ```{r, message = FALSE, progress = FALSE, fig.align = "center", out.width = "100%"}
 egk_landscape <- landscape(population = egk_pop,
@@ -496,7 +495,7 @@ egk_pop_dynamics <- population_dynamics(
   dispersal = kernel_dispersal(arrival_probability = "suitability",
                                dispersal_distance = 5000,
                                dispersal_kernel = function (r) exp(-r / 2000),
-                               dispersal_proportion = c(0, 0.5, 1)),
+                               dispersal_proportion = carrying_capacity_dispersal()),
   modification = NULL,
   density_dependence = ceiling_density(stages = 3))
 
@@ -523,8 +522,7 @@ egk_pop_dynamics <- population_dynamics(
                   global_stochasticity = egk_mat_stoch),
   dispersal = kernel_dispersal(arrival_probability = "suitability",
                                dispersal_distance = 5000,
-                               dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000),
-                               dispersal_proportion = 0.5),
+                               dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000)),
   modification = NULL,
   density_dependence = ceiling_density(stages = 3))
 
@@ -580,8 +578,7 @@ egk_pop_dynamics <- population_dynamics(
                   global_stochasticity = egk_mat_stoch),
   dispersal = kernel_dispersal(arrival_probability = "suitability",
                                dispersal_distance = 5000,
-                               dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000),
-                               dispersal_proportion = 0.5),
+                               dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000)),
   modification = NULL,
   density_dependence = ceiling_density(stages = 3))
 
@@ -627,8 +624,7 @@ egk_pop_dynamics <- population_dynamics(
                   global_stochasticity = egk_mat_stoch),
   dispersal = kernel_dispersal(arrival_probability = "suitability",
                                dispersal_distance = 5000,
-                               dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000),
-                               dispersal_proportion = 0.5),
+                               dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000)),
   modification = NULL,
   density_dependence = ceiling_density(stages = 3))
 

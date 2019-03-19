@@ -81,7 +81,7 @@ test_that('simulation_results classes work', {
   pop_dyn <- population_dynamics(change = growth(transition_matrix = egk_mat),
                                  dispersal = cellular_automata_dispersal(dispersal_distance=c(0, 16000, 0),
                                                                          dispersal_kernel=exponential_dispersal_kernel(distance_decay = 16),
-                                                                         dispersal_proportion=c(0, 0.25, 0),
+                                                                         dispersal_proportion=all_dispersing(proportions = 0.5),
                                                                          barrier_effect = "lethal",
                                                                          barriers_map = "barrier"),
                                  modification = translocation(source_layer = "source",
@@ -112,7 +112,7 @@ test_that('simulation_results classes work', {
   pop_dyn4 <- population_dynamics(change = growth(transition_matrix = egk_mat),
                                   dispersal = cellular_automata_dispersal(dispersal_distance=c(0, 16000, 0),
                                                                           dispersal_kernel=exponential_dispersal_kernel(distance_decay = 16),
-                                                                          dispersal_proportion=c(0, 0.25, 0),
+                                                                          dispersal_proportion=carrying_capacity_dispersal(),
                                                                           barriers_map = "barrier2"),
                                   modification = translocation(source_layer = "source",
                                                                sink_layer = "sink",
@@ -128,7 +128,6 @@ test_that('simulation_results classes work', {
                                                                                              fecundity_layer = "suitability")),
                                    dispersal = cellular_automata_dispersal(dispersal_distance=c(16000),
                                                                            dispersal_kernel=exponential_dispersal_kernel(distance_decay = 16),
-                                                                           dispersal_proportion=c(0.25),
                                                                            carrying_capacity = "suitability"),
                                    modification = NULL,
                                    density_dependence = ceiling_density())
@@ -147,8 +146,7 @@ test_that('simulation_results classes work', {
   
   pop_dyn6 <- population_dynamics(change = growth(transition_matrix = egk_mat),
                                   dispersal = cellular_automata_dispersal(dispersal_distance=c(0, 16000, 0),
-                                                                          dispersal_kernel=exponential_dispersal_kernel(distance_decay = 16000),
-                                                                          dispersal_proportion=c(0, 0.25, 0)),
+                                                                          dispersal_kernel=exponential_dispersal_kernel(distance_decay = 16000)),
                                   modification = translocation(source_layer = "source",
                                                                sink_layer = "sink",
                                                                stages = 3,
@@ -335,7 +333,7 @@ test_that('simulation_results classes work', {
                                  timesteps = 30,
                                  replicates = 1)
   
-  print(test_simulation)
+  #print(test_simulation)
   
   plot(test_simulation)
   
@@ -389,10 +387,6 @@ test_that('simulation_results classes work', {
   
   plot(test_simulation[1],
        object = "carrying_capacity")
-  
-  plot(test_simulation[1],
-       object = "carrying_capacity",
-       animate = TRUE)
   
   plot(test_simulation[1],
        object = "carrying_capacity",

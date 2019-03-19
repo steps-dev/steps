@@ -24,7 +24,7 @@
 #'
 #' @examples
 #' 
-#' test_transition_function <- modified_transition(egk_mat)
+#' test_mod_transition <- modified_transition(egk_mat)
 
 modified_transition <- function(transition_matrix,
                                 survival_layer = "suitability",
@@ -81,12 +81,14 @@ modified_transition <- function(transition_matrix,
 #' @param stages which life-stages contribute to density dependence - default is all
 #' @param mask a matrix of boolean values (TRUE/FALSE), equal in dimensions to the life-stage transition matrix
 #' and specifying which vital rates (i.e. survival and fecundity) are to be modified by the function
+#' @param R_max optional value of maximum growth rate (lambda) if known
+#' @param initial_stages optional vector of stable age distributions if known
 #' 
 #' @export
 #'
 #' @examples
 #' 
-#' test_transition_function <- competition_density(egk_mat)
+#' test_comp_transition <- competition_density(egk_mat)
 
 competition_density <- function(transition_matrix,
                                 stages = NULL,

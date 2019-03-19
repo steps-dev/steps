@@ -290,7 +290,7 @@ egk_pop_dynamics <- population_dynamics(
   dispersal = kernel_dispersal(arrival_probability = "suitability",
                                dispersal_distance = 5000,
                                dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000),
-                               dispersal_proportion = c(0, 0.5, 1)),
+                               dispersal_proportion = carrying_capacity_dispersal()),
   modification = NULL,
   density_dependence = ceiling_density(stages = 3))
 
@@ -311,8 +311,7 @@ egk_landscape <- landscape(population = egk_pop,
 egk_pop_dynamics <- population_dynamics(
   change = growth(transition_matrix = egk_mat,
                   global_stochasticity = egk_mat_stoch),
-  dispersal = cellular_automata_dispersal(dispersal_distance = c(0, 2500, 5000),
-                                          dispersal_proportion = c(0, 0.5, 1)),
+  dispersal = cellular_automata_dispersal(dispersal_distance = c(0, 2500, 5000)),
   modification = NULL,
   density_dependence = ceiling_density(stages = 3))
 
@@ -336,7 +335,7 @@ egk_pop_dynamics <- population_dynamics(
   dispersal = kernel_dispersal(arrival_probability = "suitability",
                                dispersal_distance = 5000,
                                dispersal_kernel = function (r) exp(-r / 2000),
-                               dispersal_proportion = c(0, 0.5, 1)),
+                               dispersal_proportion = carrying_capacity_dispersal()),
   modification = NULL,
   density_dependence = ceiling_density(stages = 3))
 
@@ -360,8 +359,7 @@ egk_pop_dynamics <- population_dynamics(
                   global_stochasticity = egk_mat_stoch),
   dispersal = kernel_dispersal(arrival_probability = "suitability",
                                dispersal_distance = 5000,
-                               dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000),
-                               dispersal_proportion = 0.5),
+                               dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000)),
   modification = NULL,
   density_dependence = ceiling_density(stages = 3))
 
@@ -408,8 +406,7 @@ egk_pop_dynamics <- population_dynamics(
                   global_stochasticity = egk_mat_stoch),
   dispersal = kernel_dispersal(arrival_probability = "suitability",
                                dispersal_distance = 5000,
-                               dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000),
-                               dispersal_proportion = 0.5),
+                               dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000)),
   modification = NULL,
   density_dependence = ceiling_density(stages = 3))
 
@@ -452,8 +449,7 @@ egk_pop_dynamics <- population_dynamics(
                   global_stochasticity = egk_mat_stoch),
   dispersal = kernel_dispersal(arrival_probability = "suitability",
                                dispersal_distance = 5000,
-                               dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000),
-                               dispersal_proportion = 0.5),
+                               dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000)),
   modification = NULL,
   density_dependence = ceiling_density(stages = 3))
 
