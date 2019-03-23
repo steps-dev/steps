@@ -263,7 +263,7 @@ egk_pop_dynamics <- population_dynamics(
   change = growth(transition_matrix = egk_mat,
                   global_stochasticity = egk_mat_stoch),
   dispersal = kernel_dispersal(arrival_probability = "suitability",
-                               dispersal_distance = 5000,
+                               max_distance = 5000,
                                dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000)),
   density_dependence = ceiling_density(stages = 3))
 
@@ -288,7 +288,7 @@ egk_pop_dynamics <- population_dynamics(
   change = growth(transition_matrix = egk_mat,
                   global_stochasticity = egk_mat_stoch),
   dispersal = kernel_dispersal(arrival_probability = "suitability",
-                               dispersal_distance = 5000,
+                               max_distance = 5000,
                                dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000),
                                dispersal_proportion = carrying_capacity_dispersal()),
   modification = NULL,
@@ -300,171 +300,6 @@ egk_results <- simulation(landscape = egk_landscape,
                           timesteps = 20,
                           replicates = 3,
                           verbose = FALSE)
-
-plot(egk_results)
-
-## ---- message = FALSE, progress = FALSE, fig.align = "center", out.width = "100%"----
-egk_landscape <- landscape(population = egk_pop,
-                           suitability = egk_hab,
-                           carrying_capacity = egk_k)
-
-egk_pop_dynamics <- population_dynamics(
-  change = growth(transition_matrix = egk_mat,
-                  global_stochasticity = egk_mat_stoch),
-  dispersal = cellular_automata_dispersal(dispersal_distance = c(0, 2500, 5000)),
-  modification = NULL,
-  density_dependence = ceiling_density(stages = 3))
-
-egk_results <- simulation(landscape = egk_landscape,
-                          population_dynamics = egk_pop_dynamics,
-                          habitat_dynamics = NULL,
-                          timesteps = 20,
-                          replicates = 3,
-                          verbose = FALSE)
-
-plot(egk_results)
-
-## ---- message = FALSE, progress = FALSE, fig.align = "center", out.width = "100%"----
-egk_landscape <- landscape(population = egk_pop,
-                           suitability = egk_hab,
-                           carrying_capacity = egk_k)
-
-egk_pop_dynamics <- population_dynamics(
-  change = growth(transition_matrix = egk_mat,
-                  global_stochasticity = egk_mat_stoch),
-  dispersal = kernel_dispersal(arrival_probability = "suitability",
-                               dispersal_distance = 5000,
-                               dispersal_kernel = function (r) exp(-r / 2000),
-                               dispersal_proportion = carrying_capacity_dispersal()),
-  modification = NULL,
-  density_dependence = ceiling_density(stages = 3))
-
-egk_results <- simulation(landscape = egk_landscape,
-                          population_dynamics = egk_pop_dynamics,
-                          habitat_dynamics = NULL,
-                          timesteps = 20,
-                          replicates = 3,
-                          verbose = FALSE)
-
-plot(egk_results)
-
-## ---- message = FALSE, results='hide'------------------------------------
-egk_landscape <- landscape(population = egk_pop,
-                           suitability = egk_hab,
-                           carrying_capacity = egk_k,
-                           fires = egk_fire)
-
-egk_pop_dynamics <- population_dynamics(
-  change = growth(transition_matrix = egk_mat,
-                  global_stochasticity = egk_mat_stoch),
-  dispersal = kernel_dispersal(arrival_probability = "suitability",
-                               dispersal_distance = 5000,
-                               dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000)),
-  modification = NULL,
-  density_dependence = ceiling_density(stages = 3))
-
-egk_results <- simulation(landscape = egk_landscape,
-                          population_dynamics = egk_pop_dynamics,
-                          habitat_dynamics = list(fire_effects(fire_layers = "fires",
-                                                              lag = 5,
-                                                              regeneration_function = function (time) {-time})),
-                          timesteps = 20,
-                          replicates = 3,
-                          verbose = FALSE)
-
-plot(egk_results)
-
-## ---- message = FALSE, fig.align = "center"------------------------------
-plot(egk_results[1], type = "raster", stage = 3, timesteps = c(1, 10, 20), panels = c(3, 1))
-
-## ---- message = FALSE, fig.align = "center"------------------------------
-plot(egk_results[1], object = "suitability", timesteps = c(1, 10, 20), panels = c(3, 1))
-
-## ---- message = FALSE, results='hide'------------------------------------
-carrying_cap_fun <- function (landscape, timestep) {
-  
-  fun <- function(suitability) {
-     75 - round(75 * dlogis(suitability, scale = 0.25))
-  }
-  
-  suit <- landscape$suitability
-  if (raster::nlayers(suit) > 1) {
-    suit <- suit[[timestep]]
-  }
-  
-  calc(suit, fun)
-  
-}
-
-egk_landscape <- landscape(population = egk_pop,
-                           suitability = egk_hab,
-                           carrying_capacity = carrying_cap_fun,
-                           fires = egk_fire)
-
-egk_pop_dynamics <- population_dynamics(
-  change = growth(transition_matrix = egk_mat,
-                  global_stochasticity = egk_mat_stoch),
-  dispersal = kernel_dispersal(arrival_probability = "suitability",
-                               dispersal_distance = 5000,
-                               dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000)),
-  modification = NULL,
-  density_dependence = ceiling_density(stages = 3))
-
-egk_results <- simulation(landscape = egk_landscape,
-                          population_dynamics = egk_pop_dynamics,
-                          habitat_dynamics = list(fire_effects(fire_layers = "fires",
-                                                              lag = 5,
-                                                              regeneration_function =
-                                                                function (time) {-time})),
-                          timesteps = 20,
-                          replicates = 3,
-                          verbose = FALSE)
-
-plot(egk_results[1], object = "carrying_capacity", timesteps = c(1, 10, 20), panels = c(3, 1))
-
-## ---- message = FALSE, results='hide'------------------------------------
-carrying_cap_fun <- function (landscape, timestep) {
-  
-  fun <- function(suitability) {
-     75 - round(75 * dlogis(suitability, scale = 0.25))
-  }
-  
-  suit <- landscape$suitability
-  if (raster::nlayers(suit) > 1) {
-    suit <- suit[[timestep]]
-  }
-  
-  calc(suit, fun)
-  
-}
-
-egk_landscape <- landscape(population = egk_pop,
-                           suitability = egk_hab,
-                           carrying_capacity = carrying_cap_fun,
-                           fires = egk_fire,
-                           roads = egk_road)
-
-egk_pop_dynamics <- population_dynamics(
-  change = growth(transition_matrix = egk_mat,
-                  global_stochasticity = egk_mat_stoch),
-  dispersal = kernel_dispersal(arrival_probability = "suitability",
-                               dispersal_distance = 5000,
-                               dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000)),
-  modification = NULL,
-  density_dependence = ceiling_density(stages = 3))
-
-egk_results <- simulation(landscape = egk_landscape,
-                          population_dynamics = egk_pop_dynamics,
-                          habitat_dynamics = list(fire_effects(fire_layers = "fires",
-                                                              lag = 5,
-                                                              regeneration_function = function (time) {-time}),
-                                                  disturbance(disturbance_layers = "roads",
-                                                              effect_time = 1)),
-                          timesteps = 20,
-                          replicates = 3,
-                          verbose = FALSE)
-
-plot(egk_results[1], object = "suitability", timesteps = c(1:6), panels = c(3, 2))
 
 plot(egk_results)
 

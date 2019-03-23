@@ -13,14 +13,13 @@
 
 
   kernel_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay
-  = 1), dispersal_distance = Inf, arrival_probability = c("both",
+  = 1), max_distance = Inf, arrival_probability = c("both",
   "suitability", "carrying_capacity", "none"),
   dispersal_proportion = all_dispersing())
 
-cellular_automata_dispersal(dispersal_distance = Inf,
+cellular_automata_dispersal(max_distance = Inf,
   dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1),
-  dispersal_proportion = all_dispersing(),
-  barrier_effect = c("obstructing", "lethal"), dispersal_steps = 1,
+  dispersal_proportion = all_dispersing(), dispersal_steps = 1,
   barriers_map = NULL, arrival_probability = "suitability",
   carrying_capacity = "carrying_capacity")
 }
@@ -33,16 +32,13 @@ disperse in each life stage. Can also be a custom function that relates
 the proportion dispersing to a spatial layer in the landscape object
 (e.g. carrying capacity).}
 
-\item{dispersal_distance}{the maximum distance that each life stage can
+\item{max_distance}{the maximum distance that each life stage can
 disperse in spatial units of the landscape (in kernel-based dispersal
 this truncates the dispersal curve) - must be specified.}
 
 \item{arrival_probability}{the name of a spatial layer in the landscape object
 that controls where individuals can disperse to (e.g. "suitability") or
 "none" to allow individuals to disperse to all non-NA cells.}
-
-\item{barrier_effect}{if a barrier map is used, it either stops individuals
-("obstructing" - default) or kills individuals ("lethal").}
 
 \item{dispersal_steps}{the number of dispersal steps to take before stopping}
 
