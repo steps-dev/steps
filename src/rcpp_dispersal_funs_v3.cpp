@@ -3,6 +3,22 @@ using namespace Rcpp;
 
 
 // [[Rcpp::export]]
+NumericMatrix na_matrix(int nr, int nc){
+  NumericMatrix m(nr, nc) ;
+  std::fill( m.begin(), m.end(), NumericVector::get_na() ) ;
+  return m ;
+}
+
+
+// [[Rcpp::export]]
+IntegerVector shuffle_vec(int min, int max){
+  IntegerVector vec = seq(min, max);
+  std::random_shuffle(vec.begin(), vec.end());
+  return vec;
+}
+
+
+// [[Rcpp::export]]
 bool barrier_to_dispersal(int source_x,
                           int source_y,
                           int sink_x,
@@ -124,14 +140,14 @@ IntegerVector can_source_cell_disperse(int source_x,
   int ncols = carrying_capacity_available.ncol();
   int nrows = carrying_capacity_available.nrow();
   int sink_x, sink_y, real_distance;
-  IntegerVector sink_x_vec = sample_int((dispersal_distance * 2) + 1, source_x - dispersal_distance, source_x + dispersal_distance);
-  IntegerVector sink_y_vec = sample_int((dispersal_distance * 2) + 1, source_y - dispersal_distance, source_y + dispersal_distance);
+  IntegerVector sink_x_vec = shuffle_vec(source_x - dispersal_distance, source_x + dispersal_distance);
+  IntegerVector sink_y_vec = shuffle_vec(source_y - dispersal_distance, source_y + dispersal_distance);
   double prob_colonisation, rnd;
   IntegerVector sink_found(2,-9999);
   bool barrier;
-    
-    for (NumericVector::iterator sink_x = sink_x_vec.begin(); sink_x != sink_x_vec.end(); sink_x++){
-      for (NumericVector::iterator sink_y = sink_y_vec.begin(); sink_y != sink_y_vec.end(); sink_y++){
+
+    for (IntegerVector::iterator sink_x = sink_x_vec.begin(); sink_x != sink_x_vec.end(); sink_x++){
+      for (IntegerVector::iterator sink_y = sink_y_vec.begin(); sink_y != sink_y_vec.end(); sink_y++){
         
         /*
          ** 1. Test of basic conditions to see if a pixel could be a potential sink cell:
@@ -262,14 +278,21 @@ NumericMatrix rcpp_dispersal(NumericMatrix starting_population_state,
   
   int ncols = starting_population_state.ncol();
   int nrows = starting_population_state.nrow();
-  NumericMatrix carrying_capacity_available = na_matrix(nrows,ncols); // carrying capacity available.
-  NumericMatrix future_population_state = na_matrix(nrows,ncols); // future population size (after dispersal).
+  NumericMatrix carrying_capacity_available = na_matrix(nrows, ncols);
+  NumericMatrix future_population_state;
   int dispersal_step, i, j;
-  IntegerVector source_x_vec = sample_int(starting_population_state.ncol(), 1, starting_population_state.ncol());
-  IntegerVector source_y_vec = sample_int(starting_population_state.nrow(), 1, starting_population_state.nrow());
-  bool habitat_is_suitable;//, cell_in_dispersal_distance;
-  IntegerVector randcells_i;
-  IntegerVector randcells_j;
+  IntegerVector source_x_vec = shuffle_vec(1, starting_population_state.ncol());
+  IntegerVector source_y_vec = shuffle_vec(1, starting_population_state.nrow());
+
+  /*
+   ** fill future population matrix with zeros
+   */
+  
+  for(i = 0; i < nrows; i++){
+    for(j = 0; j < ncols; j++){
+      future_population_state(i,j) = 0;
+    }
+  }
   
   /*
    ** create a carrying capacity available matrix by subtracting
@@ -281,7 +304,7 @@ NumericMatrix rcpp_dispersal(NumericMatrix starting_population_state,
       if(!R_IsNA(starting_population_state(i,j))){
         carrying_capacity_available(i,j) = potential_carrying_capacity(i,j) - starting_population_state(i,j);
         if(carrying_capacity_available(i, j) < 0) carrying_capacity_available(i, j) = 0;
-        if(habitat_suitability_map(i, j) = 1) carrying_capacity_available(i, j) = 0;
+        if(barriers_map(i, j) = 1) carrying_capacity_available(i, j) = 0;
       }
     }
   }
@@ -292,8 +315,8 @@ NumericMatrix rcpp_dispersal(NumericMatrix starting_population_state,
   
   for(dispersal_step = 1; dispersal_step <= dispersal_steps; dispersal_step++){
     
-    for (NumericVector::iterator source_x = source_x_vec.begin(); source_x != source_x_vec.end(); source_x++){
-      for (NumericVector::iterator source_y = source_y_vec.begin(); source_y != source_y_vec.end(); source_y++){
+    for (IntegerVector::iterator source_x = source_x_vec.begin(); source_x != source_x_vec.end(); source_x++){
+      for (IntegerVector::iterator source_y = source_y_vec.begin(); source_y != source_y_vec.end(); source_y++){
         
         if(!R_IsNA(starting_population_state(*source_x,*source_y))){
           
@@ -347,44 +370,4 @@ NumericMatrix rcpp_dispersal(NumericMatrix starting_population_state,
   }
   
   return(future_population_state);
-}
-
-
-// [[Rcpp::export]]
-NumericMatrix na_matrix(int nr, int nc){
-  NumericMatrix m(nr, nc) ;
-  std::fill( m.begin(), m.end(), NumericVector::get_na() ) ;
-  return m ;
-}
-
-
-template <typename Iter, typename T>
-inline void iota(Iter first, Iter last, T value){
-  while (first != last){
-    *first++ = value++;
-  }
-}
-
-template <typename T>
-inline T pop_random(std::vector<T>& v){
-  typename std::vector<T>::size_type pos = std::rand() % v.size();
-  T res = v[pos];
-  
-  std::swap(v[pos], v.back());
-  v.pop_back();
-  
-  return res;
-}
-
-// [[Rcpp::export]]
-Rcpp::IntegerVector sample_int(int n, int min, int max){
-  Rcpp::IntegerVector res(n);
-  std::vector<int> pool(max + 1 - min);
-  iota(pool.begin(), pool.end(), min);
-  
-  for (R_xlen_t i = 0; i < n; i++){
-    res[i] = pop_random(pool);
-  }
-  
-  return res;
 }

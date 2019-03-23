@@ -49,14 +49,12 @@ NULL
 #'   "none" to allow individuals to disperse to all non-NA cells.
 #' @param carrying_capacity the name of a spatial layer in the landscape object
 #' that specifies the carrying capacity in each cell.
-#' @param dispersal_distance the maximum distance that each life stage can
+#' @param max_distance the maximum distance that each life stage can
 #'   disperse in spatial units of the landscape (in kernel-based dispersal
 #'   this truncates the dispersal curve) - must be specified.
 #' @param dispersal_steps the number of dispersal steps to take before stopping
 #' @param barriers_map the name of a spatial layer in the landscape object that
 #' contains cell values of 0 (no barrier) and 1 (barrier).
-#' @param barrier_effect if a barrier map is used, it either stops individuals
-#' ("obstructing" - default) or kills individuals ("lethal").
 NULL
 
 #' @rdname population_dispersal_functions
@@ -136,7 +134,7 @@ fast_dispersal <- function(dispersal_kernel = exponential_dispersal_kernel(dista
 #' test_kern_dispersal <- kernel_dispersal()
 
 kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1),
-                              dispersal_distance = Inf,
+                              max_distance = Inf,
                               arrival_probability = c("both", "suitability", "carrying_capacity", "none"),
                               dispersal_proportion = all_dispersing()) {
   
@@ -152,7 +150,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
       raster_dim <- force(raster_dim)
       
       distance_info <- get_distance_info(res = raster::res(landscape$population),
-                                         max_distance = dispersal_distance)
+                                         max_distance = max_distance)
       
       sys_mem_available <- memuse::Sys.meminfo()$freeram
       
@@ -302,24 +300,13 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
 #'
 #' test_ca_dispersal <- cellular_automata_dispersal()
 
-cellular_automata_dispersal <- function (dispersal_distance = Inf,
+cellular_automata_dispersal <- function (max_distance = Inf,
                                          dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1),
                                          dispersal_proportion = all_dispersing(),
-                                         barrier_effect = c("obstructing", "lethal"),
                                          dispersal_steps = 1,
                                          barriers_map = NULL,
                                          arrival_probability = "suitability",
                                          carrying_capacity = "carrying_capacity") {
-  
-  # read in value for barrier_effect - if none, default is "obstructing"
-  barrier_effect <- match.arg(barrier_effect)
-  
-  # set barrier type based on barrier_effect value
-  if (barrier_effect == "lethal") {
-    barrier_type <- 0
-  } else {
-    barrier_type <- 1
-  }
   
   # are there suitability and carrying_capacity landscape objects specified?
   suit <- identical(arrival_probability, "suitability")
@@ -368,24 +355,24 @@ cellular_automata_dispersal <- function (dispersal_distance = Inf,
     dispersal_proportion <- dispersal_proportion(landscape, timestep)
     
     # handle dispersal distances as both scalars and vectors
-    if (length(dispersal_distance) < n_stages | length(dispersal_distance) > n_stages ) {
+    if (length(max_distance) < n_stages | length(max_distance) > n_stages) {
       if (timestep == 1) cat ("    ",
                               n_stages,
                               "life stages exist but",
-                              length(dispersal_distance),
+                              length(max_distance),
                               "dispersal distance(s) of",
-                              paste(dispersal_distance, collapse = ", "),
+                              paste(max_distance, collapse = ", "),
                               "were specified. Please check your values.")
 
-      dispersal_distance <- rep_len(dispersal_distance, n_stages)
+      max_distance <- rep_len(max_distance, n_stages)
     }
     
     # rescale dispersal distances to number of grid cells based on spatial resolution. This
     # is required for inputting into the Rcpp dispersal function.
-    dispersal_distance <- ceiling(dispersal_distance / min(raster::res(landscape$population)))
+    max_distance <- ceiling(max_distance / min(raster::res(landscape$population)))
 
     # create dispersal vector from the specified dispersal kernel and rescaled distances
-    dispersal_vector <- lapply(dispersal_distance,
+    dispersal_vector <- lapply(max_distance,
                                function(x) dispersal_kernel((seq_len(x) - 1) * min(raster::res(landscape$population))))    
 
     # identify dispersing stages
@@ -393,11 +380,9 @@ cellular_automata_dispersal <- function (dispersal_distance = Inf,
     
     # if no barrier map is specified, create a barriers matrix with all zeros.
     if (is.null(barriers_map)) {
-      use_barriers <- FALSE
       barriers_map <- raster::calc(arrival_prob,
                                    function(x){x[!is.na(x)] <- 0; return(x)})
     } else {
-      use_barriers <- TRUE
       barriers_map <- landscape[[barriers_map]]
     }
     
@@ -407,14 +392,12 @@ cellular_automata_dispersal <- function (dispersal_distance = Inf,
                                   raster::as.matrix(cc),
                                   raster::as.matrix(arrival_prob),
                                   raster::as.matrix(barriers_map),
-                                  as.integer(barrier_type),
-                                  use_barriers,
                                   as.integer(dispersal_steps),
-                                  as.integer(dispersal_distance[i]),
+                                  as.integer(max_distance[i]),
                                   as.numeric(dispersal_vector[[i]]),
                                   as.numeric(dispersal_proportion[i]))
       
-      population_raster[[i]][] <- dispersed$dispersed_population
+      population_raster[[i]][] <- dispersed
       
     }
     

@@ -5,6 +5,30 @@
 
 using namespace Rcpp;
 
+// na_matrix
+NumericMatrix na_matrix(int nr, int nc);
+RcppExport SEXP _steps_na_matrix(SEXP nrSEXP, SEXP ncSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type nr(nrSEXP);
+    Rcpp::traits::input_parameter< int >::type nc(ncSEXP);
+    rcpp_result_gen = Rcpp::wrap(na_matrix(nr, nc));
+    return rcpp_result_gen;
+END_RCPP
+}
+// shuffle_vec
+IntegerVector shuffle_vec(int min, int max);
+RcppExport SEXP _steps_shuffle_vec(SEXP minSEXP, SEXP maxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type min(minSEXP);
+    Rcpp::traits::input_parameter< int >::type max(maxSEXP);
+    rcpp_result_gen = Rcpp::wrap(shuffle_vec(min, max));
+    return rcpp_result_gen;
+END_RCPP
+}
 // barrier_to_dispersal
 bool barrier_to_dispersal(int source_x, int source_y, int sink_x, int sink_y, NumericMatrix barriers_map);
 RcppExport SEXP _steps_barrier_to_dispersal(SEXP source_xSEXP, SEXP source_ySEXP, SEXP sink_xSEXP, SEXP sink_ySEXP, SEXP barriers_mapSEXP) {
@@ -72,39 +96,14 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// na_matrix
-NumericMatrix na_matrix(int nr, int nc);
-RcppExport SEXP _steps_na_matrix(SEXP nrSEXP, SEXP ncSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type nr(nrSEXP);
-    Rcpp::traits::input_parameter< int >::type nc(ncSEXP);
-    rcpp_result_gen = Rcpp::wrap(na_matrix(nr, nc));
-    return rcpp_result_gen;
-END_RCPP
-}
-// sample_int
-Rcpp::IntegerVector sample_int(int n, int min, int max);
-RcppExport SEXP _steps_sample_int(SEXP nSEXP, SEXP minSEXP, SEXP maxSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< int >::type min(minSEXP);
-    Rcpp::traits::input_parameter< int >::type max(maxSEXP);
-    rcpp_result_gen = Rcpp::wrap(sample_int(n, min, max));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_steps_na_matrix", (DL_FUNC) &_steps_na_matrix, 2},
+    {"_steps_shuffle_vec", (DL_FUNC) &_steps_shuffle_vec, 2},
     {"_steps_barrier_to_dispersal", (DL_FUNC) &_steps_barrier_to_dispersal, 5},
     {"_steps_can_source_cell_disperse", (DL_FUNC) &_steps_can_source_cell_disperse, 7},
     {"_steps_proportion_of_population_to_disperse", (DL_FUNC) &_steps_proportion_of_population_to_disperse, 7},
     {"_steps_rcpp_dispersal", (DL_FUNC) &_steps_rcpp_dispersal, 8},
-    {"_steps_na_matrix", (DL_FUNC) &_steps_na_matrix, 2},
-    {"_steps_sample_int", (DL_FUNC) &_steps_sample_int, 3},
     {NULL, NULL, 0}
 };
 
