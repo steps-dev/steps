@@ -137,7 +137,7 @@ IntegerVector can_source_cell_disperse(int source_x,
   IntegerVector sink_x_vec = shuffle_vec(source_x - dispersal_distance, source_x + dispersal_distance);
   IntegerVector sink_y_vec = shuffle_vec(source_y - dispersal_distance, source_y + dispersal_distance);
   double prob_colonisation, rnd;
-  IntegerVector sink_found(2);
+  IntegerVector sink_found(2, -1);
   bool barrier;
   
   for (IntegerVector::iterator sink_x = sink_x_vec.begin(); sink_x != sink_x_vec.end(); sink_x++){
@@ -274,8 +274,8 @@ NumericMatrix rcpp_dispersal(NumericMatrix starting_population_state,
   NumericMatrix carrying_capacity_available = na_matrix(nrows, ncols);
   NumericMatrix future_population_state;
   int dispersal_step, i, j;
-  IntegerVector source_x_vec = shuffle_vec(0, starting_population_state.ncol() - 1);
-  IntegerVector source_y_vec = shuffle_vec(0, starting_population_state.nrow() - 1);
+  IntegerVector source_x_vec = shuffle_vec(0, (ncols - 1));
+  IntegerVector source_y_vec = shuffle_vec(0, (nrows - 1));
 
   /*
    ** fill future population matrix with zeros
@@ -331,7 +331,7 @@ NumericMatrix rcpp_dispersal(NumericMatrix starting_population_state,
                                                                               dispersal_distance,
                                                                               dispersal_kernel);
           
-          if(cell_in_dispersal_distance[0] > 0 && cell_in_dispersal_distance[1] > 0){
+          if(cell_in_dispersal_distance[0] >= 0 && cell_in_dispersal_distance[1] >= 0){
             
             int sink_x = cell_in_dispersal_distance[0];
             int sink_y = cell_in_dispersal_distance[1];
