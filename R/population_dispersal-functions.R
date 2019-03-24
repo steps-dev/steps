@@ -354,6 +354,11 @@ cellular_automata_dispersal <- function (max_distance = Inf,
     # work out dispersal proportions for eligible life-stages with input function
     dispersal_proportion <- dispersal_proportion(landscape, timestep)
     
+    # if max_distance is the default (Infinite), rescale to maximum distance of landscape
+    if (max_distance == Inf) {
+      max_distance <- sqrt(raster::nrow(population_raster[[1]])^2 + raster::ncol(population_raster[[1]])^2)
+    }
+    
     # handle dispersal distances as both scalars and vectors
     if (length(max_distance) < n_stages | length(max_distance) > n_stages) {
       if (timestep == 1) cat ("    ",
@@ -369,11 +374,12 @@ cellular_automata_dispersal <- function (max_distance = Inf,
     
     # rescale dispersal distances to number of grid cells based on spatial resolution. This
     # is required for inputting into the Rcpp dispersal function.
+    
     max_distance <- ceiling(max_distance / min(raster::res(landscape$population)))
 
     # create dispersal vector from the specified dispersal kernel and rescaled distances
     dispersal_vector <- lapply(max_distance,
-                               function(x) dispersal_kernel((seq_len(x) - 1) * min(raster::res(landscape$population))))    
+                               function(x) dispersal_kernel((seq_len(x)) * min(raster::res(landscape$population))))    
 
     # identify dispersing stages
     which_stages_disperse <- which(dispersal_proportion > 0)
