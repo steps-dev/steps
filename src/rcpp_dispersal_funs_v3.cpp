@@ -2,12 +2,12 @@
 using namespace Rcpp;
 
 
-// [[Rcpp::export]]
-NumericMatrix na_matrix(int nr, int nc){
-  NumericMatrix m(nr, nc);
-  std::fill(m.begin(), m.end(), NumericVector::get_na());
-  return m;
-}
+// // [[Rcpp::export]]
+// NumericMatrix na_matrix(int nr, int nc){
+//   NumericMatrix m(nr, nc);
+//   std::fill(m.begin(), m.end(), NumericVector::get_na());
+//   return m;
+// }
 
 
 // [[Rcpp::export]]
@@ -54,7 +54,7 @@ bool barrier_to_dispersal(int source_x,
   for (i = 1; i <= distance_max; i++){
     pixel_x = round(sink_x + (1.0 * i / distance_max * dist_x));
     pixel_y = round(sink_y + (1.0 * i / distance_max * dist_y));
-    if (R::rbinom(1, barriers_map(pixel_x, pixel_y)) == 1){
+    if (R::rbinom(1, barriers_map(pixel_y, pixel_x)) == 1){
       barrier_counter++;
       break;
     }
@@ -65,7 +65,7 @@ bool barrier_to_dispersal(int source_x,
       ((1.0 / distance_max * dist_x) / 2.0)));
     pixel_y = round(sink_y - 0.49 + (((i - 1.0) / distance_max * dist_y) +
       ((1.0 / distance_max * dist_y) / 2.0)));
-    if (R::rbinom(1, barriers_map(pixel_x, pixel_y)) == 1){
+    if (R::rbinom(1, barriers_map(pixel_y, pixel_x)) == 1){
       barrier_counter++;
       break;
     }
@@ -76,7 +76,7 @@ bool barrier_to_dispersal(int source_x,
       ((1.0 / distance_max * dist_x) / 2.0)));
     pixel_y = round(sink_y - 0.49 + (((i - 1.0) / distance_max * dist_y) +
       ((1.0 / distance_max * dist_y) / 2.0)));
-    if (R::rbinom(1, barriers_map(pixel_x, pixel_y)) == 1){
+    if (R::rbinom(1, barriers_map(pixel_y, pixel_x)) == 1){
       barrier_counter++;
       break;
     }
@@ -87,7 +87,7 @@ bool barrier_to_dispersal(int source_x,
       ((1.0 / distance_max * dist_x) / 2.0)));
     pixel_y = round(sink_y + 0.49 + (((i - 1.0) / distance_max * dist_y) +
       ((1.0 / distance_max * dist_y) / 2.0)));
-    if (R::rbinom(1, barriers_map(pixel_x, pixel_y)) == 1){
+    if (R::rbinom(1, barriers_map(pixel_y, pixel_x)) == 1){
       barrier_counter++;
       break;
     }
@@ -98,7 +98,7 @@ bool barrier_to_dispersal(int source_x,
       ((1.0 / distance_max * dist_x) / 2.0)));
     pixel_y = round(sink_y + 0.49 + (((i - 1.0) / distance_max * dist_y) +
       ((1.0 / distance_max * dist_y) / 2.0)));
-    if (R::rbinom(1, barriers_map(pixel_x, pixel_y)) == 1){
+    if (R::rbinom(1, barriers_map(pixel_y, pixel_x)) == 1){
       barrier_counter++;
       break;
     }
@@ -121,6 +121,7 @@ bool barrier_to_dispersal(int source_x,
 // [[Rcpp::export]]
 IntegerVector can_source_cell_disperse(int source_x,
                                        int source_y,
+                                       NumericMatrix iterative_population_state,
                                        NumericMatrix carrying_capacity_available, 
                                        NumericMatrix habitat_suitability_map,
                                        NumericMatrix barriers_map,
@@ -133,15 +134,24 @@ IntegerVector can_source_cell_disperse(int source_x,
   
   int ncols = carrying_capacity_available.ncol();
   int nrows = carrying_capacity_available.nrow();
-  int sink_x, sink_y, real_distance;
+  int i, j, real_distance;
   IntegerVector sink_x_vec = shuffle_vec(source_x - dispersal_distance, source_x + dispersal_distance);
   IntegerVector sink_y_vec = shuffle_vec(source_y - dispersal_distance, source_y + dispersal_distance);
+  int nx = sink_x_vec.size();
+  int ny = sink_y_vec.size();
   double prob_colonisation, rnd;
   IntegerVector sink_found(2, -1);
   bool barrier;
   
-  for (IntegerVector::iterator sink_x = sink_x_vec.begin(); sink_x != sink_x_vec.end(); sink_x++){
-    for (IntegerVector::iterator sink_y = sink_y_vec.begin(); sink_y != sink_y_vec.end(); sink_y++){
+  for (i = 0; i < nx; i++){
+    for (j = 0; j < ny; j++){
+      
+      /*
+       ** Assign sink coordinates from shuffled vector of integers
+       */
+      
+      int sink_x = sink_x_vec[i];
+      int sink_y = sink_y_vec[j];
       
       /*
        ** 1. Test of basic conditions to see if a pixel could be a potential sink cell:
@@ -150,9 +160,11 @@ IntegerVector can_source_cell_disperse(int source_x,
        **  - The pixel must not be NA.
        */
       
-      if ((*sink_x >= 0) && (*sink_x < nrows) && (*sink_y >= 0) && (*sink_y < ncols)){
-        if ((carrying_capacity_available(*sink_x, *sink_y) > 0) && !R_IsNA(carrying_capacity_available(*sink_x, *sink_y))){
-          if(!R_IsNA(habitat_suitability_map(*sink_x, *sink_y))){
+      int sink_carrying_cap = carrying_capacity_available(sink_y, sink_x) - iterative_population_state(sink_y, sink_x);
+      
+      if ((sink_x >= 0) && (sink_x < nrows) && (sink_y >= 0) && (sink_y < ncols)){
+        if ((sink_carrying_cap > 0) && !R_IsNA(sink_carrying_cap)){
+          if(!R_IsNA(habitat_suitability_map(sink_y, sink_x))){
             
             /*
              ** 2. Compute the distance between potential sink and source pixel
@@ -160,7 +172,7 @@ IntegerVector can_source_cell_disperse(int source_x,
              ** The distance is computed in pixel units.
              */
             
-            real_distance = round(sqrt((*sink_x - source_x) * (*sink_x - source_x) + (*sink_y - source_y) * (*sink_y - source_y)));
+            real_distance = round(sqrt((sink_x - source_x) * (sink_x - source_x) + (sink_y - source_y) * (sink_y - source_y)));
             
             if ((real_distance > 0) && (real_distance <= dispersal_distance)){
               
@@ -171,7 +183,7 @@ IntegerVector can_source_cell_disperse(int source_x,
                **  - Habitat suitability.
                */
               
-              prob_colonisation = dispersal_kernel[real_distance - 1] * (habitat_suitability_map(*sink_x, *sink_y));
+              prob_colonisation = dispersal_kernel[real_distance - 1] * (habitat_suitability_map(sink_y, sink_x));
               
               /*
                ** Generate random number
@@ -192,11 +204,11 @@ IntegerVector can_source_cell_disperse(int source_x,
                  ** computing time.
                  */
                 
-                barrier = barrier_to_dispersal(source_x, source_y, *sink_x, *sink_y, barriers_map);
+                barrier = barrier_to_dispersal(source_x, source_y, sink_x, sink_y, barriers_map);
                 
                 if (!barrier){
-                  sink_found[0] = *sink_x;
-                  sink_found[1] = *sink_y;
+                  sink_found[0] = sink_x;
+                  sink_found[1] = sink_y;
                 }
                 
               }
@@ -213,39 +225,27 @@ IntegerVector can_source_cell_disperse(int source_x,
 
 
 // [[Rcpp::export]]
-int proportion_of_population_to_disperse(int source_x,
-                                         int source_y,
-                                         int sink_x,
-                                         int sink_y, 
-                                         NumericMatrix starting_population_state,
-                                         NumericMatrix current_carrying_capacity, 
+int proportion_of_population_to_disperse(int source_population,
+                                         int current_carrying_cap, 
                                          double dispersal_proportion){
   
   /*
    ** Initialise parameters used in the function
    */
   
-  int source_pop;
   int source_pop_dispersed = 0;
-  
+
   /*
-   ** Get intitial population
-   */
-  
-  source_pop = starting_population_state(source_x, source_y);
-  
-  /*
-   ** Only calculate proportion of population to disperse if
-   ** there is population in the source and if there is available
+   ** Only calculate proportion of population to disperse if there is available
    ** space in the target sink cell
    */
   
-  if(!R_IsNA(source_pop) && (source_pop >= 1)){
+  if(!R_IsNA(source_population) && (source_population >= 1)){
     
-    source_pop_dispersed = R::rbinom(source_pop, dispersal_proportion);
+    source_pop_dispersed = R::rbinom(source_population, dispersal_proportion);
     
-    if (current_carrying_capacity(sink_x, sink_y) <= source_pop_dispersed){
-      source_pop_dispersed = 0;
+    if (current_carrying_cap < source_pop_dispersed){
+      source_pop_dispersed = current_carrying_cap;
     }
     
   }
@@ -271,34 +271,25 @@ NumericMatrix rcpp_dispersal(NumericMatrix starting_population_state,
   
   int ncols = starting_population_state.ncol();
   int nrows = starting_population_state.nrow();
-  NumericMatrix carrying_capacity_available = na_matrix(nrows, ncols);
-  NumericMatrix future_population_state;
+  NumericMatrix carrying_capacity_available = potential_carrying_capacity;
+  NumericMatrix iterative_population_state = starting_population_state;
+  NumericMatrix future_population_state(nrows, ncols);
   int dispersal_step, i, j;
   IntegerVector source_x_vec = shuffle_vec(0, (ncols - 1));
   IntegerVector source_y_vec = shuffle_vec(0, (nrows - 1));
+  int nx = source_x_vec.size();
+  int ny = source_y_vec.size();
 
   /*
-   ** fill future population matrix with zeros
+   ** set zeros in carrying capacity available matrix where barriers are present
    */
   
   for(i = 0; i < nrows; i++){
     for(j = 0; j < ncols; j++){
-      future_population_state(i, j) = 0;
-    }
-  }
-  
-  /*
-   ** create a carrying capacity available matrix by subtracting
-   ** current population state from carrying capacity of landscape
-   */
-  
-  for(i = 0; i < nrows; i++){
-    for(j = 0; j < ncols; j++){
-      if(!R_IsNA(starting_population_state(i, j))){
-        carrying_capacity_available(i, j) = potential_carrying_capacity(i, j) - starting_population_state(i, j);
+      //if(!R_IsNA(starting_population_state(i, j))){
         if(carrying_capacity_available(i, j) < 0) carrying_capacity_available(i, j) = 0;
         if(barriers_map(i, j) == 1) carrying_capacity_available(i, j) = 0;
-      }
+      //}
     }
   }
   
@@ -308,11 +299,22 @@ NumericMatrix rcpp_dispersal(NumericMatrix starting_population_state,
   
   for(dispersal_step = 0; dispersal_step < dispersal_steps; dispersal_step++){
     
-    for (IntegerVector::iterator source_x = source_x_vec.begin(); source_x != source_x_vec.end(); source_x++){
-      for (IntegerVector::iterator source_y = source_y_vec.begin(); source_y != source_y_vec.end(); source_y++){
+    for (i = 0; i < nx; i++){
+      for (j = 0; j < ny; j++){
         
-        if(!R_IsNA(starting_population_state(*source_x, *source_y))){
-          
+        /*
+         ** Assign source coordinates from shuffled vector of integers
+         */
+        
+        int source_x = source_x_vec[i];
+        int source_y = source_y_vec[j];        
+        
+        /*
+         ** Is there population in the cell?
+         */
+        
+        if(!R_IsNA(iterative_population_state(source_y, source_x)) && iterative_population_state(source_y, source_x) > 0){
+
           /*
            ** Sink cell search: Can the source pixel disperse? There are four
            ** conditions to be met for a source pixel to disperse:
@@ -323,8 +325,9 @@ NumericMatrix rcpp_dispersal(NumericMatrix starting_population_state,
            **  (sink pixel) and the pixel that is already colonised (source pixel).
            */
           
-          IntegerVector cell_in_dispersal_distance = can_source_cell_disperse(*source_x,
-                                                                              *source_y,
+          IntegerVector cell_in_dispersal_distance = can_source_cell_disperse(source_x,
+                                                                              source_y,
+                                                                              iterative_population_state,
                                                                               carrying_capacity_available,
                                                                               habitat_suitability_map,
                                                                               barriers_map,
@@ -335,18 +338,21 @@ NumericMatrix rcpp_dispersal(NumericMatrix starting_population_state,
             
             int sink_x = cell_in_dispersal_distance[0];
             int sink_y = cell_in_dispersal_distance[1];
+
+            /*
+             ** Get available population & carrying capacity
+             */
             
-            int source_pop_dispersed = proportion_of_population_to_disperse(*source_x,
-                                                                            *source_y,
-                                                                            sink_x,
-                                                                            sink_y,
-                                                                            starting_population_state,
-                                                                            carrying_capacity_available,
+            int source_population = iterative_population_state(source_y, source_x);
+            int sink_carrying_cap = carrying_capacity_available(sink_y, sink_x) - iterative_population_state(sink_y, sink_x);
+            
+            int source_pop_dispersed = proportion_of_population_to_disperse(source_population,
+                                                                            sink_carrying_cap,
                                                                             dispersal_proportion);
             
-            starting_population_state(*source_x, *source_y) = starting_population_state(*source_x, *source_y) - source_pop_dispersed;
+            iterative_population_state(source_y, source_x) = iterative_population_state(source_y, source_x) - source_pop_dispersed;
             
-            future_population_state(sink_x, sink_y) = source_pop_dispersed;
+            future_population_state(sink_y, sink_x) = future_population_state(sink_y, sink_x) + source_pop_dispersed;
             
           }
         }
@@ -356,7 +362,7 @@ NumericMatrix rcpp_dispersal(NumericMatrix starting_population_state,
     for(i = 0; i < nrows; i++){
       for(j = 0; j < ncols; j++){
         
-        future_population_state(i, j) = future_population_state(i, j) + starting_population_state(i, j);
+        future_population_state(i, j) = future_population_state(i, j) + iterative_population_state(i, j);
         
       }
     }
