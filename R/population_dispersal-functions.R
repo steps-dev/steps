@@ -52,9 +52,9 @@ NULL
 #' @param max_distance the maximum distance that each life stage can
 #'   disperse in spatial units of the landscape (in kernel-based dispersal
 #'   this truncates the dispersal curve) - must be specified.
-#' @param dispersal_steps the number of dispersal steps to take before stopping
 #' @param barriers_map the name of a spatial layer in the landscape object that
-#' contains cell values of 0 (no barrier) and 1 (barrier).
+#' contains cell values between 0 (no barrier) and 1 (full barrier) Any
+#' values between 0 and 1 indicate the permeability of the barrier.
 NULL
 
 #' @rdname population_dispersal_functions
@@ -303,7 +303,6 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
 cellular_automata_dispersal <- function (max_distance = Inf,
                                          dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1),
                                          dispersal_proportion = all_dispersing(),
-                                         dispersal_steps = 1,
                                          barriers_map = NULL,
                                          arrival_probability = "suitability",
                                          carrying_capacity = "carrying_capacity") {
@@ -391,6 +390,8 @@ cellular_automata_dispersal <- function (max_distance = Inf,
     } else {
       barriers_map <- landscape[[barriers_map]]
     }
+    
+    dispersal_steps = 1
     
     # could do this in parallel
     for (i in which_stages_disperse){
