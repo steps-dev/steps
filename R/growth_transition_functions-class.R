@@ -187,11 +187,12 @@ get_R <- function (transition_matrix, n_stages = ncol(transition_matrix), initia
     
   }
   
-  if (!converged) {
-    warning("estimation of growth rate did not converge in ",
-            max_iter, " iterations")
-  }
-  
+  warn_once(!converged,
+            paste("estimation of growth rate did not converge in",
+                  max_iter,
+                  "iterations"),
+            warning_name = "growth_estimation")
+
   # return the intrinsic growth rate
   Rs[1]
   

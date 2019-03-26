@@ -359,15 +359,16 @@ cellular_automata_dispersal <- function (max_distance = Inf,
     }
     
     # handle dispersal distances as both scalars and vectors
+    warn_once(length(max_distance) < n_stages | length(max_distance) > n_stages,
+              paste(n_stages,
+                    "life stages exist but",
+                    length(max_distance),
+                    "dispersal distance(s) of",
+                    paste(max_distance, collapse = ", "),
+                    "were specified.\nAll life stages will use this distance."),
+              warning_name = "dispersal_distances")
+    
     if (length(max_distance) < n_stages | length(max_distance) > n_stages) {
-      if (timestep == 1) cat ("    ",
-                              n_stages,
-                              "life stages exist but",
-                              length(max_distance),
-                              "dispersal distance(s) of",
-                              paste(max_distance, collapse = ", "),
-                              "were specified. Please check your values.")
-
       max_distance <- rep_len(max_distance, n_stages)
     }
     

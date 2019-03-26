@@ -28,14 +28,17 @@ all_dispersing <- function (proportions = 1) {
     
     dispersal_proportion <- rep(1, n_stages)
     
+    warn_once(length(proportions) > n_stages | length(proportions) < n_stages,
+              paste(n_stages,
+                    "life stages exist but",
+                    length(proportions),
+                    "dispersal proportion(s) of",
+                    paste(proportions, collapse = ", "),
+                    "were specified.\nAll life stages will use this proportion."),
+              warning_name = "dispersal_proportions")
+    
+    
     if (length(proportions) > n_stages | length(proportions) < n_stages)  {
-      if (timestep == 1) cat("    ",
-                             n_stages,
-                             "life stages exist but",
-                             length(proportions),
-                             "dispersal proportion(s) of",
-                             paste(proportions, collapse = ", "),
-                             "were specified. Please check your values.")
       dispersal_proportion <- rep_len(proportions, n_stages)
     } else {
       dispersal_proportion <- proportions

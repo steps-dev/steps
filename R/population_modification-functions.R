@@ -48,10 +48,12 @@ translocation <- function (source_layer, sink_layer, stages = NULL, effect_times
       
       for (stage in stages) {
         
-        if (any(population_matrix[ , stage] - source < 0)) {
-          warning("The proposed number of translocated individuals do not exist for\nlife-stage ", stage," in timestep ", timestep, " - only the maximum number of available\nindividuals in each cell will be translocated. Please check the\nspecified source and sink layers.")
-        }
-        
+        warn_once(any(population_matrix[ , stage] - source < 0),
+                  paste("The proposed number of translocated individuals do not exist for\nlife-stage",
+                        stage,
+                        "- only the maximum number of available\nindividuals in each cell will be translocated. Please check the\nspecified source and sink layers."),
+                  warning_name = paste0("translocated_individuals_", stage))
+
         population_matrix[ , stage] <- population_matrix[ , stage] + sink - pmin(source, population_matrix[ , stage])
         
       }

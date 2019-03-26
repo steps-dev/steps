@@ -80,3 +80,10 @@ get_carrying_capacity <- function(landscape, timestep) {
 not_missing <- function(raster) {
   which(!is.na(raster::getValues(raster)))
 }
+
+warn_once <- function(condition, message, warning_name) {
+  if (condition & !isTRUE(steps_stash[[warning_name]])) {
+    warning(message)
+    steps_stash[[warning_name]] <- TRUE
+  }
+}

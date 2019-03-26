@@ -19,8 +19,8 @@
 
 cellular_automata_dispersal(max_distance = Inf,
   dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1),
-  dispersal_proportion = all_dispersing(), dispersal_steps = 1,
-  barriers_map = NULL, arrival_probability = "suitability",
+  dispersal_proportion = all_dispersing(), barriers_map = NULL,
+  arrival_probability = "suitability",
   carrying_capacity = "carrying_capacity")
 }
 \arguments{
@@ -40,10 +40,9 @@ this truncates the dispersal curve) - must be specified.}
 that controls where individuals can disperse to (e.g. "suitability") or
 "none" to allow individuals to disperse to all non-NA cells.}
 
-\item{dispersal_steps}{the number of dispersal steps to take before stopping}
-
 \item{barriers_map}{the name of a spatial layer in the landscape object that
-contains cell values of 0 (no barrier) and 1 (barrier).}
+contains cell values between 0 (no barrier) and 1 (full barrier) Any
+values between 0 and 1 indicate the permeability of the barrier.}
 
 \item{carrying_capacity}{the name of a spatial layer in the landscape object
 that specifies the carrying capacity in each cell.}
