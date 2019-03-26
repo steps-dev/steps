@@ -51,19 +51,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// proportion_of_population_to_disperse
-int proportion_of_population_to_disperse(int source_population, int sink_carrying_cap, double dispersal_proportion);
-RcppExport SEXP _steps_proportion_of_population_to_disperse(SEXP source_populationSEXP, SEXP sink_carrying_capSEXP, SEXP dispersal_proportionSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type source_population(source_populationSEXP);
-    Rcpp::traits::input_parameter< int >::type sink_carrying_cap(sink_carrying_capSEXP);
-    Rcpp::traits::input_parameter< double >::type dispersal_proportion(dispersal_proportionSEXP);
-    rcpp_result_gen = Rcpp::wrap(proportion_of_population_to_disperse(source_population, sink_carrying_cap, dispersal_proportion));
-    return rcpp_result_gen;
-END_RCPP
-}
 // rcpp_dispersal
 NumericMatrix rcpp_dispersal(NumericMatrix starting_population_state, NumericMatrix potential_carrying_capacity, NumericMatrix habitat_suitability_map, NumericMatrix barriers_map, int dispersal_steps, int dispersal_distance, NumericVector dispersal_kernel, double dispersal_proportion);
 RcppExport SEXP _steps_rcpp_dispersal(SEXP starting_population_stateSEXP, SEXP potential_carrying_capacitySEXP, SEXP habitat_suitability_mapSEXP, SEXP barriers_mapSEXP, SEXP dispersal_stepsSEXP, SEXP dispersal_distanceSEXP, SEXP dispersal_kernelSEXP, SEXP dispersal_proportionSEXP) {
@@ -87,7 +74,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_steps_shuffle_vec", (DL_FUNC) &_steps_shuffle_vec, 2},
     {"_steps_barrier_to_dispersal", (DL_FUNC) &_steps_barrier_to_dispersal, 5},
     {"_steps_can_source_cell_disperse", (DL_FUNC) &_steps_can_source_cell_disperse, 9},
-    {"_steps_proportion_of_population_to_disperse", (DL_FUNC) &_steps_proportion_of_population_to_disperse, 3},
     {"_steps_rcpp_dispersal", (DL_FUNC) &_steps_rcpp_dispersal, 8},
     {NULL, NULL, 0}
 };

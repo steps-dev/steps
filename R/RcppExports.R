@@ -13,10 +13,6 @@ can_source_cell_disperse <- function(source_x, source_y, iterative_population_st
     .Call('_steps_can_source_cell_disperse', PACKAGE = 'steps', source_x, source_y, iterative_population_state, future_population_state, carrying_capacity_available, habitat_suitability_map, barriers_map, dispersal_distance, dispersal_kernel)
 }
 
-proportion_of_population_to_disperse <- function(source_population, sink_carrying_cap, dispersal_proportion) {
-    .Call('_steps_proportion_of_population_to_disperse', PACKAGE = 'steps', source_population, sink_carrying_cap, dispersal_proportion)
-}
-
 rcpp_dispersal <- function(starting_population_state, potential_carrying_capacity, habitat_suitability_map, barriers_map, dispersal_steps, dispersal_distance, dispersal_kernel, dispersal_proportion) {
     .Call('_steps_rcpp_dispersal', PACKAGE = 'steps', starting_population_state, potential_carrying_capacity, habitat_suitability_map, barriers_map, dispersal_steps, dispersal_distance, dispersal_kernel, dispersal_proportion)
 }

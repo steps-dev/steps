@@ -206,6 +206,7 @@ IntegerVector can_source_cell_disperse(int source_x,
                 if (!barrier){
                   sink_found[0] = sink_x;
                   sink_found[1] = sink_y;
+                  break;
                 }
                 
               }
@@ -217,33 +218,6 @@ IntegerVector can_source_cell_disperse(int source_x,
   }
   
   return(sink_found);
-  
-}
-
-
-// [[Rcpp::export]]
-int proportion_of_population_to_disperse(int source_population,
-                                         int sink_carrying_cap, 
-                                         double dispersal_proportion){
-  
-  /*
-   ** Initialise parameters used in the function
-   */
-  
-  int source_pop_dispersed = 0;
-  
-  /*
-   ** Only calculate proportion of population to disperse if there is available
-   ** space in the target sink cell
-   */
-  
-  source_pop_dispersed = R::rbinom(source_population, dispersal_proportion);
-  
-  if (sink_carrying_cap < source_pop_dispersed){
-    source_pop_dispersed = sink_carrying_cap;
-  }
-  
-  return(source_pop_dispersed);
   
 }
 
@@ -267,7 +241,7 @@ NumericMatrix rcpp_dispersal(NumericMatrix starting_population_state,
   NumericMatrix carrying_capacity_available(nrows, ncols);
   NumericMatrix iterative_population_state(nrows, ncols);
   NumericMatrix future_population_state(nrows, ncols);
-  int dispersal_step, i, j;
+  int dispersal_step, i, j, individual;
   IntegerVector source_x_vec = shuffle_vec(0, (ncols - 1));
   IntegerVector source_y_vec = shuffle_vec(0, (nrows - 1));
   int nx = source_x_vec.size();
@@ -310,47 +284,50 @@ NumericMatrix rcpp_dispersal(NumericMatrix starting_population_state,
          */
         
         if(!R_IsNA(iterative_population_state(source_y, source_x)) && iterative_population_state(source_y, source_x) > 0){
-
+          
           /*
-           ** Sink cell search: Can the source pixel disperse? There are four
-           ** conditions to be met for a source pixel to disperse:
-           **  1. Sink pixel is currently suitable.
-           **  2. Sink pixel has available carrying capacity.
-           **  3. Sink pixel is within dispersal distance of source cell.
-           **  4. There is no obstacle (barrier) between the pixel to be colonised
-           **  (sink pixel) and the pixel that is already colonised (source pixel).
+           ** Realised number of individuals that can disperse - based on dispersal proportion
            */
           
-          IntegerVector cell_in_dispersal_distance = can_source_cell_disperse(source_x,
-                                                                              source_y,
-                                                                              iterative_population_state,
-                                                                              future_population_state,
-                                                                              carrying_capacity_available,
-                                                                              habitat_suitability_map,
-                                                                              barriers_map,
-                                                                              dispersal_distance,
-                                                                              dispersal_kernel);
+          int source_population = iterative_population_state(source_y, source_x);
+          int source_pop_dispersed = R::rbinom(source_population, dispersal_proportion);
           
-          if(cell_in_dispersal_distance[0] >= 0 && cell_in_dispersal_distance[1] >= 0){
+          /*
+           ** Loop through individuals that can disperse
+           */
+          
+          for (individual = 0; individual < source_pop_dispersed; individual++){
             
-            int sink_x = cell_in_dispersal_distance[0];
-            int sink_y = cell_in_dispersal_distance[1];
-
             /*
-             ** Get available population & carrying capacity
+             ** Sink cell search: Can the source pixel disperse? There are four
+             ** conditions to be met for a source pixel to disperse:
+             **  1. Sink pixel is currently suitable.
+             **  2. Sink pixel has available carrying capacity.
+             **  3. Sink pixel is within dispersal distance of source cell.
+             **  4. There is no obstacle (barrier) between the pixel to be colonised
+             **  (sink pixel) and the pixel that is already colonised (source pixel).
              */
             
-            int source_population = iterative_population_state(source_y, source_x);
-            int sink_carrying_cap = carrying_capacity_available(sink_y, sink_x) - (iterative_population_state(sink_y, sink_x) + future_population_state(sink_y, sink_x));
+            IntegerVector cell_in_dispersal_distance = can_source_cell_disperse(source_x,
+                                                                                source_y,
+                                                                                iterative_population_state,
+                                                                                future_population_state,
+                                                                                carrying_capacity_available,
+                                                                                habitat_suitability_map,
+                                                                                barriers_map,
+                                                                                dispersal_distance,
+                                                                                dispersal_kernel);
             
-            int source_pop_dispersed = proportion_of_population_to_disperse(source_population,
-                                                                            sink_carrying_cap,
-                                                                            dispersal_proportion);
-            
-            iterative_population_state(source_y, source_x) = iterative_population_state(source_y, source_x) - source_pop_dispersed;
-            
-            future_population_state(sink_y, sink_x) = future_population_state(sink_y, sink_x) + source_pop_dispersed;
-            
+            if(cell_in_dispersal_distance[0] >= 0 && cell_in_dispersal_distance[1] >= 0){
+              
+              int sink_x = cell_in_dispersal_distance[0];
+              int sink_y = cell_in_dispersal_distance[1];
+ 
+              iterative_population_state(source_y, source_x) = iterative_population_state(source_y, source_x) - 1;
+              
+              future_population_state(sink_y, sink_x) = future_population_state(sink_y, sink_x) + 1;
+              
+            }
           }
         }
       }
