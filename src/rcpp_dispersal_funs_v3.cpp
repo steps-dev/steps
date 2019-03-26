@@ -1,19 +1,14 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-
-// // [[Rcpp::export]]
-// NumericMatrix na_matrix(int nr, int nc){
-//   NumericMatrix m(nr, nc);
-//   std::fill(m.begin(), m.end(), NumericVector::get_na());
-//   return m;
-// }
-
+// wrapper around R's RNG such that we get a uniform distribution over
+// [0,n) as required by the STL algorithm - from http://gallery.rcpp.org/articles/stl-random-shuffle/
+inline int randWrapper(const int n) { return floor(unif_rand()*n); }
 
 // [[Rcpp::export]]
 IntegerVector shuffle_vec(int min, int max){
   IntegerVector vec = seq(min, max);
-  std::random_shuffle(vec.begin(), vec.end());
+  std::random_shuffle(vec.begin(), vec.end(), randWrapper);
   return vec;
 }
 
@@ -122,6 +117,7 @@ bool barrier_to_dispersal(int source_x,
 IntegerVector can_source_cell_disperse(int source_x,
                                        int source_y,
                                        NumericMatrix iterative_population_state,
+                                       NumericMatrix future_population_state,
                                        NumericMatrix carrying_capacity_available, 
                                        NumericMatrix habitat_suitability_map,
                                        NumericMatrix barriers_map,
@@ -160,9 +156,10 @@ IntegerVector can_source_cell_disperse(int source_x,
        **  - The pixel must not be NA.
        */
       
-      int sink_carrying_cap = carrying_capacity_available(sink_y, sink_x) - iterative_population_state(sink_y, sink_x);
-      
       if ((sink_x >= 0) && (sink_x < nrows) && (sink_y >= 0) && (sink_y < ncols)){
+        
+        int sink_carrying_cap = carrying_capacity_available(sink_y, sink_x) - (iterative_population_state(sink_y, sink_x) + future_population_state(sink_y, sink_x));
+        
         if ((sink_carrying_cap > 0) && !R_IsNA(sink_carrying_cap)){
           if(!R_IsNA(habitat_suitability_map(sink_y, sink_x))){
             
@@ -226,7 +223,7 @@ IntegerVector can_source_cell_disperse(int source_x,
 
 // [[Rcpp::export]]
 int proportion_of_population_to_disperse(int source_population,
-                                         int current_carrying_cap, 
+                                         int sink_carrying_cap, 
                                          double dispersal_proportion){
   
   /*
@@ -234,20 +231,16 @@ int proportion_of_population_to_disperse(int source_population,
    */
   
   int source_pop_dispersed = 0;
-
+  
   /*
    ** Only calculate proportion of population to disperse if there is available
    ** space in the target sink cell
    */
   
-  if(!R_IsNA(source_population) && (source_population >= 1)){
-    
-    source_pop_dispersed = R::rbinom(source_population, dispersal_proportion);
-    
-    if (current_carrying_cap < source_pop_dispersed){
-      source_pop_dispersed = current_carrying_cap;
-    }
-    
+  source_pop_dispersed = R::rbinom(source_population, dispersal_proportion);
+  
+  if (sink_carrying_cap < source_pop_dispersed){
+    source_pop_dispersed = sink_carrying_cap;
   }
   
   return(source_pop_dispersed);
@@ -271,25 +264,28 @@ NumericMatrix rcpp_dispersal(NumericMatrix starting_population_state,
   
   int ncols = starting_population_state.ncol();
   int nrows = starting_population_state.nrow();
-  NumericMatrix carrying_capacity_available = potential_carrying_capacity;
-  NumericMatrix iterative_population_state = starting_population_state;
+  NumericMatrix carrying_capacity_available(nrows, ncols);
+  NumericMatrix iterative_population_state(nrows, ncols);
   NumericMatrix future_population_state(nrows, ncols);
   int dispersal_step, i, j;
   IntegerVector source_x_vec = shuffle_vec(0, (ncols - 1));
   IntegerVector source_y_vec = shuffle_vec(0, (nrows - 1));
   int nx = source_x_vec.size();
   int ny = source_y_vec.size();
-
+  
   /*
-   ** set zeros in carrying capacity available matrix where barriers are present
+   ** copy values from source to initialised matrices and set zeros
+   ** in carrying capacity available matrix where barriers are present
    */
   
   for(i = 0; i < nrows; i++){
     for(j = 0; j < ncols; j++){
-      //if(!R_IsNA(starting_population_state(i, j))){
-        if(carrying_capacity_available(i, j) < 0) carrying_capacity_available(i, j) = 0;
-        if(barriers_map(i, j) == 1) carrying_capacity_available(i, j) = 0;
-      //}
+      
+      iterative_population_state(i, j) = starting_population_state(i, j);
+            
+      carrying_capacity_available(i, j) = potential_carrying_capacity(i, j);
+      if(barriers_map(i, j) == 1) carrying_capacity_available(i, j) = 0;
+
     }
   }
   
@@ -310,7 +306,7 @@ NumericMatrix rcpp_dispersal(NumericMatrix starting_population_state,
         int source_y = source_y_vec[j];        
         
         /*
-         ** Is there population in the cell?
+         ** Verify if there is population in the cell
          */
         
         if(!R_IsNA(iterative_population_state(source_y, source_x)) && iterative_population_state(source_y, source_x) > 0){
@@ -328,6 +324,7 @@ NumericMatrix rcpp_dispersal(NumericMatrix starting_population_state,
           IntegerVector cell_in_dispersal_distance = can_source_cell_disperse(source_x,
                                                                               source_y,
                                                                               iterative_population_state,
+                                                                              future_population_state,
                                                                               carrying_capacity_available,
                                                                               habitat_suitability_map,
                                                                               barriers_map,
@@ -344,7 +341,7 @@ NumericMatrix rcpp_dispersal(NumericMatrix starting_population_state,
              */
             
             int source_population = iterative_population_state(source_y, source_x);
-            int sink_carrying_cap = carrying_capacity_available(sink_y, sink_x) - iterative_population_state(sink_y, sink_x);
+            int sink_carrying_cap = carrying_capacity_available(sink_y, sink_x) - (iterative_population_state(sink_y, sink_x) + future_population_state(sink_y, sink_x));
             
             int source_pop_dispersed = proportion_of_population_to_disperse(source_population,
                                                                             sink_carrying_cap,

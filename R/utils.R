@@ -7,7 +7,7 @@ as_class <- function (object, name, type = c("function", "list")) {
   type <- match.arg(type)
   stopifnot(inherits(object, type))
   class(object) <- c(name, class(object))
-  object
+  invisible(object)
 }
 
 round_pop <- function (population) {
