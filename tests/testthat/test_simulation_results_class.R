@@ -188,7 +188,8 @@ test_that('simulation_results classes work', {
                                  density_dependence = ceiling_density())
   
   pop_dyn10 <- population_dynamics(change = growth(transition_matrix = egk_mat),
-                                  dispersal = kernel_dispersal(max_distance = 5000),
+                                  dispersal = kernel_dispersal(max_distance = 5000,
+                                                               arrival_probability = "carrying_capacity"),
                                   modification = NULL,
                                   density_dependence = NULL)
   

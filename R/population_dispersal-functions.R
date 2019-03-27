@@ -106,7 +106,7 @@ fast_dispersal <- function(dispersal_kernel = exponential_dispersal_kernel(dista
         )
       )
       
-      raster::values(pop_dispersing) <- pop_dispersed
+      pop_dispersing[] <- pop_dispersed
       pop <- pop_staying + pop_dispersing
       landscape$population[[stage]] <- pop
       

@@ -2,15 +2,17 @@ Package: steps
 Type: Package
 Title: Spatially- and Temporally-Explicit Population Simulator
 Version: 0.2.0
-Date: 2018-10-01
-Authors@R: person("Skipton", "Woolley", email = "skip.woolley@csiro.au",
-  role = c("aut", "cre"))
-  person("John", "Baumgartner", email = "john.baumgartner@mq.edu.au",
-  role = c("aut", "cre"))
-  person("Nick", "Golding", email = "nick.golding.research@gmail.com",
-  role = c("aut", "cre"))
+Date: 2019-03-27
+Authors@R: c(
   person("Casey", "Visintin", email = "casey.visintin@unimelb.edu.au",
-  role=c("aut", "cre"))
+  role=c("aut", "cre")),
+  person("Nick", "Golding", email = "nick.golding.research@gmail.com",
+  role = "ctb"),
+  person("Skipton", "Woolley", email = "skip.woolley@csiro.au",
+  role = "ctb"),
+  person("John", "Baumgartner", email = "john.baumgartner@mq.edu.au",
+  role = "ctb")
+  )
 Maintainer: Casey Visintin <casey.visintin@unimelb.edu.au>
 Description: Software to simulate population dynamics across space and time.
 Depends:
