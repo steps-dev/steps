@@ -129,8 +129,7 @@ test_that('simulation_results classes work', {
                                                                                              survival_layer = "suitability",
                                                                                              fecundity_layer = "suitability")),
                                    dispersal = cellular_automata_dispersal(max_distance = c(16000),
-                                                                           dispersal_kernel = exponential_dispersal_kernel(distance_decay = 16000),
-                                                                           carrying_capacity = "suitability"),
+                                                                           dispersal_kernel = exponential_dispersal_kernel(distance_decay = 16000)),
                                    modification = NULL,
                                    density_dependence = ceiling_density())
   
