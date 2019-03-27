@@ -354,8 +354,9 @@ cellular_automata_dispersal <- function (max_distance = Inf,
     dispersal_proportion <- dispersal_proportion(landscape, timestep)
     
     # if max_distance is the default (Infinite), rescale to maximum distance of landscape
-
-    if (max_distance[1] == Inf) {
+    default_distance <- identical(max_distance, Inf)
+    
+    if (default_distance) {
       n_rows <- raster::nrow(population_raster[[1]])
       n_cols <- raster::ncol(population_raster[[1]])
       res <- raster::res(population_raster[[1]])
@@ -363,6 +364,7 @@ cellular_automata_dispersal <- function (max_distance = Inf,
     }
     
     # handle dispersal distances as both scalars and vectors
+    if(!default_distance) {
     warn_once(length(max_distance) < n_stages | length(max_distance) > n_stages,
               paste(n_stages,
                     "life stages exist but",
@@ -371,6 +373,7 @@ cellular_automata_dispersal <- function (max_distance = Inf,
                     paste(max_distance, collapse = ", "),
                     "were specified.\nAll life stages will use this distance."),
               warning_name = "dispersal_distances")
+    }
     
     if (length(max_distance) < n_stages | length(max_distance) > n_stages) {
       max_distance <- rep_len(max_distance, n_stages)

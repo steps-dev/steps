@@ -56,7 +56,7 @@ par(mar=c(0,0,0,0), oma=c(0,0,0,0))
 plot(egk_hab, box = FALSE, axes = FALSE, col = viridis(100), main = "Habitat Suitability")
 ```
 
-The carrying capacity layer describes the total number of organisms (here, kangaroos) that may occur in each cell and contains either zeros or positive integer values. This example carrying capacity raster is available in the steps package (type "egk_k" at the R prompt to access), however, any raster can be used in its place. The example carrying capactiy is directly based on the example habitat suitability, which is why the rasters look similar, but this won't always be the case.
+The carrying capacity layer describes the total number of organisms (here, kangaroos) that may occur in each cell and contains either zeros or positive integer values. This example carrying capacity raster is available in the steps package (type "egk_k" at the R prompt to access), however, any raster can be used in its place. The example carrying capacity is directly based on the example habitat suitability, which is why the rasters look similar, but this won't always be the case.
 
 ```{r, message = FALSE, fig.align = "center", out.width = "100%"}
 egk_k
@@ -126,7 +126,7 @@ Once a simulation has been run, we can plot spatially-explicit and temporally-ex
 plot(egk_results)
 ```
 
-Or the total kangaroo population trajectory (by setting the stage parameter to 0 - type *?plot.simulation_results* for more informaiton):
+Or the total kangaroo population trajectory (by setting the stage parameter to 0 - type *?plot.simulation_results* for more information):
 
 ```{r, message = FALSE, fig.width = 4, fig.align = "center"}
 plot(egk_results, stage = 0)
@@ -274,7 +274,7 @@ egk_results <- simulation(landscape = egk_landscape,
 plot(egk_results)
 ```
 
-Now let's add some other population dynamics. We can specify ceiling density dependence with the "ceiling_density" function. The population will grow according to the transition matrix until it reaches a ceiling carrying capacity, at which point individuals will be killed to keep the population at the carrying capacity of the landscape. We must now provide a carrying capacity object in the landscape for this to work - here we provide a spatial layer. By default, all life-stages contribute to density dependence, however, here we specify that it is based on the number of adults only ("stages = 3" in the ceiling_density function). Type *?ceiling_density* at the R prompt for more information.
+Now let's add some other population dynamics. We can specify ceiling density dependence with the "ceiling_density" function. The population will grow according to the transition matrix until it reaches a ceiling carrying capacity, at which point individuals will die to keep the population at the carrying capacity of the landscape. We must now provide a carrying capacity object in the landscape for this to work - here we provide a spatial layer. By default, all life-stages contribute to density dependence, however, here we specify that it is based on the number of adults only ("stages = 3" in the ceiling_density function). Type *?ceiling_density* at the R prompt for more information.
 
 ```{r, message = FALSE, progress = FALSE, fig.align = "center", out.width = "100%"}
 egk_landscape <- landscape(population = egk_pop,
@@ -408,7 +408,7 @@ egk_results <- simulation(landscape = egk_landscape,
 plot(egk_results)
 ```
 
-We can also add dispersal to allow kangaroos to move throughout the landscape. There are several built-in dispersal functions and most of them utilise habitat suitability, carrying capacity, or both to determine arrival probabilities - see package help for more information by typing *?population_dispersal_functions* at the R prompt. Thus, we will need to provide the appropriate habitat layer in the intial landscape. Below, we use kernel-based dispersal (with a maximum dispersal distance of 5000 meters) and habitat suitability to determine the arrival probabilities:
+We can also add dispersal to allow kangaroos to move throughout the landscape. There are several built-in dispersal functions and most of them utilise habitat suitability, carrying capacity, or both to determine arrival probabilities - see package help for more information by typing *?population_dispersal_functions* at the R prompt. Thus, we will need to provide the appropriate habitat layer in the initial landscape. Below, we use kernel-based dispersal (with a maximum dispersal distance of 5000 meters) and habitat suitability to determine the arrival probabilities:
 
 ```{r, warning = FALSE, error = FALSE, message = FALSE, progress = FALSE, fig.align = "center", out.width = "100%"}
 egk_landscape <- landscape(population = egk_pop,
@@ -608,7 +608,7 @@ egk_results <- simulation(landscape = egk_landscape,
 plot(egk_results[1], object = "carrying_capacity", timesteps = c(1, 10, 20), panels = c(3, 1))
 ```
 
-One may specify multiple disturbances affecting the habitat throughout a simulation. To do so, simply add habitat dynamic functions to the list in the simulation function - note, these will be executed in the order that they are listed. To demonstrate this functionality, we have added another disturbance - a road being constructed through the landscape over five years. There is an existing spatial dataset of a road in the steps package ("egk_road") which we store in the landscape object. Since we have already accomodated the movement of the road construction across the landscape, and the vegetation will not regenerate, we specify the effect time as one:
+One may specify multiple disturbances affecting the habitat throughout a simulation. To do so, simply add habitat dynamic functions to the list in the simulation function - note, these will be executed in the order that they are listed. To demonstrate this functionality, we have added another disturbance - a road being constructed through the landscape over five years. There is an existing spatial dataset of a road in the steps package ("egk_road") which we store in the landscape object. Since we have already accommodated the movement of the road construction across the landscape, and the vegetation will not regenerate, we specify the effect time as one:
 
 ```{r, message = FALSE, results='hide'}
 carrying_cap_fun <- function (landscape, timestep) {

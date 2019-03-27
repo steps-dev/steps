@@ -83,7 +83,7 @@ not_missing <- function(raster) {
 
 warn_once <- function(condition, message, warning_name) {
   if (condition & !isTRUE(steps_stash[[warning_name]])) {
-    warning(message)
+    warning(message, call. = FALSE)
     steps_stash[[warning_name]] <- TRUE
   }
 }

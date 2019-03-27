@@ -15,7 +15,7 @@ exponential_dispersal_kernel(distance_decay = 0.5, normalize = FALSE)
 An object of class \code{dispersal_function}
 }
 \description{
-A dispersal kernal function is a mathematical representation of how species redistribute
+A dispersal kernel function is a mathematical representation of how species redistribute
 across the landscape.
  
 A common dispersal kernel is provided in the software for the user to select (see

@@ -44,7 +44,7 @@ Kangaroos in a hypothetical landscape.
 \describe{
   \item{egk_hab}{A raster layer containing the predicted relative habitat
   suitability for the Eastern Grey Kangaroo.}
-  \item{egk_pop}{A raster stack containing intital populations for each
+  \item{egk_pop}{A raster stack containing initial populations for each
   life-stage of the Eastern Grey Kangaroo.}
   \item{egk_k}{A raster layer containing the total number of Eastern Grey
   Kangaroos each grid cell can support.}

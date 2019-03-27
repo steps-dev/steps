@@ -29,6 +29,12 @@ test_that('landscape classes work', {
                          suitability = egk_hab,
                          carrying_capacity = NULL))
   
+  egk_pop4 <- egk_pop
+  egk_pop4[c(1:20)] <- NA
+  expect_error(landscape(population = egk_pop4,
+                         suitability = egk_hab,
+                         carrying_capacity = NULL))
+  
   # print(landscape(population = egk_pop,
   #                 suitability = egk_hab,
   #                 carrying_capacity = egk_k))

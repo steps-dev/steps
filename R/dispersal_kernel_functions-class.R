@@ -1,6 +1,6 @@
 #' Create a dispersal function
 #'
-#' @description A dispersal kernal function is a mathematical representation of how species redistribute
+#' @description A dispersal kernel function is a mathematical representation of how species redistribute
 #' across the landscape.
 #'  
 #' A common dispersal kernel is provided in the software for the user to select (see
