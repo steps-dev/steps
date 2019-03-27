@@ -1,5 +1,5 @@
 ## ----setup, include=FALSE------------------------------------------------
-knitr::opts_chunk$set(dpi=300,fig.width=7)
+knitr::opts_chunk$set(dpi=300, fig.width=7)
 
 ## ---- message = FALSE----------------------------------------------------
 library(steps)
