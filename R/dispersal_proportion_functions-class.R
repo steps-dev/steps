@@ -24,11 +24,12 @@ all_dispersing <- function (proportions = 1) {
   
   disp_prop_fun <- function (landscape, timestep) {
    
+    # get total life-stages
     n_stages <- raster::nlayers(landscape$population)
+
+    default <- proportions == 1
     
-    dispersal_proportion <- rep(1, n_stages)
-    
-    warn_once(length(proportions) > n_stages | length(proportions) < n_stages,
+    warn_once(!default & (length(proportions) > n_stages | length(proportions) < n_stages),
               paste(n_stages,
                     "life stages exist but",
                     length(proportions),
@@ -36,7 +37,6 @@ all_dispersing <- function (proportions = 1) {
                     paste(proportions, collapse = ", "),
                     "were specified.\nAll life stages will use this proportion."),
               warning_name = "dispersal_proportions")
-    
     
     if (length(proportions) > n_stages | length(proportions) < n_stages)  {
       dispersal_proportion <- rep_len(proportions, n_stages)

@@ -5,8 +5,8 @@
 \alias{competition_density}
 \title{Create a growth transition function}
 \usage{
-modified_transition(transition_matrix, survival_layer = "suitability",
-  fecundity_layer = "suitability")
+modified_transition(transition_matrix, survival_layer = NULL,
+  fecundity_layer = NULL)
 
 competition_density(transition_matrix, stages = NULL, mask = NULL,
   R_max = NULL, initial_stages = NULL)

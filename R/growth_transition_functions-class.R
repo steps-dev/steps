@@ -27,8 +27,8 @@
 #' test_mod_transition <- modified_transition(egk_mat)
 
 modified_transition <- function(transition_matrix,
-                                survival_layer = "suitability",
-                                fecundity_layer = "suitability") {
+                                survival_layer = NULL,
+                                fecundity_layer = NULL) {
   
   idx <- which(transition_matrix != 0)
   is_recruitment <- upper.tri(transition_matrix)[idx]
@@ -37,19 +37,33 @@ modified_transition <- function(transition_matrix,
   fec_vals <- transition_matrix[idx[is_recruitment]]
   
   dim <- nrow(transition_matrix)
-  
+
   fun <- function (landscape, timestep) {
     
-    # pull out survival/fecundity multipliers
+    # pull out or create survival/fecundity multipliers
     cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])))
     
-    if (raster::nlayers(landscape$suitability) > 1) {
-      surv_mult <- landscape[[survival_layer]][[timestep]][cell_idx]
-      fec_mult <- landscape[[fecundity_layer]][[timestep]][cell_idx]
+    
+    if (is.null(survival_layer)) {
+      surv_mult <- rep(1, length(cell_idx))
     } else {
-      surv_mult <- landscape[[survival_layer]][cell_idx]
-      fec_mult <- landscape[[fecundity_layer]][cell_idx]
+      if (raster::nlayers(landscape$suitability) > 1) {
+        surv_mult <- landscape[[survival_layer]][[timestep]][cell_idx]
+      } else {
+        surv_mult <- landscape[[survival_layer]][cell_idx]
+      }
     }
+    
+    if (is.null(fecundity_layer)) {
+      fec_mult <- rep(1, length(cell_idx))
+    } else {
+      if (raster::nlayers(landscape$suitability) > 1) {
+        fec_mult <- landscape[[fecundity_layer]][[timestep]][cell_idx]
+      } else {
+        fec_mult <- landscape[[fecundity_layer]][cell_idx]
+      }
+    }
+    
     
     # get per-cell versions of fecundity and survival values
     survs <- kronecker(surv_mult, t(surv_vals), "*")

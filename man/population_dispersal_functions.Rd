@@ -77,9 +77,9 @@ cell movements in sequence (slower but less memory intensive).
 The cellular_automata_dispersal function modifies populations
 using rule-based cell movements. This function allows the use
 of barriers in the landscape to influence dispersal. The
-function is also computationally efficient, however, this scales
-with the maximum dispersal distances, similar to kernel-based
-dispersal.
+function is computationally efficient, however, because
+individuals are dispersed, performance scales with the
+population sizes in each cell across a landscape.
 }
 \examples{
 

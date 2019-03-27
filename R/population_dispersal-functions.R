@@ -32,9 +32,9 @@ NULL
 #' The cellular_automata_dispersal function modifies populations
 #' using rule-based cell movements. This function allows the use
 #' of barriers in the landscape to influence dispersal. The
-#' function is also computationally efficient, however, this scales
-#' with the maximum dispersal distances, similar to kernel-based
-#' dispersal.
+#' function is computationally efficient, however, because
+#' individuals are dispersed, performance scales with the
+#' population sizes in each cell across a landscape.
 #'
 #' @name population_dispersal_functions
 #'
@@ -354,8 +354,12 @@ cellular_automata_dispersal <- function (max_distance = Inf,
     dispersal_proportion <- dispersal_proportion(landscape, timestep)
     
     # if max_distance is the default (Infinite), rescale to maximum distance of landscape
-    if (max_distance == Inf) {
-      max_distance <- sqrt(raster::nrow(population_raster[[1]])^2 + raster::ncol(population_raster[[1]])^2)
+
+    if (max_distance[1] == Inf) {
+      n_rows <- raster::nrow(population_raster[[1]])
+      n_cols <- raster::ncol(population_raster[[1]])
+      res <- raster::res(population_raster[[1]])
+      max_distance <- sqrt( (n_cols * res[1])^2 + (n_rows * res[2])^2 )
     }
     
     # handle dispersal distances as both scalars and vectors
@@ -374,15 +378,14 @@ cellular_automata_dispersal <- function (max_distance = Inf,
     
     # rescale dispersal distances to number of grid cells based on spatial resolution. This
     # is required for inputting into the Rcpp dispersal function.
-    
     max_distance <- ceiling(max_distance / min(raster::res(landscape$population)))
-
+    
     # create dispersal vector from the specified dispersal kernel and rescaled distances
     dispersal_vector <- lapply(max_distance,
                                function(x) dispersal_kernel((seq_len(x)) * min(raster::res(landscape$population))))    
 
     # identify dispersing stages
-    which_stages_disperse <- which(dispersal_proportion > 0)
+    which_stages_disperse <- which(dispersal_proportion > 0 & max_distance > 0)
     
     # if no barrier map is specified, create a barriers matrix with all zeros.
     if (is.null(barriers_map)) {
