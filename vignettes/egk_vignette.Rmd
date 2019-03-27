@@ -153,7 +153,7 @@ plot(egk_results, type = "raster", stage = 2, timesteps = c(1, 10, 20), animate 
 We can also generate multiple replicates of a simulation. For the kangaroo, we specify three replicates of a twenty timestep simulation. The replicates are run sequentially by default, however, to improve computation time, we have included the ability to run all three replicates in parallel - each on a different processor. Type *?plan* for more information on how to operate in parallel. Note *plan()* is only required to be called once at the beginning of a script.
 
 ```{r, message = FALSE, progress = FALSE}
-plan(multiprocess, workers = 3) # This is how we specify to simulate replicates on separate processors in parallel
+#plan(multiprocess, workers = 3) # This is how we specify to simulate replicates on separate processors in parallel
 
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,

@@ -177,17 +177,18 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
     
     # check the required landscape rasters/functions are available
     layers <- arrival_probability
-    if (layers == "both")
+    if (layers == "both") {
       layers <- c("suitability", "carrying_capacity")
-    
-    missing_layers <- vapply(landscape[layers], is.null, FUN.VALUE = FALSE)
-    if (any(missing_layers)) {
       
-      missing_text <- paste(paste("a", layers[missing_layers], "raster"),
-                            collapse = " and ")
-      
-      stop ("kernel_dispersal requires landscape to have ", missing_text,
-            call. = FALSE)
+      missing_layers <- vapply(landscape[layers], is.null, FUN.VALUE = FALSE)
+      if (any(missing_layers)) {
+        
+        missing_text <- paste(paste("a", layers[missing_layers], "raster"),
+                              collapse = " and ")
+        
+        stop ("kernel_dispersal requires landscape to have ", missing_text,
+              call. = FALSE)
+      }
     }
     
     # find out which stages contribute to density. population dynamics will have
