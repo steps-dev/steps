@@ -147,6 +147,13 @@ test_that('simulation_results classes work', {
                                    modification = NULL,
                                    density_dependence = NULL)
   
+  pop_dyn4d <- population_dynamics(change = growth(transition_matrix = egk_mat),
+                                   dispersal = cellular_automata_dispersal(max_distance = c(16000),
+                                                                           dispersal_kernel = exponential_dispersal_kernel(distance_decay = 16000),
+                                                                           carrying_capacity = "suitability"),
+                                   modification = NULL,
+                                   density_dependence = ceiling_density())
+  
   pop_dyn5 <- population_dynamics(change = growth(transition_matrix = egk_mat,
                                                   transition_function = modified_transition(egk_mat,
                                                                                             survival_layer = NULL,
@@ -242,7 +249,7 @@ test_that('simulation_results classes work', {
                                                                       effect_time = 2)),
                                   timesteps = 3),
                        "simulation_results"))
-  
+
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn4b,
                                   habitat_dynamics = NULL,
@@ -254,7 +261,14 @@ test_that('simulation_results classes work', {
                                   habitat_dynamics = NULL,
                                   timesteps = 3),
                        "simulation_results"))
-  
+
+  expect_true(inherits(simulation(landscape = landscape,
+                                  population_dynamics = pop_dyn4d,
+                                  habitat_dynamics = list(disturbance(disturbance_layers = "fires",
+                                                                      effect_time = 2)),
+                                  timesteps = 3),
+                       "simulation_results"))
+    
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn5,
                                   habitat_dynamics = NULL,

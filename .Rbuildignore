@@ -1,3 +1,5 @@
+^cran-comments\.md$
+^CRAN-RELEASE$
 \.git
 \.Rhistory
 \.Rcheck
