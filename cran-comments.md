@@ -1,3 +1,7 @@
+We have revised the vignette to substantially reduce check time.
+
+Regarding the note, we have intentionally left the connector word (and) in lowercase to accurately reflect the acronym of our package name. The title meets the requirement of title case.
+
 ## Test environments
 * local OS X install, R 3.5.3
 * ubuntu 14.04 (on travis-ci), R 3.5.3
