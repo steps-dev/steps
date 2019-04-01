@@ -1,3 +1,5 @@
+Fixed variable definition in C++ code to remove Solaris build warning.
+
 We have revised the vignette to substantially reduce check time.
 
 Regarding the note, we have intentionally left the connector word (and) in lowercase to accurately reflect the acronym of our package name. The title meets the requirement of title case.
