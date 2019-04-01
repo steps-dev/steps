@@ -130,12 +130,12 @@ IntegerVector can_source_cell_disperse(int source_x,
   
   int ncols = carrying_capacity_available.ncol();
   int nrows = carrying_capacity_available.nrow();
-  int i, j, real_distance;
+  int i, j;
   IntegerVector sink_x_vec = shuffle_vec(source_x - dispersal_distance, source_x + dispersal_distance);
   IntegerVector sink_y_vec = shuffle_vec(source_y - dispersal_distance, source_y + dispersal_distance);
   int nx = sink_x_vec.size();
   int ny = sink_y_vec.size();
-  double prob_colonisation, rnd;
+  double real_distance, prob_colonisation, rnd;
   IntegerVector sink_found(2, -1);
   bool barrier;
   
