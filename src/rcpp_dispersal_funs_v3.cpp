@@ -47,8 +47,8 @@ bool barrier_to_dispersal(int source_x,
    */
   
   for (i = 1; i <= distance_max; i++){
-    pixel_x = round(sink_x + (1.0 * i / distance_max * dist_x));
-    pixel_y = round(sink_y + (1.0 * i / distance_max * dist_y));
+    pixel_x = round( (double) sink_x + (1.0 * i / distance_max * dist_x) );
+    pixel_y = round( (double) sink_y + (1.0 * i / distance_max * dist_y) );
     if (R::rbinom(1, barriers_map(pixel_y, pixel_x)) == 1){
       barrier_counter++;
       break;
@@ -56,9 +56,9 @@ bool barrier_to_dispersal(int source_x,
   }
   
   for (i = 1; i <= distance_max; i++){
-    pixel_x = round(sink_x - 0.49 + (((i - 1.0) / distance_max * dist_x) +
+    pixel_x = round( (double) sink_x - 0.49 + (((i - 1.0) / distance_max * dist_x ) +
       ((1.0 / distance_max * dist_x) / 2.0)));
-    pixel_y = round(sink_y - 0.49 + (((i - 1.0) / distance_max * dist_y) +
+    pixel_y = round( (double) sink_y - 0.49 + (((i - 1.0) / distance_max * dist_y ) +
       ((1.0 / distance_max * dist_y) / 2.0)));
     if (R::rbinom(1, barriers_map(pixel_y, pixel_x)) == 1){
       barrier_counter++;
@@ -67,9 +67,9 @@ bool barrier_to_dispersal(int source_x,
   }
   
   for (i = 1; i <= distance_max; i++){
-    pixel_x = round(sink_x + 0.49 + (((i - 1.0) / distance_max * dist_x) +
+    pixel_x = round( (double) sink_x + 0.49 + (((i - 1.0) / distance_max * dist_x ) +
       ((1.0 / distance_max * dist_x) / 2.0)));
-    pixel_y = round(sink_y - 0.49 + (((i - 1.0) / distance_max * dist_y) +
+    pixel_y = round( (double) sink_y - 0.49 + (((i - 1.0) / distance_max * dist_y ) +
       ((1.0 / distance_max * dist_y) / 2.0)));
     if (R::rbinom(1, barriers_map(pixel_y, pixel_x)) == 1){
       barrier_counter++;
@@ -78,9 +78,9 @@ bool barrier_to_dispersal(int source_x,
   }
   
   for (i = 1; i <= distance_max; i++){
-    pixel_x = round(sink_x - 0.49 + (((i - 1.0) / distance_max * dist_x) +
+    pixel_x = round( (double) sink_x - 0.49 + (((i - 1.0) / distance_max * dist_x ) +
       ((1.0 / distance_max * dist_x) / 2.0)));
-    pixel_y = round(sink_y + 0.49 + (((i - 1.0) / distance_max * dist_y) +
+    pixel_y = round( (double) sink_y + 0.49 + (((i - 1.0) / distance_max * dist_y ) +
       ((1.0 / distance_max * dist_y) / 2.0)));
     if (R::rbinom(1, barriers_map(pixel_y, pixel_x)) == 1){
       barrier_counter++;
@@ -89,9 +89,9 @@ bool barrier_to_dispersal(int source_x,
   }
   
   for (i = 1; i <= distance_max; i++){
-    pixel_x = round(sink_x + 0.49 + (((i - 1.0) / distance_max * dist_x) +
+    pixel_x = round( (double) sink_x + 0.49 + (((i - 1.0) / distance_max * dist_x ) +
       ((1.0 / distance_max * dist_x) / 2.0)));
-    pixel_y = round(sink_y + 0.49 + (((i - 1.0) / distance_max * dist_y) +
+    pixel_y = round( (double) sink_y + 0.49 + (((i - 1.0) / distance_max * dist_y ) +
       ((1.0 / distance_max * dist_y) / 2.0)));
     if (R::rbinom(1, barriers_map(pixel_y, pixel_x)) == 1){
       barrier_counter++;
@@ -130,12 +130,12 @@ IntegerVector can_source_cell_disperse(int source_x,
   
   int ncols = carrying_capacity_available.ncol();
   int nrows = carrying_capacity_available.nrow();
-  int i, j;
+  int i, j, real_distance;
   IntegerVector sink_x_vec = shuffle_vec(source_x - dispersal_distance, source_x + dispersal_distance);
   IntegerVector sink_y_vec = shuffle_vec(source_y - dispersal_distance, source_y + dispersal_distance);
   int nx = sink_x_vec.size();
   int ny = sink_y_vec.size();
-  double real_distance, prob_colonisation, rnd;
+  double prob_colonisation, rnd;
   IntegerVector sink_found(2, -1);
   bool barrier;
   
@@ -169,7 +169,7 @@ IntegerVector can_source_cell_disperse(int source_x,
              ** The distance is computed in pixel units.
              */
             
-            real_distance = round(sqrt((sink_x - source_x) * (sink_x - source_x) + (sink_y - source_y) * (sink_y - source_y)));
+            real_distance = round( (double) sqrt( (double) (sink_x - source_x) * (sink_x - source_x) + (sink_y - source_y) * (sink_y - source_y) ) );
             
             if ((real_distance > 0) && (real_distance <= dispersal_distance)){
               

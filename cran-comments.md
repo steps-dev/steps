@@ -1,5 +1,8 @@
-Fixed variable definition in C++ code to remove Solaris build warning.
+## 2019.04.02 - Updated version 0.2.1
+Cleaned up unused dependencies and imports.
+Fixed expected variable inputs to sqrt() and round() with explicit casts in C++ code to remove Solaris build warning.
 
+## 2019.03.28 - Initial submission
 We have revised the vignette to substantially reduce check time.
 
 Regarding the note, we have intentionally left the connector word (and) in lowercase to accurately reflect the acronym of our package name. The title meets the requirement of title case.

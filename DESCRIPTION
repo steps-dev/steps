@@ -20,15 +20,7 @@ Depends:
 License: GPL (>= 2)
 Imports:
     Rcpp,
-    magrittr,
-    RColorBrewer,
-    plyr,
     raster,
-    rgdal,
-    sp,
-    methods,
-    igraph,
-    scales,
     future,
     future.apply,
     rasterVis,

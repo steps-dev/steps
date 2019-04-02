@@ -1,13 +1,9 @@
 context('simulation_results-class')
 
-options(mypkg.connection = stdin())
-
 test_that('simulation_results classes work', {
   
   library(raster)
-  library(rgdal)
-  library(fields)
-  
+
   egk_mat_mask <- egk_mat > 0
 
   disp.bar <- egk_hab

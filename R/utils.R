@@ -1,8 +1,3 @@
-#' @importFrom magrittr %>% %<>%
-
-# to use magrittr shortcut
-utils::globalVariables(".")
-
 as_class <- function (object, name, type = c("function", "list")) {
   type <- match.arg(type)
   stopifnot(inherits(object, type))
