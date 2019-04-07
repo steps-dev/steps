@@ -11,7 +11,7 @@ round_pop <- function (population) {
 
   if (steps_stash$demo_stochasticity == "full") {
     if (sum(population) == 0) return(population)
-    return(stats::rmultinom(1, sum(population), population)[, 1])
+    return(rmultinom_large_int(population)[, 1])
   }
   
   if (steps_stash$demo_stochasticity == "deterministic_redistribution") {
@@ -33,7 +33,7 @@ round_pop <- function (population) {
   
 }
 
-get_carrying_capacity <- function(landscape, timestep) {
+get_carrying_capacity <- function (landscape, timestep) {
   
   cc <- landscape$carrying_capacity
   if (is.null(cc)) {
@@ -72,13 +72,38 @@ get_carrying_capacity <- function(landscape, timestep) {
   
 }
 
-not_missing <- function(raster) {
+not_missing <- function (raster) {
   which(!is.na(raster::getValues(raster)))
 }
 
-warn_once <- function(condition, message, warning_name) {
+warn_once <- function (condition, message, warning_name) {
   if (condition & !isTRUE(steps_stash[[warning_name]])) {
     warning(message, call. = FALSE)
     steps_stash[[warning_name]] <- TRUE
   }
+}
+
+rmultinom_large_int <- function (population) {
+  
+  total <- sum(population)
+  
+  if (total > .Machine$integer.max) {
+    times <- total %/% .Machine$integer.max
+    extra <- total %% .Machine$integer.max
+    pop <- rep(0, length(population))
+    
+    for (i in seq_len(times)) {
+      pop <- pop + stats::rmultinom(1, .Machine$integer.max, population)
+    }
+    
+    pop <- pop + stats::rmultinom(1, extra, population)
+    
+  } else {
+    
+    pop <- stats::rmultinom(1, sum(population), population)
+    
+  }
+  
+  pop
+  
 }

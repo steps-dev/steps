@@ -142,6 +142,17 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
   
   pop_dynamics <- function(landscape, timestep) {
     
+    # if max_distance is the default (Infinite), rescale to maximum distance of landscape
+    default_distance <- identical(max_distance, Inf)
+    
+    if (default_distance) {
+      n_rows <- raster::nrow(landscape$population[[1]])
+      n_cols <- raster::ncol(landscape$population[[1]])
+      res <- raster::res(landscape$population[[1]])
+      max_distance <- sqrt( (n_cols * res[1])^2 + (n_rows * res[2])^2 )
+    }
+    
+    
     distance_list <- steps_stash$distance_list
     if (is.null(distance_list)) {
       # what are dimensions of raster (lazyeval was causing this to be rerun on
@@ -581,6 +592,7 @@ dispersalFFT <- function (popmat, fs) {
   
   # get proportion of population that dispersed into valid (non-NA, inside the
   # plane) cells
+
   prop_in <- sum(pop_new, na.rm = TRUE) / sum(popmat_orig, na.rm = TRUE)
   
   # increase all non-NA cells by inverse of proportion in valid cells
@@ -589,7 +601,6 @@ dispersalFFT <- function (popmat, fs) {
   # make sure none are lost or gained (unless all are zeros)
   if (any(pop_new[!missing] > 0)) {
     pop_new[!missing] <- round_pop(pop_new[!missing])
-    #pop_new[!is.na(popmat_orig)] <- stats::rmultinom(1, size = sum(popmat), prob = pop_new[!is.na(popmat_orig)])    
   }
   
   pop_new

@@ -581,11 +581,11 @@ simulate <- function (i, landscape, population_dynamics, habitat_dynamics, times
       landscape <- dynamic_function(landscape, timestep)
     }
     
-    if (!is.null(landscape$suitability) && raster::nlayers(landscape$suitability) > 1) {
-      landscape$suitability <- landscape$suitability[[timestep]]
+    landscape_out <- landscape
+    if (!is.null(landscape_out$suitability) && raster::nlayers(landscape_out$suitability) > 1) {
+      landscape_out$suitability <- landscape_out$suitability[[timestep]]
     }
-    
-    output_landscapes[[timestep]] <- landscape
+    output_landscapes[[timestep]] <- landscape_out
     
     if (verbose == TRUE && inherits(future::plan(), "sequential")) utils::setTxtProgressBar(pb, timestep)
     #if (verbose == TRUE && !inherits(future::plan(), "sequential")) update_parallel_progress(i, n)
