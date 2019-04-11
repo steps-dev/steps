@@ -82,9 +82,9 @@ simulation <- function(landscape,
   
   # clear out the stash every time we begin a simulation
   flush_stash()
-
+  
   steps_stash$demo_stochasticity <- match.arg(demo_stochasticity)
-
+  
   in_parallel <- !inherits(future::plan(), "sequential")
   lapply_fun <- ifelse(in_parallel,
                        future.apply::future_lapply,
@@ -123,19 +123,17 @@ is.simulation_results <- function (x) {
   inherits(x, 'simulation_results')
 }
 
-# #' @rdname simulation_results
-# #'
-# #' @export
-# #'
-# #' @examples
-# #'
-# #' print(results)
-# 
-# print.simulation_results <- function (x, ...) {
-# 
-#   cat("This is an simulation results object, for", length(x), "replicates")
-# 
-# }
+#' @rdname simulation_results
+#'
+#' @export
+#'
+#' @examples
+#'
+#' print(results)
+
+print.simulation_results <- function (x, ...) {
+  cat("STEPS simulation results for", length(x), "replicates over", length(x[[1]]), "timesteps")
+}
 
 
 #' @rdname simulation_results
@@ -381,7 +379,7 @@ plot.simulation_results <- function (x,
       if (type == "raster") {
         
         rasters <- raster::stack(lapply(x[[1]], get_carrying_capacity))
-                                 
+        
         # Find maximum and minimum population value in raster cells for all timesteps for life-stage
         scale_max <- ceiling(max(stats::na.omit(raster::cellStats(rasters, max))))
         scale_min <- floor(min(stats::na.omit(raster::cellStats(rasters, min))))
