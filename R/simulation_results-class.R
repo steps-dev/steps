@@ -545,7 +545,7 @@ extract_spatial <- function (x,
   
 }
 
-# #' @rdname simulation_results
+#' #' @rdname simulation_results
 # #'
 # #' @export
 # #'
@@ -553,10 +553,17 @@ extract_spatial <- function (x,
 # #'
 # #' # Extract data summaries from a 'simulation_results' object
 # #'
-# #' extract_data(results)
-# 
-# extract_data <- function (x) {
-# 
+# #' extract_dispersal_info(results)
+#  
+# extract_dispersal_info <- function (x,
+#                           replicate = 1,
+#                           timestep = 1,
+#                           info_object = "dispersal_failure_rate",
+#                           stage = 1) {
+#   om <- attr(x[[replicate]], "output_metrics")
+#   
+#   om[[info_object]][[timestep]][[]]
+#   
 # }
 
 ##########################

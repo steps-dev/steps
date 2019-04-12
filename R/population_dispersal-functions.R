@@ -52,6 +52,11 @@ NULL
 #' @param max_distance the maximum distance that each life stage can
 #'   disperse in spatial units of the landscape (in kernel-based dispersal
 #'   this truncates the dispersal curve) - must be specified.
+#' @param max_cells the maximum number of cell movements that each life stage can
+#'   disperse in whole integers - must be specified.
+#' @param barriers_map the name of a spatial layer in the landscape object that
+#' contains cell values between 0 (no barrier) and 1 (full barrier) Any
+#' values between 0 and 1 indicate the permeability of the barrier.   
 #' @param barriers_map the name of a spatial layer in the landscape object that
 #' contains cell values between 0 (no barrier) and 1 (full barrier) Any
 #' values between 0 and 1 indicate the permeability of the barrier.
@@ -312,15 +317,13 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
 #'
 #' test_ca_dispersal <- cellular_automata_dispersal()
 
-cellular_automata_dispersal <- function (max_distance = Inf,
-                                         dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1),
+cellular_automata_dispersal <- function (max_cells = Inf
                                          dispersal_proportion = all_dispersing(),
                                          barriers_map = NULL,
-                                         arrival_probability = "suitability",
+                                         use_suitability = TRUE,
                                          carrying_capacity = "carrying_capacity") {
   
   # are there suitability and carrying_capacity landscape objects specified?
-  suit <- identical(arrival_probability, "suitability")
   carrying_cap <- identical(carrying_capacity, "carrying_capacity")
   
   pop_dynamics <- function (landscape, timestep) {
@@ -332,15 +335,15 @@ cellular_automata_dispersal <- function (max_distance = Inf,
     idx <- which(!is.na(raster::getValues(population_raster[[1]])))
     
     # is suitability specified without raster existing in landscape?
-    if (suit & is.null(landscape$suitability)) {
+    if (use_suitability & is.null(landscape$suitability)) {
       stop("A habitat suitability raster is missing from the landscape object")
     }
     
     # handle input suitability raster stacks
-    if (suit & raster::nlayers(landscape$suitability) > 1) {
-      arrival_prob <- landscape[[arrival_probability]][[timestep]]
+    if (use_suitability & raster::nlayers(landscape$suitability) > 1) {
+      permeability <- landscape$suitability[[timestep]]
     } else {
-      arrival_prob <- landscape[[arrival_probability]]
+      permeability <- landscape$suitability
     }
     
     # is carrying_capacity specified without raster existing in landscape?
@@ -365,70 +368,71 @@ cellular_automata_dispersal <- function (max_distance = Inf,
     # work out dispersal proportions for eligible life-stages with input function
     dispersal_proportion <- dispersal_proportion(landscape, timestep)
     
-    # if max_distance is the default (Infinite), rescale to maximum distance of landscape
-    default_distance <- identical(max_distance, Inf)
+    # if max_cells is the default (Infinite), rescale to maximum distance of landscape
+    default_distance <- identical(max_cells, Inf)
     
     if (default_distance) {
       n_rows <- raster::nrow(population_raster[[1]])
       n_cols <- raster::ncol(population_raster[[1]])
       res <- raster::res(population_raster[[1]])
-      max_distance <- sqrt( (n_cols * res[1])^2 + (n_rows * res[2])^2 )
+      max_cells <- sqrt( (n_cols * res[1])^2 + (n_rows * res[2])^2 )
     }
     
     # handle dispersal distances as both scalars and vectors
     if(!default_distance) {
-    warn_once(length(max_distance) < n_stages | length(max_distance) > n_stages,
+    warn_once(length(max_cells) < n_stages | length(max_cells) > n_stages,
               paste(n_stages,
                     "life stages exist but",
-                    length(max_distance),
-                    "dispersal distance(s) of",
-                    paste(max_distance, collapse = ", "),
+                    length(max_cells),
+                    "maximum cell movement(s) of",
+                    paste(max_cells, collapse = ", "),
                     "were specified.\nAll life stages will use this distance."),
               warning_name = "dispersal_distances")
     }
     
-    if (length(max_distance) < n_stages | length(max_distance) > n_stages) {
-      max_distance <- rep_len(max_distance, n_stages)
+    if (length(max_cells) < n_stages | length(max_cells) > n_stages) {
+      max_cells <- rep_len(max_cells, n_stages)
     }
     
     # rescale dispersal distances to number of grid cells based on spatial resolution. This
     # is required for inputting into the Rcpp dispersal function.
-    max_distance <- ceiling(max_distance / min(raster::res(landscape$population)))
+    # max_cells <- ceiling(max_cells / min(raster::res(landscape$population)))
     
     # create dispersal vector from the specified dispersal kernel and rescaled distances
-    dispersal_vector <- lapply(max_distance,
-                               function(x) dispersal_kernel((seq_len(x)) * min(raster::res(landscape$population))))    
+    # dispersal_vector <- lapply(max_distance,
+    #                            function(x) dispersal_kernel((seq_len(x)) * min(raster::res(landscape$population))))    
 
     # identify dispersing stages
-    which_stages_disperse <- which(dispersal_proportion > 0 & max_distance > 0)
+    which_stages_disperse <- which(dispersal_proportion > 0 & max_cells > 0)
     
     # if no barrier map is specified, create a barriers matrix with all zeros.
     if (is.null(barriers_map)) {
-      barriers_map <- raster::calc(arrival_prob,
+      barriers_map <- raster::calc(permeability,
                                    function(x){x[!is.na(x)] <- 0; return(x)})
     } else {
       barriers_map <- landscape[[barriers_map]]
     }
     
-    dispersal_steps = 1
+    #dispersal_steps = 1
     
-    steps_stash$dispersal_stats <- replicate(n_stages, NULL, simplify = FALSE)
+    steps_stash$dispersal_stats_success <- replicate(n_stages, NULL, simplify = FALSE)
+    steps_stash$dispersal_stats_failure <- replicate(n_stages, NULL, simplify = FALSE)
     
     # could do this in parallel
     for (i in which_stages_disperse){
       dispersed <- rcpp_dispersal(raster::as.matrix(population_raster[[i]]),
                                   raster::as.matrix(cc),
-                                  raster::as.matrix(arrival_prob),
+                                  raster::as.matrix(permeability),
                                   raster::as.matrix(barriers_map),
-                                  as.integer(dispersal_steps),
-                                  as.integer(max_distance[i]),
+                                  #as.integer(dispersal_steps),
+                                  as.integer(max_cells[i]),
                                   as.numeric(dispersal_vector[[i]]),
                                   as.numeric(dispersal_proportion[i]))
       
       population_raster[[i]][] <- dispersed$future_population
 
-      steps_stash$dispersal_stats[[i]] <- dispersed$failed / dispersed$dispersed
-      steps_stash$dispersal_stats[[i]][is.nan(steps_stash$dispersal_stats[[i]])] <- 0
+      steps_stash$dispersal_stats_success[[i]] <- dispersed$dispersed
+      steps_stash$dispersal_stats_failure[[i]] <- dispersed$failed
     }
 
     landscape$population <- population_raster

@@ -13,104 +13,104 @@ IntegerVector shuffle_vec(int min, int max){
 }
 
 
-// [[Rcpp::export]]
-bool barrier_to_dispersal(int source_x,
-                          int source_y,
-                          int sink_x,
-                          int sink_y,
-                          NumericMatrix barriers_map){
-  
-  /*
-   ** Initialise parameters used in the function
-   */
-  
-  int  dist_x, dist_y, i, pixel_x, pixel_y, distance_max;
-  bool barrier_found = false;
-  int barrier_counter = 0;
-  
-  /*
-   ** Calculate the distance in both dimensions between the source and sink
-   ** pixels and take the largest of the two.
-   */
-  
-  dist_x = source_x - sink_x;
-  dist_y = source_y - sink_y;
-  if (abs(dist_x) >= abs(dist_y)){
-    distance_max = abs(dist_x);
-  } else {
-    distance_max = abs(dist_y);
-  }
-
-  /*
-   ** Check the possible paths (5 variants) from source to sink and see if there is a path
-   ** without barriers. If any barrier cell is found, the barrier counter is incremented.
-   */
-  
-  for (i = 1; i <= distance_max; i++){
-    pixel_x = round( (double) sink_x + (1.0 * i / distance_max * dist_x) );
-    pixel_y = round( (double) sink_y + (1.0 * i / distance_max * dist_y) );
-    if (R::rbinom(1, barriers_map(pixel_y, pixel_x)) == 1){
-      barrier_counter++;
-      break;
-    }
-  }
-  
-  for (i = 1; i <= distance_max; i++){
-    pixel_x = round( (double) sink_x - 0.49 + (((i - 1.0) / distance_max * dist_x ) +
-      ((1.0 / distance_max * dist_x) / 2.0)));
-    pixel_y = round( (double) sink_y - 0.49 + (((i - 1.0) / distance_max * dist_y ) +
-      ((1.0 / distance_max * dist_y) / 2.0)));
-    if (R::rbinom(1, barriers_map(pixel_y, pixel_x)) == 1){
-      barrier_counter++;
-      break;
-    }
-  }
-  
-  for (i = 1; i <= distance_max; i++){
-    pixel_x = round( (double) sink_x + 0.49 + (((i - 1.0) / distance_max * dist_x ) +
-      ((1.0 / distance_max * dist_x) / 2.0)));
-    pixel_y = round( (double) sink_y - 0.49 + (((i - 1.0) / distance_max * dist_y ) +
-      ((1.0 / distance_max * dist_y) / 2.0)));
-    if (R::rbinom(1, barriers_map(pixel_y, pixel_x)) == 1){
-      barrier_counter++;
-      break;
-    }
-  }
-  
-  for (i = 1; i <= distance_max; i++){
-    pixel_x = round( (double) sink_x - 0.49 + (((i - 1.0) / distance_max * dist_x ) +
-      ((1.0 / distance_max * dist_x) / 2.0)));
-    pixel_y = round( (double) sink_y + 0.49 + (((i - 1.0) / distance_max * dist_y ) +
-      ((1.0 / distance_max * dist_y) / 2.0)));
-    if (R::rbinom(1, barriers_map(pixel_y, pixel_x)) == 1){
-      barrier_counter++;
-      break;
-    }
-  }
-  
-  for (i = 1; i <= distance_max; i++){
-    pixel_x = round( (double) sink_x + 0.49 + (((i - 1.0) / distance_max * dist_x ) +
-      ((1.0 / distance_max * dist_x) / 2.0)));
-    pixel_y = round( (double) sink_y + 0.49 + (((i - 1.0) / distance_max * dist_y ) +
-      ((1.0 / distance_max * dist_y) / 2.0)));
-    if (R::rbinom(1, barriers_map(pixel_y, pixel_x)) == 1){
-      barrier_counter++;
-      break;
-    }
-  }
-  
-  /*
-   ** If any barriers cells have been found (dependent on permeability)
-   ** return barrier_found, otherwise, return no barrier_found
-   */
-  
-  if (barrier_counter > 0){
-    barrier_found = true;
-  }
-  
-  return(barrier_found);
-  
-}
+// // [[Rcpp::export]]
+// bool barrier_to_dispersal(int source_x,
+//                           int source_y,
+//                           int sink_x,
+//                           int sink_y,
+//                           NumericMatrix barriers_map){
+//   
+//   /*
+//    ** Initialise parameters used in the function
+//    */
+//   
+//   int  dist_x, dist_y, i, pixel_x, pixel_y, distance_max;
+//   bool barrier_found = false;
+//   int barrier_counter = 0;
+//   
+//   /*
+//    ** Calculate the distance in both dimensions between the source and sink
+//    ** pixels and take the largest of the two.
+//    */
+//   
+//   dist_x = source_x - sink_x;
+//   dist_y = source_y - sink_y;
+//   if (abs(dist_x) >= abs(dist_y)){
+//     distance_max = abs(dist_x);
+//   } else {
+//     distance_max = abs(dist_y);
+//   }
+// 
+//   /*
+//    ** Check the possible paths (5 variants) from source to sink and see if there is a path
+//    ** without barriers. If any barrier cell is found, the barrier counter is incremented.
+//    */
+//   
+//   for (i = 1; i <= distance_max; i++){
+//     pixel_x = round( (double) sink_x + (1.0 * i / distance_max * dist_x) );
+//     pixel_y = round( (double) sink_y + (1.0 * i / distance_max * dist_y) );
+//     if (R::rbinom(1, barriers_map(pixel_y, pixel_x)) == 1){
+//       barrier_counter++;
+//       break;
+//     }
+//   }
+//   
+//   for (i = 1; i <= distance_max; i++){
+//     pixel_x = round( (double) sink_x - 0.49 + (((i - 1.0) / distance_max * dist_x ) +
+//       ((1.0 / distance_max * dist_x) / 2.0)));
+//     pixel_y = round( (double) sink_y - 0.49 + (((i - 1.0) / distance_max * dist_y ) +
+//       ((1.0 / distance_max * dist_y) / 2.0)));
+//     if (R::rbinom(1, barriers_map(pixel_y, pixel_x)) == 1){
+//       barrier_counter++;
+//       break;
+//     }
+//   }
+//   
+//   for (i = 1; i <= distance_max; i++){
+//     pixel_x = round( (double) sink_x + 0.49 + (((i - 1.0) / distance_max * dist_x ) +
+//       ((1.0 / distance_max * dist_x) / 2.0)));
+//     pixel_y = round( (double) sink_y - 0.49 + (((i - 1.0) / distance_max * dist_y ) +
+//       ((1.0 / distance_max * dist_y) / 2.0)));
+//     if (R::rbinom(1, barriers_map(pixel_y, pixel_x)) == 1){
+//       barrier_counter++;
+//       break;
+//     }
+//   }
+//   
+//   for (i = 1; i <= distance_max; i++){
+//     pixel_x = round( (double) sink_x - 0.49 + (((i - 1.0) / distance_max * dist_x ) +
+//       ((1.0 / distance_max * dist_x) / 2.0)));
+//     pixel_y = round( (double) sink_y + 0.49 + (((i - 1.0) / distance_max * dist_y ) +
+//       ((1.0 / distance_max * dist_y) / 2.0)));
+//     if (R::rbinom(1, barriers_map(pixel_y, pixel_x)) == 1){
+//       barrier_counter++;
+//       break;
+//     }
+//   }
+//   
+//   for (i = 1; i <= distance_max; i++){
+//     pixel_x = round( (double) sink_x + 0.49 + (((i - 1.0) / distance_max * dist_x ) +
+//       ((1.0 / distance_max * dist_x) / 2.0)));
+//     pixel_y = round( (double) sink_y + 0.49 + (((i - 1.0) / distance_max * dist_y ) +
+//       ((1.0 / distance_max * dist_y) / 2.0)));
+//     if (R::rbinom(1, barriers_map(pixel_y, pixel_x)) == 1){
+//       barrier_counter++;
+//       break;
+//     }
+//   }
+//   
+//   /*
+//    ** If any barriers cells have been found (dependent on permeability)
+//    ** return barrier_found, otherwise, return no barrier_found
+//    */
+//   
+//   if (barrier_counter > 0){
+//     barrier_found = true;
+//   }
+//   
+//   return(barrier_found);
+//   
+// }
 
 
 // [[Rcpp::export]]
@@ -119,10 +119,9 @@ IntegerVector can_source_cell_disperse(int source_x,
                                        NumericMatrix iterative_population_state,
                                        NumericMatrix future_population_state,
                                        NumericMatrix carrying_capacity_available, 
-                                       NumericMatrix habitat_suitability_map,
+                                       NumericMatrix permeability_map,
                                        NumericMatrix barriers_map,
-                                       int dispersal_distance,
-                                       NumericVector dispersal_kernel){
+                                       int max_cells){
   
   /*
    ** Initialise parameters used in the function
@@ -130,24 +129,24 @@ IntegerVector can_source_cell_disperse(int source_x,
   
   int ncols = carrying_capacity_available.ncol();
   int nrows = carrying_capacity_available.nrow();
-  int i, j, real_distance;
-  IntegerVector sink_x_vec = shuffle_vec(source_x - dispersal_distance, source_x + dispersal_distance);
-  IntegerVector sink_y_vec = shuffle_vec(source_y - dispersal_distance, source_y + dispersal_distance);
-  int nx = sink_x_vec.size();
-  int ny = sink_y_vec.size();
-  double prob_colonisation, rnd;
+  int i, max_steps;
+  //IntegerVector sink_x_vec = shuffle_vec(source_x - dispersal_distance, source_x + dispersal_distance);
+  //IntegerVector sink_y_vec = shuffle_vec(source_y - dispersal_distance, source_y + dispersal_distance);
+  //int nx = sink_x_vec.size();
+  //int ny = sink_y_vec.size();
+  //double prob_colonisation, rnd;
   IntegerVector sink_found(2, -1);
-  bool barrier;
+  //bool barrier;
   
-  for (i = 0; i < nx; i++){
-    for (j = 0; j < ny; j++){
+  //for (i = 0; i < nx; i++){
+    //for (j = 0; j < ny; j++){
       
       /*
        ** Assign sink coordinates from shuffled vector of integers
        */
       
-      int sink_x = sink_x_vec[i];
-      int sink_y = sink_y_vec[j];
+      //int sink_x = sink_x_vec[i];
+      //int sink_y = sink_y_vec[j];
       
       /*
        ** 1. Test of basic conditions to see if a pixel could be a potential sink cell:
@@ -156,12 +155,17 @@ IntegerVector can_source_cell_disperse(int source_x,
        **  - The pixel must not be NA.
        */
       
-      if ((sink_x >= 0) && (sink_x < nrows) && (sink_y >= 0) && (sink_y < ncols)){
+      for (i = 0; i < max_steps; i++){
+      
+      IntegerVector dest_x = IntegerVector::create(source_x, source_x + 1, source_x, source_x - 1);
+      IntegerVector dest_y = IntegerVector::create(source_y + 1, source_y, source_y - 1, source_y);
+      
+      if ((dest_x >= 0) && (dest_x < nrows) && (dest_y >= 0) && (dest_y < ncols)){
         
         int sink_carrying_cap = carrying_capacity_available(sink_y, sink_x) - (iterative_population_state(sink_y, sink_x) + future_population_state(sink_y, sink_x));
         
         if ((sink_carrying_cap > 0) && !R_IsNA(sink_carrying_cap)){
-          if(!R_IsNA(habitat_suitability_map(sink_y, sink_x))){
+          if(!R_IsNA(permeability_map(sink_y, sink_x))){
             
             /*
              ** 2. Compute the distance between potential sink and source pixel
@@ -180,7 +184,7 @@ IntegerVector can_source_cell_disperse(int source_x,
                **  - Habitat suitability.
                */
               
-              prob_colonisation = dispersal_kernel[real_distance - 1] * (habitat_suitability_map(sink_y, sink_x));
+              prob_colonisation = //dispersal_kernel[real_distance - 1] * (permeability_map(sink_y, sink_x));
               
               /*
                ** Generate random number
@@ -201,7 +205,7 @@ IntegerVector can_source_cell_disperse(int source_x,
                  ** computing time.
                  */
                 
-                barrier = barrier_to_dispersal(source_x, source_y, sink_x, sink_y, barriers_map);
+                //barrier = barrier_to_dispersal(source_x, source_y, sink_x, sink_y, barriers_map);
                 
                 if (!barrier){
                   sink_found[0] = sink_x;
@@ -214,8 +218,10 @@ IntegerVector can_source_cell_disperse(int source_x,
           }
         }
       }
-    }
-  }
+      
+      }  
+    //}
+  //}
   
   return(sink_found);
   
@@ -225,11 +231,11 @@ IntegerVector can_source_cell_disperse(int source_x,
 // [[Rcpp::export]]
 List rcpp_dispersal(NumericMatrix starting_population_state,
                     NumericMatrix potential_carrying_capacity,
-                    NumericMatrix habitat_suitability_map,
+                    NumericMatrix permeability_map,
                     NumericMatrix barriers_map,
-                    int dispersal_steps,
-                    int dispersal_distance,
-                    NumericVector dispersal_kernel,
+                    //int dispersal_steps,
+                    int max_cells,
+                    //NumericVector dispersal_kernel,
                     double dispersal_proportion){
   
   /*
@@ -269,7 +275,7 @@ List rcpp_dispersal(NumericMatrix starting_population_state,
   /* Dispersal starts here.  */
   /* *********************** */
   
-  for(dispersal_step = 0; dispersal_step < dispersal_steps; dispersal_step++){
+  //for(dispersal_step = 0; dispersal_step < dispersal_steps; dispersal_step++){
     
     for (i = 0; i < nx; i++){
       for (j = 0; j < ny; j++){
@@ -312,20 +318,22 @@ List rcpp_dispersal(NumericMatrix starting_population_state,
              **  (sink pixel) and the pixel that is already colonised (source pixel).
              */
             
-            IntegerVector cell_in_dispersal_distance = can_source_cell_disperse(source_x,
-                                                                                source_y,
-                                                                                iterative_population_state,
-                                                                                future_population_state,
-                                                                                carrying_capacity_available,
-                                                                                habitat_suitability_map,
-                                                                                barriers_map,
-                                                                                dispersal_distance,
-                                                                                dispersal_kernel);
+            IntegerVector eligible_sink_cell_xy = can_source_cell_disperse(source_x,
+                                                                           source_y,
+                                                                           iterative_population_state,
+                                                                           future_population_state,
+                                                                           carrying_capacity_available,
+                                                                           permeability_map,
+                                                                           barriers_map,
+                                                                           max_cells);
             
-            if(cell_in_dispersal_distance[0] >= 0 && cell_in_dispersal_distance[1] >= 0){
+            
+            
+            
+            if(eligible_sink_cell_xy[0] >= 0 && eligible_sink_cell_xy[1] >= 0){
               
-              int sink_x = cell_in_dispersal_distance[0];
-              int sink_y = cell_in_dispersal_distance[1];
+              int sink_x = eligible_sink_cell_xy[0];
+              int sink_y = eligible_sink_cell_xy[1];
  
               iterative_population_state(source_y, source_x) = iterative_population_state(source_y, source_x) - 1;
               
@@ -349,7 +357,7 @@ List rcpp_dispersal(NumericMatrix starting_population_state,
       }
     }
     
-  }
+  //}
   
   return(List::create(Named("future_population") = future_population_state,
                       Named("dispersed") = dispersers,
