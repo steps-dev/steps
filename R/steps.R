@@ -23,3 +23,5 @@ flush_stash <- function() {
     steps_stash[[name]] <- NULL
   }
 }
+
+options(future.globals.maxSize= 1000*1024^2)

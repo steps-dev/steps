@@ -52,7 +52,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // rcpp_dispersal
-NumericMatrix rcpp_dispersal(NumericMatrix starting_population_state, NumericMatrix potential_carrying_capacity, NumericMatrix habitat_suitability_map, NumericMatrix barriers_map, int dispersal_steps, int dispersal_distance, NumericVector dispersal_kernel, double dispersal_proportion);
+List rcpp_dispersal(NumericMatrix starting_population_state, NumericMatrix potential_carrying_capacity, NumericMatrix habitat_suitability_map, NumericMatrix barriers_map, int dispersal_steps, int dispersal_distance, NumericVector dispersal_kernel, double dispersal_proportion);
 RcppExport SEXP _steps_rcpp_dispersal(SEXP starting_population_stateSEXP, SEXP potential_carrying_capacitySEXP, SEXP habitat_suitability_mapSEXP, SEXP barriers_mapSEXP, SEXP dispersal_stepsSEXP, SEXP dispersal_distanceSEXP, SEXP dispersal_kernelSEXP, SEXP dispersal_proportionSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

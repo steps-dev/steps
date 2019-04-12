@@ -572,6 +572,8 @@ simulate <- function (i, landscape, population_dynamics, habitat_dynamics, times
   if (verbose == TRUE && inherits(future::plan(), "sequential")) pb <- utils::txtProgressBar(min = 0, max = max(timesteps), style = 3)
   
   output_landscapes <- list()
+  output_metrics <- list()
+  output_metrics$dispersal_failure_rate <- list()
   
   for (timestep in timesteps) {
     
@@ -580,12 +582,24 @@ simulate <- function (i, landscape, population_dynamics, habitat_dynamics, times
     for (dynamic_function in habitat_dynamics) {
       landscape <- dynamic_function(landscape, timestep)
     }
-    
+
     landscape_out <- landscape
     if (!is.null(landscape_out$suitability) && raster::nlayers(landscape_out$suitability) > 1) {
       landscape_out$suitability <- landscape_out$suitability[[timestep]]
     }
     output_landscapes[[timestep]] <- landscape_out
+    
+    if (!is.null(steps_stash$dispersal_stats)) {
+      n_stages <- length(steps_stash$dispersal_stats)
+      n_stages_disperse <- which(unlist(lapply(steps_stash$dispersal_stats, function(x) !is.null(x))) == TRUE)
+      dispersal_failure_rate <- replicate(n_stages, landscape$suitability[[1]] * 0)
+      
+      for (i in n_stages_disperse) {
+        dispersal_failure_rate[[i]][] <- steps_stash$dispersal_stats[[i]]
+      }
+      
+      output_metrics$dispersal_failure_rate[[timestep]] <- dispersal_failure_rate
+    }
     
     if (verbose == TRUE && inherits(future::plan(), "sequential")) utils::setTxtProgressBar(pb, timestep)
     #if (verbose == TRUE && !inherits(future::plan(), "sequential")) update_parallel_progress(i, n)
@@ -594,6 +608,9 @@ simulate <- function (i, landscape, population_dynamics, habitat_dynamics, times
   if (verbose == TRUE && inherits(future::plan(), "sequential")) close(pb)
   
   as_class(output_landscapes, "replicate", "list")
+  attr(output_landscapes, "output_metrics") <- output_metrics
+  
+  return(output_landscapes)
 }
 
 # extract populations from a simulation

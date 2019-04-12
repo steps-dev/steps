@@ -223,7 +223,7 @@ IntegerVector can_source_cell_disperse(int source_x,
 
  
 // [[Rcpp::export]]
-NumericMatrix rcpp_dispersal(NumericMatrix starting_population_state,
+List rcpp_dispersal(NumericMatrix starting_population_state,
                     NumericMatrix potential_carrying_capacity,
                     NumericMatrix habitat_suitability_map,
                     NumericMatrix barriers_map,
@@ -240,6 +240,8 @@ NumericMatrix rcpp_dispersal(NumericMatrix starting_population_state,
   int nrows = starting_population_state.nrow();
   NumericMatrix carrying_capacity_available(nrows, ncols);
   NumericMatrix iterative_population_state(nrows, ncols);
+  NumericMatrix dispersers(nrows, ncols);
+  NumericMatrix failed_dispersers(nrows, ncols);
   NumericMatrix future_population_state(nrows, ncols);
   int dispersal_step, i, j, individual;
   IntegerVector source_x_vec = shuffle_vec(0, (ncols - 1));
@@ -292,6 +294,8 @@ NumericMatrix rcpp_dispersal(NumericMatrix starting_population_state,
           int source_population = iterative_population_state(source_y, source_x);
           int source_pop_dispersed = R::rbinom(source_population, dispersal_proportion);
           
+          dispersers(source_y, source_x) = source_pop_dispersed;
+          
           /*
            ** Loop through individuals that can disperse
            */
@@ -327,6 +331,10 @@ NumericMatrix rcpp_dispersal(NumericMatrix starting_population_state,
               
               future_population_state(sink_y, sink_x) = future_population_state(sink_y, sink_x) + 1;
               
+            } else {
+              
+              failed_dispersers(source_y, source_x) = failed_dispersers(source_y, source_x) + 1;
+            
             }
           }
         }
@@ -343,5 +351,7 @@ NumericMatrix rcpp_dispersal(NumericMatrix starting_population_state,
     
   }
   
-  return(future_population_state);
+  return(List::create(Named("future_population") = future_population_state,
+                      Named("dispersed") = dispersers,
+                      Named("failed") = failed_dispersers));
 }

@@ -412,6 +412,8 @@ cellular_automata_dispersal <- function (max_distance = Inf,
     
     dispersal_steps = 1
     
+    steps_stash$dispersal_stats <- replicate(n_stages, NULL, simplify = FALSE)
+    
     # could do this in parallel
     for (i in which_stages_disperse){
       dispersed <- rcpp_dispersal(raster::as.matrix(population_raster[[i]]),
@@ -423,10 +425,12 @@ cellular_automata_dispersal <- function (max_distance = Inf,
                                   as.numeric(dispersal_vector[[i]]),
                                   as.numeric(dispersal_proportion[i]))
       
-      population_raster[[i]][] <- dispersed
-      
+      population_raster[[i]][] <- dispersed$future_population
+
+      steps_stash$dispersal_stats[[i]] <- dispersed$failed / dispersed$dispersed
+      steps_stash$dispersal_stats[[i]][is.nan(steps_stash$dispersal_stats[[i]])] <- 0
     }
-    
+
     landscape$population <- population_raster
     
     #cat("Pre-Post Population:", poptot, sum(raster::cellStats(landscape$population, sum)), "(Timestep", timestep, ")", "\n")

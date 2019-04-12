@@ -135,7 +135,7 @@ competition_density <- function(transition_matrix,
     # initialise an array for all of the populations
     transition_array <- array(transition_matrix, dim = c(dim, dim, n_cells))
     
-    cells_over <- which(N - K > 0)
+    cells_over <- which(N - K != 0)
     
     # modify life-stage transition matrix and add to array
     for (i in cells_over) {
@@ -230,7 +230,7 @@ apply_m <- function (m, transition_matrix, mask = NULL) {
 }
 
 # find a value of m with which to modify transition_matrix, to get to this target value of R
-find_m <- function(R_target, transition_matrix, mask = NULL, n_stages = ncol(transition_matrix), initial_stages = NULL) {
+find_m <- function(R_target, transition_matrix, mask = NULL, n_stages = ncol(transition_matrix), initial_stages = NULL, init_Rmax_null = init_Rmax_null) {
   
   obj <- function (m, R_target, transition_matrix, mask = NULL, n_stages = ncol(transition_matrix), initial_stages = NULL) {
     new_transition_matrix <- apply_m(m, transition_matrix, mask)
@@ -238,7 +238,11 @@ find_m <- function(R_target, transition_matrix, mask = NULL, n_stages = ncol(tra
     (R_current - R_target) ^ 2
   } 
   
-  out <- stats::optimise(obj, c(0, 1), R_target, transition_matrix, mask, n_stages = n_stages, initial_stages)
+  if (init_Rmax_null) {
+    out <- stats::optimise(obj, c(0, 1.1), R_target, transition_matrix, mask, n_stages = n_stages, initial_stages)
+  } else {
+    out <- stats::optimise(obj, c(0, 5), R_target, transition_matrix, mask, n_stages = n_stages, initial_stages)
+  }
   out$minimum
   
 }
@@ -253,7 +257,9 @@ density_modified_transition <- function (N,
   
   # if the optimal R isn't provided, recalculate it (ideally pre-calculate it to
   # save computation)
-  if (is.null(R_max)) {
+  init_Rmax_null <- is.null(R_max)
+  
+  if (init_Rmax_null) {
     R_max <- get_R(transition_matrix, n_stages = n_stages, initial_stages = initial_stages)
   }
   
@@ -261,7 +267,7 @@ density_modified_transition <- function (N,
   R_target <- ideal_R(K, N, R_max)
   
   # find a value of m with which to modify transition_matrix, to get to this target value of R
-  m <- find_m(R_target, transition_matrix, mask, initial_stages = initial_stages)
+  m <- find_m(R_target, transition_matrix, mask, initial_stages = initial_stages, init_Rmax_null = init_Rmax_null)
   
   # multiply m by the relevant bits of transition_matrix
   transition_matrix_new <- apply_m(m, transition_matrix, mask)
