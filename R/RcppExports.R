@@ -5,15 +5,11 @@ shuffle_vec <- function(min, max) {
     .Call('_steps_shuffle_vec', PACKAGE = 'steps', min, max)
 }
 
-barrier_to_dispersal <- function(source_x, source_y, sink_x, sink_y, barriers_map) {
-    .Call('_steps_barrier_to_dispersal', PACKAGE = 'steps', source_x, source_y, sink_x, sink_y, barriers_map)
+can_source_cell_disperse <- function(source_x, source_y, iterative_population_state, future_population_state, carrying_capacity_available, permeability_map, max_cells) {
+    .Call('_steps_can_source_cell_disperse', PACKAGE = 'steps', source_x, source_y, iterative_population_state, future_population_state, carrying_capacity_available, permeability_map, max_cells)
 }
 
-can_source_cell_disperse <- function(source_x, source_y, iterative_population_state, future_population_state, carrying_capacity_available, habitat_suitability_map, barriers_map, dispersal_distance, dispersal_kernel) {
-    .Call('_steps_can_source_cell_disperse', PACKAGE = 'steps', source_x, source_y, iterative_population_state, future_population_state, carrying_capacity_available, habitat_suitability_map, barriers_map, dispersal_distance, dispersal_kernel)
-}
-
-rcpp_dispersal <- function(starting_population_state, potential_carrying_capacity, habitat_suitability_map, barriers_map, dispersal_steps, dispersal_distance, dispersal_kernel, dispersal_proportion) {
-    .Call('_steps_rcpp_dispersal', PACKAGE = 'steps', starting_population_state, potential_carrying_capacity, habitat_suitability_map, barriers_map, dispersal_steps, dispersal_distance, dispersal_kernel, dispersal_proportion)
+rcpp_dispersal <- function(starting_population_state, potential_carrying_capacity, permeability_map, max_cells, dispersal_proportion) {
+    .Call('_steps_rcpp_dispersal', PACKAGE = 'steps', starting_population_state, potential_carrying_capacity, permeability_map, max_cells, dispersal_proportion)
 }
 

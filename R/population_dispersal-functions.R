@@ -317,7 +317,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
 #'
 #' test_ca_dispersal <- cellular_automata_dispersal()
 
-cellular_automata_dispersal <- function (max_cells = Inf
+cellular_automata_dispersal <- function (max_cells = Inf,
                                          dispersal_proportion = all_dispersing(),
                                          barriers_map = NULL,
                                          use_suitability = TRUE,
@@ -341,9 +341,9 @@ cellular_automata_dispersal <- function (max_cells = Inf
     
     # handle input suitability raster stacks
     if (use_suitability & raster::nlayers(landscape$suitability) > 1) {
-      permeability <- landscape$suitability[[timestep]]
+      suitability_map <- landscape$suitability[[timestep]]
     } else {
-      permeability <- landscape$suitability
+      suitability_map <- landscape$suitability
     }
     
     # is carrying_capacity specified without raster existing in landscape?
@@ -393,28 +393,24 @@ cellular_automata_dispersal <- function (max_cells = Inf
     if (length(max_cells) < n_stages | length(max_cells) > n_stages) {
       max_cells <- rep_len(max_cells, n_stages)
     }
-    
-    # rescale dispersal distances to number of grid cells based on spatial resolution. This
-    # is required for inputting into the Rcpp dispersal function.
-    # max_cells <- ceiling(max_cells / min(raster::res(landscape$population)))
-    
-    # create dispersal vector from the specified dispersal kernel and rescaled distances
-    # dispersal_vector <- lapply(max_distance,
-    #                            function(x) dispersal_kernel((seq_len(x)) * min(raster::res(landscape$population))))    
 
     # identify dispersing stages
     which_stages_disperse <- which(dispersal_proportion > 0 & max_cells > 0)
     
     # if no barrier map is specified, create a barriers matrix with all zeros.
     if (is.null(barriers_map)) {
-      barriers_map <- raster::calc(permeability,
+      barriers_map <- raster::calc(population_raster[[1]],
                                    function(x){x[!is.na(x)] <- 0; return(x)})
     } else {
       barriers_map <- landscape[[barriers_map]]
     }
     
-    #dispersal_steps = 1
-    
+    if (use_suitability) {
+      permeability_map <- suitability_map * (1 - barriers_map)
+    } else {
+      permeability_map <- 1 - barriers_map
+    }
+
     steps_stash$dispersal_stats_success <- replicate(n_stages, NULL, simplify = FALSE)
     steps_stash$dispersal_stats_failure <- replicate(n_stages, NULL, simplify = FALSE)
     
@@ -422,11 +418,8 @@ cellular_automata_dispersal <- function (max_cells = Inf
     for (i in which_stages_disperse){
       dispersed <- rcpp_dispersal(raster::as.matrix(population_raster[[i]]),
                                   raster::as.matrix(cc),
-                                  raster::as.matrix(permeability),
-                                  raster::as.matrix(barriers_map),
-                                  #as.integer(dispersal_steps),
+                                  raster::as.matrix(permeability_map),
                                   as.integer(max_cells[i]),
-                                  as.numeric(dispersal_vector[[i]]),
                                   as.numeric(dispersal_proportion[i]))
       
       population_raster[[i]][] <- dispersed$future_population
