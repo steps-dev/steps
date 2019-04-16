@@ -51,15 +51,16 @@ NULL
 #' that specifies the carrying capacity in each cell.
 #' @param max_distance the maximum distance that each life stage can
 #'   disperse in spatial units of the landscape (in kernel-based dispersal
-#'   this truncates the dispersal curve) - must be specified.
-#' @param max_cells the maximum number of cell movements that each life stage can
-#'   disperse in whole integers - must be specified.
+#'   this truncates the dispersal curve).
+#' @param max_cells the maximum number of cell movements that each individual in
+#'   each life stage can disperse in whole integers.
 #' @param barriers_map the name of a spatial layer in the landscape object that
-#' contains cell values between 0 (no barrier) and 1 (full barrier) Any
-#' values between 0 and 1 indicate the permeability of the barrier.   
-#' @param barriers_map the name of a spatial layer in the landscape object that
-#' contains cell values between 0 (no barrier) and 1 (full barrier) Any
-#' values between 0 and 1 indicate the permeability of the barrier.
+#'   contains cell values between 0 (no barrier) and 1 (full barrier) Any
+#'   values between 0 and 1 indicate the permeability of the barrier.   
+#' @param use_suitability should habitat suitability be used to control the
+#'   likelihood of individuals dispersing into cells? The default is TRUE. Note,
+#'   if a barrier map is also provided, the suitability map is multiplied with
+#'   the barrier map to generate a permeability map of the landscape.
 NULL
 
 #' @rdname population_dispersal_functions

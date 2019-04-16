@@ -17,11 +17,9 @@
   "suitability", "carrying_capacity", "none"),
   dispersal_proportion = all_dispersing())
 
-cellular_automata_dispersal(max_distance = Inf,
-  dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1),
+cellular_automata_dispersal(max_cells = Inf,
   dispersal_proportion = all_dispersing(), barriers_map = NULL,
-  arrival_probability = "suitability",
-  carrying_capacity = "carrying_capacity")
+  use_suitability = TRUE, carrying_capacity = "carrying_capacity")
 }
 \arguments{
 \item{dispersal_kernel}{a single built-in or user-defined distance dispersal
@@ -34,15 +32,23 @@ the proportion dispersing to a spatial layer in the landscape object
 
 \item{max_distance}{the maximum distance that each life stage can
 disperse in spatial units of the landscape (in kernel-based dispersal
-this truncates the dispersal curve) - must be specified.}
+this truncates the dispersal curve).}
 
 \item{arrival_probability}{the name of a spatial layer in the landscape object
 that controls where individuals can disperse to (e.g. "suitability") or
 "none" to allow individuals to disperse to all non-NA cells.}
 
+\item{max_cells}{the maximum number of cell movements that each individual in
+each life stage can disperse in whole integers.}
+
 \item{barriers_map}{the name of a spatial layer in the landscape object that
 contains cell values between 0 (no barrier) and 1 (full barrier) Any
 values between 0 and 1 indicate the permeability of the barrier.}
+
+\item{use_suitability}{should habitat suitability be used to control the
+likelihood of individuals dispersing into cells? The default is TRUE. Note,
+if a barrier map is also provided, the suitability map is multiplied with
+the barrier map to generate a permeability map of the landscape.}
 
 \item{carrying_capacity}{the name of a spatial layer in the landscape object
 that specifies the carrying capacity in each cell.}

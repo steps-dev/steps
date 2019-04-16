@@ -545,7 +545,7 @@ extract_spatial <- function (x,
   
 }
 
-#' #' @rdname simulation_results
+# #' @rdname simulation_results
 # #'
 # #' @export
 # #'

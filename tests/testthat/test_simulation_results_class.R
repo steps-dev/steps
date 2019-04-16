@@ -77,8 +77,7 @@ test_that('simulation_results classes work', {
                                   sink = pop_sink)
   
   pop_dyn <- population_dynamics(change = growth(transition_matrix = egk_mat),
-                                 dispersal = cellular_automata_dispersal(max_distance = c(0, 16000, 0),
-                                                                         dispersal_kernel = exponential_dispersal_kernel(distance_decay = 16000),
+                                 dispersal = cellular_automata_dispersal(max_cells = c(0, 20, 0),
                                                                          dispersal_proportion = all_dispersing(proportions = 0.5),
                                                                          barriers_map = "barrier"),
                                  modification = translocation(source_layer = "source",
@@ -108,8 +107,7 @@ test_that('simulation_results classes work', {
                                    density_dependence = NULL)
   
   pop_dyn4 <- population_dynamics(change = growth(transition_matrix = egk_mat),
-                                  dispersal = cellular_automata_dispersal(max_distance = c(0, 16000, 0),
-                                                                          dispersal_kernel = exponential_dispersal_kernel(distance_decay = 16000),
+                                  dispersal = cellular_automata_dispersal(max_cells = c(0, 20, 0),
                                                                           dispersal_proportion = carrying_capacity_dispersal(),
                                                                           barriers_map = "barrier2"),
                                   modification = translocation(source_layer = "source",
@@ -124,8 +122,7 @@ test_that('simulation_results classes work', {
                                                    transition_function = modified_transition(egk_mat,
                                                                                              survival_layer = "suitability",
                                                                                              fecundity_layer = "suitability")),
-                                   dispersal = cellular_automata_dispersal(max_distance = c(16000),
-                                                                           dispersal_kernel = exponential_dispersal_kernel(distance_decay = 16000)),
+                                   dispersal = cellular_automata_dispersal(max_cells = 20),
                                    modification = NULL,
                                    density_dependence = ceiling_density())
   
@@ -144,8 +141,7 @@ test_that('simulation_results classes work', {
                                    density_dependence = NULL)
   
   pop_dyn4d <- population_dynamics(change = growth(transition_matrix = egk_mat),
-                                   dispersal = cellular_automata_dispersal(max_distance = c(16000),
-                                                                           dispersal_kernel = exponential_dispersal_kernel(distance_decay = 16000),
+                                   dispersal = cellular_automata_dispersal(max_cells = 20,
                                                                            carrying_capacity = "suitability"),
                                    modification = NULL,
                                    density_dependence = ceiling_density())
@@ -160,7 +156,7 @@ test_that('simulation_results classes work', {
                                   density_dependence = ceiling_density(stages = c(2,3)))
   
   pop_dyn6 <- population_dynamics(change = growth(transition_matrix = egk_mat),
-                                  dispersal = cellular_automata_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay = 16000)),
+                                  dispersal = cellular_automata_dispersal(),
                                   modification = translocation(source_layer = "source",
                                                                sink_layer = "sink",
                                                                stages = 3,
