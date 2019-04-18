@@ -186,9 +186,10 @@ plot.simulation_results <- function (x,
                            type = 'l',
                            ylab = paste("Total Population: ",stage_names[i]),
                            xlab = "Timesteps",
-                           lwd = 3,
+                           #lwd = 3,
                            col = graph.pal[i],
-                           ylim = range(pretty(pop)))
+                           ylim = range(pretty(pop)),
+                           ...)
             
           }
           
@@ -202,9 +203,10 @@ plot.simulation_results <- function (x,
                          type='l',
                          ylab="Total Population (all stages)",
                          xlab="Timesteps",
-                         lwd=3,
+                         #lwd=3,
                          col="black",
-                         ylim=range(pretty(rowSums(pop))))
+                         ylim=range(pretty(rowSums(pop))),
+                         ...)
           
         }
         
@@ -218,9 +220,10 @@ plot.simulation_results <- function (x,
                            type='l',
                            ylab=paste("Total Population: ",stage_names[stages]),
                            xlab="Timesteps",
-                           lwd=3,
+                           #lwd=3,
                            col=graph.pal[i],
-                           ylim=range(pretty(pop)))
+                           ylim=range(pretty(pop)),
+                           ...)
           }
           
         }
@@ -373,9 +376,10 @@ plot.simulation_results <- function (x,
                        type='l',
                        ylab="Total k (all stages)",
                        xlab="Timesteps",
-                       lwd=3,
+                       #lwd=3,
                        col="black",
-                       ylim=range(pretty(unlist(k))))
+                       ylim=range(pretty(unlist(k))),
+                       ...)
       }
       
       if (type == "raster") {
@@ -437,17 +441,19 @@ plot.simulation_results <- function (x,
                        type = 'l',
                        ylab = paste("Total Population: ", stage_names[i]),
                        xlab = "Timesteps",
-                       lwd = 3,
+                       #lwd = 3,
                        col = graph.pal[i],
-                       ylim=range(pretty(pop)))
+                       ylim=range(pretty(pop)),
+                       ...)
         
         for (j in seq_along(x)) {
           graphics::lines(pop[ , i, j],
-                          col = 'gray')
+                          col = 'gray',
+                          lwd = 0.5)
         }
         
         graphics::lines(pop.mn[, i],
-                        lwd = 3,
+                        #lwd = 3,
                         col = graph.pal[i])
         
       }
@@ -467,9 +473,10 @@ plot.simulation_results <- function (x,
                      type = 'l',
                      ylab = "Total Population (all stages)",
                      xlab = "Timesteps",
-                     lwd = 3,
+                     #lwd = 3,
                      col = 'black',
-                     ylim=range(pretty(quants)))
+                     ylim=range(pretty(quants)),
+                     ...)
       
       # for (j in seq_along(x)[-1]) {
       #   graphics::lines(rowSums(pop[ , , j]),
@@ -482,7 +489,7 @@ plot.simulation_results <- function (x,
                         border = NA)
       
       graphics::lines(quants[, 2] ~ xaxs,
-                      lwd = 2,
+                      #lwd = 2,
                       col = grDevices::grey(0.4))
       
       if (emp) {
@@ -499,16 +506,18 @@ plot.simulation_results <- function (x,
                      type = 'l',
                      ylab = paste("Total Population: ",stage_names[stages]),
                      xlab = "Timesteps",
-                     lwd = 3,
-                     col = graph.pal[stages])
+                     #lwd = 3,
+                     col = graph.pal[stages],
+                     ...)
       
       for (j in seq_along(x)) {
         graphics::lines(pop[ , stages, j],
-                        col = 'gray')
+                        col = 'gray',
+                        lwd = 0.5)
       }
       
       graphics::lines(pop.mn[ , stages],
-                      lwd = 3,
+                      #lwd = 3,
                       col = graph.pal[stages])    
       
     }

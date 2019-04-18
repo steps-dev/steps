@@ -127,7 +127,11 @@ competition_density <- function(transition_matrix,
     K <- raster::extract(cc, cell_idx)
     
     if (!is.null(stages)) {
-      N <- rowSums(population[, stages])
+      if (length(stages) == 1) {
+        N <- population[, stages]
+      } else {
+        N <- rowSums(population[, stages])
+      }
     } else {
       N <- rowSums(population)
     }
