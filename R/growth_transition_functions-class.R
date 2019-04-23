@@ -139,10 +139,10 @@ competition_density <- function(transition_matrix,
     # initialise an array for all of the populations
     transition_array <- array(transition_matrix, dim = c(dim, dim, n_cells))
     
-    cells_over <- which(N - K != 0)
+    target_cells <- which(N - K != 0 & N != 0)
     
     # modify life-stage transition matrix and add to array
-    for (i in cells_over) {
+    for (i in target_cells) {
       transition_array[, , i] <- density_modified_transition(N = N[i],
                                                              K = K[i],
                                                              transition_matrix = transition_matrix,
