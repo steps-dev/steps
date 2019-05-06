@@ -177,6 +177,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
       sys_mem_required <- (n_elem * (64 + 32)) / 8
       
       if (sys_mem_required < sys_mem_available) {
+        print("Kernel-based dispersal utilising available RAM to speed up operations")
         distance_list <- steps_stash$distance_list <- lapply(seq_len(raster::ncell(landscape$population)),
                                                              function (x) get_ids_dists(cell_id = x,
                                                                                         distance_info = distance_info,
@@ -712,7 +713,7 @@ disperse <- function (origin,
                       raster_dim = NULL) {
   
   if (is.null(distance_list)) {
-    
+    print("Kernel-based dispersal running in single iteration mode to conserve RAM")
     destinations <- get_ids_dists(cell_id = origin,
                                   distance_info = distance_info,
                                   raster_dim = raster_dim)

@@ -82,7 +82,8 @@ IntegerVector can_source_cell_disperse(int source_x,
          dest_y_vec[direction] >= 0 &&
          dest_y_vec[direction] < ncols &&
          !R_IsNA(carrying_capacity_available(dest_y_vec[direction], dest_x_vec[direction])) &&
-         !R_IsNA(permeability_map(dest_y_vec[direction], dest_x_vec[direction]))){
+         !R_IsNA(permeability_map(dest_y_vec[direction], dest_x_vec[direction])) && 
+         permeability_map(dest_y_vec[direction], dest_x_vec[direction]) > 0){
          
          possible[direction] = 1;
         
