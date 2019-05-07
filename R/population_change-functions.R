@@ -30,9 +30,13 @@ growth <- function (transition_matrix,
                     local_stochasticity = 0,
                     transition_function = NULL) {
 
-  # did the user provide a function to overwrite the transition matrices at
+  # did the user provide a function(s) to overwrite the transition matrices at
   # each pixel/timestep?
-  is_function <- inherits(transition_function, "function")
+  # if (length(transition_function) > 1) {
+  #   is_function <- inherits(transition_function[[1]], "function")
+  # } else {
+    is_function <- inherits(transition_function, "function")
+  # }
 
   idx <- which(transition_matrix != 0)
   is_recruitment <- upper.tri(transition_matrix)[idx]
@@ -73,7 +77,13 @@ growth <- function (transition_matrix,
     idx_full <- as.numeric(outer(idx, addition, FUN = "+"))
     
     if (is_function) {
-      transition_array <- transition_function(landscape, timestep)
+      # if (length(transition_function) > 1) {
+      #   for (i in seq_len(transition_function)) {
+      #     transition_array <- transition_function[[i]](landscape, timestep)
+      #   }
+      # } else {
+        transition_array <- transition_function(landscape, timestep)
+      # }
       values <- transition_array[idx_full] + total_noise
     } else {
       transition_array <- array(0, c(dim, dim, n_cells))

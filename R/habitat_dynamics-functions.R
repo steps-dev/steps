@@ -5,7 +5,7 @@
 #'
 #' @name habitat_dynamics_functions
 #'
-#' @param disturbance_layers the name(s) of spatial layer(s) in the landscape object with disturbances used
+#' @param disturbance_layers the name of spatial layer(s) in the landscape object with disturbances used
 #'   to alter the habitat object for each timestep (number of layers must match the intended timesteps)
 #' @param effect_time the number of timesteps that the disturbance layer will act on the habitat object
 #' @param fire_layers the name(s) of spatial layer(s) in the landscape object with fire disturbances used

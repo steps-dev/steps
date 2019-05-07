@@ -13,6 +13,9 @@
 #'   values if individuals are being controlled (e.g. culling)
 #' @param effect_timesteps which timesteps in a single simulation do the translocations
 #'   take place
+#' @param mortality_layer the name of spatial layer(s) in the landscape object with
+#'   mortality proportions used to alter the populations for each timestep (number of
+#'   layers must match the intended timesteps)
 #'
 #' @rdname population_modification_functions
 #'
@@ -20,8 +23,8 @@
 #' 
 #' @examples
 #' 
-#' # Use the translocation_population_dynamics object to modify the  
-#' # population using translocations:
+#' # Use the translocation function to modify populations
+#' # using explicit layers of source and sink individuals:
 #' 
 #' test_translocation <- translocation(source_layer = "egk_source",
 #'                                        sink_layer = "egk_sink",
@@ -69,7 +72,55 @@ translocation <- function (source_layer, sink_layer, stages = NULL, effect_times
     
   }
   
-  as.population_translocation(pop_dynamics)
+  as.population_modification(pop_dynamics)
+  
+}
+
+
+#' @rdname population_modification_functions
+#'
+#' @export
+#' 
+#' @examples
+#' 
+#' # Use the mortality function to modify populations
+#' # using explicit layers of proportions of mortality:
+#' 
+#' test_mortality <- mortality(mortality_layer = "egk_fire",
+#'                                        stages = NULL)
+
+mortality <- function (mortality_layer, stages = NULL) {
+  
+  pop_dynamics <- function (landscape, timestep) {
+
+      population_raster <- landscape$population
+      nstages <- raster::nlayers(population_raster)
+      
+      # get population as a matrix
+      idx <- which(!is.na(raster::getValues(population_raster[[1]])))
+      population_matrix <- raster::extract(population_raster, idx)
+      
+      mortality_prop <- raster::extract(landscape[[mortality_layer]][[timestep]], idx)
+      
+      if (is.null(stages)) stages <- seq_len(nstages)
+      
+      for (stage in stages) {
+        
+        population_matrix[ , stage] <- ceiling(population_matrix[ , stage] * mortality_prop)
+        
+      }
+      
+      # put back in the raster
+      population_raster[idx] <- population_matrix
+      
+      landscape$population <- population_raster
+
+    
+    landscape
+    
+  }
+  
+  as.population_modification(pop_dynamics)
   
 }
 
@@ -77,6 +128,6 @@ translocation <- function (source_layer, sink_layer, stages = NULL, effect_times
 ### internal functions ###
 ##########################
 
-as.population_translocation <- function (translocation) {
-  as_class(translocation, "population_translocation", "function")
+as.population_modification <- function (modification) {
+  as_class(modification, "population_modification", "function")
 }
