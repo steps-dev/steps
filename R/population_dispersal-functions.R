@@ -395,7 +395,7 @@ cellular_automata_dispersal <- function (max_cells = Inf,
     if (length(max_cells) < n_stages | length(max_cells) > n_stages) {
       max_cells <- rep_len(max_cells, n_stages)
     }
-
+    
     # identify dispersing stages
     which_stages_disperse <- which(dispersal_proportion > 0 & max_cells > 0)
     
@@ -404,7 +404,12 @@ cellular_automata_dispersal <- function (max_cells = Inf,
       barriers_map <- raster::calc(population_raster[[1]],
                                    function(x){x[!is.na(x)] <- 0; return(x)})
     } else {
-      barriers_map <- landscape[[barriers_map]]
+      if (raster::nlayers(landscape[[barriers_map]]) > 1) {
+        barriers_map <- landscape[[barriers_map]][[timestep]]
+      } else {
+        barriers_map <- landscape[[barriers_map]]
+      }
+      
     }
     
     if (use_suitability) {

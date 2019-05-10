@@ -119,22 +119,20 @@ test_that('simulation_results classes work', {
   pop_dyn4a <- population_dynamics(change = growth(transition_matrix = egk_mat,
                                                    global_stochasticity = matrix(c(0.00,0.10,0.00,0.00,0.00,0.10,0.10,0.00,0.10), nrow = 3, ncol = 3),
                                                    local_stochasticity = matrix(c(0.00,0.10,0.00,0.00,0.00,0.10,0.10,0.00,0.10), nrow = 3, ncol = 3),
-                                                   transition_function = modified_transition(egk_mat,
-                                                                                             survival_layer = "suitability",
+                                                   transition_function = modified_transition(survival_layer = "suitability",
                                                                                              fecundity_layer = "suitability")),
                                    dispersal = cellular_automata_dispersal(max_cells = 20),
                                    modification = NULL,
                                    density_dependence = ceiling_density())
   
   pop_dyn4b <- population_dynamics(change = growth(transition_matrix = egk_mat,
-                                                   transition_function = competition_density(egk_mat)),
+                                                   transition_function = list(modified_transition(), competition_density())),
                                    dispersal = NULL,
                                    modification = NULL,
                                    density_dependence = NULL)
   
   pop_dyn4c <- population_dynamics(change = growth(transition_matrix = egk_mat,
-                                                   transition_function = competition_density(egk_mat,
-                                                                                             stages = c(2, 3),
+                                                   transition_function = competition_density(stages = c(2, 3),
                                                                                              mask = egk_mat_mask)),
                                    dispersal = NULL,
                                    modification = NULL,
@@ -147,8 +145,7 @@ test_that('simulation_results classes work', {
                                    density_dependence = ceiling_density())
   
   pop_dyn5 <- population_dynamics(change = growth(transition_matrix = egk_mat,
-                                                  transition_function = modified_transition(egk_mat,
-                                                                                            survival_layer = NULL,
+                                                  transition_function = modified_transition(survival_layer = NULL,
                                                                                             fecundity_layer = NULL)),
                                   dispersal = kernel_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay = 8000),
                                                                max_distance = 8000),
@@ -458,6 +455,6 @@ test_that('simulation_results classes work', {
   
   # print(exponential_dispersal_kernel())
   
-  # print(modified_transition(egk_mat))
+  # print(modified_transition())
   
 })

@@ -44,7 +44,7 @@ ceiling_density <- function (stages = NULL) {
     overpopulation[is.nan(overpopulation)] <- 0
     overpopulation <- pmin(overpopulation, 1)
     population <- sweep(population_matrix, 1, overpopulation, "*")
-    
+
     # get whole integers
     population <- round_pop(population)
     

@@ -29,15 +29,43 @@ growth <- function (transition_matrix,
                     global_stochasticity = 0,
                     local_stochasticity = 0,
                     transition_function = NULL) {
-
-  # did the user provide a function(s) to overwrite the transition matrices at
-  # each pixel/timestep?
-  # if (length(transition_function) > 1) {
-  #   is_function <- inherits(transition_function[[1]], "function")
-  # } else {
-    is_function <- inherits(transition_function, "function")
-  # }
-
+  
+  is_function <- inherits(transition_function, "function")
+  
+  # if it's a list of functions, chain them together
+  if (!is_function && inherits(transition_function, "list")) {
+    
+    # check the elements of this list are all functions, with the right arguments
+    all_funs <- all(unlist(lapply(transition_function,
+                                 function(x) inherits(x, "function"))))
+    expected_params <- all(unlist(lapply(transition_function,
+                                         function(x) names(formals(x)) %in% c("transition_array",
+                                                                              "landscape",
+                                                                              "timestep"))))
+    
+    if (!all_funs || !expected_params) {
+      stop("A transition function list must contain only function objects that\n",
+           "each include the arguments: transition_array, landscape, and timestep.\n",
+           "Please check your inputs and re-run the simulation.")
+    }
+    
+    transition_function_list <- transition_function
+    
+    
+    transition_function <- function(transition_array, landscape, timestep) {
+      
+      for (fun in transition_function_list) {
+        transition_array <- fun(transition_array, landscape, timestep)
+      }
+      
+      transition_array
+      
+    }
+    
+    is_function <- TRUE
+    
+  }
+  
   idx <- which(transition_matrix != 0)
   is_recruitment <- upper.tri(transition_matrix)[idx]
   upper <- ifelse(is_recruitment, Inf, 1)
@@ -77,13 +105,14 @@ growth <- function (transition_matrix,
     idx_full <- as.numeric(outer(idx, addition, FUN = "+"))
     
     if (is_function) {
-      # if (length(transition_function) > 1) {
-      #   for (i in seq_len(transition_function)) {
-      #     transition_array <- transition_function[[i]](landscape, timestep)
-      #   }
-      # } else {
-        transition_array <- transition_function(landscape, timestep)
-      # }
+      
+      # create transition array and fill with initial matrix values
+      transition_array <- array(0, c(dim, dim, n_cells))
+      transition_array[] <- transition_matrix[]
+      
+      # update the transition array
+      transition_array <- transition_function(transition_array, landscape, timestep)
+      
       values <- transition_array[idx_full] + total_noise
     } else {
       transition_array <- array(0, c(dim, dim, n_cells))

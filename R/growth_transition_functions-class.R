@@ -13,8 +13,6 @@
 #' 
 #' @rdname transition_function
 #'
-#' @param transition_matrix a symmetrical age-based (Leslie) or stage-based population
-#'   structure matrix.
 #' @param survival_layer the name of a spatial layer in the landscape object used to modify survival values.
 #' @param fecundity_layer the name of a spatial layer in the landscape object used to modify fecundity values.
 #' 
@@ -26,23 +24,19 @@
 #' 
 #' test_mod_transition <- modified_transition(egk_mat)
 
-modified_transition <- function(transition_matrix,
-                                survival_layer = NULL,
+modified_transition <- function(survival_layer = NULL,
                                 fecundity_layer = NULL) {
   
-  idx <- which(transition_matrix != 0)
-  is_recruitment <- upper.tri(transition_matrix)[idx]
-  
-  surv_vals <- transition_matrix[idx[!is_recruitment]]
-  fec_vals <- transition_matrix[idx[is_recruitment]]
-  
-  dim <- nrow(transition_matrix)
+  fun <- function (transition_array, landscape, timestep) {
+    
+    transition_matrix <- transition_array[, , 1]
+    idx <- which(transition_matrix != 0)
+    is_recruitment <- upper.tri(transition_matrix)[idx]
+    
+    dim <- nrow(transition_matrix)
+    array_length <- dim(transition_array)[3]
 
-  fun <- function (landscape, timestep) {
-    
-    # pull out or create survival/fecundity multipliers
     cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])))
-    
     
     if (is.null(survival_layer)) {
       surv_mult <- rep(1, length(cell_idx))
@@ -64,23 +58,11 @@ modified_transition <- function(transition_matrix,
       }
     }
     
-    
-    # get per-cell versions of fecundity and survival values
-    survs <- kronecker(surv_mult, t(surv_vals), "*")
-    fecs <- kronecker(fec_mult, t(fec_vals), "*")
-    
-    # empty transition array to fill
-    n_cells <- length(cell_idx)
-    transition_array <- array(0, c(dim, dim, n_cells))
-    
-    # convert index from matrix to array
-    addition <- dim ^ 2 * (seq_len(n_cells) - 1)
-    idx_full <- as.numeric(outer(idx, addition, FUN = "+"))
-    
-    # put the surv/fec values back in (is_recruitment is recycled to match length)
-    transition_array[idx_full[!is_recruitment]] <- survs
-    transition_array[idx_full[is_recruitment]] <- fecs
-    
+    for (i in seq_len(array_length)) {
+      transition_array[, , i][idx[!is_recruitment]] <- transition_array[, , i][idx[!is_recruitment]] * surv_mult[i]
+      transition_array[, , i][idx[is_recruitment]] <- transition_array[, , i][idx[is_recruitment]] * fec_mult[i]
+    }
+
     transition_array
     
   }
@@ -104,15 +86,12 @@ modified_transition <- function(transition_matrix,
 #' 
 #' test_comp_transition <- competition_density(egk_mat)
 
-competition_density <- function(transition_matrix,
-                                stages = NULL,
+competition_density <- function(stages = NULL,
                                 mask = NULL,
                                 R_max = NULL,
                                 initial_stages = NULL) {
-  
-  dim <- nrow(transition_matrix)
 
-  fun <- function (landscape, timestep) {
+  fun <- function (transition_array, landscape, timestep) {
 
     # get metrics and constructor info
     cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])))
@@ -136,16 +115,13 @@ competition_density <- function(transition_matrix,
       N <- rowSums(population)
     }
 
-    # initialise an array for all of the populations
-    transition_array <- array(transition_matrix, dim = c(dim, dim, n_cells))
-    
     target_cells <- which(N - K != 0 & N != 0)
     
-    # modify life-stage transition matrix and add to array
+    # modify life-stage transition array
     for (i in target_cells) {
       transition_array[, , i] <- density_modified_transition(N = N[i],
                                                              K = K[i],
-                                                             transition_matrix = transition_matrix,
+                                                             transition_matrix = transition_array[, , i],
                                                              mask = mask)
     }
     

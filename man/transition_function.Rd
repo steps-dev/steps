@@ -5,16 +5,12 @@
 \alias{competition_density}
 \title{Create a growth transition function}
 \usage{
-modified_transition(transition_matrix, survival_layer = NULL,
-  fecundity_layer = NULL)
+modified_transition(survival_layer = NULL, fecundity_layer = NULL)
 
-competition_density(transition_matrix, stages = NULL, mask = NULL,
-  R_max = NULL, initial_stages = NULL)
+competition_density(stages = NULL, mask = NULL, R_max = NULL,
+  initial_stages = NULL)
 }
 \arguments{
-\item{transition_matrix}{a symmetrical age-based (Leslie) or stage-based population
-structure matrix.}
-
 \item{survival_layer}{the name of a spatial layer in the landscape object used to modify survival values.}
 
 \item{fecundity_layer}{the name of a spatial layer in the landscape object used to modify fecundity values.}
