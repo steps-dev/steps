@@ -107,8 +107,21 @@ check_raster_matches_population <- function (raster, population) {
 }
 
 check_raster_na_matches <- function (raster, population) {
-  ras_na <- which(is.na(raster::getValues(raster[[1]])))
+  
   pop_na <- which(is.na(raster::getValues(population[[1]])))
-  if (!identical(ras_na, pop_na)) stop("Landscape rasters do not have matching NA cells. ",
-                                       "This must be corrected before running a simulation.")
+  suit_layers <- raster::nlayers(raster)
+  
+  if (suit_layers > 1) {
+    for (i in seq_len(suit_layers)) {
+      ras_na <- which(is.na(raster::getValues(raster[[i]])))
+      if (!identical(ras_na, pop_na)) stop(paste0("Landscape suitability raster for timestep ",
+                                           i,
+                                           " does not have matching NA cells. ",
+                                           "This must be corrected before running a simulation."))
+    }
+  } else { 
+    ras_na <- which(is.na(raster::getValues(raster[[1]])))
+    if (!identical(ras_na, pop_na)) stop("Landscape rasters do not have matching NA cells. ",
+                                         "This must be corrected before running a simulation.")
+  }
 }
