@@ -327,7 +327,7 @@ plot.simulation_results <- function (x,
     
     if (object == "suitability") {
       
-      rasters <- raster::stack(lapply(x[[1]], function (landscape) landscape$suitability))
+      rasters <- raster::stack(lapply(x[[1]], function (x) x$suitability))
       
       # Find maximum and minimum population value in raster cells for all timesteps for life-stage
       scale_max <- ceiling(max(stats::na.omit(raster::cellStats(rasters, max))))
@@ -367,8 +367,8 @@ plot.simulation_results <- function (x,
       
       if (type == "graph") {
         
-        idx <- which(!is.na(raster::getValues(get_carrying_capacity(x[[1]][[1]]))))
-        k <- lapply(x[[1]], function(x) sum(raster::extract(get_carrying_capacity(x), idx)))
+        idx <- which(!is.na(raster::getValues(x[[1]][[1]][["carrying_capacity"]])))
+        k <- lapply(x[[1]], function(x) sum(raster::extract(x$carrying_capacity, idx)))
         
         graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
         
@@ -384,7 +384,7 @@ plot.simulation_results <- function (x,
       
       if (type == "raster") {
         
-        rasters <- raster::stack(lapply(x[[1]], get_carrying_capacity))
+        rasters <- raster::stack(lapply(x[[1]], function (x) x$carrying_capacity))
                                  
         # Find maximum and minimum population value in raster cells for all timesteps for life-stage
         scale_max <- ceiling(max(stats::na.omit(raster::cellStats(rasters, max))))
@@ -593,22 +593,25 @@ simulate <- function (i, landscape, population_dynamics, habitat_dynamics, times
   
   for (timestep in timesteps) {
     
-    landscape <- population_dynamics(landscape, timestep)
-    
     for (dynamic_function in habitat_dynamics) {
       landscape <- dynamic_function(landscape, timestep)
     }
-
+    
+    landscape <- population_dynamics(landscape, timestep)
+    
     landscape_out <- landscape
     if (!is.null(landscape_out$suitability) && raster::nlayers(landscape_out$suitability) > 1) {
       landscape_out$suitability <- landscape_out$suitability[[timestep]]
+    }
+    if (!is.null(landscape_out$carrying_capacity) && is.function(landscape_out$carrying_capacity)) {
+      landscape_out$carrying_capacity <- get_carrying_capacity(landscape, timestep)
     }
     output_landscapes[[timestep]] <- landscape_out
     
     if (!is.null(steps_stash$dispersal_stats)) {
       n_stages <- length(steps_stash$dispersal_stats)
       n_stages_disperse <- which(unlist(lapply(steps_stash$dispersal_stats, function(x) !is.null(x))) == TRUE)
-      dispersal_failure_rate <- replicate(n_stages, landscape$suitability[[1]] * 0)
+      dispersal_failure_rate <- replicate(n_stages, landscape$population[[1]] * 0)
       
       for (i in n_stages_disperse) {
         dispersal_failure_rate[[i]][] <- steps_stash$dispersal_stats[[i]]

@@ -213,7 +213,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
     # copied this information over from the population density dependence
     # function, if it was specified. Otherwise, use all stages
     if (!exists("density_dependence_stages")) {
-      density_dependence_stages <- seq_len(raster::nlayers(landscape$population))
+      density_dependence_stages <- seq_len(n_stages)
     }
     
     dispersal_proportion <- dispersal_proportion(landscape, timestep)
@@ -280,7 +280,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
     
     # store the original population, so that individuals don't disperse twice
     original_pop <- pop
-
+    
     for (origin in sample(has_pop_ids)) {
       for (stage in sample(which_stages_disperse)) {
         pop <- disperse(origin = origin,
@@ -293,6 +293,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
                         dispersal_kernel = dispersal_kernel,
                         carrying_capacity = cc_values,
                         density_dependence_stages = density_dependence_stages,
+                        total_stages = n_stages,
                         distance_list = distance_list,
                         distance_info = distance_info,
                         raster_dim = raster_dim)
@@ -713,6 +714,7 @@ disperse <- function (origin,
                       dispersal_kernel,
                       carrying_capacity = NULL,
                       density_dependence_stages = NULL,
+                      total_stages = NULL,
                       distance_list = NULL,
                       distance_info = NULL,
                       raster_dim = NULL) {
@@ -764,11 +766,18 @@ disperse <- function (origin,
 
   # if we're using carrying capacity, return individuals to the origin if there's no space
   if (!is.null(carrying_capacity)) {
-    
+
     # get space left in each, and excess dispersers
     effective_populations <- pop[destination_ids, ]
-    effective_populations[, -density_dependence_stages] <- 0
-    effective_population <- rowSums(effective_populations)
+    if (length(density_dependence_stages) < total_stages) {
+      effective_populations[, -density_dependence_stages] <- 0      
+    }
+    if (is.vector(effective_populations)) {
+      effective_population <- sum(effective_populations)
+    } else {
+      effective_population <- rowSums(effective_populations)
+    }
+
     space_remaining <- carrying_capacity[destination_ids] - effective_population
     
     # if there's any stochastcity, need to round down

@@ -60,6 +60,8 @@ get_carrying_capacity <- function (landscape, timestep) {
     # if it's a function, run it on landscape
     res <- cc(landscape, timestep)
     
+    names(res) <- paste0("Carrying_Capacity_", timestep)
+    
   } else {
     
     # otherwise, we don't support it

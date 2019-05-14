@@ -34,8 +34,11 @@ disturbance <- function (disturbance_layers, effect_time = 1) {
   
   dist_fun <- function (landscape, timestep) {
     
-    if (raster::nlayers(landscape$suitability) > 1) original_habitat <- landscape$suitability[[timestep]]
-    else original_habitat <- landscape$suitability
+    if (raster::nlayers(landscape$suitability) > 1) {
+      original_habitat <- landscape$suitability[[timestep]]
+    } else {
+      original_habitat <- landscape$suitability
+    }
     
     if (raster::nlayers(landscape[[disturbance_layers]]) < timestep ) {
       stop("The number of disturbance layers must match the number of timesteps in the experiment")
@@ -47,10 +50,13 @@ disturbance <- function (disturbance_layers, effect_time = 1) {
     modified_habitat <- original_habitat * raster::overlay(landscape[[disturbance_layers]][[utils::tail(seq_len(timestep),
                                                                                                         effect_time)]],
                                                            fun = prod)
-    names(modified_habitat) <- "Habitat"
+    names(modified_habitat) <- paste0("Habitat_", timestep)
 
-    if (raster::nlayers(landscape$suitability) > 1) landscape$suitability[[timestep]] <- modified_habitat
-    else landscape$suitability <- modified_habitat
+    if (raster::nlayers(landscape$suitability) > 1) {
+      landscape$suitability[[timestep]] <- modified_habitat
+    } else {
+      landscape$suitability <- modified_habitat
+    }
     
     landscape
     
@@ -85,8 +91,11 @@ fire_effects <- function (fire_layers,
            Please check that you have not provided a raster stack as a suitability component of a landscape object.")
     }
     
-    if (is.null(steps_stash$orig_suitability)) original_habitat <- steps_stash$orig_suitability <- landscape$suitability
-    else original_habitat <- steps_stash$orig_suitability
+    if (is.null(steps_stash$orig_suitability)) {
+      original_habitat <- steps_stash$orig_suitability <- landscape$suitability
+    } else {
+      original_habitat <- steps_stash$orig_suitability
+    }
     
     if (raster::nlayers(landscape[[fire_layers]]) < timestep ) {
       stop("The number of disturbance layers must match the number of timesteps in the experiment")
