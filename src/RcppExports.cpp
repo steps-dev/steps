@@ -49,11 +49,24 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// fast_match
+std::vector<int> fast_match(IntegerVector x, IntegerVector y);
+RcppExport SEXP _steps_fast_match(SEXP xSEXP, SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type y(ySEXP);
+    rcpp_result_gen = Rcpp::wrap(fast_match(x, y));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_steps_shuffle_vec", (DL_FUNC) &_steps_shuffle_vec, 2},
     {"_steps_can_source_cell_disperse", (DL_FUNC) &_steps_can_source_cell_disperse, 7},
     {"_steps_rcpp_dispersal", (DL_FUNC) &_steps_rcpp_dispersal, 5},
+    {"_steps_fast_match", (DL_FUNC) &_steps_fast_match, 2},
     {NULL, NULL, 0}
 };
 

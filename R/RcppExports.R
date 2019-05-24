@@ -13,3 +13,7 @@ rcpp_dispersal <- function(starting_population_state, potential_carrying_capacit
     .Call('_steps_rcpp_dispersal', PACKAGE = 'steps', starting_population_state, potential_carrying_capacity, permeability_map, max_cells, dispersal_proportion)
 }
 
+fast_match <- function(x, y) {
+    .Call('_steps_fast_match', PACKAGE = 'steps', x, y)
+}
+

@@ -158,7 +158,6 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
       max_distance <- sqrt( (n_cols * res[1])^2 + (n_rows * res[2])^2 )
     }
     
-    
     distance_list <- steps_stash$distance_list
     if (is.null(distance_list)) {
       # what are dimensions of raster (lazyeval was causing this to be rerun on
@@ -274,30 +273,27 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
     # Extract the population values
     pop <- raster::getValues(landscape$population)
     
-    # Only non-zero population cells can contribute
-    #pop_dispersing_vec <- pop_dispersing[]
-    has_pop_ids <- which(rowSums(pop) > 0 & !is.na(pop[, 1]))
-    
     # store the original population, so that individuals don't disperse twice
     original_pop <- pop
+
+    # loop through origins and stages where there is at least one individual    
+    indices <- which(pop > 0, arr.ind = TRUE)
     
-    for (origin in sample(has_pop_ids)) {
-      for (stage in sample(which_stages_disperse)) {
-        pop <- disperse(origin = origin,
-                        stage = stage,
-                        pop = pop,
-                        original_pop = original_pop,
-                        prop_dispersing = dispersal_proportion,
-                        can_arriv_ids = can_arriv_ids,
-                        arrival_prob_values = arrival_prob_values,
-                        dispersal_kernel = dispersal_kernel,
-                        carrying_capacity = cc_values,
-                        density_dependence_stages = density_dependence_stages,
-                        total_stages = n_stages,
-                        distance_list = distance_list,
-                        distance_info = distance_info,
-                        raster_dim = raster_dim)
-      }
+    for(row in sample.int(nrow(indices))) {
+      pop <- disperse(origin = indices[row, 1],
+                      stage = indices[row, 2],
+                      pop = pop,
+                      original_pop = original_pop,
+                      prop_dispersing = dispersal_proportion,
+                      can_arriv_ids = can_arriv_ids,
+                      arrival_prob_values = arrival_prob_values,
+                      dispersal_kernel = dispersal_kernel,
+                      carrying_capacity = cc_values,
+                      density_dependence_stages = density_dependence_stages,
+                      total_stages = n_stages,
+                      distance_list = distance_list,
+                      distance_info = distance_info,
+                      raster_dim = raster_dim)
     }
 
     landscape$population[] <- pop
@@ -719,6 +715,7 @@ disperse <- function (origin,
                       distance_info = NULL,
                       raster_dim = NULL) {
   
+
   if (is.null(distance_list)) {
     print("Kernel-based dispersal running in single iteration mode to conserve RAM")
     destinations <- get_ids_dists(cell_id = origin,
@@ -727,20 +724,18 @@ disperse <- function (origin,
   } else {
     destinations <- distance_list[[origin]]
   }
-  
+
   destination_ids <- destinations[, 1]
   destination_dists <- destinations[, 2]
+
+  # index destination cells that allow arrival in raster
+  destination_index <- fast_match(destination_ids, can_arriv_ids)
+  # destination_index <- fastmatch::fmatch(can_arriv_ids, destination_ids, 0L)
+  # destination_index <- match(can_arriv_ids, destination_ids, 0L)
   
-  # index to cells in raster
-  valid_arriv <- destination_ids[match(can_arriv_ids, destination_ids, 0L)]
-  
-  # index to cells in can_arriv_ids
-  arrival_index <- match(valid_arriv, can_arriv_ids)
-  
-  # account for arrival possibility
-  keep_destination <- destination_ids %in% valid_arriv
-  destination_ids <- destination_ids[keep_destination]
-  destination_dists <- destination_dists[keep_destination]
+  # subset destination ids and distances to valid arrival cells
+  destination_ids <- destination_ids[destination_index]
+  destination_dists <- destination_dists[destination_index]
   
   prob <- dispersal_kernel(destination_dists)
   
@@ -751,7 +746,7 @@ disperse <- function (origin,
   prob <- prob / sum(prob)
   
   # get number dispersing and staying
-  # (if this is not the first pcell considered, we use the original population
+  # (if this is not the first cell considered, we use the original population
   # to make sure new arrivals don't disperse again)
   n_total <- original_pop[origin, stage]
   n_dispersing <- round_pop(n_total * prop_dispersing[stage])
@@ -761,6 +756,7 @@ disperse <- function (origin,
   new_arrivals <- pop[origin, stage] - n_total
   pop[origin, stage] <- n_staying + new_arrivals
   
+
   # propose some dispersals
   dispersals <- round_pop(n_dispersing * prob)
 
@@ -769,15 +765,18 @@ disperse <- function (origin,
 
     # get space left in each, and excess dispersers
     effective_populations <- pop[destination_ids, ]
+
     if (length(density_dependence_stages) < total_stages) {
       effective_populations[, -density_dependence_stages] <- 0      
     }
+    
     if (is.vector(effective_populations)) {
       effective_population <- sum(effective_populations)
     } else {
       effective_population <- rowSums(effective_populations)
     }
 
+    
     space_remaining <- carrying_capacity[destination_ids] - effective_population
     
     # if there's any stochastcity, need to round down
@@ -791,13 +790,13 @@ disperse <- function (origin,
     # remove the excess from the dispersers, and say they are dispersing back to
     # the origin
     dispersals <- dispersals - excess
-    dispersals[destination_is_origin] <- dispersals[destination_is_origin] + sum(excess)
+    pop[origin, stage] <- pop[origin, stage] + sum(excess)
       
   }
     
   # assign them to their population and return
   pop[destination_ids, stage] <- pop[destination_ids, stage] + dispersals
-  
+ 
   pop
-  
+
 }

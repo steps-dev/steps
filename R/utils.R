@@ -87,7 +87,7 @@ warn_once <- function (condition, message, warning_name) {
 
 rmultinom_large_int <- function (population) {
   
-  total <- sum(population)
+  total <- round(sum(population))
   
   if (total > .Machine$integer.max) {
     times <- total %/% .Machine$integer.max
@@ -102,7 +102,7 @@ rmultinom_large_int <- function (population) {
     
   } else {
     
-    pop <- stats::rmultinom(1, sum(population), population)
+    pop <- stats::rmultinom(1, total, population)
     
   }
   
