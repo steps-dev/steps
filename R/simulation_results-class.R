@@ -47,7 +47,12 @@
 #' @param misc which misc object to extract from a \code{simulation_results}
 #'   object - only used for additional spatial objects added to a landscape
 #'   (e.g. disturbance layers)
-#' @param ... further arguments passed to or from other methods
+#' @param interval the desired confidence interval representing the uncertainty around
+#'  the expected minimum population estimates from simulation comparisons; expressed as 
+#'  a whole integer between 0 and 100 (default value is 95).
+#' @param all_points should the expected minimum populations from all simulation
+#'  replicates be shown on the plot?
+#' @param ... additional objects or further arguments passed to/from other methods
 #'
 #' @return An object of class \code{simulation_results}
 #'
@@ -82,9 +87,9 @@ simulation <- function(landscape,
   
   # clear out the stash every time we begin a simulation
   flush_stash()
-
+  
   steps_stash$demo_stochasticity <- match.arg(demo_stochasticity)
-
+  
   in_parallel <- !inherits(future::plan(), "sequential")
   lapply_fun <- ifelse(in_parallel,
                        future.apply::future_lapply,
@@ -385,7 +390,7 @@ plot.simulation_results <- function (x,
       if (type == "raster") {
         
         rasters <- raster::stack(lapply(x[[1]], function (x) x$carrying_capacity))
-                                 
+        
         # Find maximum and minimum population value in raster cells for all timesteps for life-stage
         scale_max <- ceiling(max(stats::na.omit(raster::cellStats(rasters, max))))
         scale_min <- floor(min(stats::na.omit(raster::cellStats(rasters, min))))
@@ -574,6 +579,82 @@ extract_spatial <- function (x,
 #   om[[info_object]][[timestep]][[]]
 #   
 # }
+
+#' @rdname simulation_results
+#'
+#' @export
+#'
+#' @examples
+#'
+#' # Compare the minimum expected population from 'simulation_results' objects
+#'
+#' compare_emp(results, results)
+
+compare_emp <- function (x, ..., interval = 95, all_points = FALSE) {
+  
+  # read in simulation objects to compare
+  sim_objects <- list(x, ...)
+  n_objects <- length(sim_objects)
+  
+  # get names of simulations
+  sim_names <- as.character(substitute(list(x, ...)))[-1L]
+  
+  interval_range <- c((100 - interval) / 2, 100 - (100 - interval) / 2) / 100
+  
+  # initiate table of values
+  df <- data.frame("name" = sim_names,
+                   "emp_mean" = NA,
+                   "emp_lower" = NA,
+                   "emp_upper" = NA)
+  
+  # populate table with emp mean and error values
+  for (i in seq_len(n_objects)){
+    pops <- get_pop_simulation(sim_objects[[i]])
+    min_total_pops <- apply(pops, 3, function(x) min(rowSums(x)))
+    emp_mean <- mean(min_total_pops)
+    emp_lower <- stats::quantile(min_total_pops, interval_range)[1]
+    emp_upper <- stats::quantile(min_total_pops, interval_range)[2]
+    df[i, -1] <- c(emp_mean, emp_lower, emp_upper)
+  }
+  
+  graphics::par(mar=c(4, 4.5, 1.5, 1.5) + 0.1)
+  
+  graphics::plot(NULL,
+                 xlim = c(0.5, n_objects + 0.5),
+                 xaxt = "n",
+                 xlab = "Simulation Name",
+                 ylim = range(c(df$emp_lower, df$emp_upper)),
+                 yaxt = "n",
+                 ylab = "",
+                 main = "")
+  if (all_points == TRUE) {
+    for (i in seq_len(n_objects)){
+      pops <- get_pop_simulation(sim_objects[[i]])
+      min_total_pops <- apply(pops, 3, function(x) min(rowSums(x)))
+      graphics::points(jitter(rep(i, length(min_total_pops))),
+                       min_total_pops,
+                       col = "lightgrey",
+                       pch = 19,
+                       cex = 0.8)
+    }
+  }
+  graphics::points(seq_len(n_objects),
+                   df$emp_mean,
+                   pch = 19)
+  graphics::arrows(seq_len(n_objects),
+                   df$emp_lower,
+                   seq_len(n_objects),
+                   df$emp_upper,
+                   length=0.05,
+                   angle=90,
+                   code=3)
+  graphics::axis(1, at = seq_len(n_objects), labels = df$name)
+  graphics::axis(2, at = pretty(range(c(df$emp_lower, df$emp_upper)), 5))
+  graphics::mtext(paste0("Expected Minimum Population\n(", interval, "% Interval)"),
+                  side = 2,
+                  line = 2.5)
+}
+
 
 ##########################
 ### internal functions ###

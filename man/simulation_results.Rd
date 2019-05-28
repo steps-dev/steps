@@ -5,6 +5,7 @@
 \alias{is.simulation_results}
 \alias{plot.simulation_results}
 \alias{extract_spatial}
+\alias{compare_emp}
 \title{Run a simulation}
 \usage{
 simulation(landscape, population_dynamics, habitat_dynamics = list(),
@@ -20,6 +21,8 @@ is.simulation_results(x)
 
 extract_spatial(x, replicate = 1, timestep = 1,
   landscape_object = "population", stage = 1, misc = 1)
+
+compare_emp(x, ..., interval = 95, all_points = FALSE)
 }
 \arguments{
 \item{landscape}{a \link[steps]{landscape} object representing the initial habitat and
@@ -66,7 +69,7 @@ timeseries - default is 3 x 3 (e.g. c(3,3) )}
 \item{emp}{should the expected minimum population of the simulation be
 plotted?}
 
-\item{...}{further arguments passed to or from other methods}
+\item{...}{additional objects or further arguments passed to/from other methods}
 
 \item{replicate}{which replicate to extract from a \code{simulation_results}
 object}
@@ -84,6 +87,13 @@ object - only used for 'population' components of the landscape object}
 \item{misc}{which misc object to extract from a \code{simulation_results}
 object - only used for additional spatial objects added to a landscape
 (e.g. disturbance layers)}
+
+\item{interval}{the desired confidence interval representing the uncertainty around
+the expected minimum population estimates from simulation comparisons; expressed as 
+a whole integer between 0 and 100 (default value is 95).}
+
+\item{all_points}{should the expected minimum populations from all simulation
+replicates be shown on the plot?}
 }
 \value{
 An object of class \code{simulation_results}
@@ -116,4 +126,8 @@ plot(results)
 # Extract spatial components from a 'simulation_results' object
 
 extract_spatial(results)
+
+# Compare the minimum expected population from 'simulation_results' objects
+
+compare_emp(results, results)
 }
