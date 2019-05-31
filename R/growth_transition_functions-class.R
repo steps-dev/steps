@@ -116,7 +116,7 @@ competition_density <- function(stages = NULL,
     }
 
     target_cells <- which(N - K != 0 & N != 0)
-    
+
     # modify life-stage transition array
     for (i in target_cells) {
       transition_array[, , i] <- density_modified_transition(N = N[i],
@@ -167,10 +167,9 @@ get_R <- function (transition_matrix, n_stages = ncol(transition_matrix), initia
   old_stages <- initial_stages
   converged <- FALSE
   iter <- 0
-  old_Rs <- rep(0, n_stages)
-  
+  old_Rs <- rep(.Machine$double.eps, n_stages)
+
   while (!converged & iter < max_iter) {
-    
     new_stages <- transition_matrix %*% old_stages
     Rs <- new_stages / old_stages
     errors <- abs(1 - (Rs / old_Rs))
@@ -178,7 +177,6 @@ get_R <- function (transition_matrix, n_stages = ncol(transition_matrix), initia
     old_Rs <- Rs
     old_stages <- new_stages
     iter <- iter + 1
-    
   }
   
   warn_once(!converged,
@@ -234,7 +232,7 @@ density_modified_transition <- function (N,
                                          R_max = NULL,
                                          initial_stages = NULL,
                                          mask = NULL) {
-  
+
   # if the optimal R isn't provided, recalculate it (ideally pre-calculate it to
   # save computation)
   init_Rmax_null <- is.null(R_max)

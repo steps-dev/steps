@@ -650,7 +650,7 @@ compare_emp <- function (x, ..., interval = 95, all_points = FALSE) {
                    code=3)
   graphics::axis(1, at = seq_len(n_objects), labels = df$name)
   graphics::axis(2, at = pretty(range(c(df$emp_lower, df$emp_upper)), 5))
-  graphics::mtext(paste0("Expected Minimum Population\n(", interval, "% Interval)"),
+  graphics::mtext(paste0("Minimum Population (", interval, "% Interval)"),
                   side = 2,
                   line = 2.5)
 }

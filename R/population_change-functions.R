@@ -53,7 +53,7 @@ growth <- function (transition_matrix,
     
     
     transition_function <- function(transition_array, landscape, timestep) {
-      
+
       for (fun in transition_function_list) {
         transition_array <- fun(transition_array, landscape, timestep)
       }
