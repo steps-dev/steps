@@ -189,12 +189,14 @@ plot.simulation_results <- function (x,
             
             graphics::plot(pop[ , i],
                            type = 'l',
-                           ylab = paste("Total Population: ",stage_names[i]),
+                           ylab = paste("Total Population: ", stage_names[i]),
                            xlab = "Timesteps",
                            #lwd = 3,
                            col = graph.pal[i],
                            ylim = range(pretty(pop)),
+                           xaxt = 'n',
                            ...)
+            axis(side = 1, at = unique(c(c(1, seq(0, length(pop[ , i]), by = round(length(pop[ , i]) / 10))[-1]), length(pop[ , i]))))
             
           }
           
@@ -202,7 +204,7 @@ plot.simulation_results <- function (x,
         
         if (!is.null(stages) && stages == 0) {
           
-          graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
+          graphics::par(mar=c(5.1, 4.1, 4.1, 2.1))
           
           graphics::plot(rowSums(pop),
                          type='l',
@@ -211,24 +213,28 @@ plot.simulation_results <- function (x,
                          #lwd=3,
                          col="black",
                          ylim=range(pretty(rowSums(pop))),
+                         xaxt = 'n',
                          ...)
+          axis(side = 1, at = unique(c(c(1, seq(0, length(rowSums(pop)), by = round(length(rowSums(pop)) / 10))[-1]), length(rowSums(pop)))))
           
         }
         
         if (!is.null(stages) && length(stages) > 0 && stages != 0) {
           
-          graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,length(stages)))
+          graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1, length(stages)))
           
           for (i in stages) {
             
-            graphics::plot(pop[, i],
+            graphics::plot(pop[ , i],
                            type='l',
                            ylab=paste("Total Population: ",stage_names[stages]),
                            xlab="Timesteps",
                            #lwd=3,
                            col=graph.pal[i],
                            ylim=range(pretty(pop)),
+                           xaxt = 'n',
                            ...)
+            axis(side = 1, at = unique(c(c(1, seq(0, length(pop[ , i]), by = round(length(pop[ , i]) / 10))[-1]), length(pop[ , i]))))
           }
           
         }
@@ -375,7 +381,7 @@ plot.simulation_results <- function (x,
         idx <- which(!is.na(raster::getValues(x[[1]][[1]][["carrying_capacity"]])))
         k <- lapply(x[[1]], function(x) sum(raster::extract(x$carrying_capacity, idx)))
         
-        graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
+        graphics::par(mar=c(5.1, 4.1, 4.1, 2.1))
         
         graphics::plot(unlist(k),
                        type='l',
@@ -384,7 +390,9 @@ plot.simulation_results <- function (x,
                        #lwd=3,
                        col="black",
                        ylim=range(pretty(unlist(k))),
+                       xaxt = 'n',
                        ...)
+        axis(side = 1, at = unique(c(c(1, seq(0, length(unlist(k)), by = round(length(unlist(k)) / 10))[-1]), length(unlist(k)))))
       }
       
       if (type == "raster") {
@@ -449,7 +457,9 @@ plot.simulation_results <- function (x,
                        #lwd = 3,
                        col = graph.pal[i],
                        ylim=range(pretty(pop)),
+                       xaxt = 'n',
                        ...)
+        axis(side = 1, at = unique(c(c(1, seq(0, length(pop.mn[, i]), by = round(length(pop.mn[, i]) / 10))[-1]), length(pop.mn[, i]))))
         
         for (j in seq_along(x)) {
           graphics::lines(pop[ , i, j],
@@ -467,7 +477,7 @@ plot.simulation_results <- function (x,
     
     if(!is.null(stages) && stages == 0) {
       
-      graphics::par(mar = c(5.1, 4.1, 4.1, 2.1), mfrow = c(1,1))
+      graphics::par(mar = c(5.1, 4.1, 4.1, 2.1))
       
       # draw the 95% CI polygon (if available) and median line
       quants <- t(apply(apply(pop, 3, rowSums),1, stats::quantile, c(0.025, 0.5, 0.975)))
@@ -481,7 +491,9 @@ plot.simulation_results <- function (x,
                      #lwd = 3,
                      col = 'black',
                      ylim=range(pretty(quants)),
+                     xaxt = 'n',
                      ...)
+      axis(side = 1, at = unique(c(c(1, seq(0, length(quants[, 2]), by = round(length(quants[, 2]) / 10))[-1]), length(quants[, 2]))))
       
       # for (j in seq_along(x)[-1]) {
       #   graphics::lines(rowSums(pop[ , , j]),
@@ -505,15 +517,17 @@ plot.simulation_results <- function (x,
     
     if (!is.null(stages) && stages > 0) {
       
-      graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
+      graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1, length(stages)))
       
       graphics::plot(pop.mn[ , stages],
                      type = 'l',
-                     ylab = paste("Total Population: ",stage_names[stages]),
+                     ylab = paste("Total Population: ", stage_names[stages]),
                      xlab = "Timesteps",
                      #lwd = 3,
                      col = graph.pal[stages],
+                     xaxt = 'n',
                      ...)
+      axis(side = 1, at = unique(c(c(1, seq(0, length(pop.mn[ , stages]), by = round(length(pop.mn[ , stages]) / 10))[-1]), length(pop.mn[ , stages]))))
       
       for (j in seq_along(x)) {
         graphics::lines(pop[ , stages, j],
@@ -728,7 +742,7 @@ get_pop_simulation <- function(x, ...) {
   timesteps <- length(x[[1]])
   sims <- length(x)
   
-  pop_array <- array(dim=c(timesteps,total_stages,sims))
+  pop_array <- array(dim=c(timesteps, total_stages, sims))
   
   for(i in seq_len(sims)) {
     pop_array[, , i] <- get_pop_replicate(x[[i]])
