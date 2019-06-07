@@ -165,7 +165,7 @@ plot.simulation_results <- function (x,
   stage_names <- names(x[[1]][[1]]$population)
   
   graph.pal <- c(
-    "#b4d7b3",
+    "#6da36b",
     "#eb7d75",
     "#80b1d3",
     "#bebada",
@@ -288,7 +288,7 @@ plot.simulation_results <- function (x,
                                        col.regions = c("#bfbfbfff", viridisLite::viridis(length(breaks)-1)),
                                        colorkey = list(space = "bottom",
                                                        width = 0.4),
-                                       main = "population",
+                                       #main = "population",
                                        par.settings=list(layout.heights=list(xlab.key.padding=1)),
                                        xlab = "individuals",
                                        layout = panels))
@@ -326,7 +326,7 @@ plot.simulation_results <- function (x,
                                        col.regions = c("#bfbfbfff", viridisLite::viridis(length(breaks)-1)),
                                        colorkey = list(space = "bottom",
                                                        width = 0.4),
-                                       main = "population",
+                                       #main = "population",
                                        par.settings=list(layout.heights=list(xlab.key.padding=1)),
                                        xlab = "individuals",
                                        layout = panels))
@@ -604,7 +604,7 @@ extract_spatial <- function (x,
 #'
 #' compare_emp(results, results)
 
-compare_emp <- function (x, ..., interval = 95, all_points = FALSE) {
+compare_emp <- function (x, ..., interval = 95, all_points = FALSE, simulation_names = NULL) {
   
   # read in simulation objects to compare
   sim_objects <- list(x, ...)
@@ -620,6 +620,8 @@ compare_emp <- function (x, ..., interval = 95, all_points = FALSE) {
                    "emp_mean" = NA,
                    "emp_lower" = NA,
                    "emp_upper" = NA)
+  
+  if(is.null(simulation_names)) simulation_names <- sim_names
   
   # populate table with emp mean and error values
   for (i in seq_len(n_objects)){
@@ -640,7 +642,8 @@ compare_emp <- function (x, ..., interval = 95, all_points = FALSE) {
                  ylim = range(c(df$emp_lower, df$emp_upper)),
                  yaxt = "n",
                  ylab = "",
-                 main = "")
+                 main = "",
+                 lwd = 0.5)
   if (all_points == TRUE) {
     for (i in seq_len(n_objects)){
       pops <- get_pop_simulation(sim_objects[[i]])
@@ -662,7 +665,7 @@ compare_emp <- function (x, ..., interval = 95, all_points = FALSE) {
                    length=0.05,
                    angle=90,
                    code=3)
-  graphics::axis(1, at = seq_len(n_objects), labels = df$name)
+  graphics::axis(1, at = seq_len(n_objects), labels = simulation_names)
   graphics::axis(2, at = pretty(range(c(df$emp_lower, df$emp_upper)), 5))
   graphics::mtext(paste0("Minimum Population (", interval, "% Interval)"),
                   side = 2,

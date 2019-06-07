@@ -145,11 +145,11 @@ growth <- function (transition_matrix,
 
         # probability of transitioning to each other stage
         probs <- t(survival_array[, stage, any])
-        
+
         # add on probability of dying
         surv_prob <- rowSums(probs)
         probs <- cbind(probs, 1 - surv_prob)
-        
+
         # loop through cells with population (rmultinom is not vectorised on probabilities)
         new_stages <- matrix(NA, n_any, n_stage)
         idx <- seq_len(n_stage)
