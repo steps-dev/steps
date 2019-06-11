@@ -97,7 +97,7 @@ fast_dispersal <- function(dispersal_kernel = exponential_dispersal_kernel(dista
       pop_staying_vec <- raster::extract(pop_staying, idx)
       pop_staying_vec <- round_pop(pop_staying_vec)
       pop_staying[idx] <- pop_staying_vec
-      
+
       pop_dispersed <- dispersalFFT(
         popmat = raster::as.matrix(
           pop_dispersing
@@ -564,10 +564,10 @@ dispersalFFT <- function (popmat, fs) {
   # and without ever having to construct the full matrix, by representing the 
   # landscape efficiently as a section of a torus and using linear algebra
   # identities of the fast Fourier transform
-  
+
   # duplicate popmat to create 'before' condition
   popmat_orig <- popmat
-  
+
   missing <- is.na(popmat)
   # check for missing values and replace with zeros
   if (any(missing)) {
@@ -600,9 +600,11 @@ dispersalFFT <- function (popmat, fs) {
 
   prop_in <- sum(pop_new, na.rm = TRUE) / sum(popmat_orig, na.rm = TRUE)
   
-  # increase all non-NA cells by inverse of proportion in valid cells
-  pop_new[!missing] <- pop_new[!missing] / prop_in
-  
+  # increase all non-NA cells by inverse of proportion in valid cells (if proportion is valid number)
+  if (!is.nan(prop_in)) {
+    pop_new[!missing] <- pop_new[!missing] / prop_in
+  }
+
   # make sure none are lost or gained (unless all are zeros)
   if (any(pop_new[!missing] > 0)) {
     pop_new[!missing] <- round_pop(pop_new[!missing])
