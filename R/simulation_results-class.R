@@ -161,6 +161,10 @@ plot.simulation_results <- function (x,
                                      emp = FALSE,
                                      ...){
   
+  # don't have a persistent effect on the graphics device
+  op <- par(no.readonly = TRUE)
+  on.exit(par(op))
+  
   total_stages <- raster::nlayers(x[[1]][[1]]$population)
   stage_names <- names(x[[1]][[1]]$population)
   
@@ -195,9 +199,11 @@ plot.simulation_results <- function (x,
                            col = graph.pal[i],
                            ylim = range(pretty(pop)),
                            xaxt = 'n',
+                           xlim = c(1, length(pop[ , i])),
                            ...)
-            axis(side = 1, at = unique(c(c(1, seq(0, length(pop[ , i]), by = round(length(pop[ , i]) / 10))[-1]), length(pop[ , i]))))
             
+            axis(side = 1, at = pretty_int(c(1, length(pop[ , i]))))
+
           }
           
         }
@@ -214,8 +220,10 @@ plot.simulation_results <- function (x,
                          col="black",
                          ylim=range(pretty(rowSums(pop))),
                          xaxt = 'n',
+                         xlim = c(1, length(rowSums(pop))),
                          ...)
-          axis(side = 1, at = unique(c(c(1, seq(0, length(rowSums(pop)), by = round(length(rowSums(pop)) / 10))[-1]), length(rowSums(pop)))))
+          
+          axis(side = 1, at = pretty_int(c(1, length(rowSums(pop)))))
           
         }
         
@@ -233,8 +241,11 @@ plot.simulation_results <- function (x,
                            col=graph.pal[i],
                            ylim=range(pretty(pop)),
                            xaxt = 'n',
+                           xlim = c(1, length(pop[ , i])),
                            ...)
-            axis(side = 1, at = unique(c(c(1, seq(0, length(pop[ , i]), by = round(length(pop[ , i]) / 10))[-1]), length(pop[ , i]))))
+            
+            axis(side = 1, at = pretty_int(c(1, length(pop[ , i]))))
+
           }
           
         }
@@ -259,6 +270,8 @@ plot.simulation_results <- function (x,
           
           rasters_sum <- raster::stack(lapply(x[[1]], function (landscape) sum(landscape$population)))
           #rasters_sum[rasters_sum == 0] <- NA
+          
+          names(rasters_sum) <- paste0("Timestep_", 1:raster::nlayers(rasters_sum))
           
           # Find maximum and minimum population value in raster cells for all timesteps for life-stage
           scale_max <- ceiling(max(raster::cellStats(rasters_sum, max)))
@@ -298,6 +311,8 @@ plot.simulation_results <- function (x,
           
           rasters <- raster::stack(lapply(x[[1]], function (landscape) landscape$population[[stages]]))
           #rasters[rasters == 0] <- NA
+          
+          names(rasters) <- paste0("Timestep_", 1:raster::nlayers(rasters))
           
           # Find maximum and minimum population value in raster cells for all timesteps for life-stage
           scale_max <- ceiling(max(raster::cellStats(rasters, max)))
@@ -339,6 +354,8 @@ plot.simulation_results <- function (x,
     if (object == "suitability") {
       
       rasters <- raster::stack(lapply(x[[1]], function (x) x$suitability))
+      
+      names(rasters) <- paste0("Timestep_", 1:raster::nlayers(rasters))
       
       # Find maximum and minimum population value in raster cells for all timesteps for life-stage
       scale_max <- ceiling(max(stats::na.omit(raster::cellStats(rasters, max))))
@@ -391,13 +408,18 @@ plot.simulation_results <- function (x,
                        col="black",
                        ylim=range(pretty(unlist(k))),
                        xaxt = 'n',
+                       xlim = c(1, length(unlist(k))),
                        ...)
-        axis(side = 1, at = unique(c(c(1, seq(0, length(unlist(k)), by = round(length(unlist(k)) / 10))[-1]), length(unlist(k)))))
+        
+        axis(side = 1, at = pretty_int(c(1, length(unlist(k)))))
+
       }
       
       if (type == "raster") {
         
         rasters <- raster::stack(lapply(x[[1]], function (x) x$carrying_capacity))
+        
+        names(rasters) <- paste0("Timestep_", 1:raster::nlayers(rasters))
         
         # Find maximum and minimum population value in raster cells for all timesteps for life-stage
         scale_max <- ceiling(max(stats::na.omit(raster::cellStats(rasters, max))))
@@ -458,9 +480,11 @@ plot.simulation_results <- function (x,
                        col = graph.pal[i],
                        ylim=range(pretty(pop)),
                        xaxt = 'n',
+                       xlim = c(1, length(pop.mn[, i])),
                        ...)
-        axis(side = 1, at = unique(c(c(1, seq(0, length(pop.mn[, i]), by = round(length(pop.mn[, i]) / 10))[-1]), length(pop.mn[, i]))))
         
+        axis(side = 1, at = pretty_int(c(1, length(pop.mn[, i]))))
+
         for (j in seq_along(x)) {
           graphics::lines(pop[ , i, j],
                           col = 'gray',
@@ -492,9 +516,11 @@ plot.simulation_results <- function (x,
                      col = 'black',
                      ylim=range(pretty(quants)),
                      xaxt = 'n',
+                     xlim = c(1, length(quants[, 2])),
                      ...)
-      axis(side = 1, at = unique(c(c(1, seq(0, length(quants[, 2]), by = round(length(quants[, 2]) / 10))[-1]), length(quants[, 2]))))
       
+      axis(side = 1, at = pretty_int(c(1, length(quants[, 2]))))
+
       # for (j in seq_along(x)[-1]) {
       #   graphics::lines(rowSums(pop[ , , j]),
       #                   col = 'gray')
@@ -526,8 +552,10 @@ plot.simulation_results <- function (x,
                      #lwd = 3,
                      col = graph.pal[stages],
                      xaxt = 'n',
+                     xlim = c(1, length(pop.mn[ , stages])),
                      ...)
-      axis(side = 1, at = unique(c(c(1, seq(0, length(pop.mn[ , stages]), by = round(length(pop.mn[ , stages]) / 10))[-1]), length(pop.mn[ , stages]))))
+      
+      axis(side = 1, at = pretty_int(c(1, length(pop.mn[ , stages]))))
       
       for (j in seq_along(x)) {
         graphics::lines(pop[ , stages, j],

@@ -109,3 +109,9 @@ rmultinom_large_int <- function (population) {
   pop
   
 }
+
+pretty_int <- function (...) {
+  at <- pretty(...)
+  at <- at[at %% 1 == 0]
+  at[at != 0]
+}
