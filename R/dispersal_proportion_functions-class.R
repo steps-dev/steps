@@ -18,9 +18,9 @@
 #'
 #' @examples
 #' 
-#' test_dispersal_function <- all_dispersing()
+#' test_dispersal_function <- set_proportion_dispersing()
 
-all_dispersing <- function (proportions = 1) {
+set_proportion_dispersing <- function (proportions = 1) {
   
   disp_prop_fun <- function (landscape, timestep) {
    

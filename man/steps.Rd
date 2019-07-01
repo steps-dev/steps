@@ -3,14 +3,9 @@
 \docType{package}
 \name{steps}
 \alias{steps}
-\alias{steps_stash}
 \alias{steps-package}
 \title{Simulate population trajectories over space and time with custom
 dynamic functions.}
-\format{An object of class \code{environment} of length 0.}
-\usage{
-steps_stash
-}
 \description{
 Simulating shifts in species populations is an important
 part of ecological management. Species respond to spatial and temporal
@@ -26,4 +21,3 @@ dynamics functions contained in a \link[steps]{population_dynamics} object.
 \link[steps]{habitat_dynamics_functions} can also be added to the simulation to
 modify the habitat during a simulation.
 }
-\keyword{datasets}

@@ -2,96 +2,19 @@
 % Please edit documentation in R/population_dispersal-functions.R
 \name{population_dispersal_functions}
 \alias{population_dispersal_functions}
-\alias{fast_dispersal}
-\alias{kernel_dispersal}
-\alias{cellular_automata_dispersal}
 \title{How the population disperses in a landscape.}
-\usage{
-
-  fast_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay
-  = 0.1), dispersal_proportion = all_dispersing())
-
-
-  kernel_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay
-  = 1), max_distance = Inf, arrival_probability = c("both",
-  "suitability", "carrying_capacity", "none"),
-  dispersal_proportion = all_dispersing())
-
-cellular_automata_dispersal(max_cells = Inf,
-  dispersal_proportion = all_dispersing(), barriers_map = NULL,
-  use_suitability = TRUE, carrying_capacity = "carrying_capacity")
-}
-\arguments{
-\item{dispersal_kernel}{a single built-in or user-defined distance dispersal
-kernel function.}
-
-\item{dispersal_proportion}{proportions of individuals (0 to 1) that can
-disperse in each life stage. Can also be a custom function that relates
-the proportion dispersing to a spatial layer in the landscape object
-(e.g. carrying capacity).}
-
-\item{max_distance}{the maximum distance that each life stage can
-disperse in spatial units of the landscape (in kernel-based dispersal
-this truncates the dispersal curve).}
-
-\item{arrival_probability}{the name of a spatial layer in the landscape object
-that controls where individuals can disperse to (e.g. "suitability") or
-"none" to allow individuals to disperse to all non-NA cells.}
-
-\item{max_cells}{the maximum number of cell movements that each individual in
-each life stage can disperse in whole integers.}
-
-\item{barriers_map}{the name of a spatial layer in the landscape object that
-contains cell values between 0 (no barrier) and 1 (full barrier) Any
-values between 0 and 1 indicate the permeability of the barrier.}
-
-\item{use_suitability}{should habitat suitability be used to control the
-likelihood of individuals dispersing into cells? The default is TRUE. Note,
-if a barrier map is also provided, the suitability map is multiplied with
-the barrier map to generate a permeability map of the landscape.}
-
-\item{carrying_capacity}{the name of a spatial layer in the landscape object
-that specifies the carrying capacity in each cell.}
-}
 \description{
 Pre-defined or custom functions to define population dispersal during a
 simulation. Each dispersal method uses different computing resources
 and may be applicable to different simulation scenarios.
 }
-\details{
-The fast_dispersal function uses kernel-based dispersal
-to modify the population with a user-defined diffusion distribution
-and a fast-fourier transformation (FFT) computational algorithm. It
-is computationally efficient and very fast, however, only useful for
-situations where dispersal barriers or arrival based on habitat or
-carrying capacity are not required. In other words, organisms
-can disperse in all directions and to all cells in the landscape.
-
-The kernel_dispersal function employs a probabilistic
-kernel-based dispersal algorithm to modify the population
-using a user-defined diffusion distribution, arrival
-probability layers (e.g. habitat suitability), and growth
-limiting layers (e.g. carrying capacity). This function is much
-slower than the fast_dispersal, however, respects dispersal
-limitations which may be more ecologically appropriate. Further, 
-the kernel-based dispersal function utilises a mechanism to
-optimise computational performance in which it switches between
-pre-allocating cell movements based on the available memory of
-the host computer (faster but more memory intensive) or executing
-cell movements in sequence (slower but less memory intensive).
-
-The cellular_automata_dispersal function modifies populations
-using rule-based cell movements. This function allows the use
-of barriers in the landscape to influence dispersal. The
-function is computationally efficient, however, because
-individuals are dispersed, performance scales with the
-population sizes in each cell across a landscape.
-}
-\examples{
-
-test_fast_dispersal <- fast_dispersal()
-
-test_kern_dispersal <- kernel_dispersal()
-
-test_ca_dispersal <- cellular_automata_dispersal()
+\seealso{
+\itemize{
+  \item{\link[steps]{kernel_dispersal} for kernel-based diffusion dispersal using
+  habitat suitability and/or carrying capacity to influence movements}
+  \item{\link[steps]{cellular_automata_dispersal} for individual-based movements using
+  rule-sets}
+  \item{\link[steps]{fast_dispersal} for quick kernel-based diffusion
+  dispersal without accounting for spatial heterogeneity}
+  }
 }

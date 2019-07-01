@@ -15,6 +15,7 @@
 #' dynamics functions contained in a \link[steps]{population_dynamics} object.
 #' \link[steps]{habitat_dynamics_functions} can also be added to the simulation to
 #' modify the habitat during a simulation.
+NULL
 
 steps_stash <- new.env()
 

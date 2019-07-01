@@ -7,14 +7,19 @@ NULL
 #' Pre-defined or custom functions to define population dispersal during a
 #' simulation. Each dispersal method uses different computing resources
 #' and may be applicable to different simulation scenarios.
-#' 
-#' The fast_dispersal function uses kernel-based dispersal
-#' to modify the population with a user-defined diffusion distribution
-#' and a fast-fourier transformation (FFT) computational algorithm. It
-#' is computationally efficient and very fast, however, only useful for
-#' situations where dispersal barriers or arrival based on habitat or
-#' carrying capacity are not required. In other words, organisms
-#' can disperse in all directions and to all cells in the landscape.
+#' @name population_dispersal_functions
+#' @seealso
+#' \itemize{
+#'   \item{\link[steps]{kernel_dispersal} for kernel-based diffusion dispersal using
+#'   habitat suitability and/or carrying capacity to influence movements}
+#'   \item{\link[steps]{cellular_automata_dispersal} for individual-based movements using
+#'   rule-sets}
+#'   \item{\link[steps]{fast_dispersal} for quick kernel-based diffusion
+#'   dispersal without accounting for spatial heterogeneity}
+#'   }
+NULL
+
+#' Kernel-based dispersal
 #' 
 #' The kernel_dispersal function employs a probabilistic
 #' kernel-based dispersal algorithm to modify the population
@@ -29,107 +34,18 @@ NULL
 #' the host computer (faster but more memory intensive) or executing
 #' cell movements in sequence (slower but less memory intensive).
 #' 
-#' The cellular_automata_dispersal function modifies populations
-#' using rule-based cell movements. This function allows the use
-#' of barriers in the landscape to influence dispersal. The
-#' function is computationally efficient, however, because
-#' individuals are dispersed, performance scales with the
-#' population sizes in each cell across a landscape.
-#'
-#' @name population_dispersal_functions
-#'
 #' @param dispersal_kernel a single built-in or user-defined distance dispersal
 #'   kernel function.
+#' @param max_distance the maximum distance that each life stage can
+#'   disperse in spatial units of the landscape (in kernel-based dispersal
+#'   this truncates the dispersal curve).
+#' @param arrival_probability the name of a spatial layer in the landscape object
+#'   that controls where individuals can disperse to (e.g. "suitability") or
+#'   "none" to allow individuals to disperse to all non-NA cells.
 #' @param dispersal_proportion proportions of individuals (0 to 1) that can
 #'   disperse in each life stage. Can also be a custom function that relates
 #'   the proportion dispersing to a spatial layer in the landscape object
 #'   (e.g. carrying capacity).
-#' @param arrival_probability the name of a spatial layer in the landscape object
-#'   that controls where individuals can disperse to (e.g. "suitability") or
-#'   "none" to allow individuals to disperse to all non-NA cells.
-#' @param carrying_capacity the name of a spatial layer in the landscape object
-#' that specifies the carrying capacity in each cell.
-#' @param max_distance the maximum distance that each life stage can
-#'   disperse in spatial units of the landscape (in kernel-based dispersal
-#'   this truncates the dispersal curve).
-#' @param max_cells the maximum number of cell movements that each individual in
-#'   each life stage can disperse in whole integers.
-#' @param barriers_map the name of a spatial layer in the landscape object that
-#'   contains cell values between 0 (no barrier) and 1 (full barrier) Any
-#'   values between 0 and 1 indicate the permeability of the barrier.   
-#' @param use_suitability should habitat suitability be used to control the
-#'   likelihood of individuals dispersing into cells? The default is TRUE. Note,
-#'   if a barrier map is also provided, the suitability map is multiplied with
-#'   the barrier map to generate a permeability map of the landscape.
-NULL
-
-#' @rdname population_dispersal_functions
-#' 
-#' @export
-#' 
-#' @examples
-#' 
-#' test_fast_dispersal <- fast_dispersal()
-
-fast_dispersal <- function(dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
-                           dispersal_proportion = all_dispersing()) {
-  
-  pop_dynamics <- function(landscape, timestep) {
-    
-    n_stages <- raster::nlayers(landscape$population)
-    
-    dispersal_proportion <- dispersal_proportion(landscape, timestep)
-    
-    # Which stages can disperse
-    which_stages_disperse <- which(dispersal_proportion > 0)
-    
-    # Apply dispersal to the population
-    # (need to run this separately for each stage)
-    for (stage in which_stages_disperse) {
-      
-      pop <- landscape$population[[stage]]
-      
-      pop_dispersing <- landscape$population[[stage]] * dispersal_proportion[[stage]]
-      pop_staying <- pop - pop_dispersing
-      
-      # round population staying
-      idx <- not_missing(pop_staying)
-      pop_staying_vec <- raster::extract(pop_staying, idx)
-      pop_staying_vec <- round_pop(pop_staying_vec)
-      pop_staying[idx] <- pop_staying_vec
-
-      pop_dispersed <- dispersalFFT(
-        popmat = raster::as.matrix(
-          pop_dispersing
-        ),
-        fs = setupFFT(
-          x = seq_len(raster::ncol(landscape$population)),
-          y = seq_len(raster::nrow(landscape$population)),
-          f = function(d) {
-            disp <- dispersal_kernel(d)
-            disp / sum(disp)
-          }
-        )
-      )
-      
-      pop_dispersing[] <- pop_dispersed
-      pop <- pop_staying + pop_dispersing
-      landscape$population[[stage]] <- pop
-      
-    }
-    
-    #cat("Pre-Post Population:", poptot, sum(raster::cellStats(landscape$population, sum)), "(Timestep", timestep, ")", "\n")
-    
-    landscape
-    
-  }
-  
-  as.population_dispersal(pop_dynamics)
-  
-}
-
-
-#' @rdname population_dispersal_functions
 #' 
 #' @export
 #' 
@@ -142,7 +58,7 @@ fast_dispersal <- function(dispersal_kernel = exponential_dispersal_kernel(dista
 kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1),
                               max_distance = Inf,
                               arrival_probability = c("both", "suitability", "carrying_capacity", "none"),
-                              dispersal_proportion = all_dispersing()) {
+                              dispersal_proportion = set_proportion_dispersing()) {
   
   arrival_probability <- match.arg(arrival_probability)
   
@@ -219,7 +135,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
     
     # Which stages can disperse
     which_stages_disperse <- which(dispersal_proportion > 0)
-
+    
     # get non-NA cells
     cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])))
     
@@ -237,7 +153,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
         stop ("carrying capacity must be specified in the landscape object to use carrying capacity arrival probabilities",
               call. = FALSE)
       }
-
+      
       delayedAssign(
         "carrying_capacity_proportion",
         raster::getValues(
@@ -275,7 +191,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
     
     # store the original population, so that individuals don't disperse twice
     original_pop <- pop
-
+    
     # loop through origins and stages where there is at least one individual    
     indices <- which(pop > 0, arr.ind = TRUE)
     
@@ -295,7 +211,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
                       distance_info = distance_info,
                       raster_dim = raster_dim)
     }
-
+    
     landscape$population[] <- pop
     
     #cat("Pre-Post Population:", poptot, sum(raster::cellStats(landscape$population, sum)), "(Timestep", timestep, ")", "\n")
@@ -308,8 +224,31 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
   
 }
 
-#' @rdname population_dispersal_functions
-#'
+#' Cellular automata dispersal
+#' 
+#' The cellular_automata_dispersal function modifies populations
+#' using rule-based cell movements. This function allows the use
+#' of barriers in the landscape to influence dispersal. The
+#' function is computationally efficient, however, because
+#' individuals are dispersed, performance scales with the
+#' population sizes in each cell across a landscape.
+#' 
+#' @param max_cells the maximum number of cell movements that each individual in
+#'   each life stage can disperse in whole integers.
+#' @param dispersal_proportion proportions of individuals (0 to 1) that can
+#'   disperse in each life stage. Can also be a custom function that relates
+#'   the proportion dispersing to a spatial layer in the landscape object
+#'   (e.g. carrying capacity).
+#' @param barriers_map the name of a spatial layer in the landscape object that
+#'   contains cell values between 0 (no barrier) and 1 (full barrier) Any
+#'   values between 0 and 1 indicate the permeability of the barrier.   
+#' @param use_suitability should habitat suitability be used to control the
+#'   likelihood of individuals dispersing into cells? The default is TRUE. Note,
+#'   if a barrier map is also provided, the suitability map is multiplied with
+#'   the barrier map to generate a permeability map of the landscape.
+#' @param carrying_capacity the name of a spatial layer in the landscape object
+#' that specifies the carrying capacity in each cell.
+#' 
 #' @export
 #' 
 #' @examples
@@ -317,7 +256,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
 #' test_ca_dispersal <- cellular_automata_dispersal()
 
 cellular_automata_dispersal <- function (max_cells = Inf,
-                                         dispersal_proportion = all_dispersing(),
+                                         dispersal_proportion = set_proportion_dispersing(),
                                          barriers_map = NULL,
                                          use_suitability = TRUE,
                                          carrying_capacity = "carrying_capacity") {
@@ -379,14 +318,14 @@ cellular_automata_dispersal <- function (max_cells = Inf,
     
     # handle dispersal distances as both scalars and vectors
     if(!default_distance) {
-    warn_once(length(max_cells) < n_stages | length(max_cells) > n_stages,
-              paste(n_stages,
-                    "life stages exist but",
-                    length(max_cells),
-                    "maximum cell movement(s) of",
-                    paste(max_cells, collapse = ", "),
-                    "were specified.\nAll life stages will use this distance."),
-              warning_name = "dispersal_distances")
+      warn_once(length(max_cells) < n_stages | length(max_cells) > n_stages,
+                paste(n_stages,
+                      "life stages exist but",
+                      length(max_cells),
+                      "maximum cell movement(s) of",
+                      paste(max_cells, collapse = ", "),
+                      "were specified.\nAll life stages will use this distance."),
+                warning_name = "dispersal_distances")
     }
     
     if (length(max_cells) < n_stages | length(max_cells) > n_stages) {
@@ -414,7 +353,7 @@ cellular_automata_dispersal <- function (max_cells = Inf,
     } else {
       permeability_map <- 1 - barriers_map
     }
-
+    
     steps_stash$dispersal_stats_success <- replicate(n_stages, NULL, simplify = FALSE)
     steps_stash$dispersal_stats_failure <- replicate(n_stages, NULL, simplify = FALSE)
     
@@ -427,11 +366,11 @@ cellular_automata_dispersal <- function (max_cells = Inf,
                                   as.numeric(dispersal_proportion[i]))
       
       population_raster[[i]][] <- dispersed$future_population
-
+      
       steps_stash$dispersal_stats_success[[i]] <- dispersed$dispersed
       steps_stash$dispersal_stats_failure[[i]] <- dispersed$failed
     }
-
+    
     landscape$population <- population_raster
     
     #cat("Pre-Post Population:", poptot, sum(raster::cellStats(landscape$population, sum)), "(Timestep", timestep, ")", "\n")
@@ -443,6 +382,85 @@ cellular_automata_dispersal <- function (max_cells = Inf,
   
 }
 
+#' Fast diffusion-based dispersal
+#' 
+#' The fast_dispersal function uses kernel-based dispersal
+#' to modify the population with a user-defined diffusion distribution
+#' and a fast-fourier transformation (FFT) computational algorithm. It
+#' is computationally efficient and very fast, however, only useful for
+#' situations where dispersal barriers or arrival based on habitat or
+#' carrying capacity are not required. In other words, organisms
+#' can disperse in all directions and to all cells in the landscape.
+#' 
+#' @param dispersal_kernel a single built-in or user-defined distance dispersal
+#'   kernel function.
+#' @param dispersal_proportion proportions of individuals (0 to 1) that can
+#'   disperse in each life stage. Can also be a custom function that relates
+#'   the proportion dispersing to a spatial layer in the landscape object
+#'   (e.g. carrying capacity).
+#'   
+#' @export
+#' 
+#' @examples
+#' 
+#' test_fast_dispersal <- fast_dispersal()
+
+fast_dispersal <- function(dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
+                           dispersal_proportion = set_proportion_dispersing()) {
+  
+  pop_dynamics <- function(landscape, timestep) {
+    
+    n_stages <- raster::nlayers(landscape$population)
+    
+    dispersal_proportion <- dispersal_proportion(landscape, timestep)
+    
+    # Which stages can disperse
+    which_stages_disperse <- which(dispersal_proportion > 0)
+    
+    # Apply dispersal to the population
+    # (need to run this separately for each stage)
+    for (stage in which_stages_disperse) {
+      
+      pop <- landscape$population[[stage]]
+      
+      pop_dispersing <- landscape$population[[stage]] * dispersal_proportion[[stage]]
+      pop_staying <- pop - pop_dispersing
+      
+      # round population staying
+      idx <- not_missing(pop_staying)
+      pop_staying_vec <- raster::extract(pop_staying, idx)
+      pop_staying_vec <- round_pop(pop_staying_vec)
+      pop_staying[idx] <- pop_staying_vec
+      
+      pop_dispersed <- dispersalFFT(
+        popmat = raster::as.matrix(
+          pop_dispersing
+        ),
+        fs = setupFFT(
+          x = seq_len(raster::ncol(landscape$population)),
+          y = seq_len(raster::nrow(landscape$population)),
+          f = function(d) {
+            disp <- dispersal_kernel(d)
+            disp / sum(disp)
+          }
+        )
+      )
+      
+      pop_dispersing[] <- pop_dispersed
+      pop <- pop_staying + pop_dispersing
+      landscape$population[[stage]] <- pop
+      
+    }
+    
+    #cat("Pre-Post Population:", poptot, sum(raster::cellStats(landscape$population, sum)), "(Timestep", timestep, ")", "\n")
+    
+    landscape
+    
+  }
+  
+  as.population_dispersal(pop_dynamics)
+  
+}
 
 ##########################
 ### internal functions ###
@@ -564,10 +582,10 @@ dispersalFFT <- function (popmat, fs) {
   # and without ever having to construct the full matrix, by representing the 
   # landscape efficiently as a section of a torus and using linear algebra
   # identities of the fast Fourier transform
-
+  
   # duplicate popmat to create 'before' condition
   popmat_orig <- popmat
-
+  
   missing <- is.na(popmat)
   # check for missing values and replace with zeros
   if (any(missing)) {
@@ -597,14 +615,14 @@ dispersalFFT <- function (popmat, fs) {
   
   # get proportion of population that dispersed into valid (non-NA, inside the
   # plane) cells
-
+  
   prop_in <- sum(pop_new, na.rm = TRUE) / sum(popmat_orig, na.rm = TRUE)
   
   # increase all non-NA cells by inverse of proportion in valid cells (if proportion is valid number)
   if (!is.nan(prop_in)) {
     pop_new[!missing] <- pop_new[!missing] / prop_in
   }
-
+  
   # make sure none are lost or gained (unless all are zeros)
   if (any(pop_new[!missing] > 0)) {
     pop_new[!missing] <- round_pop(pop_new[!missing])
@@ -717,7 +735,7 @@ disperse <- function (origin,
                       distance_info = NULL,
                       raster_dim = NULL) {
   
-
+  
   if (is.null(distance_list)) {
     print("Kernel-based dispersal running in single iteration mode to conserve RAM")
     destinations <- get_ids_dists(cell_id = origin,
@@ -726,10 +744,10 @@ disperse <- function (origin,
   } else {
     destinations <- distance_list[[origin]]
   }
-
+  
   destination_ids <- destinations[, 1]
   destination_dists <- destinations[, 2]
-
+  
   # index destination cells that allow arrival in raster
   destination_index <- fast_match(destination_ids, can_arriv_ids)
   # destination_index <- fastmatch::fmatch(can_arriv_ids, destination_ids, 0L)
@@ -758,16 +776,16 @@ disperse <- function (origin,
   new_arrivals <- pop[origin, stage] - n_total
   pop[origin, stage] <- n_staying + new_arrivals
   
-
+  
   # propose some dispersals
   dispersals <- round_pop(n_dispersing * prob)
-
+  
   # if we're using carrying capacity, return individuals to the origin if there's no space
   if (!is.null(carrying_capacity)) {
-
+    
     # get space left in each, and excess dispersers
     effective_populations <- pop[destination_ids, ]
-
+    
     if (length(density_dependence_stages) < total_stages) {
       effective_populations[, -density_dependence_stages] <- 0      
     }
@@ -777,7 +795,7 @@ disperse <- function (origin,
     } else {
       effective_population <- rowSums(effective_populations)
     }
-
+    
     
     space_remaining <- carrying_capacity[destination_ids] - effective_population
     
@@ -788,17 +806,17 @@ disperse <- function (origin,
     
     excess <- pmax(0, dispersals - space_remaining)
     destination_is_origin <- which(destination_ids == origin)
-      
+    
     # remove the excess from the dispersers, and say they are dispersing back to
     # the origin
     dispersals <- dispersals - excess
     pop[origin, stage] <- pop[origin, stage] + sum(excess)
-      
-  }
     
+  }
+  
   # assign them to their population and return
   pop[destination_ids, stage] <- pop[destination_ids, stage] + dispersals
- 
+  
   pop
-
+  
 }

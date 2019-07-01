@@ -22,7 +22,8 @@ is.simulation_results(x)
 extract_spatial(x, replicate = 1, timestep = 1,
   landscape_object = "population", stage = 1, misc = 1)
 
-compare_emp(x, ..., interval = 95, all_points = FALSE)
+compare_emp(x, ..., interval = 95, all_points = FALSE,
+  simulation_names = NULL)
 }
 \arguments{
 \item{landscape}{a \link[steps]{landscape} object representing the initial habitat and
