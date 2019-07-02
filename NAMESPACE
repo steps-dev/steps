@@ -2,11 +2,11 @@
 
 S3method("[",simulation_results)
 S3method(plot,simulation_results)
-export(carrying_capacity_dispersal)
 export(ceiling_density)
 export(cellular_automata_dispersal)
 export(compare_emp)
 export(competition_density)
+export(density_dependence_dispersing)
 export(disturbance)
 export(exponential_dispersal_kernel)
 export(extract_spatial)

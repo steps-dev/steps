@@ -289,7 +289,7 @@ plot(egk_results[1], type = "raster", stage = 3, timesteps = c(1, 10, 20), panel
 #      arrival_probability = "suitability",
 #      max_distance = 5000,
 #      dispersal_kernel = exponential_dispersal_kernel(distance_decay = 5000),
-#      dispersal_proportion = carrying_capacity_dispersal()
+#      dispersal_proportion = density_dependence_dispersing()
 #    ),
 #    modification = NULL,
 #    density_dependence = ceiling_density(stages = 3))
@@ -313,7 +313,7 @@ plot(egk_results[1], type = "raster", stage = 3, timesteps = c(1, 10, 20), panel
 #    dispersal = kernel_dispersal(arrival_probability = "suitability",
 #                                 max_distance = c(0, 2500, 5000),
 #                                 dispersal_kernel = function (r) exp(-r / 2000),
-#                                 dispersal_proportion = carrying_capacity_dispersal()),
+#                                 dispersal_proportion = density_dependence_dispersing()),
 #    modification = NULL,
 #    density_dependence = ceiling_density(stages = 3))
 #  

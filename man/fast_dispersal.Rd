@@ -23,8 +23,10 @@ to modify the population with a user-defined diffusion distribution
 and a fast-fourier transformation (FFT) computational algorithm. It
 is computationally efficient and very fast, however, only useful for
 situations where dispersal barriers or arrival based on habitat or
-carrying capacity are not required. In other words, organisms
-can disperse in all directions and to all cells in the landscape.
+carrying capacity are not required (e.g. a homogeneous landscape or
+where diffusion alone is sufficient to explain dispersal patterns).
+Dispersal is not constrained to suitable habitat or available carrying
+capacity.
 }
 \examples{
 

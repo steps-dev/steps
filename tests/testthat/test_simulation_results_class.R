@@ -108,7 +108,7 @@ test_that('simulation_results classes work', {
   
   pop_dyn4 <- population_dynamics(change = growth(transition_matrix = egk_mat),
                                   dispersal = cellular_automata_dispersal(max_cells = c(0, 20, 0),
-                                                                          dispersal_proportion = carrying_capacity_dispersal(),
+                                                                          dispersal_proportion = density_dependence_dispersing(),
                                                                           barriers_map = "barrier2"),
                                   modification = translocation(source_layer = "source",
                                                                sink_layer = "sink",

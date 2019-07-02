@@ -20,7 +20,7 @@ NULL
 NULL
 
 #' Kernel-based dispersal
-#' 
+#'
 #' The kernel_dispersal function employs a probabilistic
 #' kernel-based dispersal algorithm to modify the population
 #' using a user-defined diffusion distribution, arrival
@@ -33,7 +33,7 @@ NULL
 #' pre-allocating cell movements based on the available memory of
 #' the host computer (faster but more memory intensive) or executing
 #' cell movements in sequence (slower but less memory intensive).
-#' 
+#'
 #' @param dispersal_kernel a single built-in or user-defined distance dispersal
 #'   kernel function.
 #' @param max_distance the maximum distance that each life stage can
@@ -46,13 +46,13 @@ NULL
 #'   disperse in each life stage. Can also be a custom function that relates
 #'   the proportion dispersing to a spatial layer in the landscape object
 #'   (e.g. carrying capacity).
-#' 
+#'
 #' @export
-#' 
+#'
 #' @importFrom memuse Sys.meminfo mu.size
-#' 
+#'
 #' @examples
-#' 
+#'
 #' test_kern_dispersal <- kernel_dispersal()
 
 kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1),
@@ -225,14 +225,14 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
 }
 
 #' Cellular automata dispersal
-#' 
+#'
 #' The cellular_automata_dispersal function modifies populations
 #' using rule-based cell movements. This function allows the use
 #' of barriers in the landscape to influence dispersal. The
 #' function is computationally efficient, however, because
 #' individuals are dispersed, performance scales with the
 #' population sizes in each cell across a landscape.
-#' 
+#'
 #' @param max_cells the maximum number of cell movements that each individual in
 #'   each life stage can disperse in whole integers.
 #' @param dispersal_proportion proportions of individuals (0 to 1) that can
@@ -248,9 +248,9 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
 #'   the barrier map to generate a permeability map of the landscape.
 #' @param carrying_capacity the name of a spatial layer in the landscape object
 #' that specifies the carrying capacity in each cell.
-#' 
+#'
 #' @export
-#' 
+#'
 #' @examples
 #'
 #' test_ca_dispersal <- cellular_automata_dispersal()
@@ -383,26 +383,28 @@ cellular_automata_dispersal <- function (max_cells = Inf,
 }
 
 #' Fast diffusion-based dispersal
-#' 
+#'
 #' The fast_dispersal function uses kernel-based dispersal
 #' to modify the population with a user-defined diffusion distribution
 #' and a fast-fourier transformation (FFT) computational algorithm. It
 #' is computationally efficient and very fast, however, only useful for
 #' situations where dispersal barriers or arrival based on habitat or
-#' carrying capacity are not required. In other words, organisms
-#' can disperse in all directions and to all cells in the landscape.
-#' 
+#' carrying capacity are not required (e.g. a homogeneous landscape or
+#' where diffusion alone is sufficient to explain dispersal patterns).
+#' Dispersal is not constrained to suitable habitat or available carrying
+#' capacity.
+#'
 #' @param dispersal_kernel a single built-in or user-defined distance dispersal
 #'   kernel function.
 #' @param dispersal_proportion proportions of individuals (0 to 1) that can
 #'   disperse in each life stage. Can also be a custom function that relates
 #'   the proportion dispersing to a spatial layer in the landscape object
 #'   (e.g. carrying capacity).
-#'   
+#'
 #' @export
-#' 
+#'
 #' @examples
-#' 
+#'
 #' test_fast_dispersal <- fast_dispersal()
 
 fast_dispersal <- function(dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
