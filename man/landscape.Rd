@@ -2,13 +2,10 @@
 % Please edit documentation in R/landscape-class.R
 \name{landscape}
 \alias{landscape}
-\alias{is.landscape}
 \title{Create a landscape object.}
 \usage{
 landscape(population, suitability = NULL, carrying_capacity = NULL,
   ...)
-
-is.landscape(x)
 }
 \arguments{
 \item{population}{a raster stack (grid cell-based) with one layer for each life
@@ -27,8 +24,6 @@ is determined by habitat suitability.}
 used to modify the landscape object in a simulation. Note, this is intended to
 store objects that are accessed by dynamic functions and used to modify the
 landscape in a simulation. Also, further arguments passed to or from other methods.}
-
-\item{x}{a landscape object.}
 }
 \value{
 An object of class \code{landscape}
@@ -44,12 +39,13 @@ based on dynamic functions selected or created by the user.
 }
 \examples{
 
-library(steps)
-library(raster)
+# Example of setting up a landscape object.
 
-# Construct the landscape object
-egk_ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+\dontrun{
+ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
 
-# Test if object is of the type 'landscape'
-is.landscape(egk_ls)
+pd <- population_dynamics(change = growth(egk_mat))
+
+simulation(landscape = ls, population_dynamics = pd, habitat_dynamics = NULL, timesteps = 20)
+}
 }

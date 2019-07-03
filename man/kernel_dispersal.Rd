@@ -16,11 +16,14 @@ kernel function.}
 
 \item{max_distance}{the maximum distance that each life stage can
 disperse in spatial units of the landscape (in kernel-based dispersal
-this truncates the dispersal curve).}
+this truncates the dispersal curve). Setting a reasonable number will
+increase the performance of a simulation by reducing the number of cells
+that need to be calculated in distance matrices.}
 
 \item{arrival_probability}{the name of a spatial layer in the landscape object
 that controls where individuals can disperse to (e.g. "suitability") or
-"none" to allow individuals to disperse to all non-NA cells.}
+"none" to allow individuals to disperse to all non-NA cells. The default is
+to use both the habitat suitability and carrying capacity layers.}
 
 \item{dispersal_proportion}{proportions of individuals (0 to 1) that can
 disperse in each life stage. Can also be a custom function that relates
@@ -30,10 +33,11 @@ the proportion dispersing to a spatial layer in the landscape object
 \description{
 The kernel_dispersal function employs a probabilistic
 kernel-based dispersal algorithm to modify the population
-using a user-defined diffusion distribution, arrival
-probability layers (e.g. habitat suitability), and growth
-limiting layers (e.g. carrying capacity). This function is much
-slower than the fast_dispersal, however, respects dispersal
+using a user-defined diffusion distribution (see
+\link[steps]{dispersal_kernel}), arrival probability layers
+(e.g. habitat suitability), and growth limiting layers (e.g.
+carrying capacity). This function is much slower than the
+\link[steps]{fast_dispersal}, however, respects dispersal
 limitations which may be more ecologically appropriate. Further, 
 the kernel-based dispersal function utilises a mechanism to
 optimise computational performance in which it switches between
@@ -43,5 +47,21 @@ cell movements in sequence (slower but less memory intensive).
 }
 \examples{
 
-test_kern_dispersal <- kernel_dispersal()
+# Example of kernel-based dispersal where only the 3rd life stage
+# disperses up to a maximum distance of 2000 meters. Dispersal is affected
+# by both habitat suitability and carrying capacity (default). The default
+# dispersal kernel uses a decay parameter to control how far populations disperse. 
+
+\dontrun{
+kb_dispersal <- kernel_dispersal(max_distance = c(0, 0, 2000),
+                      dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1000))
+
+ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+
+pd <- population_dynamics(change = growth(egk_mat),
+                          dispersal = kb_dispersal,
+                          density_dependence = ceiling_density())
+
+simulation(landscape = ls, population_dynamics = pd, habitat_dynamics = NULL, timesteps = 20)
+}
 }

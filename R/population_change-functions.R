@@ -4,6 +4,20 @@
 #'
 #' @name population_change_functions
 #'
+#' @seealso
+#' \itemize{
+#'   \item{\link[steps]{growth} is a default function for changing populations based on
+#'   transition matrices and functions}
+#'   }
+NULL
+
+#' Population growth
+#' 
+#' This function applies negative or positive growth to the population using matrix
+#' multiplication. Stochasticty can be added to cell-based transition matrices or globally.
+#' Users can also specify a built-in or custom function to modify the transition matrices
+#' throughout a simulation.
+#'
 #' @param transition_matrix A symmetrical age-based (Leslie) or stage-based
 #'   population structure matrix.
 #' @param global_stochasticity,local_stochasticity either scalar values or
@@ -13,17 +27,23 @@
 #'   grid cell population separately (\code{local_stochasticity})
 #' @param transition_function A custom function defined by the user specifying
 #'   modifications to life-stage transitions at each timestep. See \link[steps]{transition_function}.
-#'
-#' @rdname population_change_functions
 #' 
 #' @export
 #' 
 #' @examples
 #' 
-#' # Use a function to modify the  
-#' # population using life-stage transitions:
-#'
-#' test_growth <- growth(egk_mat)
+#' # Example of a growth function that changes the populations based on a transition matrix that
+#' # is subject to global stochasticity. 
+#' 
+#' \dontrun{
+#' stoch_growth <- growth(transition_matrix = egk_mat, global_stochasticity = egk_mat_stoch)
+#' 
+#' ls <- landscape(population = egk_pop, suitability = NULL, carrying_capacity = NULL)
+#' 
+#' pd <- population_dynamics(change = stoch_growth)
+#' 
+#' simulation(landscape = ls, population_dynamics = pd, habitat_dynamics = NULL, timesteps = 20)
+#' }
 
 growth <- function (transition_matrix,
                     global_stochasticity = 0,

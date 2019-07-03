@@ -8,9 +8,10 @@ A proportion dispersing function generates the proportions of species
 that disperse from cells based on landscape features.
 }
 \details{
-The default \code{set_proportion_dispersing} returns full dispersal for all life stages.
-Additional proportion dispersing functions are provided in the software for the user to
-select, however, a user may also provide a custom written proportion dispersing function.
+The default \code{set_proportion_dispersing} function and parameters returns
+full dispersal for all life stages. Additional proportion dispersing functions
+are provided in the software for the user to select, however, a user may also
+provide a custom written proportion dispersing function.
 }
 \seealso{
 \itemize{

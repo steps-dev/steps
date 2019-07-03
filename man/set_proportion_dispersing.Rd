@@ -18,9 +18,24 @@ five life-stages will become 0, 0.5, 1, 0, 0.5).}
 An object of class \code{dispersal_proportion_function}
 }
 \description{
-This default function uses a parameter called ???proportions???.
+This function allows a user to specify what proportions of populations in each life-stage disperse. It operates
+similarly on all cells and in all timesteps throughout a simulation.
 }
 \examples{
 
-test_dispersal_function <- set_proportion_dispersing()
+# Example of a proportion function that disperses no population in the first life stage,
+# 50\% of the second, and 90\% of the 3rd. 
+
+\dontrun{
+prop_dispersal <- set_proportion_dispersing(proportions = c(0, 0.5, 0.9))
+
+kb_dispersal <- kernel_dispersal(dispersal_proportion = prop_dispersal,
+                      dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1000))
+
+ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+
+pd <- population_dynamics(change = growth(egk_mat), dispersal = kb_dispersal)
+
+simulation(landscape = ls, population_dynamics = pd, habitat_dynamics = NULL, timesteps = 20)
+}
 }

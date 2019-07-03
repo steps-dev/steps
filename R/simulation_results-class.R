@@ -3,7 +3,7 @@
 #' A simulation changes landscape objects based on selected dynamics over a
 #' specified number of timesteps.
 #'
-#' @rdname simulation_results
+#' @rdname simulation
 #'
 #' @param landscape a \link[steps]{landscape} object representing the initial habitat and
 #'   population
@@ -19,40 +19,9 @@
 #'   overages as probabilities; "none" returns non-integer cell populations (no
 #'   rounding). Note, this parameter specification is used consistently throughout
 #'   all functions in a simulation.
-#' @param timesteps number of timesteps used in one simulation or timesteps to
-#'   display when plotting rasters
+#' @param timesteps number of timesteps used in one simulation
 #' @param replicates number of simulations to perform
 #' @param verbose print messages and progress to console? (default is TRUE)
-#' @param x a simulation_results object
-#' @param object the \code{simulation_results} object to plot - can be 'population'
-#'   (default), 'suitability' or 'carrying_capacity'
-#' @param type the plot type - 'graph' (default) or 'raster'
-#' @param stages life-stages to plot - must be specified for 'raster' plot
-#'   types; by default all life-stages will be plotted
-#' @param animate if plotting type 'raster' would you like to animate the
-#'   rasters?
-#' @param panels the number of columns and rows to use when plotting raster
-#'   timeseries - default is 3 x 3 (e.g. c(3,3) )
-#' @param emp should the expected minimum population of the simulation be
-#'   plotted?
-#' @param replicate which replicate to extract from a \code{simulation_results}
-#'   object
-#' @param timestep which timestep(s) to extract from a \code{simulation_results}
-#'   object
-#' @param landscape_object which landscape object to extract from a
-#'   \code{simulation_results} object - can be specified by name
-#'   (e.g. "suitability") or index number
-#' @param stage which life-stage to extract from a \code{simulation_results}
-#'   object - only used for 'population' components of the landscape object
-#' @param misc which misc object to extract from a \code{simulation_results}
-#'   object - only used for additional spatial objects added to a landscape
-#'   (e.g. disturbance layers)
-#' @param interval the desired confidence interval representing the uncertainty around
-#'  the expected minimum population estimates from simulation comparisons; expressed as 
-#'  a whole integer between 0 and 100 (default value is 95).
-#' @param all_points should the expected minimum populations from all simulation
-#'  replicates be shown on the plot?
-#' @param ... additional objects or further arguments passed to/from other methods
 #'
 #' @return An object of class \code{simulation_results}
 #'
@@ -63,19 +32,22 @@
 #' @importFrom viridisLite viridis
 #'
 #' @examples
-#'
-#' library(steps)
-#' library(raster)
-#' library(future)
-#' plan(sequential)
-#'
-#' landscape <- landscape(population = egk_pop,
-#'                suitability = egk_hab,
-#'                carrying_capacity = egk_k)
-#'
-#' pop_dynamics <- population_dynamics(change = growth(transition_matrix = egk_mat))
-#'
-#' results <- simulation(landscape, pop_dynamics, timesteps = 10, replicates = 3)
+#' 
+#' \dontrun{
+#' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+#' 
+#' pd <- population_dynamics(change = growth(egk_mat),
+#'                           dispersal = kernel_dispersal(max_distance = c(0, 0, 2000),
+#'                           dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1000)),
+#'                           density_dependence = ceiling_density())
+#' 
+#' # Run a simulation with full demographic stochasticity and without any habitat
+#' # dynamics for tewnty timesteps.
+#' sim <- simulation(landscape = ls,
+#'                   population_dynamics = pd,
+#'                   habitat_dynamics = NULL,
+#'                   timesteps = 20)
+#' }
 
 simulation <- function(landscape,
                        population_dynamics,
@@ -106,29 +78,22 @@ simulation <- function(landscape,
   as.simulation_results(simulation_results)
 }
 
-
 #' @export
 #' @noRd
 `[.simulation_results` <- function(x, ..., drop=TRUE) {
   structure(NextMethod(), class=class(x))
 }
 
-
-#' @rdname simulation_results
+#' Check simulation object 
 #'
+#' @param x a simulation_results objec
 #' @export
-#'
-#' @examples
-#'
-#' # Test if object is of the type 'simulation_results'
-#'
-#' is.simulation_results(results)
 
 is.simulation_results <- function (x) {
   inherits(x, 'simulation_results')
 }
 
-# #' @rdname simulation_results
+# #' @rdname simulation
 # #'
 # #' @export
 # #'
@@ -143,13 +108,50 @@ is.simulation_results <- function (x) {
 # }
 
 
-#' @rdname simulation_results
-#'
+#' Plot the results of a simulation
+#' 
+#' Methods to visually inspect the results of a simulation. Both linear graphs
+#' and spatial-explicit grids can be generated to illustrate population changes through
+#' time and space.
+#' 
+#' @param x a simulation_results object
+#' @param object the \code{simulation_results} object to plot - can be 'population'
+#'   (default), 'suitability' or 'carrying_capacity'
+#' @param type the plot type - 'graph' (default) or 'raster'
+#' @param stages life-stages to plot - must be specified for 'raster' plot
+#'   types; by default all life-stages will be plotted
+#' @param animate if plotting type 'raster' would you like to animate the
+#'   rasters?
+#' @param timesteps timesteps to display when plotting rasters
+#' @param panels the number of columns and rows to use when plotting raster
+#'   timeseries - default is 3 x 3 (e.g. c(3,3) )
+#' @param emp should the expected minimum population of the simulation be
+#'   plotted?
+#' @param ... further arguments passed to/from other methods
+#'   
 #' @export
 #'
 #' @examples
-#'
-#' plot(results)
+#' 
+#' \dontrun{
+#' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+#' 
+#' pd <- population_dynamics(change = growth(egk_mat),
+#'                           dispersal = kernel_dispersal(max_distance = c(0, 0, 2000),
+#'                           dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1000)),
+#'                           density_dependence = ceiling_density())
+#' 
+#' sim <- simulation(landscape = ls,
+#'                   population_dynamics = pd,
+#'                   habitat_dynamics = NULL,
+#'                   timesteps = 20)
+#' 
+#' # Plot the population trajectories by life-stage
+#' plot(sim)
+#' 
+#' # Plot the spatial distributions of total populations for first nine timesteps
+#' plot(sim, type = "raster", stages = 0, timesteps = 1:9) 
+#' }
 
 plot.simulation_results <- function (x,
                                      object = "population",
@@ -162,8 +164,8 @@ plot.simulation_results <- function (x,
                                      ...){
   
   # don't have a persistent effect on the graphics device
-  op <- par(no.readonly = TRUE)
-  on.exit(par(op))
+  op <- graphics::par(no.readonly = TRUE)
+  on.exit(graphics::par(op))
   
   total_stages <- raster::nlayers(x[[1]][[1]]$population)
   stage_names <- names(x[[1]][[1]]$population)
@@ -202,7 +204,7 @@ plot.simulation_results <- function (x,
                            xlim = c(1, length(pop[ , i])),
                            ...)
             
-            axis(side = 1, at = pretty_int(c(1, length(pop[ , i]))))
+            graphics::axis(side = 1, at = pretty_int(c(1, length(pop[ , i]))))
 
           }
           
@@ -223,7 +225,7 @@ plot.simulation_results <- function (x,
                          xlim = c(1, length(rowSums(pop))),
                          ...)
           
-          axis(side = 1, at = pretty_int(c(1, length(rowSums(pop)))))
+          graphics::axis(side = 1, at = pretty_int(c(1, length(rowSums(pop)))))
           
         }
         
@@ -244,7 +246,7 @@ plot.simulation_results <- function (x,
                            xlim = c(1, length(pop[ , i])),
                            ...)
             
-            axis(side = 1, at = pretty_int(c(1, length(pop[ , i]))))
+            graphics::axis(side = 1, at = pretty_int(c(1, length(pop[ , i]))))
 
           }
           
@@ -411,7 +413,7 @@ plot.simulation_results <- function (x,
                        xlim = c(1, length(unlist(k))),
                        ...)
         
-        axis(side = 1, at = pretty_int(c(1, length(unlist(k)))))
+        graphics::axis(side = 1, at = pretty_int(c(1, length(unlist(k)))))
 
       }
       
@@ -483,7 +485,7 @@ plot.simulation_results <- function (x,
                        xlim = c(1, length(pop.mn[, i])),
                        ...)
         
-        axis(side = 1, at = pretty_int(c(1, length(pop.mn[, i]))))
+        graphics::axis(side = 1, at = pretty_int(c(1, length(pop.mn[, i]))))
 
         for (j in seq_along(x)) {
           graphics::lines(pop[ , i, j],
@@ -519,7 +521,7 @@ plot.simulation_results <- function (x,
                      xlim = c(1, length(quants[, 2])),
                      ...)
       
-      axis(side = 1, at = pretty_int(c(1, length(quants[, 2]))))
+      graphics::axis(side = 1, at = pretty_int(c(1, length(quants[, 2]))))
 
       # for (j in seq_along(x)[-1]) {
       #   graphics::lines(rowSums(pop[ , , j]),
@@ -555,7 +557,7 @@ plot.simulation_results <- function (x,
                      xlim = c(1, length(pop.mn[ , stages])),
                      ...)
       
-      axis(side = 1, at = pretty_int(c(1, length(pop.mn[ , stages]))))
+      graphics::axis(side = 1, at = pretty_int(c(1, length(pop.mn[ , stages]))))
       
       for (j in seq_along(x)) {
         graphics::lines(pop[ , stages, j],
@@ -573,15 +575,67 @@ plot.simulation_results <- function (x,
   
 }
 
-#' @rdname simulation_results
+#' Extract objects from a 'simulation_results' object
+#' 
+#' The simulation results object is a list of lists containing spatial (and other) objects and
+#' is organised by the following tree diagram:
+#' \itemize{
+#'   \item{Replicate}
+#'   \itemize{
+#'     \item{Timestep}
+#'     \itemize{
+#'       \item{Population Raster Stack}
+#'       \itemize{
+#'         \item{Life-Stage Raster}
+#'       }
+#'       \item{Habitat Suitability Raster (or Stack)}
+#'       \itemize{
+#'         \item{Habitat Raster (if stack is used)}
+#'       }
+#'       \item{Carrying Capacity Raster}
+#'       \item{Other Raster Stack}
+#'       \itemize{
+#'         \item{Raster}
+#'       }
+#'       \item{...}
+#'     }
+#'   }
+#' }
+#'
+#' @param x a simulation_results object 
+#' @param replicate which replicate to extract from a \code{simulation_results}
+#'   object
+#' @param timestep timestep(s) to extract from a \code{simulation_results}
+#' @param landscape_object which landscape object to extract from a
+#'   \code{simulation_results} object - can be specified by name
+#'   (e.g. "suitability") or index number
+#' @param stage which life-stage to extract from a \code{simulation_results}
+#'   object - only used for 'population' components of the landscape object
+#' @param misc which misc object to extract from a \code{simulation_results}
+#'   object - only used for additional spatial objects added to a landscape
+#'   (e.g. disturbance layers)
 #'
 #' @export
 #'
 #' @examples
-#'
-#' # Extract spatial components from a 'simulation_results' object
-#'
-#' extract_spatial(results)
+#' 
+#' \dontrun{
+#' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+#' 
+#' pd <- population_dynamics(change = growth(egk_mat),
+#'                           dispersal = kernel_dispersal(max_distance = c(0, 0, 2000),
+#'                           dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1000)),
+#'                           density_dependence = ceiling_density())
+#' 
+#' sim <- simulation(landscape = ls,
+#'                   population_dynamics = pd,
+#'                   habitat_dynamics = NULL,
+#'                   timesteps = 20)
+#' 
+#' # Extract the population raster for the second life-stage in the first
+#' # replicate and ninth timestep
+#' extract_spatial(sim, timestep = 9, stage = 2)
+#' }
 
 extract_spatial <- function (x,
                              replicate = 1,
@@ -601,7 +655,7 @@ extract_spatial <- function (x,
   
 }
 
-# #' @rdname simulation_results
+# #' @rdname simulation
 # #'
 # #' @export
 # #'
@@ -622,15 +676,52 @@ extract_spatial <- function (x,
 #   
 # }
 
-#' @rdname simulation_results
+#' Compare minimum expected populations
+#' 
+#' Compare minimum expected populations from two or more 'simulation_results' objects.
+#'
+#' @param x a simulation_results object 
+#' @param ... additional simulation results objects
+#' @param interval the desired confidence interval representing the uncertainty around
+#'  the expected minimum population estimates from simulation comparisons; expressed as 
+#'  a whole integer between 0 and 100 (default value is 95).
+#' @param all_points should the expected minimum populations from all simulation
+#'  replicates be shown on the plot?
+#' @param simulation_names an optional character vector of simulation names to override
+#' the defaults
 #'
 #' @export
 #'
 #' @examples
-#'
-#' # Compare the minimum expected population from 'simulation_results' objects
-#'
-#' compare_emp(results, results)
+#' 
+#' \dontrun{
+#' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+#' 
+#' # Create populations dynamics with and without ceiling density dependence
+#' pd1 <- population_dynamics(change = growth(egk_mat),
+#'                            dispersal = kernel_dispersal(max_distance = c(0, 0, 2000),
+#'                            dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1000)),
+#'                            density_dependence = ceiling_density())
+#' pd2 <- population_dynamics(change = growth(egk_mat),
+#'                            dispersal = kernel_dispersal(max_distance = c(0, 0, 2000),
+#'                            dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1000)))
+#' 
+#' # Run first simulation with ceiling density dependence and three replicates
+#' sim1 <- simulation(landscape = ls,
+#'                    population_dynamics = pd1,
+#'                    habitat_dynamics = NULL,
+#'                    timesteps = 20,
+#'                    replicates = 3)
+#'                    
+#' # Run second simulation without ceiling density dependence and three replicates
+#' sim2 <- simulation(landscape = ls,
+#'                    population_dynamics = pd2,
+#'                    habitat_dynamics = NULL,
+#'                    timesteps = 20,
+#'                    replicates = 3)
+#' 
+#' compare_emp(sim1, sim2)
+#' }
 
 compare_emp <- function (x, ..., interval = 95, all_points = FALSE, simulation_names = NULL) {
   

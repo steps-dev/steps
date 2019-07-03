@@ -2,15 +2,12 @@
 % Please edit documentation in R/population_dynamics-class.R
 \name{population_dynamics}
 \alias{population_dynamics}
-\alias{is.population_dynamics}
 \title{Define population dynamics.}
 \usage{
 population_dynamics(change = NULL, dispersal = NULL,
   modification = NULL, density_dependence = NULL,
   dynamics_order = c("change", "dispersal", "modification",
   "density_dependence"))
-
-is.population_dynamics(x)
 }
 \arguments{
 \item{change}{\link[steps]{population_change_functions} to define how population
@@ -29,10 +26,6 @@ to control density dependence effects on the population at each timestep}
 \item{dynamics_order}{the order in which the population dynamics should be executed
 on the landscape object - default is "change" -> "dispersal" -> "modification" -> "density_dependence". 
 Note, if population dynamics are reordered, all dynamics must be listed in \code{dynamics_order}.}
-
-\item{x}{a population_dynamics object}
-
-\item{...}{further arguments passed to or from other methods}
 }
 \value{
 An object of class \code{population_dynamics}
@@ -53,8 +46,13 @@ can be executed in any order that is specified by the user.
 }
 \examples{
 
-test_pop_dynamics <- population_dynamics()
+# Example of setting up population dynamics to only use a population change function.
 
-# Test if object is of the type 'population dynamics'
-is.population_dynamics(test_pop_dynamics)
+\dontrun{
+ls <- landscape(population = egk_pop, suitability = NULL, carrying_capacity = NULL)
+
+pd <- population_dynamics(change = growth(egk_mat))
+
+simulation(landscape = ls, population_dynamics = pd, habitat_dynamics = NULL, timesteps = 20)
+}
 }

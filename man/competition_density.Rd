@@ -26,5 +26,16 @@ increased as the function internally calculates these values through optimisatio
 }
 \examples{
 
-test_comp_transition <- competition_density()
+# Vital rates (survival and fecundity) modified based on approach to carrying capacity
+# by the 2nd and 3rd life stages.
+
+\dontrun{
+mod_fun <- competition_density(stages = c(2, 3))
+
+ls <- landscape(population = egk_pop, suitability = NULL, carrying_capacity = egk_k)
+
+pd <- population_dynamics(change = growth(egk_mat, transition_function = mod_fun))
+
+simulation(landscape = ls, population_dynamics = pd, habitat_dynamics = NULL, timesteps = 20)
+}
 }

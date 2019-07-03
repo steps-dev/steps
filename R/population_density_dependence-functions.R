@@ -3,16 +3,42 @@
 #' Pre-defined or custom functions to define population density dependence (e.g. ceiling) during a simulation.
 #'
 #' @name population_density_dependence_functions
+#' 
+#' @seealso
+#' \itemize{
+#'   \item{\link[steps]{ceiling_density} to cap populations at carying capcities}
+#'   }
+NULL
+
+#' Ceiling-based density dependence
+#' 
+#' In-built density dependence function that constrains the number of individuals in a cell
+#' based on the carrying capacity of that cell in a timestep. Note, carrying_capacity must
+#' be provided in the landscape object to use this function (see \link[steps]{landscape}).
+#' Only stages that contribute to density dependence are considered in the calculations,
+#' however, excess individuals are removed equally from across all stages. This type of
+#' density dependence only affects the population once it reaches the carrying capacity.
+#' While population size is below carrying capacity, the population grows according to
+#' the transition matrix. 
 #'
 #' @param stages which life-stages contribute to density dependence - default is all
-#'
-#' @rdname population_density_dependence_functions
 #'
 #' @export
 #' 
 #' @examples
 #' 
-#' test_pop_dd <- ceiling_density()
+#' # Cap the population at carrying capacity with only the second and third
+#' # life stage used in calculations to determine density dependence. 
+#' 
+#' \dontrun{
+#' cap_population <- ceiling_density(stages = c(2, 3))
+#' 
+#' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+#' 
+#' pd <- population_dynamics(change = growth(egk_mat), density_dependence = cap_population)
+#' 
+#' simulation(landscape = ls, population_dynamics = pd, habitat_dynamics = NULL, timesteps = 20)
+#' }
 
 ceiling_density <- function (stages = NULL) {
 

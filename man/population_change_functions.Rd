@@ -2,32 +2,13 @@
 % Please edit documentation in R/population_change-functions.R
 \name{population_change_functions}
 \alias{population_change_functions}
-\alias{growth}
 \title{How the population changes in a landscape.}
-\usage{
-growth(transition_matrix, global_stochasticity = 0,
-  local_stochasticity = 0, transition_function = NULL)
-}
-\arguments{
-\item{transition_matrix}{A symmetrical age-based (Leslie) or stage-based
-population structure matrix.}
-
-\item{global_stochasticity, local_stochasticity}{either scalar values or
-matrices (with the same dimension as \code{transition_matrix}) specifying
-the variability (in standard deviations) in the transition matrix either for
-populations in all grid cells (\code{global_stochasticity}) or for each
-grid cell population separately (\code{local_stochasticity})}
-
-\item{transition_function}{A custom function defined by the user specifying
-modifications to life-stage transitions at each timestep. See \link[steps]{transition_function}.}
-}
 \description{
 Pre-defined or custom functions to define population change during a simulation.
 }
-\examples{
-
-# Use a function to modify the  
-# population using life-stage transitions:
-
-test_growth <- growth(egk_mat)
+\seealso{
+\itemize{
+  \item{\link[steps]{growth} is a default function for changing populations based on
+  transition matrices and functions}
+  }
 }

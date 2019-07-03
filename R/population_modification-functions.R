@@ -3,33 +3,56 @@
 #' Pre-defined functions to define population modification (e.g. translocation) during a simulation.
 #'
 #' @name population_modification_functions
+#' 
+#' @seealso
+#' \itemize{
+#'   \item{\link[steps]{translocation} for specifying explicit spatial and temporal movements
+#'   of populations}
+#'   \item{\link[steps]{mortality} for specifying explicit spatial and temporal changes to populations}
+#'   }
+NULL
+
+#' Translocate populations
 #'
-#' @param stages which life-stages are modified - default is all
+#' This function is used to move or introduce populations throughout a simulation. A user can
+#' specify which life-stages will be affected (default is all) and in which timesteps the
+#' translocations will take place. A warning will be generated if populations are not available
+#' where specified to translocate from.
+#'
 #' @param source_layer the name of a spatial layer in the landscape object with the locations
 #'   and number of individuals to translocate from. Note, this layer will have only zero
 #'   values if individuals are being introduced from outside the study area
 #' @param sink_layer the name of a spatial layer in the landscape object with the locations
 #'   and number of individuals to translocate to. Note, this layer will have only zero
 #'   values if individuals are being controlled (e.g. culling)
+#' @param stages which life-stages are modified - default is all
 #' @param effect_timesteps which timesteps in a single simulation do the translocations
 #'   take place
-#' @param mortality_layer the name of spatial layer(s) in the landscape object with
-#'   mortality proportions used to alter the populations for each timestep (number of
-#'   layers must match the intended timesteps)
-#'
-#' @rdname population_modification_functions
+
 #'
 #' @export
 #' 
 #' @examples
 #' 
-#' # Use the translocation function to modify populations
-#' # using explicit layers of source and sink individuals:
+#' # Modify populations in all life-stages using explicit layers of source and sink populations
+#' # in timesteps 5, 10, and 15.
 #' 
-#' test_translocation <- translocation(source_layer = "egk_source",
-#'                                        sink_layer = "egk_sink",
-#'                                        stages = NULL,
-#'                                        effect_timesteps = 1)
+#' \dontrun{
+#' trans_pop <- translocation(source_layer = "source",
+#'                            sink_layer = "sink",
+#'                            stages = NULL,
+#'                            effect_timesteps = c(5, 10, 15))
+#' 
+#' ls <- landscape(population = egk_pop,
+#'                 suitability = egk_hab,
+#'                 carrying_capacity = egk_k,
+#'                 "source" = egk_source,
+#'                 "sink" = egk_sink)
+#' 
+#' pd <- population_dynamics(change = growth(egk_mat), modification = trans_pop)
+#' 
+#' simulation(landscape = ls, population_dynamics = pd, habitat_dynamics = NULL, timesteps = 20)
+#' }
 
 translocation <- function (source_layer, sink_layer, stages = NULL, effect_timesteps = 1) {
   
@@ -77,17 +100,35 @@ translocation <- function (source_layer, sink_layer, stages = NULL, effect_times
 }
 
 
-#' @rdname population_modification_functions
+#' Directly affect populations
+#' 
+#' This function modifies a population by multiplying a spatial layer with populations
+#' in each timestep. The values of the input layers range between 0 and 1 and represent
+#' the proportion reductions in populations (e.g. 0 reduces the population to zero,
+#' whilst 0.5 reduces the population by 50%).
+#'
+#' @param mortality_layer the name of spatial layer(s) in the landscape object with
+#'   mortality proportions used to alter the populations for each timestep (number of
+#'   layers must match the intended timesteps)
+#' @param stages which life-stages are modified - default is all
 #'
 #' @export
 #' 
 #' @examples
+#' # Modify populations in all life-stages with fire intensity.
 #' 
-#' # Use the mortality function to modify populations
-#' # using explicit layers of proportions of mortality:
+#' \dontrun{
+#' fire_mortal <- mortality(mortality_layer = "fire", stages = NULL)
 #' 
-#' test_mortality <- mortality(mortality_layer = "egk_fire",
-#'                                        stages = NULL)
+#' ls <- landscape(population = egk_pop,
+#'                 suitability = egk_hab,
+#'                 carrying_capacity = egk_k,
+#'                 "fire" = egk_fire)
+#' 
+#' pd <- population_dynamics(change = growth(egk_mat), modification = fire_mortal)
+#' 
+#' simulation(landscape = ls, population_dynamics = pd, habitat_dynamics = NULL, timesteps = 20)
+#' }
 
 mortality <- function (mortality_layer, stages = NULL) {
   

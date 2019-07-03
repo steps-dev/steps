@@ -2,7 +2,7 @@
 % Please edit documentation in R/dispersal_kernel_functions-class.R
 \name{exponential_dispersal_kernel}
 \alias{exponential_dispersal_kernel}
-\title{Create a dispersal function}
+\title{Negative exponential dispersal kernel}
 \usage{
 exponential_dispersal_kernel(distance_decay = 0.5, normalize = FALSE)
 }
@@ -15,14 +15,15 @@ exponential_dispersal_kernel(distance_decay = 0.5, normalize = FALSE)
 An object of class \code{dispersal_function}
 }
 \description{
-A dispersal kernel function is a mathematical representation of how species redistribute
-across the landscape.
- 
-A common dispersal kernel is provided in the software for the user to select (see
-\link[steps]{exponential_dispersal_kernel}), however, a user may also provide a
-custom written dispersal kernel.
+This function determines the proportion of redistribution based on distance.
 }
 \examples{
 
-test_dispersal_function <- exponential_dispersal_kernel()
+\dontrun{
+dists <- seq(0, 100, 1)
+
+exp_dispersal_fun <- exponential_dispersal_kernel(distance_decay = 50)
+
+plot(dists, exp_dispersal_fun(dists))
+}
 }

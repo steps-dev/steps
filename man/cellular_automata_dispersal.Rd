@@ -31,14 +31,42 @@ the barrier map to generate a permeability map of the landscape.}
 that specifies the carrying capacity in each cell.}
 }
 \description{
-The cellular_automata_dispersal function modifies populations
-using rule-based cell movements. This function allows the use
-of barriers in the landscape to influence dispersal. The
-function is computationally efficient, however, because
-individuals are dispersed, performance scales with the
-population sizes in each cell across a landscape.
+The cellular_automata_dispersal function simulates movements of
+individuals using rule-based cell movements. In each cell that has
+population, every individual up to a specified proportion of the
+total population attempts to move. For each step up to a specified
+maximum number of movements, a weighted draw of four directions, based on
+habitat suitability, is made and then the destination cell is checked
+for available carrying capacity. If there is carrying capacity available,
+the individual moves to the cell, if not, it remains in its current cell.
+This is repeated until the maximum number of cell movements is reached.
+}
+\details{
+This function allows the use of barriers in the landscape to influence
+dispersal. The function is computationally efficient, however, because
+as individuals are dispersed, performance scales with the population sizes
+in each cell across a landscape and the maximum number of cell movements.
 }
 \examples{
 
-test_ca_dispersal <- cellular_automata_dispersal()
+# Example of cellular automata dispersal where the 2nd and 3rd life stages
+# disperse up to a maximum of 100 cells but dispersal is affected by
+# barriers (in this case roads). The road rasters have values of 0 for
+# large roads (no dispersal across barrier) and 0.5 for smaller roads
+# (reduced dispersal across barrier).
+
+\dontrun{
+ca_dispersal <- cellular_automata_dispersal(max_cells = c(0, 100, 100), barriers_map = "roads")
+
+ls <- landscape(population = egk_pop,
+                suitability = egk_hab,
+                carrying_capacity = egk_k,
+                "roads" = egk_road)
+
+pd <- population_dynamics(change = growth(egk_mat),
+                          dispersal = ca_dispersal,
+                          density_dependence = ceiling_density())
+
+simulation(landscape = ls, population_dynamics = pd, habitat_dynamics = NULL, timesteps = 20)
+}
 }

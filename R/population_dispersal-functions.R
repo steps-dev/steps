@@ -7,7 +7,9 @@ NULL
 #' Pre-defined or custom functions to define population dispersal during a
 #' simulation. Each dispersal method uses different computing resources
 #' and may be applicable to different simulation scenarios.
+#' 
 #' @name population_dispersal_functions
+#' 
 #' @seealso
 #' \itemize{
 #'   \item{\link[steps]{kernel_dispersal} for kernel-based diffusion dispersal using
@@ -23,10 +25,11 @@ NULL
 #'
 #' The kernel_dispersal function employs a probabilistic
 #' kernel-based dispersal algorithm to modify the population
-#' using a user-defined diffusion distribution, arrival
-#' probability layers (e.g. habitat suitability), and growth
-#' limiting layers (e.g. carrying capacity). This function is much
-#' slower than the fast_dispersal, however, respects dispersal
+#' using a user-defined diffusion distribution (see
+#' \link[steps]{dispersal_kernel}), arrival probability layers
+#' (e.g. habitat suitability), and growth limiting layers (e.g.
+#' carrying capacity). This function is much slower than the
+#' \link[steps]{fast_dispersal}, however, respects dispersal
 #' limitations which may be more ecologically appropriate. Further, 
 #' the kernel-based dispersal function utilises a mechanism to
 #' optimise computational performance in which it switches between
@@ -38,10 +41,13 @@ NULL
 #'   kernel function.
 #' @param max_distance the maximum distance that each life stage can
 #'   disperse in spatial units of the landscape (in kernel-based dispersal
-#'   this truncates the dispersal curve).
+#'   this truncates the dispersal curve). Setting a reasonable number will
+#'   increase the performance of a simulation by reducing the number of cells
+#'   that need to be calculated in distance matrices. 
 #' @param arrival_probability the name of a spatial layer in the landscape object
 #'   that controls where individuals can disperse to (e.g. "suitability") or
-#'   "none" to allow individuals to disperse to all non-NA cells.
+#'   "none" to allow individuals to disperse to all non-NA cells. The default is
+#'   to use both the habitat suitability and carrying capacity layers.
 #' @param dispersal_proportion proportions of individuals (0 to 1) that can
 #'   disperse in each life stage. Can also be a custom function that relates
 #'   the proportion dispersing to a spatial layer in the landscape object
@@ -53,7 +59,23 @@ NULL
 #'
 #' @examples
 #'
-#' test_kern_dispersal <- kernel_dispersal()
+#' # Example of kernel-based dispersal where only the 3rd life stage
+#' # disperses up to a maximum distance of 2000 meters. Dispersal is affected
+#' # by both habitat suitability and carrying capacity (default). The default
+#' # dispersal kernel uses a decay parameter to control how far populations disperse. 
+#' 
+#' \dontrun{
+#' kb_dispersal <- kernel_dispersal(max_distance = c(0, 0, 2000),
+#'                       dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1000))
+#' 
+#' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+#' 
+#' pd <- population_dynamics(change = growth(egk_mat),
+#'                           dispersal = kb_dispersal,
+#'                           density_dependence = ceiling_density())
+#' 
+#' simulation(landscape = ls, population_dynamics = pd, habitat_dynamics = NULL, timesteps = 20)
+#' }
 
 kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1),
                               max_distance = Inf,
@@ -82,7 +104,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
       raster_dim <- force(raster_dim)
       
       distance_info <- get_distance_info(res = raster::res(landscape$population),
-                                         max_distance = max_distance)
+                                         max_distance = max(max_distance))
       
       sys_mem_available <- memuse::Sys.meminfo()$freeram
       
@@ -100,7 +122,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
       }
       
     }
-    
+
     # how many life stages?
     n_stages <- raster::nlayers(landscape$population)
     
@@ -127,7 +149,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
     # find out which stages contribute to density. population dynamics will have
     # copied this information over from the population density dependence
     # function, if it was specified. Otherwise, use all stages
-    if (!exists("density_dependence_stages")) {
+    if (!exists("density_dependence_stages") | is.null(get0("density_dependence_stages"))) {
       density_dependence_stages <- seq_len(n_stages)
     }
     
@@ -138,7 +160,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
     
     # get non-NA cells
     cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])))
-    
+
     delayedAssign(
       "habitat_suitability_values",
       if (raster::nlayers(landscape$suitability) > 1) raster::getValues(landscape$suitability[[timestep]])
@@ -194,7 +216,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
     
     # loop through origins and stages where there is at least one individual    
     indices <- which(pop > 0, arr.ind = TRUE)
-    
+
     for(row in sample.int(nrow(indices))) {
       pop <- disperse(origin = indices[row, 1],
                       stage = indices[row, 2],
@@ -226,12 +248,20 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
 
 #' Cellular automata dispersal
 #'
-#' The cellular_automata_dispersal function modifies populations
-#' using rule-based cell movements. This function allows the use
-#' of barriers in the landscape to influence dispersal. The
-#' function is computationally efficient, however, because
-#' individuals are dispersed, performance scales with the
-#' population sizes in each cell across a landscape.
+#' The cellular_automata_dispersal function simulates movements of
+#' individuals using rule-based cell movements. In each cell that has
+#' population, every individual up to a specified proportion of the
+#' total population attempts to move. For each step up to a specified
+#' maximum number of movements, a weighted draw of four directions, based on
+#' habitat suitability, is made and then the destination cell is checked
+#' for available carrying capacity. If there is carrying capacity available,
+#' the individual moves to the cell, if not, it remains in its current cell.
+#' This is repeated until the maximum number of cell movements is reached. 
+#' 
+#' This function allows the use of barriers in the landscape to influence
+#' dispersal. The function is computationally efficient, however, because
+#' as individuals are dispersed, performance scales with the population sizes
+#' in each cell across a landscape and the maximum number of cell movements.
 #'
 #' @param max_cells the maximum number of cell movements that each individual in
 #'   each life stage can disperse in whole integers.
@@ -253,7 +283,26 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
 #'
 #' @examples
 #'
-#' test_ca_dispersal <- cellular_automata_dispersal()
+#' # Example of cellular automata dispersal where the 2nd and 3rd life stages
+#' # disperse up to a maximum of 100 cells but dispersal is affected by
+#' # barriers (in this case roads). The road rasters have values of 0 for
+#' # large roads (no dispersal across barrier) and 0.5 for smaller roads
+#' # (reduced dispersal across barrier).
+#' 
+#' \dontrun{
+#' ca_dispersal <- cellular_automata_dispersal(max_cells = c(0, 100, 100), barriers_map = "roads")
+#' 
+#' ls <- landscape(population = egk_pop,
+#'                 suitability = egk_hab,
+#'                 carrying_capacity = egk_k,
+#'                 "roads" = egk_road)
+#' 
+#' pd <- population_dynamics(change = growth(egk_mat),
+#'                           dispersal = ca_dispersal,
+#'                           density_dependence = ceiling_density())
+#' 
+#' simulation(landscape = ls, population_dynamics = pd, habitat_dynamics = NULL, timesteps = 20)
+#' }
 
 cellular_automata_dispersal <- function (max_cells = Inf,
                                          dispersal_proportion = set_proportion_dispersing(),
@@ -405,7 +454,23 @@ cellular_automata_dispersal <- function (max_cells = Inf,
 #'
 #' @examples
 #'
-#' test_fast_dispersal <- fast_dispersal()
+#' # Example of fast kernel-based dispersal where all life stages disperse.
+#' # The default dispersal kernel uses a decay parameter to control how far
+#' # populations disperse. Note proportions of populations to disperse are
+#' # controlled by approach to carrying capacity.
+#' 
+#' \dontrun{
+#' fft_dispersal <- fast_dispersal(dispersal_proportion = density_dependence_dispersing()
+#'                      dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1000))
+#' 
+#' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+#' 
+#' pd <- population_dynamics(change = growth(egk_mat),
+#'                           dispersal = fft_dispersal,
+#'                           density_dependence = ceiling_density())
+#' 
+#' simulation(landscape = ls, population_dynamics = pd, habitat_dynamics = NULL, timesteps = 20)
+#' }
 
 fast_dispersal <- function(dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
                            dispersal_proportion = set_proportion_dispersing()) {
@@ -704,7 +769,7 @@ get_ids_dists <- function(cell_id, distance_info, raster_dim) {
   
   # get origin coordinate  
   origin_coord <- id2coord(cell_id, raster_dim)  
-  
+
   # relative coordinates (in numbers of cells) of cells within max distance, and
   # their distances from this cell
   rel_coords <- distance_info[, 1:2]

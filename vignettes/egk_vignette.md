@@ -1,7 +1,7 @@
 ---
 title: "An Eastern Grey Kangaroo population simulation example"
 author: "Casey Visintin"
-date: "2019-07-02"
+date: "2019-07-03"
 output: pdf_document
 fig_width: 7.5
 fontsize: 10pt
@@ -749,7 +749,7 @@ egk_results[[2]][[5]][[1]][[1]]
 ## crs        : +proj=utm +zone=55 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs 
 ## source     : memory
 ## names      : juvenile 
-## values     : 0, 77  (min, max)
+## values     : 0, 66  (min, max)
 ```
 
 To return the habitat suitability for the third timestep of the second replicate (note d is not used in this case):

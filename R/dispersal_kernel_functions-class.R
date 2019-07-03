@@ -1,14 +1,23 @@
 #' Create a dispersal function
 #'
-#' @description A dispersal kernel function is a mathematical representation of how species redistribute
+#' A dispersal kernel function is a mathematical representation of how species redistribute
 #' across the landscape.
 #'  
-#' A common dispersal kernel is provided in the software for the user to select (see
-#' \link[steps]{exponential_dispersal_kernel}), however, a user may also provide a
-#' custom written dispersal kernel.
+#' A common dispersal kernel is provided in the software for the user to select, however,
+#' a user may also provide a custom written dispersal kernel.
 #' 
-#' @rdname dispersal_function
+#' @name dispersal_kernel
+#' @seealso
+#' \itemize{
+#'   \item{\link[steps]{exponential_dispersal_kernel}) for a (negative) exponential dispersal
+#'   kernel}
+#'   }
+NULL
+
+#' Negative exponential dispersal kernel
 #'
+#' This function determines the proportion of redistribution based on distance.
+#' 
 #' @param distance_decay (exponential dispersal parameter) controls the rate at which the population disperses with distance
 #' @param normalize (exponential dispersal parameter) should the normalising constant be used - default is FALSE.
 #' 
@@ -17,8 +26,14 @@
 #' @export
 #'
 #' @examples
+#'
+#' \dontrun{
+#' dists <- seq(0, 100, 1)
 #' 
-#' test_dispersal_function <- exponential_dispersal_kernel()
+#' exp_dispersal_fun <- exponential_dispersal_kernel(distance_decay = 50)
+#' 
+#' plot(dists, exp_dispersal_fun(dists))
+#' }
 
 exponential_dispersal_kernel <- function (distance_decay = 0.5, normalize = FALSE) {
   if (normalize) {
@@ -29,8 +44,6 @@ exponential_dispersal_kernel <- function (distance_decay = 0.5, normalize = FALS
   as.dispersal_function(fun)
 }
 
-# #' @rdname dispersal_function
-# #'
 # #' @param x an object to print or test as a dispersal_function object
 # #' @param ... further arguments passed to or from other methods
 # #'

@@ -78,7 +78,7 @@ test_that('simulation_results classes work', {
   
   pop_dyn <- population_dynamics(change = growth(transition_matrix = egk_mat),
                                  dispersal = cellular_automata_dispersal(max_cells = c(0, 20, 0),
-                                                                         dispersal_proportion = all_dispersing(proportions = 0.5),
+                                                                         dispersal_proportion = set_proportion_dispersing(proportions = 0.5),
                                                                          barriers_map = "barrier"),
                                  modification = translocation(source_layer = "source",
                                                               sink_layer = "sink",
@@ -95,7 +95,7 @@ test_that('simulation_results classes work', {
                                   dispersal = kernel_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay = 8000),
                                                                max_distance = 8000,
                                                                arrival_probability = "suitability",
-                                                               dispersal_proportion = all_dispersing(proportions = c(0, 0.5, 1))),
+                                                               dispersal_proportion = set_proportion_dispersing(proportions = c(0, 0.5, 1))),
                                   modification = NULL,
                                   density_dependence = NULL)
   

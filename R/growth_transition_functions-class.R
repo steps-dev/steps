@@ -16,7 +16,7 @@
 #'   }
 NULL
 
-#' Spatially-explicit function
+#' Spatially-explicit transition function
 #' 
 #' In the built-in \code{modified_transition function}, the values of fecundity and survival
 #' in local cell-based transition matrices are multiplied by values in the named spatial objects
@@ -31,7 +31,17 @@ NULL
 #'
 #' @examples
 #' 
-#' test_mod_transition <- modified_transition()
+#' # Vital rates (survival and fecundity) modified based on habitat suitability.
+#' 
+#' \dontrun{
+#' mod_fun <- modified_transition(survival_layer = "suitability", fecundity_layer = "suitability")
+#' 
+#' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = NULL)
+#' 
+#' pd <- population_dynamics(change = growth(egk_mat, transition_function = mod_fun))
+#' 
+#' simulation(landscape = ls, population_dynamics = pd, habitat_dynamics = NULL, timesteps = 20)
+#' }
 
 modified_transition <- function(survival_layer = NULL,
                                 fecundity_layer = NULL) {
@@ -98,7 +108,18 @@ modified_transition <- function(survival_layer = NULL,
 #'
 #' @examples
 #' 
-#' test_comp_transition <- competition_density()
+#' # Vital rates (survival and fecundity) modified based on approach to carrying capacity
+#' # by the 2nd and 3rd life stages.
+#' 
+#' \dontrun{
+#' mod_fun <- competition_density(stages = c(2, 3))
+#' 
+#' ls <- landscape(population = egk_pop, suitability = NULL, carrying_capacity = egk_k)
+#' 
+#' pd <- population_dynamics(change = growth(egk_mat, transition_function = mod_fun))
+#' 
+#' simulation(landscape = ls, population_dynamics = pd, habitat_dynamics = NULL, timesteps = 20)
+#' }
 
 competition_density <- function(stages = NULL,
                                 mask = NULL,

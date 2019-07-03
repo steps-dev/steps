@@ -3,9 +3,10 @@
 #' A proportion dispersing function generates the proportions of species
 #' that disperse from cells based on landscape features.
 #' 
-#' The default \code{set_proportion_dispersing} returns full dispersal for all life stages.
-#' Additional proportion dispersing functions are provided in the software for the user to
-#' select, however, a user may also provide a custom written proportion dispersing function.
+#' The default \code{set_proportion_dispersing} function and parameters returns
+#' full dispersal for all life stages. Additional proportion dispersing functions
+#' are provided in the software for the user to select, however, a user may also
+#' provide a custom written proportion dispersing function.
 #' 
 #' @name dispersal_proportion_function
 #' @seealso
@@ -19,8 +20,8 @@ NULL
 
 #' Set proportions of populations dispersing
 #'
-#' This default function uses a parameter called ???proportions???.  
-
+#' This function allows a user to specify what proportions of populations in each life-stage disperse. It operates
+#' similarly on all cells and in all timesteps throughout a simulation.
 #'
 #' @param proportions A single value or vector of proportions of individuals in each life stage that disperse
 #' - default is 1. If proportions are specified as a single number, then all life-stages disperse with that
@@ -35,7 +36,21 @@ NULL
 #'
 #' @examples
 #' 
-#' test_dispersal_function <- set_proportion_dispersing()
+#' # Example of a proportion function that disperses no population in the first life stage,
+#' # 50% of the second, and 90% of the 3rd. 
+#' 
+#' \dontrun{
+#' prop_dispersal <- set_proportion_dispersing(proportions = c(0, 0.5, 0.9))
+#' 
+#' kb_dispersal <- kernel_dispersal(dispersal_proportion = prop_dispersal,
+#'                       dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1000))
+#' 
+#' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+#' 
+#' pd <- population_dynamics(change = growth(egk_mat), dispersal = kb_dispersal)
+#' 
+#' simulation(landscape = ls, population_dynamics = pd, habitat_dynamics = NULL, timesteps = 20)
+#' }
 
 set_proportion_dispersing <- function (proportions = 1) {
   
@@ -81,7 +96,21 @@ set_proportion_dispersing <- function (proportions = 1) {
 #'
 #' @examples
 #' 
-#' test_dispersal_function <- density_dependence_dispersing()
+#' # Example of a proportion function that disperses all populations based on their approach
+#' # to carrying capacity
+#' 
+#' \dontrun{
+#' prop_dispersal <- density_dependence_dispersing()
+#' 
+#' kb_dispersal <- kernel_dispersal(dispersal_proportion = prop_dispersal,
+#'                       dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1000))
+#' 
+#' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+#' 
+#' pd <- population_dynamics(change = growth(egk_mat), dispersal = kb_dispersal)
+#' 
+#' simulation(landscape = ls, population_dynamics = pd, habitat_dynamics = NULL, timesteps = 20)
+#' }
 
 density_dependence_dispersing <- function () {
   

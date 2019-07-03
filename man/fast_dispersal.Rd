@@ -30,5 +30,21 @@ capacity.
 }
 \examples{
 
-test_fast_dispersal <- fast_dispersal()
+# Example of fast kernel-based dispersal where all life stages disperse.
+# The default dispersal kernel uses a decay parameter to control how far
+# populations disperse. Note proportions of populations to disperse are
+# controlled by approach to carrying capacity.
+
+\dontrun{
+fft_dispersal <- fast_dispersal(dispersal_proportion = density_dependence_dispersing()
+                     dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1000))
+
+ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+
+pd <- population_dynamics(change = growth(egk_mat),
+                          dispersal = fft_dispersal,
+                          density_dependence = ceiling_density())
+
+simulation(landscape = ls, population_dynamics = pd, habitat_dynamics = NULL, timesteps = 20)
+}
 }

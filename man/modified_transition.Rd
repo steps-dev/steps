@@ -2,7 +2,7 @@
 % Please edit documentation in R/growth_transition_functions-class.R
 \name{modified_transition}
 \alias{modified_transition}
-\title{Spatially-explicit function}
+\title{Spatially-explicit transition function}
 \usage{
 modified_transition(survival_layer = NULL, fecundity_layer = NULL)
 }
@@ -21,5 +21,15 @@ for each cell. The spatial objects can be rasters that are stored in the landsca
 }
 \examples{
 
-test_mod_transition <- modified_transition()
+# Vital rates (survival and fecundity) modified based on habitat suitability.
+
+\dontrun{
+mod_fun <- modified_transition(survival_layer = "suitability", fecundity_layer = "suitability")
+
+ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = NULL)
+
+pd <- population_dynamics(change = growth(egk_mat, transition_function = mod_fun))
+
+simulation(landscape = ls, population_dynamics = pd, habitat_dynamics = NULL, timesteps = 20)
+}
 }

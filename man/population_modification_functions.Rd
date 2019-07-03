@@ -2,49 +2,14 @@
 % Please edit documentation in R/population_modification-functions.R
 \name{population_modification_functions}
 \alias{population_modification_functions}
-\alias{translocation}
-\alias{mortality}
 \title{How the population is modified in a landscape.}
-\usage{
-translocation(source_layer, sink_layer, stages = NULL,
-  effect_timesteps = 1)
-
-mortality(mortality_layer, stages = NULL)
-}
-\arguments{
-\item{source_layer}{the name of a spatial layer in the landscape object with the locations
-and number of individuals to translocate from. Note, this layer will have only zero
-values if individuals are being introduced from outside the study area}
-
-\item{sink_layer}{the name of a spatial layer in the landscape object with the locations
-and number of individuals to translocate to. Note, this layer will have only zero
-values if individuals are being controlled (e.g. culling)}
-
-\item{stages}{which life-stages are modified - default is all}
-
-\item{effect_timesteps}{which timesteps in a single simulation do the translocations
-take place}
-
-\item{mortality_layer}{the name of spatial layer(s) in the landscape object with
-mortality proportions used to alter the populations for each timestep (number of
-layers must match the intended timesteps)}
-}
 \description{
 Pre-defined functions to define population modification (e.g. translocation) during a simulation.
 }
-\examples{
-
-# Use the translocation function to modify populations
-# using explicit layers of source and sink individuals:
-
-test_translocation <- translocation(source_layer = "egk_source",
-                                       sink_layer = "egk_sink",
-                                       stages = NULL,
-                                       effect_timesteps = 1)
-
-# Use the mortality function to modify populations
-# using explicit layers of proportions of mortality:
-
-test_mortality <- mortality(mortality_layer = "egk_fire",
-                                       stages = NULL)
+\seealso{
+\itemize{
+  \item{\link[steps]{translocation} for specifying explicit spatial and temporal movements
+  of populations}
+  \item{\link[steps]{mortality} for specifying explicit spatial and temporal changes to populations}
+  }
 }
