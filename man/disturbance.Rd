@@ -10,16 +10,32 @@ disturbance(disturbance_layers, effect_time = 1)
 \item{disturbance_layers}{the name of spatial layer(s) in the landscape object with disturbances used
 to alter the habitat object for each timestep (number of layers must match the intended timesteps)}
 
-\item{effect_time}{the number of timesteps that the disturbance layer will act on the habitat object}
+\item{effect_time}{the number of timesteps that the disturbance layer will act on the habitat object
+(e.g. '3' will combine the effects of previous two timesteps to increase the overall effect) - the
+default is 1.}
 }
 \description{
-Disturbance Description
+Modifies the landscape by multiplying habitat suitability values by a sum of previous
+disturbances. Since disturbances can act in a single timestep, or have lasting effects,
+the user can specify an 'effect time' of disturbances.
 }
 \examples{
 
-# Use the disturbance function to modify the habitat using spatial
-# layers (stored in the landscape object and called "logging"):
+# Road building (stored in the landscape object and called "roads") acts on the landscape
+# each year.
 
-logging <- disturbance(disturbance_layers = "logging",
-                    effect_time = 1)
+\dontrun{
+road_effect <- disturbance(disturbance_layers = "roads", effect_time = 1)
+
+ls <- landscape(population = egk_pop, suitability = egk_hab, "roads" = egk_road)
+
+pd <- population_dynamics(change = growth(egk_mat))
+
+sim <- simulation(landscape = ls,
+           population_dynamics = pd,
+           habitat_dynamics = list(road_effect),
+           timesteps = 20)
+           
+plot(sim, object = "suitability", type = "raster", timesteps = 1:9)
+}
 }

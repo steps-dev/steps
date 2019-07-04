@@ -2,30 +2,47 @@
 % Please edit documentation in R/habitat_dynamics-functions.R
 \name{fire_effects}
 \alias{fire_effects}
-\title{Fire}
+\title{Fire effects with regeneration}
 \usage{
-fire_effects(fire_layers, lag = 3,
+fire_effects(fire_layers, effect_time = 3,
   regeneration_function = function(time) {     -time })
 }
 \arguments{
 \item{fire_layers}{the name(s) of spatial layer(s) in the landscape object with fire disturbances used
 to alter the habitat object for each timestep (number of layers must match the intended timesteps)}
 
-\item{lag}{the number of timesteps that the fire layer will act on the habitat object}
+\item{effect_time}{the number of timesteps that the fire layer will act on the habitat object}
 
 \item{regeneration_function}{a function that determines how fast the landscape will regenerate after a
 fire event}
 }
 \description{
-Fire Description
+Modifies the landscape by multiplying habitat suitability values by a weighted sum of previous
+fire intensities based on a user specified regeneration function. By default, the regenerative
+function is an inverse linear relationship to time, however, this function can be replaced with a response
+that takes into account other factors of habitat restoration (e.g. growth/re-growth curves of vegetation).
 }
 \examples{
 
-# Use the fire_effects function to modify the habitat using spatial
-# fire layers (stored in the landscape object and called "fires")
-# and a regeneration function:
+# Fire (stored in the landscape object and called "fires") acts on the landscape for
+#five years with an exponentially decaying intensity.
 
-fire <- fire_effects(fire_layers = "fires",
-                    lag = 5,
-                    regeneration_function = function (time) {-time})
+\dontrun{
+regen <- function (time) {-exp(time)}
+
+plot(1:5, rescale(regen(1:5)), type = "l")
+
+fire <- fire_effects(fire_layers = "fires", effect_time = 5, regeneration_function = regen)
+
+ls <- landscape(population = egk_pop, suitability = egk_hab, "fires" = egk_fire)
+
+pd <- population_dynamics(change = growth(egk_mat))
+
+sim <- simulation(landscape = ls,
+           population_dynamics = pd,
+           habitat_dynamics = list(fire),
+           timesteps = 20)
+           
+plot(sim, object = "suitability", type = "raster", timesteps = 1:9)
+}
 }

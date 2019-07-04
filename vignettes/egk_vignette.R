@@ -368,7 +368,7 @@ egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,
                           habitat_dynamics = list(
                             fire_effects(fire_layers = "fires",
-                                         lag = 5,
+                                         effect_time = 5,
                                          regeneration_function = function (time) {-time})
                           ),
                           timesteps = 20,
@@ -422,7 +422,7 @@ plot(egk_results[1], object = "suitability", timesteps = c(1, 10, 20), panels = 
 #  egk_results <- simulation(landscape = egk_landscape,
 #                            population_dynamics = egk_pop_dynamics,
 #                            habitat_dynamics = list(fire_effects(fire_layers = "fires",
-#                                                                 lag = 5,
+#                                                                 effect_time = 5,
 #                                                                 regeneration_function =
 #                                                                   function (time) {-time})),
 #                            timesteps = 20,
@@ -467,7 +467,7 @@ plot(egk_results[1], object = "suitability", timesteps = c(1, 10, 20), panels = 
 #                            population_dynamics = egk_pop_dynamics,
 #                            habitat_dynamics = list(
 #                              fire_effects(fire_layers = "fires",
-#                                           lag = 5,
+#                                           effect_time = 5,
 #                                           regeneration_function = function (time) {-time}),
 #                              disturbance(disturbance_layers = "roads",
 #                                          effect_time = 1)
