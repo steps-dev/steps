@@ -156,7 +156,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
     dispersal_proportion <- dispersal_proportion(landscape, timestep)
     
     # Which stages can disperse
-    which_stages_disperse <- which(dispersal_proportion > 0)
+    which_stages_disperse <- which(dispersal_proportion > 0 & max_distance > 0)
     
     # get non-NA cells
     cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])))
@@ -215,7 +215,10 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
     original_pop <- pop
     
     # loop through origins and stages where there is at least one individual    
-    indices <- which(pop > 0, arr.ind = TRUE)
+    indices <- which(pop > 0 & !is.na(pop), arr.ind = TRUE)
+    
+    # subset by stages that disperse
+    indices <- indices[indices[, 2] %in% which_stages_disperse, ]
 
     for(row in sample.int(nrow(indices))) {
       pop <- disperse(origin = indices[row, 1],
@@ -262,6 +265,21 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
 #' dispersal. The function is computationally efficient, however, because
 #' as individuals are dispersed, performance scales with the population sizes
 #' in each cell across a landscape and the maximum number of cell movements.
+#' 
+#' The maximum number of cell movements in cellular automata dispersal does not
+#' correspond exactly to the distance decay of a dispersal kernel, since cellular
+#' automata dispersal depends on the permeability of the landscape, and is
+#' interrupted on reaching a cell with available capacity. A heuristic that can be
+#' used to determine a reasonable number of steps from a mean dispersal distance `d`
+#' and cell resolution `res` is: `max_cells = round(2 * (d / (res * 1.25)) ^ 2)`.
+#' This corresponds approximately to the number of cell-steps in an infinite,
+#' homogenous landscape with no early stopping, for which d is the mean
+#' end-to-end dispersal distance of all individuals.
+#'
+#' Rather than relying on this value, we recommend that the user experiment with
+#' the \code{max_cells} parameter to find a value such that the the mean dispersal
+#' distance in a reasonably realistic simulation corresponds with field estimates
+#' of mean dispersal distances.
 #'
 #' @param max_cells the maximum number of cell movements that each individual in
 #'   each life stage can disperse in whole integers.
@@ -801,8 +819,7 @@ disperse <- function (origin,
                       distance_list = NULL,
                       distance_info = NULL,
                       raster_dim = NULL) {
-  
-  
+
   if (is.null(distance_list)) {
     print("Kernel-based dispersal running in single iteration mode to conserve RAM")
     destinations <- get_ids_dists(cell_id = origin,
@@ -817,8 +834,6 @@ disperse <- function (origin,
   
   # index destination cells that allow arrival in raster
   destination_index <- fast_match(destination_ids, can_arriv_ids)
-  # destination_index <- fastmatch::fmatch(can_arriv_ids, destination_ids, 0L)
-  # destination_index <- match(can_arriv_ids, destination_ids, 0L)
   
   # subset destination ids and distances to valid arrival cells
   destination_ids <- destination_ids[destination_index]
@@ -831,22 +846,24 @@ disperse <- function (origin,
   
   # standardise probabilities
   prob <- prob / sum(prob)
-  
+
   # get number dispersing and staying
   # (if this is not the first cell considered, we use the original population
   # to make sure new arrivals don't disperse again)
-  n_total <- original_pop[origin, stage]
+  #n_total <- original_pop[origin, stage]
+  n_total <- pop[origin, stage]
   n_dispersing <- round_pop(n_total * prop_dispersing[stage])
   n_staying <- n_total - n_dispersing
   
   # update pop and original_pop to remove the dispersers
-  new_arrivals <- pop[origin, stage] - n_total
-  pop[origin, stage] <- n_staying + new_arrivals
+  #new_arrivals <- pop[origin, stage] - n_total
+  #pop[origin, stage] <- n_staying + new_arrivals
   
+  pop[origin, stage] <- pop[origin, stage] - n_dispersing
   
   # propose some dispersals
   dispersals <- round_pop(n_dispersing * prob)
-  
+
   # if we're using carrying capacity, return individuals to the origin if there's no space
   if (!is.null(carrying_capacity)) {
     
@@ -863,7 +880,6 @@ disperse <- function (origin,
       effective_population <- rowSums(effective_populations)
     }
     
-    
     space_remaining <- carrying_capacity[destination_ids] - effective_population
     
     # if there's any stochastcity, need to round down
@@ -872,18 +888,19 @@ disperse <- function (origin,
     }
     
     excess <- pmax(0, dispersals - space_remaining)
-    destination_is_origin <- which(destination_ids == origin)
-    
+    #destination_is_origin <- which(destination_ids == origin)
+
     # remove the excess from the dispersers, and say they are dispersing back to
     # the origin
     dispersals <- dispersals - excess
+    
     pop[origin, stage] <- pop[origin, stage] + sum(excess)
     
   }
   
   # assign them to their population and return
   pop[destination_ids, stage] <- pop[destination_ids, stage] + dispersals
-  
+
   pop
   
 }

@@ -46,6 +46,21 @@ This function allows the use of barriers in the landscape to influence
 dispersal. The function is computationally efficient, however, because
 as individuals are dispersed, performance scales with the population sizes
 in each cell across a landscape and the maximum number of cell movements.
+
+The maximum number of cell movements in cellular automata dispersal does not
+correspond exactly to the distance decay of a dispersal kernel, since cellular
+automata dispersal depends on the permeability of the landscape, and is
+interrupted on reaching a cell with available capacity. A heuristic that can be
+used to determine a reasonable number of steps from a mean dispersal distance `d`
+and cell resolution `res` is: `max_cells = round(2 * (d / (res * 1.25)) ^ 2)`.
+This corresponds approximately to the number of cell-steps in an infinite,
+homogenous landscape with no early stopping, for which d is the mean
+end-to-end dispersal distance of all individuals.
+
+Rather than relying on this value, we recommend that the user experiment with
+the \code{max_cells} parameter to find a value such that the the mean dispersal
+distance in a reasonably realistic simulation corresponds with field estimates
+of mean dispersal distances.
 }
 \examples{
 

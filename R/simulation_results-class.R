@@ -164,8 +164,8 @@ plot.simulation_results <- function (x,
                                      ...){
   
   # don't have a persistent effect on the graphics device
-  op <- graphics::par(no.readonly = TRUE)
-  on.exit(graphics::par(op))
+  # op <- graphics::par(no.readonly = TRUE)
+  # on.exit(graphics::par(op))
   
   total_stages <- raster::nlayers(x[[1]][[1]]$population)
   stage_names <- names(x[[1]][[1]]$population)
@@ -220,7 +220,6 @@ plot.simulation_results <- function (x,
                          xlab="Timesteps",
                          #lwd=3,
                          col="black",
-                         ylim=range(pretty(rowSums(pop))),
                          xaxt = 'n',
                          xlim = c(1, length(rowSums(pop))),
                          ...)
@@ -516,7 +515,6 @@ plot.simulation_results <- function (x,
                      xlab = "Timesteps",
                      #lwd = 3,
                      col = 'black',
-                     ylim=range(pretty(quants)),
                      xaxt = 'n',
                      xlim = c(1, length(quants[, 2])),
                      ...)
