@@ -217,7 +217,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
     # loop through origins and stages where there is at least one individual    
     indices <- which(pop > 0 & !is.na(pop), arr.ind = TRUE)
     
-    # subset by stages that disperse
+    # subset to stages that disperse
     indices <- indices[indices[, 2] %in% which_stages_disperse, ]
 
     for(row in sample.int(nrow(indices))) {
@@ -820,6 +820,8 @@ disperse <- function (origin,
                       distance_info = NULL,
                       raster_dim = NULL) {
 
+  init_pop <- sum(pop, na.rm = TRUE)
+  
   if (is.null(distance_list)) {
     print("Kernel-based dispersal running in single iteration mode to conserve RAM")
     destinations <- get_ids_dists(cell_id = origin,
@@ -850,17 +852,20 @@ disperse <- function (origin,
   # get number dispersing and staying
   # (if this is not the first cell considered, we use the original population
   # to make sure new arrivals don't disperse again)
-  #n_total <- original_pop[origin, stage]
-  n_total <- pop[origin, stage]
+  n_total <- original_pop[origin, stage]
+  #n_total <- pop[origin, stage]
   n_dispersing <- round_pop(n_total * prop_dispersing[stage])
   n_staying <- n_total - n_dispersing
   
   # update pop and original_pop to remove the dispersers
-  #new_arrivals <- pop[origin, stage] - n_total
-  #pop[origin, stage] <- n_staying + new_arrivals
-  
-  pop[origin, stage] <- pop[origin, stage] - n_dispersing
-  
+  new_arrivals <- pop[origin, stage] - n_total
+  if(length(destination_index) != 0) {
+  pop[origin, stage] <- n_staying + new_arrivals
+  }
+  # if(length(destination_index) != 0) {
+  #   pop[origin, stage] <- pop[origin, stage] - n_dispersing    
+  # }
+
   # propose some dispersals
   dispersals <- round_pop(n_dispersing * prob)
 
@@ -894,13 +899,19 @@ disperse <- function (origin,
     # the origin
     dispersals <- dispersals - excess
     
-    pop[origin, stage] <- pop[origin, stage] + sum(excess)
+    #dispersals[destination_is_origin] <- dispersals[destination_is_origin] + sum(excess)
     
+    if(length(destination_index) != 0) {
+      pop[origin, stage] <- pop[origin, stage] + sum(excess)
+    }
+
   }
   
   # assign them to their population and return
   pop[destination_ids, stage] <- pop[destination_ids, stage] + dispersals
 
+  if(!identical(init_pop, sum(pop, na.rm = TRUE))) browser()
+  
   pop
   
 }
