@@ -3,16 +3,24 @@ context('simulation_results-class')
 test_that('simulation_results classes work', {
   
   library(raster)
-
-  egk_mat_mask <- egk_mat > 0
-
-  disp.bar <- egk_hab
-  disp.bar[] <- 0
-  disp.bar[cellFromCol(disp.bar,ncol(disp.bar)/2)] <- 1
   
-  disp.bar2 <- egk_hab
-  disp.bar2[] <- 0
-  disp.bar2[sampleRandom(disp.bar2, size = 100, na.rm = TRUE, sp = TRUE)] <- 1
+  egk_mat_mask <- egk_mat > 0
+  
+  egk_hab_stack <- stack(replicate(10, egk_hab))
+  egk_hab_stack_na <- egk_hab_stack
+  egk_hab_stack_na[[5]][1:10] <- NA
+  
+  disp_bar <- egk_hab
+  disp_bar[] <- 0
+  disp_bar[cellFromCol(disp_bar,ncol(disp_bar)/2)] <- 1
+  
+  disp_bar2 <- egk_hab
+  disp_bar2[] <- 0
+  disp_bar2[sampleRandom(disp_bar2, size = 100, na.rm = TRUE, sp = TRUE)] <- 1
+  
+  cull <- stack(replicate(3, egk_hab))
+  cull[] <- 1
+  cull[sample(1:ncell(cull), 50)] <- 0
   
   pop_source <- egk_pop[[3]]
   pop_source[] <- 0
@@ -46,8 +54,9 @@ test_that('simulation_results classes work', {
                          fires = egk_fire,
                          source = pop_source,
                          sink = pop_sink,
-                         barrier = disp.bar,
-                         barrier2 = disp.bar2)
+                         barrier = disp_bar,
+                         barrier2 = disp_bar2,
+                         cull = cull)
   
   landscape_kfun <- landscape(population = egk_pop,
                               suitability = egk_hab,
@@ -70,11 +79,18 @@ test_that('simulation_results classes work', {
                               carrying_capacity = 0)
   
   landscape_habstack <- landscape(population = egk_pop,
-                                  suitability = stack(replicate(10, egk_hab)),
+                                  suitability = egk_hab_stack,
                                   carrying_capacity = egk_k,
                                   fires = egk_fire,
                                   source = pop_source,
                                   sink = pop_sink)
+  
+  expect_error(landscape(population = egk_pop,
+                         suitability = egk_hab_stack_na,
+                         carrying_capacity = egk_k,
+                         fires = egk_fire,
+                         source = pop_source,
+                         sink = pop_sink))
   
   pop_dyn <- population_dynamics(change = growth(transition_matrix = egk_mat),
                                  dispersal = cellular_automata_dispersal(max_cells = c(0, 20, 0),
@@ -88,7 +104,7 @@ test_that('simulation_results classes work', {
   
   pop_dyn2 <- population_dynamics(change = growth(transition_matrix = egk_mat),
                                   dispersal = fast_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay = 8000)),
-                                  modification = NULL,
+                                  modification = mortality(mortality_layer = 'cull', stages = 2),
                                   density_dependence = NULL)
   
   pop_dyn3 <- population_dynamics(change = growth(transition_matrix = egk_mat),
@@ -162,7 +178,7 @@ test_that('simulation_results classes work', {
   
   pop_dyn7 <- population_dynamics(change = growth(transition_matrix = egk_mat),
                                   dispersal = fast_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1,
-                                                                                                           normalize = TRUE)),
+                                                                                                             normalize = TRUE)),
                                   modification = NULL,
                                   density_dependence = NULL)
   
@@ -178,15 +194,15 @@ test_that('simulation_results classes work', {
                                   density_dependence = NULL)
   
   pop_dyn9 <- population_dynamics(change = growth(transition_matrix = egk_mat),
-                                 dispersal = NULL,
-                                 modification = NULL,
-                                 density_dependence = ceiling_density())
+                                  dispersal = NULL,
+                                  modification = NULL,
+                                  density_dependence = ceiling_density())
   
   pop_dyn10 <- population_dynamics(change = growth(transition_matrix = egk_mat),
-                                  dispersal = kernel_dispersal(max_distance = 5000,
-                                                               arrival_probability = "carrying_capacity"),
-                                  modification = NULL,
-                                  density_dependence = NULL)
+                                   dispersal = kernel_dispersal(max_distance = 5000,
+                                                                arrival_probability = "carrying_capacity"),
+                                   modification = NULL,
+                                   density_dependence = NULL)
   
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn,
@@ -238,7 +254,7 @@ test_that('simulation_results classes work', {
                                                                       effect_time = 2)),
                                   timesteps = 3),
                        "simulation_results"))
-
+  
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn4b,
                                   habitat_dynamics = NULL,
@@ -250,14 +266,14 @@ test_that('simulation_results classes work', {
                                   habitat_dynamics = NULL,
                                   timesteps = 3),
                        "simulation_results"))
-
+  
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn4d,
                                   habitat_dynamics = list(disturbance(disturbance_layers = "fires",
                                                                       effect_time = 2)),
                                   timesteps = 3),
                        "simulation_results"))
-    
+  
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn5,
                                   habitat_dynamics = NULL,
@@ -296,6 +312,7 @@ test_that('simulation_results classes work', {
                                   timesteps = 3,
                                   replicates = 2),
                        "simulation_results"))
+  
   
   expect_error(simulation(landscape = landscape_nohab,
                           population_dynamics = pop_dyn,
@@ -453,8 +470,6 @@ test_that('simulation_results classes work', {
                                        landscape_object = 4),
                        "RasterLayer"))
   
-  # print(exponential_dispersal_kernel())
-  
-  # print(modified_transition())
+  compare_emp(test_simulation, test_simulation, test_simulation)
   
 })
