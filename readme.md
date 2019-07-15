@@ -9,7 +9,7 @@ The package will enable the setup and execution of dynamic spatial
 habitat (landscape/seascape) meta-population models with demographic
 processes in R.
 
-You can install the development version from GitHubi, including the
+You can install the development version from GitHub, including the
 example vignette, with:
 
 ``` r
