@@ -10,3 +10,6 @@
 working
 readme.Rmd
 readme.md
+^doc$
+^Meta$
+vignettes/egk_example_cache

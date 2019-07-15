@@ -5,3 +5,6 @@ src/*.o
 src/*.so
 .gitignore
 working/*
+doc
+Meta
+vignettes/egk_example_cache
