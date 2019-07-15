@@ -2,16 +2,17 @@
 title: "An Eastern Grey Kangaroo population simulation example"
 author: "Casey Visintin"
 date: "`r Sys.Date()`"
-output: pdf_document
+output: rmarkdown::html_vignette
 fig_width: 7.5
 fontsize: 10pt
 geometry: margin=2cm
 vignette: >
-%\VignetteIndexEntry{Eastern Grey Kangaroo}
+  %\VignetteIndexEntry{Eastern Grey Kangaroo}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-  ---
-  ```{r setup, include=FALSE}
+---
+
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(dpi=300, fig.width=7)
 ```
 
