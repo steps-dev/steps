@@ -6,9 +6,9 @@ as_class <- function (object, name, type = c("function", "list")) {
 }
 
 round_pop <- function (population) {
-
+  
   population_min <- floor(population)
-
+  
   if (steps_stash$demo_stochasticity == "full") {
     if (sum(population) == 0) return(population)
     return(rmultinom_large_int(population)[, 1])
@@ -114,4 +114,17 @@ pretty_int <- function (...) {
   at <- pretty(...)
   at <- at[at %% 1 == 0]
   at[at != 0]
+}
+
+int_or_proper_length_vector <- function (input, n_stages, parameter) {
+  if (length(input) != 1 & length(input) != n_stages) {
+    stop(paste0("Please provide either a single number or vector of",
+                "numbers that matches the number of life-stages in the ",
+                parameter,
+                " parameter."))
+  }
+  if (length(input) == 1) {
+    input <- rep(input, n_stages)
+  }
+  input
 }

@@ -48,10 +48,8 @@ NULL
 #'   that controls where individuals can disperse to (e.g. "suitability") or
 #'   "none" to allow individuals to disperse to all non-NA cells. The default is
 #'   to use both the habitat suitability and carrying capacity layers.
-#' @param dispersal_proportion proportions of individuals (0 to 1) that can
-#'   disperse in each life stage. Can also be a custom function that relates
-#'   the proportion dispersing to a spatial layer in the landscape object
-#'   (e.g. carrying capacity).
+#' @param dispersal_proportion a built-in or custom function defining the proportions
+#'   of individuals that can disperse in each life stage.
 #'
 #' @export
 #'
@@ -78,7 +76,7 @@ NULL
 #' }
 
 kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1),
-                              max_distance = Inf,
+                              max_distance = NULL,
                               arrival_probability = c("both", "suitability", "carrying_capacity", "none"),
                               dispersal_proportion = set_proportion_dispersing()) {
   
@@ -86,14 +84,72 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
   
   pop_dynamics <- function(landscape, timestep) {
     
-    # if max_distance is the default (Infinite), rescale to maximum distance of landscape
-    default_distance <- identical(max_distance, Inf)
     
-    if (default_distance) {
-      n_rows <- raster::nrow(landscape$population[[1]])
-      n_cols <- raster::ncol(landscape$population[[1]])
-      res <- raster::res(landscape$population[[1]])
-      max_distance <- sqrt( (n_cols * res[1])^2 + (n_rows * res[2])^2 )
+    n_rows <- raster::nrow(landscape$population[[1]])
+    n_cols <- raster::ncol(landscape$population[[1]])
+    res <- raster::res(landscape$population[[1]])
+    default_max <- sqrt( (n_cols * res[1])^2 + (n_rows * res[2])^2 )
+    
+    bad_distance <- FALSE
+    
+    if (length(max_distance) > 1) {
+      stop("max_distance must be NULL, Inf, or a positive number")
+    }
+    
+    # estimate a max distance by default
+    if (is.null(max_distance)) {
+      
+      # get relative dispersal probabilities on a mesh with similar resolution to the raster
+      distances <- seq(0, default_max, by = res)
+      probs <- dispersal_kernel(distances)
+      probs <- probs / sum(probs)
+      
+      # get approximate cumulative probability of dispersing to each of these distances
+      cum_probs <- cumsum(probs) 
+      
+      # find distances beyond which there is negligible probability of
+      # dispersal, or return the maximum landscape dimension if we couldn't find
+      # one
+      beyond_limit <- cum_probs > (1 - 1e-6) 
+      if (any(beyond_limit)) {
+        # find the first beyond
+        max_distance <- distances[which(beyond_limit[1])]
+      } else {
+        max_distance <- default_max
+      }
+      
+      
+    } else {
+      
+      # if they passed in a number
+      if (is.finite(max_distance)) {
+        
+        # cap it at the maximum      
+        if (max_distance > default_max) {
+          warning("the provided maximum distance was beyond the largest distance in the landscape, so ")
+          max_distance <- default_max
+        }
+        
+        # error on negative numbers
+        if (max_distance < 0) {
+          bad_distance <- TRUE
+        }
+        
+      } else {
+        
+        # non-finite case, check it's an Inf
+        if (identical(max_distance, Inf)) {
+          max_distance <- default_max
+        } else{
+          bad_distance <- TRUE
+        }
+        
+      }
+    }  
+    
+    # warn if there was a problen with the distance they entered
+    if (bad_distance) {
+      stop("max_distance must be NULL, Inf, or a positive number")
     }
     
     distance_list <- steps_stash$distance_list
@@ -104,7 +160,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
       raster_dim <- force(raster_dim)
       
       distance_info <- get_distance_info(res = raster::res(landscape$population),
-                                         max_distance = max(max_distance))
+                                         max_distance = max_distance)
       
       sys_mem_available <- memuse::Sys.meminfo()$freeram
       
@@ -122,7 +178,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
       }
       
     }
-
+    
     # how many life stages?
     n_stages <- raster::nlayers(landscape$population)
     
@@ -156,11 +212,11 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
     dispersal_proportion <- dispersal_proportion(landscape, timestep)
     
     # Which stages can disperse
-    which_stages_disperse <- which(dispersal_proportion > 0 & max_distance > 0)
+    which_stages_disperse <- which(dispersal_proportion > 0)
     
     # get non-NA cells
     cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])))
-
+    
     delayedAssign(
       "habitat_suitability_values",
       if (raster::nlayers(landscape$suitability) > 1) raster::getValues(landscape$suitability[[timestep]])
@@ -219,7 +275,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
     
     # subset to stages that disperse
     indices <- indices[indices[, 2] %in% which_stages_disperse, ]
-
+    
     for(row in sample.int(nrow(indices))) {
       pop <- disperse(origin = indices[row, 1],
                       stage = indices[row, 2],
@@ -283,10 +339,8 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
 #'
 #' @param max_cells the maximum number of cell movements that each individual in
 #'   each life stage can disperse in whole integers.
-#' @param dispersal_proportion proportions of individuals (0 to 1) that can
-#'   disperse in each life stage. Can also be a custom function that relates
-#'   the proportion dispersing to a spatial layer in the landscape object
-#'   (e.g. carrying capacity).
+#' @param dispersal_proportion a built-in or custom function defining the proportions
+#'   of individuals that can disperse in each life stage.
 #' @param barriers_map the name of a spatial layer in the landscape object that
 #'   contains cell values between 0 (no barrier) and 1 (full barrier) Any
 #'   values between 0 and 1 indicate the permeability of the barrier.   
@@ -463,10 +517,8 @@ cellular_automata_dispersal <- function (max_cells = Inf,
 #'
 #' @param dispersal_kernel a single built-in or user-defined distance dispersal
 #'   kernel function.
-#' @param dispersal_proportion proportions of individuals (0 to 1) that can
-#'   disperse in each life stage. Can also be a custom function that relates
-#'   the proportion dispersing to a spatial layer in the landscape object
-#'   (e.g. carrying capacity).
+#' @param dispersal_proportion a built-in or custom function defining the proportions
+#'   of individuals that can disperse in each life stage.
 #'
 #' @export
 #'
@@ -787,7 +839,7 @@ get_ids_dists <- function(cell_id, distance_info, raster_dim) {
   
   # get origin coordinate  
   origin_coord <- id2coord(cell_id, raster_dim)  
-
+  
   # relative coordinates (in numbers of cells) of cells within max distance, and
   # their distances from this cell
   rel_coords <- distance_info[, 1:2]
@@ -819,8 +871,8 @@ disperse <- function (origin,
                       distance_list = NULL,
                       distance_info = NULL,
                       raster_dim = NULL) {
-
-  init_pop <- sum(pop, na.rm = TRUE)
+  
+  #init_pop <- sum(pop, na.rm = TRUE)
   
   if (is.null(distance_list)) {
     print("Kernel-based dispersal running in single iteration mode to conserve RAM")
@@ -837,6 +889,10 @@ disperse <- function (origin,
   # index destination cells that allow arrival in raster
   destination_index <- fast_match(destination_ids, can_arriv_ids)
   
+  if (length(destination_index == 0)) {
+    return(pop)
+  }
+  
   # subset destination ids and distances to valid arrival cells
   destination_ids <- destination_ids[destination_index]
   destination_dists <- destination_dists[destination_index]
@@ -848,7 +904,7 @@ disperse <- function (origin,
   
   # standardise probabilities
   prob <- prob / sum(prob)
-
+  
   # get number dispersing and staying
   # (if this is not the first cell considered, we use the original population
   # to make sure new arrivals don't disperse again)
@@ -859,16 +915,12 @@ disperse <- function (origin,
   
   # update pop and original_pop to remove the dispersers
   new_arrivals <- pop[origin, stage] - n_total
-  if(length(destination_index) != 0) {
   pop[origin, stage] <- n_staying + new_arrivals
-  }
-  # if(length(destination_index) != 0) {
-  #   pop[origin, stage] <- pop[origin, stage] - n_dispersing    
-  # }
-
+  
+  
   # propose some dispersals
   dispersals <- round_pop(n_dispersing * prob)
-
+  
   # if we're using carrying capacity, return individuals to the origin if there's no space
   if (!is.null(carrying_capacity)) {
     
@@ -893,24 +945,19 @@ disperse <- function (origin,
     }
     
     excess <- pmax(0, dispersals - space_remaining)
-    #destination_is_origin <- which(destination_ids == origin)
-
+    
     # remove the excess from the dispersers, and say they are dispersing back to
     # the origin
     dispersals <- dispersals - excess
     
-    #dispersals[destination_is_origin] <- dispersals[destination_is_origin] + sum(excess)
-    
-    if(length(destination_index) != 0) {
-      pop[origin, stage] <- pop[origin, stage] + sum(excess)
-    }
+    pop[origin, stage] <- pop[origin, stage] + sum(excess)
 
   }
   
   # assign them to their population and return
   pop[destination_ids, stage] <- pop[destination_ids, stage] + dispersals
-
-  if(!identical(init_pop, sum(pop, na.rm = TRUE))) browser()
+  
+  #if(!identical(init_pop, sum(pop, na.rm = TRUE))) browser()
   
   pop
   

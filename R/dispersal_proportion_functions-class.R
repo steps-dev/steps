@@ -20,15 +20,14 @@ NULL
 
 #' Set proportions of populations dispersing
 #'
-#' This function allows a user to specify what proportions of populations in each life-stage disperse. It operates
-#' similarly on all cells and in all timesteps throughout a simulation.
+#' This function allows a user to specify what proportions of populations in each life-stage disperse.
+#' It operates similarly on all cells and in all timesteps throughout a simulation.
 #'
-#' @param proportions A single value or vector of proportions of individuals in each life stage that disperse
-#' - default is 1. If proportions are specified as a single number, then all life-stages disperse with that
-#' proportion, however, a vector of proportions (equal in length to the number of life-stages) can also be
-#' specified. Note, if a vector of numbers is specified that has fewer elements than life stages, the vector
-#' will be recycled to match its number of elements to life stages (i.e. specifying 'proportions = c(0, 0.5, 1)' with
-#' five life-stages will become 0, 0.5, 1, 0, 0.5).
+#' @param proportions A single value or vector of proportions (between zero and one) of
+#' individuals in each life stage that disperse - default is 1. If proportions are specified
+#' as a single number, then all life-stages disperse with that proportion, however, a vector
+#' of proportions (equal in length to the number of life-stages) can also be specified. To
+#' prevent stages from dispersing, set corresponding values to zero.
 #' 
 #' @return An object of class \code{dispersal_proportion_function}
 #' 
@@ -59,23 +58,8 @@ set_proportion_dispersing <- function (proportions = 1) {
     # get total life-stages
     n_stages <- raster::nlayers(landscape$population)
 
-    if(!identical(proportions, 1)) {
-      warn_once((length(proportions) > n_stages | length(proportions) < n_stages),
-                paste(n_stages,
-                      "life stages exist but",
-                      length(proportions),
-                      "dispersal proportion(s) of",
-                      paste(proportions, collapse = ", "),
-                      "were specified.\nAll life stages will use this proportion."),
-                warning_name = "dispersal_proportions")
-    }
-    
-    if (length(proportions) > n_stages | length(proportions) < n_stages)  {
-      dispersal_proportion <- rep_len(proportions, n_stages)
-    } else {
-      dispersal_proportion <- proportions
-    }
-    
+    dispersal_proportion <- int_or_proper_length_vector(proportions, n_stages, "proportions")
+
     dispersal_proportion
     
   }
@@ -92,6 +76,15 @@ set_proportion_dispersing <- function (proportions = 1) {
 #' life-stages are set or density dependence is set to NULL in \link[steps]{population_dynamics},
 #' the function will consider all life-stages in the calculation. 
 #'
+#' @param maximum_proportions A single value or vector of the maximum proportions (between zero
+#' and one) of individuals in each life stage that disperse - default is 1. If maximum
+#' proportions are specified as a single number, then all life-stages use that value, however,
+#' a vector of maximum proportions (equal in length to the number of life-stages) can also be
+#' specified. Maximum proportions are multiplied by the calculated proportions based on carrying
+#' capacity so to prevent stages from dispersing, set corresponding values to zero.
+#' 
+#' @return An object of class \code{dispersal_proportion_function}
+#' 
 #' @export
 #'
 #' @examples
@@ -112,12 +105,14 @@ set_proportion_dispersing <- function (proportions = 1) {
 #' simulation(landscape = ls, population_dynamics = pd, habitat_dynamics = NULL, timesteps = 20)
 #' }
 
-density_dependence_dispersing <- function () {
+density_dependence_dispersing <- function (maximum_proportions = 1) {
   
   disp_prop_fun <- function (landscape, timestep) {
     
     # get total life-stages
     n_stages <- raster::nlayers(landscape$population)
+    
+    maximum_proportions <- int_or_proper_length_vector(maximum_proportions, n_stages, "maximum_proportions")
     
     # check for specified stages that contribute to density dependence
     if (!exists("density_dependence_stages")) {
@@ -131,7 +126,7 @@ density_dependence_dispersing <- function () {
     
     cc <- get_carrying_capacity(landscape, timestep)
     cc <- raster::getValues(cc)
-    
+
     dispersal_proportion <- rep(0, n_stages)
     
     for(i in density_dependence_stages) {
@@ -139,7 +134,8 @@ density_dependence_dispersing <- function () {
       dispersal_proportion[i] <- tanh(proportion)
     }
     
-    dispersal_proportion
+    # check that maximum_proportions is a vector of the right length, with all values between 0 and 1
+    dispersal_proportion * maximum_proportions
     
   }
   
