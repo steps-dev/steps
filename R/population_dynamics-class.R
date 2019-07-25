@@ -84,11 +84,6 @@ population_dynamics <- function (change = NULL,
   
 }
 
-#' Check population dynamics object
-#' 
-#' @param x a population_dynamics object
-#' @export
-
 is.population_dynamics <- function (x) {
   inherits(x, 'population_dynamics')
 }

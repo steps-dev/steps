@@ -88,11 +88,6 @@ simulation <- function(landscape,
   structure(NextMethod(), class=class(x))
 }
 
-#' Check simulation object 
-#'
-#' @param x a simulation_results objec
-#' @export
-
 is.simulation_results <- function (x) {
   inherits(x, 'simulation_results')
 }

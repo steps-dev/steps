@@ -60,11 +60,6 @@ landscape <- function (population, suitability = NULL, carrying_capacity = NULL,
   as.landscape(landscape)
 }
 
-#' Check landscape object 
-#' 
-#' @param x a landscape object
-#' @export
-
 is.landscape <- function (x) {
   inherits(x, 'landscape')
 }
