@@ -12,10 +12,8 @@
 \item{dispersal_kernel}{a single built-in or user-defined distance dispersal
 kernel function.}
 
-\item{dispersal_proportion}{proportions of individuals (0 to 1) that can
-disperse in each life stage. Can also be a custom function that relates
-the proportion dispersing to a spatial layer in the landscape object
-(e.g. carrying capacity).}
+\item{dispersal_proportion}{a built-in or custom function defining the proportions
+of individuals that can disperse in each life stage.}
 }
 \description{
 The fast_dispersal function uses kernel-based dispersal

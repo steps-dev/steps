@@ -13,10 +13,8 @@ cellular_automata_dispersal(max_cells = Inf,
 \item{max_cells}{the maximum number of cell movements that each individual in
 each life stage can disperse in whole integers.}
 
-\item{dispersal_proportion}{proportions of individuals (0 to 1) that can
-disperse in each life stage. Can also be a custom function that relates
-the proportion dispersing to a spatial layer in the landscape object
-(e.g. carrying capacity).}
+\item{dispersal_proportion}{a built-in or custom function defining the proportions
+of individuals that can disperse in each life stage.}
 
 \item{barriers_map}{the name of a spatial layer in the landscape object that
 contains cell values between 0 (no barrier) and 1 (full barrier) Any

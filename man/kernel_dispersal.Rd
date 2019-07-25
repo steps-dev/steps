@@ -6,7 +6,7 @@
 \usage{
 
   kernel_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay
-  = 1), max_distance = Inf, arrival_probability = c("both",
+  = 1), max_distance = NULL, arrival_probability = c("both",
   "suitability", "carrying_capacity", "none"),
   dispersal_proportion = set_proportion_dispersing())
 }
@@ -25,10 +25,8 @@ that controls where individuals can disperse to (e.g. "suitability") or
 "none" to allow individuals to disperse to all non-NA cells. The default is
 to use both the habitat suitability and carrying capacity layers.}
 
-\item{dispersal_proportion}{proportions of individuals (0 to 1) that can
-disperse in each life stage. Can also be a custom function that relates
-the proportion dispersing to a spatial layer in the landscape object
-(e.g. carrying capacity).}
+\item{dispersal_proportion}{a built-in or custom function defining the proportions
+of individuals that can disperse in each life stage.}
 }
 \description{
 The kernel_dispersal function employs a probabilistic

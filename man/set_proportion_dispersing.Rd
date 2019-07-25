@@ -7,19 +7,18 @@
 set_proportion_dispersing(proportions = 1)
 }
 \arguments{
-\item{proportions}{A single value or vector of proportions of individuals in each life stage that disperse
-- default is 1. If proportions are specified as a single number, then all life-stages disperse with that
-proportion, however, a vector of proportions (equal in length to the number of life-stages) can also be
-specified. Note, if a vector of numbers is specified that has fewer elements than life stages, the vector
-will be recycled to match its number of elements to life stages (i.e. specifying 'proportions = c(0, 0.5, 1)' with
-five life-stages will become 0, 0.5, 1, 0, 0.5).}
+\item{proportions}{A single value or vector of proportions (between zero and one) of
+individuals in each life stage that disperse - default is 1. If proportions are specified
+as a single number, then all life-stages disperse with that proportion, however, a vector
+of proportions (equal in length to the number of life-stages) can also be specified. To
+prevent stages from dispersing, set corresponding values to zero.}
 }
 \value{
 An object of class \code{dispersal_proportion_function}
 }
 \description{
-This function allows a user to specify what proportions of populations in each life-stage disperse. It operates
-similarly on all cells and in all timesteps throughout a simulation.
+This function allows a user to specify what proportions of populations in each life-stage disperse.
+It operates similarly on all cells and in all timesteps throughout a simulation.
 }
 \examples{
 

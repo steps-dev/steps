@@ -3,6 +3,7 @@ context('simulation_results-class')
 test_that('simulation_results classes work', {
   
   library(raster)
+  library(future)
   
   egk_mat_mask <- egk_mat > 0
   
@@ -385,6 +386,16 @@ test_that('simulation_results classes work', {
                                 timesteps = 10,
                                 replicates = 3)
   
+  plan(multisession)
+  test_simulation_par <- simulation(landscape = landscape,
+                                population_dynamics = pop_dyn,
+                                habitat_dynamics = list(disturbance(disturbance_layers = "fires",
+                                                                    effect_time = 2)),
+                                timesteps = 10,
+                                replicates = 3)
+  
+  
+  plan(sequential)
   test_simulation2 <- simulation(landscape = landscape,
                                  population_dynamics = pop_dyn8,
                                  habitat_dynamics = NULL,

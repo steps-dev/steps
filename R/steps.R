@@ -25,4 +25,16 @@ flush_stash <- function() {
   }
 }
 
+# replace the values in the steps stash with those in this new one (used to pass the stash onto parallel workers)
+replace_stash <- function(new_stash) {
+  
+  # flush the old one
+  flush_stash()
+  
+  for (name in names(new_stash)) {
+    steps_stash[[name]] <- new_stash[[name]]
+  }
+  
+}
+
 options(future.globals.maxSize= 1000*1024^2)

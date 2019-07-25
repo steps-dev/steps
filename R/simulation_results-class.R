@@ -63,9 +63,11 @@ simulation <- function(landscape,
   steps_stash$demo_stochasticity <- match.arg(demo_stochasticity)
   
   in_parallel <- !inherits(future::plan(), "sequential")
+  is_multisession <- inherits(future::plan(), "multisession")
   lapply_fun <- ifelse(in_parallel,
                        future.apply::future_lapply,
                        base::lapply)
+  
   
   simulation_results <- lapply_fun(seq_len(replicates),
                                    FUN = simulate,
@@ -73,7 +75,9 @@ simulation <- function(landscape,
                                    population_dynamics = population_dynamics,
                                    habitat_dynamics = habitat_dynamics,
                                    timesteps = timesteps,
-                                   verbose = verbose)
+                                   verbose = verbose,
+                                   stash = steps_stash,
+                                   is_multisession = is_multisession)
   
   as.simulation_results(simulation_results)
 }
@@ -205,7 +209,7 @@ plot.simulation_results <- function (x,
                            ...)
             
             graphics::axis(side = 1, at = pretty_int(c(1, length(pop[ , i]))))
-
+            
           }
           
         }
@@ -246,7 +250,7 @@ plot.simulation_results <- function (x,
                            ...)
             
             graphics::axis(side = 1, at = pretty_int(c(1, length(pop[ , i]))))
-
+            
           }
           
         }
@@ -413,7 +417,7 @@ plot.simulation_results <- function (x,
                        ...)
         
         graphics::axis(side = 1, at = pretty_int(c(1, length(unlist(k)))))
-
+        
       }
       
       if (type == "raster") {
@@ -485,7 +489,7 @@ plot.simulation_results <- function (x,
                        ...)
         
         graphics::axis(side = 1, at = pretty_int(c(1, length(pop.mn[, i]))))
-
+        
         for (j in seq_along(x)) {
           graphics::lines(pop[ , i, j],
                           col = 'gray',
@@ -520,7 +524,7 @@ plot.simulation_results <- function (x,
                      ...)
       
       graphics::axis(side = 1, at = pretty_int(c(1, length(quants[, 2]))))
-
+      
       # for (j in seq_along(x)[-1]) {
       #   graphics::lines(rowSums(pop[ , , j]),
       #                   col = 'gray')
@@ -797,7 +801,12 @@ as.simulation_results <- function (simulation_results) {
   as_class(simulation_results, "simulation_results", "list")
 }
 
-simulate <- function (i, landscape, population_dynamics, habitat_dynamics, timesteps, verbose) {
+simulate <- function (i, landscape, population_dynamics, habitat_dynamics, timesteps, verbose, stash, is_multisession) {
+
+  # if we are running in parallel, make sure the steps stash is the one from the calling session
+  if (is_multisession) {
+    replace_stash(stash)
+  }
   
   timesteps <- seq_len(timesteps)
   if (verbose == TRUE && inherits(future::plan(), "sequential")) pb <- utils::txtProgressBar(min = 0, max = max(timesteps), style = 3)
