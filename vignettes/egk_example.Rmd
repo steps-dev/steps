@@ -29,7 +29,7 @@ library(viridisLite)
 library(future)
 ```
 
-First we setup a stage based transition matrix, also known as a Leslie matrix. The first matrix represents survival and fecundity (transition) probabilities for each of the life stages in our kangaroo model. In this matrix, fecundities - or numbers of offspring per contributing stage - are in the first row. These are always represented as positive numbers. Survival probabilities are shown in the remaining rows and are expressed as positive numbers between zero and one. The second matrix describes the uncertainty around these transition probabilities (as standard deviations) and is used to simulate environmental stochasticity - zeros indicate that we will not allow for stochasticity, i.e. there is no uncertainty about environmental fluctuations in our system. Note, there are three life-stages and the matrices are symmetrical in the number of columns and rows (three columns, three rows). Also, names are added to the columns and rows to identify the different life-stages of the kangaroo. These example transition matrix and stochasticity matrix objects are available in the steps package (type "egk_mat" or "egk_mat_stoch" at the R prompt to access).
+First we setup a stage-based transition matrix, also known as a Lefkovitch matrix. The first matrix represents survival and fecundity (transition) probabilities for each of the life stages in our kangaroo model. In this matrix, fecundities - or numbers of offspring per contributing stage - are in the first row. These are always represented as positive numbers. Survival probabilities are shown in the remaining rows and are expressed as positive numbers between zero and one. The second matrix describes the uncertainty around these transition probabilities (as standard deviations) and is used to simulate environmental stochasticity - zeros indicate that we will not allow for stochasticity, i.e. there is no uncertainty about environmental fluctuations in our system. Note, there are three life-stages and the matrices are symmetrical in the number of columns and rows (three columns, three rows). Also, names are added to the columns and rows to identify the different life-stages of the kangaroo. These example transition matrix and stochasticity matrix objects are available in the steps package (type "egk_mat" or "egk_mat_stoch" at the R prompt to access).
 
 ```{r, message = FALSE}
 
@@ -208,8 +208,7 @@ egk_landscape <- landscape(population = egk_pop,
 egk_pop_dynamics <- population_dynamics(
   change = growth(transition_matrix = egk_mat,
                   global_stochasticity = egk_mat_stoch,
-                  transition_function = modified_transition(egk_mat,
-                                                            survival_layer = "suitability",
+                  transition_function = modified_transition(survival_layer = "suitability",
                                                             fecundity_layer = NULL)),
   dispersal = NULL,
   modification = NULL,
@@ -313,8 +312,8 @@ To characterise a translocation, we specify two raster layers that map the locat
 
 ```{r, message = FALSE, progress = FALSE, fig.align = "center", eval = FALSE}
 egk_landscape <- landscape(population = egk_pop,
-                           suitability = egk_hab,
-                           carrying_capacity = egk_k,
+                           suitability = NULL,
+                           carrying_capacity = NULL,
                            source = egk_source,
                            sink = egk_sink)
 

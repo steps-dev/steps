@@ -47,7 +47,11 @@ NULL
 #' @param arrival_probability the name of a spatial layer in the landscape object
 #'   that controls where individuals can disperse to (e.g. "suitability") or
 #'   "none" to allow individuals to disperse to all non-NA cells. The default is
-#'   to use both the habitat suitability and carrying capacity layers.
+#'   to use both the habitat suitability and carrying capacity layers. When this
+#'   option is selected, the arrival probability in each cell is calculated by
+#'   multiplying the habitat suitability by one minus the proportion of space taken
+#'   up in the cell (total population of life stages contributing to density
+#'   dependence divided by the carrying capacity).
 #' @param dispersal_proportion a built-in or custom function defining the proportions
 #'   of individuals that can disperse in each life stage.
 #'
@@ -530,7 +534,7 @@ cellular_automata_dispersal <- function (max_cells = Inf,
 #' # controlled by approach to carrying capacity.
 #' 
 #' \dontrun{
-#' fft_dispersal <- fast_dispersal(dispersal_proportion = density_dependence_dispersing()
+#' fft_dispersal <- fast_dispersal(dispersal_proportion = density_dependence_dispersing(),
 #'                      dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1000))
 #' 
 #' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
