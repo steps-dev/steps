@@ -34,7 +34,7 @@ capacity.
 # controlled by approach to carrying capacity.
 
 \dontrun{
-fft_dispersal <- fast_dispersal(dispersal_proportion = density_dependence_dispersing()
+fft_dispersal <- fast_dispersal(dispersal_proportion = density_dependence_dispersing(),
                      dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1000))
 
 ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)

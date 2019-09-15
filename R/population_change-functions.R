@@ -18,7 +18,7 @@ NULL
 #' Users can also specify a built-in or custom function to modify the transition matrices
 #' throughout a simulation.
 #'
-#' @param transition_matrix A symmetrical age-based (Leslie) or stage-based
+#' @param transition_matrix A symmetrical age-based (Leslie) or stage-based (Lefkovitch)
 #'   population structure matrix.
 #' @param global_stochasticity,local_stochasticity either scalar values or
 #'   matrices (with the same dimension as \code{transition_matrix}) specifying

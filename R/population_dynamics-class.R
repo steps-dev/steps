@@ -10,7 +10,11 @@
 #' used to construct an object with several population dynamics functions and
 #' their associated parameters. These functions specify how the population in
 #' the landscape object will be modified throughout a simulation. The dynamics
-#' can be executed in any order that is specified by the user.
+#' can be executed in any order that is specified by the user. It is cautioned
+#' that the order of dynamics will have implications depending on whether the
+#' user has assumed a post-breeding or pre-breeding census in the transition
+#' matrix. For more information on this, please refer to Kendall et al, (2019)
+#' \emph{Ecological Applications}.
 #'
 #' @rdname population_dynamics
 #'
@@ -26,6 +30,7 @@
 #' @param dynamics_order the order in which the population dynamics should be executed
 #'  on the landscape object - default is "change" -> "dispersal" -> "modification" -> "density_dependence". 
 #'  Note, if population dynamics are reordered, all dynamics must be listed in \code{dynamics_order}.
+#'
 #'
 #' @return An object of class \code{population_dynamics}
 #' 

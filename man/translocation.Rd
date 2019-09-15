@@ -39,8 +39,8 @@ trans_pop <- translocation(source_layer = "source",
                            effect_timesteps = c(5, 10, 15))
 
 ls <- landscape(population = egk_pop,
-                suitability = egk_hab,
-                carrying_capacity = egk_k,
+                suitability = NULL,
+                carrying_capacity = NULL,
                 "source" = egk_source,
                 "sink" = egk_sink)
 

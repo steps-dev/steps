@@ -8,7 +8,7 @@ growth(transition_matrix, global_stochasticity = 0,
   local_stochasticity = 0, transition_function = NULL)
 }
 \arguments{
-\item{transition_matrix}{A symmetrical age-based (Leslie) or stage-based
+\item{transition_matrix}{A symmetrical age-based (Leslie) or stage-based (Lefkovitch)
 population structure matrix.}
 
 \item{global_stochasticity, local_stochasticity}{either scalar values or

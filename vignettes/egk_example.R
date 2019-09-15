@@ -6,6 +6,76 @@ knitr::opts_chunk$set(
   cache = TRUE
 )
 
+## ---- message = FALSE----------------------------------------------------
+library(steps)
+library(raster)
+library(viridisLite)
+library(future)
+
+## ---- message = FALSE----------------------------------------------------
+
+egk_mat <- matrix(c(0.00,0.00,1.00,
+                    0.50,0.00,0.00,
+                    0.00,0.85,0.85),
+                  nrow = 3,
+                  ncol = 3,
+                  byrow = TRUE)
+colnames(egk_mat) <- rownames(egk_mat) <- c('juvenile','subadult','adult')
+
+egk_mat_stoch <- matrix(c(0.00,0.00,0.20,
+                          0.05,0.00,0.00,
+                          0.00,0.10,0.05),
+                        nrow = 3,
+                        ncol = 3,
+                        byrow = TRUE)
+colnames(egk_mat_stoch) <- rownames(egk_mat_stoch) <- c('juvenile','subadult','adult')
+
+## ---- message = FALSE, fig.align = "center"------------------------------
+egk_hab
+
+par(mar=c(0,0,0,0), oma=c(0,0,0,0))
+plot(egk_hab, box = FALSE, axes = FALSE, col = viridis(100), main = "Habitat Suitability")
+
+## ---- message = FALSE, fig.align = "center"------------------------------
+egk_k
+
+par(mar=c(0,0,0,0), oma=c(0,0,0,0))
+plot(egk_k, box = FALSE, axes = FALSE, col = viridis(100))
+
+## ---- message = FALSE, fig.align = "center"------------------------------
+egk_pop
+
+par(mar=c(0,0,0,0), oma=c(0,0,0,0))
+spplot(egk_pop, col.regions = viridis(100))
+
+## ---- message = FALSE----------------------------------------------------
+library(foreach)
+stable_states <- abs( eigen(egk_mat)$vectors[,1] / sum(eigen(egk_mat)$vectors[,1]))
+popN <- stack(replicate(ncol(egk_mat), egk_k)) * stable_states
+idx <- which(!is.na(getValues(popN[[1]])))
+pop <- stack(
+  foreach(i = 1:nlayers(popN)) %do% {
+    max_pop <- ceiling(cellStats(popN[[i]], max, na.rm = T))
+    pop_values <- popN[[i]][idx]
+    popN[[i]][idx] <- rbinom(prob = (pop_values/max_pop),
+                             size = max_pop,
+                             n = length(pop_values))
+    popN[[i]]
+  })
+names(pop) <- colnames(egk_mat)
+pop
+
+## ---- message = FALSE----------------------------------------------------
+egk_landscape <- landscape(population = egk_pop,
+                           suitability = NULL,
+                           carrying_capacity = NULL)
+
+## ---- message = FALSE----------------------------------------------------
+egk_pop_dynamics <- population_dynamics(change = growth(transition_matrix = egk_mat),
+                                        dispersal = NULL,
+                                        modification = NULL,
+                                        density_dependence = NULL)
+
 ## ---- message = FALSE,  results = 'hide', progress = FALSE---------------
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,
@@ -69,8 +139,7 @@ plot(egk_results)
 #  egk_pop_dynamics <- population_dynamics(
 #    change = growth(transition_matrix = egk_mat,
 #                    global_stochasticity = egk_mat_stoch,
-#                    transition_function = modified_transition(egk_mat,
-#                                                              survival_layer = "suitability",
+#                    transition_function = modified_transition(survival_layer = "suitability",
 #                                                              fecundity_layer = NULL)),
 #    dispersal = NULL,
 #    modification = NULL,
@@ -163,8 +232,8 @@ plot(egk_results)
 
 ## ---- message = FALSE, progress = FALSE, fig.align = "center", eval = FALSE----
 #  egk_landscape <- landscape(population = egk_pop,
-#                             suitability = egk_hab,
-#                             carrying_capacity = egk_k,
+#                             suitability = NULL,
+#                             carrying_capacity = NULL,
 #                             source = egk_source,
 #                             sink = egk_sink)
 #  
