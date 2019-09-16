@@ -2,8 +2,8 @@
 ------------------------------------------------------------------
 
 [![Build
-Status](https://travis-ci.org/skiptoniam/steps.svg?branch=master)](https://travis-ci.org/skiptoniam/steps?branch=master)
-[![codecov.io](https://codecov.io/github/skiptoniam/steps/coverage.svg?branch=master)](https://codecov.io/github/skiptoniam/steps?branch=master)
+Status](https://travis-ci.org/steps-dev/steps.svg?branch=master)](https://travis-ci.org/steps-dev/steps?branch=master)
+[![codecov.io](https://codecov.io/github/steps-dev/steps/coverage.svg?branch=master)](https://codecov.io/github/steps-dev/steps?branch=master)
 
 The package will enable the setup and execution of dynamic spatial
 habitat (landscape/seascape) meta-population models with demographic
