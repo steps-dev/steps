@@ -123,7 +123,7 @@ is.simulation_results <- function (x) {
 #'   rasters?
 #' @param timesteps timesteps to display when plotting rasters
 #' @param panels the number of columns and rows to use when plotting raster
-#'   timeseries - default is 3 x 3 (e.g. c(3,3) )
+#'   timeseries - default is 3 x 3 (e.g. c(3, 3) )
 #' @param emp should the expected minimum population of the simulation be
 #'   plotted?
 #' @param ... further arguments passed to/from other methods
@@ -282,11 +282,15 @@ plot.simulation_results <- function (x,
           # Produce scale of values
           breaks <- seq(scale_min, scale_max, (scale_max-scale_min)/100)
           
+          ifelse(any(rasters_sum[[timesteps]][] == 0, na.rm = TRUE),
+                 colour_range <- c("#bfbfbfff", viridisLite::viridis(length(breaks)-1)),
+                 colour_range <- viridisLite::viridis(length(breaks)-1))
+          
           if (animate == TRUE) {
             graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
             
             raster::animate(rasters_sum[[timesteps]],
-                            col = c("#bfbfbfff", viridisLite::viridis(length(breaks)-1)),
+                            col = colour_range,
                             n = 1,
                             legend.args = list(text = 'individuals'),
                             box = FALSE,
@@ -298,7 +302,7 @@ plot.simulation_results <- function (x,
                                        scales = list(draw = FALSE),
                                        margin = list(draw = FALSE),
                                        at = breaks,
-                                       col.regions = c("#bfbfbfff", viridisLite::viridis(length(breaks)-1)),
+                                       col.regions = colour_range,
                                        colorkey = list(space = "bottom",
                                                        width = 0.4),
                                        #main = "population",
@@ -323,11 +327,15 @@ plot.simulation_results <- function (x,
           # Produce scale of values
           breaks <- seq(scale_min, scale_max, (scale_max-scale_min)/100)
           
+          ifelse(any(rasters[[timesteps]][] == 0, na.rm = TRUE),
+                 colour_range <- c("#bfbfbfff", viridisLite::viridis(length(breaks)-1)),
+                 colour_range <- viridisLite::viridis(length(breaks)-1))
+          
           if (animate == TRUE) {
             graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
             
             raster::animate(rasters[[timesteps]],
-                            col = c("#bfbfbfff", viridisLite::viridis(length(breaks)-1)),
+                            col = colour_range,
                             n = 1,
                             legend.args = list(text = 'individuals'),
                             box = FALSE,
@@ -338,7 +346,7 @@ plot.simulation_results <- function (x,
                                        scales = list(draw = FALSE),
                                        margin = list(draw = FALSE),
                                        at = breaks,
-                                       col.regions = c("#bfbfbfff", viridisLite::viridis(length(breaks)-1)),
+                                       col.regions = colour_range,
                                        colorkey = list(space = "bottom",
                                                        width = 0.4),
                                        #main = "population",
@@ -364,11 +372,15 @@ plot.simulation_results <- function (x,
       # Produce scale of values
       breaks <- seq(scale_min, scale_max, (scale_max-scale_min)/100)
       
+      ifelse(any(rasters[[timesteps]][] == 0, na.rm = TRUE),
+             colour_range <- c("#bfbfbfff", viridisLite::viridis(length(breaks)-1)),
+             colour_range <- viridisLite::viridis(length(breaks)-1))
+      
       if (animate == TRUE) {
         graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
         
         raster::animate(rasters[[timesteps]],
-                        col = c("#bfbfbfff", viridisLite::viridis(length(breaks)-1)),
+                        col = colour_range,
                         n = 1,
                         legend.args = list(text = 'index'),
                         box = FALSE,
@@ -380,7 +392,7 @@ plot.simulation_results <- function (x,
                                    scales = list(draw = FALSE),
                                    margin = list(draw = FALSE),
                                    at = breaks,
-                                   col.regions = c("#bfbfbfff", viridisLite::viridis(length(breaks)-1)),
+                                   col.regions = colour_range,
                                    colorkey = list(space = "bottom",
                                                    width = 0.4),
                                    main = "habitat",
@@ -428,11 +440,15 @@ plot.simulation_results <- function (x,
         # Produce scale of values10
         breaks <- seq(scale_min, scale_max, (scale_max-scale_min)/100)
         
+        ifelse(any(rasters[[timesteps]][] == 0, na.rm = TRUE),
+               colour_range <- c("#bfbfbfff", viridisLite::viridis(length(breaks)-1)),
+               colour_range <- viridisLite::viridis(length(breaks)-1))
+        
         if (animate == TRUE) {
           graphics::par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1,1))
           
           raster::animate(rasters[[timesteps]],
-                          col = c("#bfbfbfff", viridisLite::viridis(length(breaks)-1)),
+                          col = colour_range,
                           n = 1,
                           legend.args = list(text = 'individuals'),
                           box = FALSE,
@@ -444,7 +460,7 @@ plot.simulation_results <- function (x,
                                      scales = list(draw = FALSE),
                                      margin = list(draw = FALSE),
                                      at = breaks,
-                                     col.regions = c("#bfbfbfff", viridisLite::viridis(length(breaks)-1)),
+                                     col.regions = colour_range,
                                      colorkey = list(space = "bottom",
                                                      width = 0.4),
                                      main = "k",
