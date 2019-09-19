@@ -1,5 +1,5 @@
 ---
-title: "Creating a custom steps function"
+title: "Creating custom *steps* functions"
 author: "Casey Visintin"
 date: "`r Sys.Date()`"
 output:
@@ -41,7 +41,7 @@ Landscape objects contain information on populations, carrying capacities, habit
 
 Let's examine a pre-built *steps* dynamics function "mortality" which changes populations based on spatially-explicit values provided in a raster layer.
 
-```{r, message = FALSE}
+```{r, message = FALSE, eval = FALSE}
 
 mortality <- function (mortality_layer, stages = NULL) {
   
@@ -79,13 +79,13 @@ mortality <- function (mortality_layer, stages = NULL) {
 }
 ```    
 
-In the first line, we have defined a function with parameters that specify the name of the layer in the landscape object that will be used to modify populations (mortality_layer) and which life stages will be modified (stages). We have set "stages" to NULL as a default so, if not specified, all stages will be modified. These are global parameters for the function and are optional.
+In the first statement, we have defined a function with parameters that specify the name of the layer in the landscape object that will be used to modify populations (mortality_layer) and which life stages will be modified (stages). We have set "stages" to NULL as a default so, if not specified, all stages will be modified. These are global parameters for the function and are optional.
 
-We define an internal function (returned by the main function) on the second line and this is where the dynamic operations are specified. Note the two parameters are "landscape" and "timestep" and these are both required.
+We define an internal function (returned by the main function) in the second statement and this is where the dynamic operations are specified. Note the two parameters are "landscape" and "timestep" and these are both required.
 
-The next few lines operate on the landscape object by extracting the populations of the affected stages, extracting the values of the "mortality layer", multiplying them to get new populations, and then returning the modified populations to the landscape object. Note the last line is always "landscape" so the landscape object is returned when the function concludes its operations.
+The next few statements operate on the landscape object by extracting the populations of the affected stages, extracting the values of the "mortality layer", multiplying them to get new populations, and then returning the modified populations to the landscape object. Note the last statement is always "landscape" so the landscape object is returned when the function concludes its operations.
 
-The final line assigns a class to the function. This is optional but useful to maintain an organised structure in the software. We recommend using the appropriate function based on the category of the function a user is defining. In this case, this function is a "population_modification" class since its operations change the population in the landscape object.
+The final statement assigns a class to the function. This is optional but useful to maintain an organised structure in the software. We recommend using the appropriate function based on the category of the function a user is defining. In this case, this function is a "population_modification" class since its operations change the population in the landscape object.
 
 So let's go about creating a custom function for use in *steps*. First, we load some initial kangaroo populations:
 
@@ -323,15 +323,18 @@ But what if we want to influence the locations of the random samples by our own 
 sampling_mask <- egk_hab # copy the habitat layer to assume its properties
 sampling_mask[!is.na(egk_hab)] <- 0 # set all non-NA values to zero
 
-idx_corner <- sort(unlist(lapply(0:15, function (x) seq(21, 541, by = 36) + x))) # get index values of the top-right corner (15 x 15 cells)
-sampling_mask[intersect(idx_corner, which(!is.na(egk_hab[])))] <- 1 # set non-NA raster values in top-right corner to one
+# get index values of the top-right corner (15 x 15 cells)
+idx_corner <- sort(unlist(lapply(0:15, function (x) seq(21, 541, by = 36) + x)))
 
-plot(sampling_mask)
+# set non-NA raster values in top-right corner to one
+sampling_mask[intersect(idx_corner, which(!is.na(egk_hab[])))] <- 1
+
+plot(sampling_mask, axes = FALSE, box = FALSE)
 
 ls <- landscape(population = egk_pop,
                 suitability = NULL,
                 carrying_capacity = NULL,
-                "sampling_mask" = sampling_mask) # name the object to reference it in our function
+                "sampling_mask" = sampling_mask) # name the object to reference in our function
 ```
 
 We now need to slightly alter our custom function to accept and use the new raster. We start with the same syntax, adding a parameter to specify the name of the raster in the landscape object to use in our function and then extracting using the specified name:
@@ -418,9 +421,70 @@ par(mar=c(0,0,0,0), oma=c(0,0,0,0))
 spplot(pop_stack, col.regions = viridis(100))
 ```
 
-So far we have been modifying the population rasters in the landscape object, but we can also modify transition matrices as well. This may be useful in situations where a user would like to deterministically define, or affect, survival and fecundity.
+So far we have been modifying the population rasters in the landscape object, but we can also modify vital rates as well. This may be useful in situations where a user would like to deterministically define, or affect, survival and fecundity.
 
-In the next example, we demonstrate the use of rasters to modify the survival of juvenile kangaroos. We begin with a simple simulation of population growth. For this simulation we only need initial populations and a growth function based on a transition matrix - environmental stochasticity is set to zero by default in the function. We turn of demographic stochasticity and run the simulation for a single replicate of five iterations:
+The 'growth' population dynamics function in *steps* includes a parameter for specifying a custom function (transition_function) to modify vital rates throughout a simulation. To start, let's examine a pre-existing transition function called 'modified_transition' which affects survival and fecundity based on raster values:
+
+```{r, message = FALSE, eval = FALSE}
+modified_transition <- function(survival_layer = NULL,
+                                fecundity_layer = NULL) {
+  
+  fun <- function (transition_array, landscape, timestep) {
+    
+    transition_matrix <- transition_array[, , 1]
+    idx <- which(transition_matrix != 0)
+    is_recruitment <- upper.tri(transition_matrix)[idx]
+
+    array_length <- dim(transition_array)[3]
+
+    cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])))
+    
+    if (is.null(survival_layer)) {
+      surv_mult <- rep(1, length(cell_idx))
+    } else {
+      if (raster::nlayers(landscape$suitability) > 1) {
+        surv_mult <- landscape[[survival_layer]][[timestep]][cell_idx]
+      } else {
+        surv_mult <- landscape[[survival_layer]][cell_idx]
+      }
+    }
+    
+    if (is.null(fecundity_layer)) {
+      fec_mult <- rep(1, length(cell_idx))
+    } else {
+      if (raster::nlayers(landscape$suitability) > 1) {
+        fec_mult <- landscape[[fecundity_layer]][[timestep]][cell_idx]
+      } else {
+        fec_mult <- landscape[[fecundity_layer]][cell_idx]
+      }
+    }
+    
+    for (i in seq_len(array_length)) {
+      new_surv <- transition_array[, , i][idx[!is_recruitment]] * surv_mult[i]
+      new_fec <- transition_array[, , i][idx[is_recruitment]] * fec_mult[i]
+      
+      transition_array[, , i][idx[!is_recruitment]] <- new_surv
+      transition_array[, , i][idx[is_recruitment]] <- new_fec
+    }
+
+    transition_array
+    
+  }
+  
+  as.transition_function(fun)
+  
+}
+```
+
+As with our original pre-built function "mortality", the first statement names the function object and defines any global parameters that will be passed to the function - in this case raster objects specified by the user. The next statement defines an internal function (returned by the main function) and this is where the dynamic operations are specified. Note the two familiar parameters "landscape" and "timestep" and a third additional parameter "transition_array" - these are all required. The new parameter 'transition_array' is required since this function operates within the 'growth' function where a transition array is constructed from the 'transition_matrix' parameter and then passed around and operated on internally. The z-dimension of the transition array matches the number of cells in the landscape.
+
+The next few statements detemine which indices in the transition matrix refer to survival and fecundity and are non-zero (i.e. specified), and identify non-NA cells in the population rasters. The non-NA cells indices are used to exclude transition matrices that correspond to cells that cannot contain populations.
+
+The function then extracts the values of survival and fecundity from the input rasters based on the recorded indices - first survival, then fecundity. If a raster layer is specified, its values are extracted - note, the code is written to accomodate both single rasters and raster stacks where the number of layers matches the intended timesteps of a simulation. If a raster layer is not specified, values of ones are stored.
+
+In the next few statements of the internal function ('fun'), the transition values are multiplied by the extracted values of the rasters (or ones). Similar to our original 'mortality' function example, the last statement in the internal function is always "transition_array" so the transition array object is returned when the internal function concludes its operations. The final statement assigns a class to the function - once again, this is optional but useful to maintain an organised structure in the software.
+
+In the next example, we demonstrate the use of rasters to define the fecundity of adult kangaroos. We begin with a simple simulation of population growth. For this simulation we only need initial populations and a growth function based on a transition matrix - environmental stochasticity is set to zero by default in the function. We turn of demographic stochasticity and run the simulation for a single replicate of five iterations:
 
 ```{r, message = FALSE}
 ls <- landscape(population = egk_pop,
@@ -459,29 +523,142 @@ plot(results,
 
 If we look at the transition matrix used in the simulation, we can see why there is a steady increase in population (Rmax ~ 1.17):
 
-```{r, message = FALSE}
+```{r, message = FALSE, echo = FALSE}
 print(egk_mat)
 
 paste("Rmax =", abs(eigen(egk_mat)$values[1]))
-
 ```
 
-Now let's suppose that we want to provide rasters that influence the survival of juvenile kangaroos. The methods are quite similar to our earlier examples but we will need to use a bit more indexing. First, we will construct a raster that will contain our values of influence - in this case numbers between zero and one that will be multiplied with juvenile survival in each timestep:
+Now let's suppose that we want to provide rasters that define the fecundity of adult kangaroos. The methods are similar to our earlier examples but we will need to tailor our custom function to work within the pre-existing 'growth' dynamics function (type ?growth for more information). First, we will construct a raster that will contain our values of influence - in this case numbers that define adult fecudity in each cell (missing values will use existing fecundity):
+
+```{r, message = FALSE, fig.align = "center", warning = FALSE}
+adult_fec <- egk_hab # copy the habitat layer to assume its properties
+adult_fec[] <- NA # set all values to NA
+
+ncells <- ncell(adult_fec)
+
+# assign random numbers between 0.1 and 0.4 to 80% of the cells
+adult_fec[sample(seq_len(ncells), 0.8 * ncells, replace = FALSE)] <- runif(ncells, 0.1, 0.5)
+
+plot(adult_fec, axes = FALSE, box = FALSE)
+```
+
+Now let's go about creating our custom function to define the fecundity of adult kangaroos. We start with the first two lines coded similar to the previous 'modified_transition' example and change the function name and retain only one of the parameters:
+
+```{r, message = FALSE, eval = FALSE}
+define_fecudity <- function(fecundity_layer) {
+  
+  fun <- function (transition_array, landscape, timestep) { ...
+```
+
+Next we define all of the indexing required to move values from the raster to the transition array (excluding zeros in the transition array and NA cells in the population raster):
+
+```{r, message = FALSE, eval = FALSE}
+define_fecudity <- function(fecundity_layer) {
+  
+  fun <- function (transition_array, landscape, timestep) {
+    transition_matrix <- transition_array[, , 1]
+    idx <- which(transition_matrix != 0)
+    is_recruitment <- upper.tri(transition_matrix)[idx]
+    cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])
+    
+    # this length should be pre-defined by non-NA cells in the landscape
+    array_length <- dim(transition_array)[3]
+    ...
+```
+
+We then extract the new fecundity values from the user specified raster in the landscape object and assign them to their respective positions in the transition array:
+
+```{r, message = FALSE, eval = FALSE}
+define_fecudity <- function(fecundity_layer) {
+  
+  fun <- function (transition_array, landscape, timestep) {
+    transition_matrix <- transition_array[, , 1]
+    idx <- which(transition_matrix != 0)
+    is_recruitment <- upper.tri(transition_matrix)[idx]
+    cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])
+    
+    # this length should be pre-defined by non-NA cells in the landscape
+    array_length <- dim(transition_array)[3]
+          
+    fec_values <- landscape[[fecundity_layer]][cell_idx]
+    
+    for (i in seq_len(array_length)) {
+      new_fec <- fec_values[i]
+      if (!is.na(new_fec)) {
+        transition_array[, , i][tail(idx[is_recruitment], 1)] <- new_fec
+      }
+    } ...
+```
+
+Finally, similar to the original example, we return the modified transition array from the function:
+
+```{r, message = FALSE}
+define_fecudity <- function(fecundity_layer) {
+  
+  fun <- function (transition_array, landscape, timestep) {
+    transition_matrix <- transition_array[, , 1]
+    idx <- which(transition_matrix != 0)
+    is_recruitment <- upper.tri(transition_matrix)[idx]
+    cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])))
+    
+    # this length should be pre-defined by non-NA cells in the landscape
+    array_length <- dim(transition_array)[3]
+          
+    fec_values <- landscape[[fecundity_layer]][cell_idx]
+    
+    for (i in seq_len(array_length)) {
+      new_fec <- fec_values[i]
+      if (!is.na(new_fec)) {
+        transition_array[, , i][tail(idx[is_recruitment], 1)] <- new_fec
+      }
+    }
+
+    transition_array
+  }
+}
+```
+
+In the 'population_dynamics' function, we specify 'growth' in the 'change' parameter, use the 'transition_function' parameter to call the new custom function (define_fecudity), and add the new parameter specifying the name of the raster in the landscape object. As previously, we run the simulation for a single replicate of five iterations:
+
+```{r, message = FALSE}
+ls <- landscape(population = egk_pop,
+                suitability = NULL,
+                carrying_capacity = NULL,
+                "adult_fec" = adult_fec)
+
+pd <- population_dynamics(
+  change = growth(transition_matrix = egk_mat,
+                  transition_function = define_fecudity(fecundity_layer = "adult_fec")),
+  dispersal = NULL,
+  modification = NULL,
+  density_dependence = NULL)
+
+results <- simulation(landscape = ls,
+                      population_dynamics = pd,
+                      habitat_dynamics = NULL,
+                      demo_stochasticity = "none",
+                      timesteps = 5,
+                      replicates = 1,
+                      verbose = FALSE)
+```
+
+Let's look at how the total juvenile population now changes through time (much slower due to the reduced fecundity of adults):
 
 ```{r, message = FALSE, fig.align = "center"}
-survival_influence <- egk_hab # copy the habitat layer to assume its properties
-survival_influence[!is.na(egk_hab)] <- 1 # set all non-NA values to one
-
-idx_corner <- sort(unlist(lapply(0:15, function (x) seq(21, 541, by = 36) + x))) # get index values of the top-right corner (15 x 15 cells)
-idx_corner <- intersect(idx_corner, which(!is.na(egk_hab[]))) # remove NA cells in index
-
-survival_influence[intersect(idx_corner, which(!is.na(egk_hab[])))] <- runif(length(idx_corner)) # assign random numbers between 0 and 1 to indexed cells 
-
-plot(survival_influence)
-
+plot(results, stages = 1)
 ```
 
+And here is the updated spatial distribution of cell populations for juvenile kangaroos through time:
 
-These are simple examples, but users can specify a seemingly endless configuration of dynamics to be used throughout a simulation by following the structure and methods introduced in this vignette. Nnything can be stored in a landscape object and then be referred to within a custom function. Thus, the procedure for creating custom functions also applies to habitat dynamics - which are called in the simulation function.
+```{r, message = FALSE, fig.align = "center"}
+plot(results,
+     stages = 1,
+     type = "raster",
+     timesteps = 1:5,
+     panels = c(5, 1))
+```
+
+These are simple examples, but users can specify a seemingly endless configuration of dynamics to be used throughout a simulation by following the structures and methods introduced in this vignette. Anything can be stored in a landscape object and then be referred to within a custom function. Thus, the procedure for creating custom functions also applies to habitat dynamics - which are called in the simulation function.
 
 We encourage users to examine the pre-built functions in *steps* to get an idea of their internal operations. Further, these pre-built functions can serve as templates to get users started in customising and creating their own functions.

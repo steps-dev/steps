@@ -52,7 +52,6 @@ modified_transition <- function(survival_layer = NULL,
     idx <- which(transition_matrix != 0)
     is_recruitment <- upper.tri(transition_matrix)[idx]
     
-    dim <- nrow(transition_matrix)
     array_length <- dim(transition_array)[3]
 
     cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])))
