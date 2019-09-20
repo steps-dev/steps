@@ -115,7 +115,7 @@ growth <- function (transition_matrix,
     
     n_cells <- length(cell_idx)
     
-    # add global noise to the transition matrices and truncate
+    # calculate global and local noise
     global_noise <- stats::rnorm(length(idx), 0, global_stochasticity)
     local_noise <- stats::rnorm(length(idx) * n_cells, 0, local_stochasticity)
     total_noise <- global_noise + local_noise
