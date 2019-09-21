@@ -19,10 +19,10 @@ NULL
 #' translocations will take place. A warning will be generated if populations are not available
 #' where specified to translocate from.
 #'
-#' @param source_layer the name of a spatial layer in the landscape object with the locations
+#' @param origins_layer the name of a spatial layer in the landscape object with the locations
 #'   and number of individuals to translocate from. Note, this layer will have only zero
 #'   values if individuals are being introduced from outside the study area
-#' @param sink_layer the name of a spatial layer in the landscape object with the locations
+#' @param destinations_layer the name of a spatial layer in the landscape object with the locations
 #'   and number of individuals to translocate to. Note, this layer will have only zero
 #'   values if individuals are being controlled (e.g. culling)
 #' @param stages which life-stages are modified - default is all
@@ -34,27 +34,27 @@ NULL
 #' 
 #' @examples
 #' 
-#' # Modify populations in all life-stages using explicit layers of source and sink populations
+#' # Modify populations in all life-stages using explicit layers of origin and destination populations
 #' # in timesteps 5, 10, and 15.
 #' 
 #' \dontrun{
-#' trans_pop <- translocation(source_layer = "source",
-#'                            sink_layer = "sink",
+#' trans_pop <- translocation(origins_layer = "origins",
+#'                            destinations_layer = "destinations",
 #'                            stages = NULL,
 #'                            effect_timesteps = c(5, 10, 15))
 #' 
 #' ls <- landscape(population = egk_pop,
 #'                 suitability = NULL,
 #'                 carrying_capacity = NULL,
-#'                 "source" = egk_source,
-#'                 "sink" = egk_sink)
+#'                 "origins" = egk_origins,
+#'                 "destinations" = egk_destinations)
 #' 
 #' pd <- population_dynamics(change = growth(egk_mat), modification = trans_pop)
 #' 
 #' simulation(landscape = ls, population_dynamics = pd, habitat_dynamics = NULL, timesteps = 20)
 #' }
 
-translocation <- function (source_layer, sink_layer, stages = NULL, effect_timesteps = 1) {
+translocation <- function (origins_layer, destinations_layer, stages = NULL, effect_timesteps = 1) {
   
   pop_dynamics <- function (landscape, timestep) {
     
@@ -67,20 +67,20 @@ translocation <- function (source_layer, sink_layer, stages = NULL, effect_times
       idx <- which(!is.na(raster::getValues(population_raster[[1]])))
       population_matrix <- raster::extract(population_raster, idx)
       
-      source <- raster::extract(landscape[[source_layer]], idx)
-      sink <- raster::extract(landscape[[sink_layer]], idx)
+      origins <- raster::extract(landscape[[origins_layer]], idx)
+      destinations <- raster::extract(landscape[[destinations_layer]], idx)
       
       if (is.null(stages)) stages <- seq_len(nstages)
       
       for (stage in stages) {
         
-        warn_once(any(population_matrix[ , stage] - source < 0),
+        warn_once(any(population_matrix[ , stage] - origins < 0),
                   paste("The proposed number of translocated individuals do not exist for\nlife-stage",
                         stage,
-                        "- only the maximum number of available\nindividuals in each cell will be translocated. Please check the\nspecified source and sink layers."),
+                        "- only the maximum number of available\nindividuals in each cell will be translocated. Please check the\nspecified origins and destination layers."),
                   warning_name = paste0("translocated_individuals_", stage))
 
-        population_matrix[ , stage] <- population_matrix[ , stage] + sink - pmin(source, population_matrix[ , stage])
+        population_matrix[ , stage] <- population_matrix[ , stage] + destinations - pmin(origins, population_matrix[ , stage])
         
       }
       

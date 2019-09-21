@@ -3,7 +3,7 @@ title: "An Eastern Grey Kangaroo population simulation example"
 author: "Casey Visintin"
 date: "`r Sys.Date()`"
 output:
-  rmarkdown::html_vignette
+  pdf_document
 geometry: margin=2cm
 vignette: >
   %\VignetteIndexEntry{Eastern Grey Kangaroo}
@@ -34,16 +34,16 @@ First we setup a stage-based transition matrix, also known as a Lefkovitch matri
 ```{r, message = FALSE}
 
 egk_mat <- matrix(c(0.00,0.55,0.85,
-                    0.50,0.30,0.00,
+                    0.50,0.20,0.00,
                     0.00,0.55,0.85),
                   nrow = 3,
                   ncol = 3,
                   byrow = TRUE)
 colnames(egk_mat) <- rownames(egk_mat) <- c('juvenile','subadult','adult')
 
-egk_mat_stoch <- matrix(c(0.00,0.10,0.20,
-                          0.05,0.10,0.00,
-                          0.00,0.10,0.05),
+egk_mat_stoch <- matrix(c(0.00,0.05,0.05,
+                          0.05,0.05,0.00,
+                          0.00,0.01,0.01),
                         nrow = 3,
                         ncol = 3,
                         byrow = TRUE)
@@ -223,7 +223,7 @@ egk_results <- simulation(landscape = egk_landscape,
 
 ```
 
-A user may also specify a custom function that operates on or defines survival and fecundity in the transition matrix at each timestep. The function requires a transition matrix and the name of the spatial object in the landscape object as input parameters, and must return a modified transition array. As an example, we have created a custom function below that uses custom spatial data to define survival and fecundities at each timestep. Note, we must also add this spatial data (a stack of rasters, "egk_sf" which exists in the *steps* package) to the landscape object, and named "sf_mods", in order to access it in the simulation.
+A user may also specify a custom function that operates on or defines survival and fecundity in the transition matrix at each timestep. This function will require the name of the spatial object in the landscape object as an input parameter, and must return a modified transition array (transition matrices for each non-NA cell in the landscape). As an example, we have created a custom function below that uses custom spatial data to define survival and fecundities at each timestep. More information on writing custom functions can be found in a tutorial vignette titled "Creating custom *steps* functions". Note, we must also add spatial data (a stack of rasters, "egk_sf" which exists in the *steps* package) to the landscape object (named "sf_mods") in order to access it in the simulation. Because we are deterministically providing transition values, both global and local stochasticity have been set to zero (defaults). 
 
 ```{r, message = FALSE, eval = FALSE}
 deterministic_transitions <- function(spatial_object) {
@@ -253,19 +253,16 @@ deterministic_transitions <- function(spatial_object) {
     #### Return array with required dimensions
     transition_array
   }
-  
-  as.transition_function(fun)
-  
+
 }
 
 egk_landscape <- landscape(population = egk_pop,
                            suitability = egk_hab,
                            carrying_capacity = NULL,
-                           sf_mods = egk_sf)
+                           "sf_mods" = egk_sf)
 
 egk_pop_dynamics <- population_dynamics(
   change = growth(transition_matrix = egk_mat,
-                  global_stochasticity = egk_mat_stoch,
                   transition_function = deterministic_transitions(spatial_object = "sf_mods")),
   dispersal = NULL,
   modification = NULL,
@@ -304,21 +301,21 @@ egk_results <- simulation(landscape = egk_landscape,
 
 So far, the populations are only changing within their cells without any movement between cells. We can either specify assisted species movements (i.e. translocations or reintroductions) or natural species movements (dispersal) in the model simulations. 
 
-To characterise a translocation, we specify two raster layers that map the locations of where we will take individuals from and where we will place individuals in the landscape. Cell values (integers) specify how many individuals will be added/removed. Source and sink spatial layers are stored in the landscape object and referenced by name. We use a built-in translocation function to modify the population(s) in a simulation at each specified timestep. The function requires the name of source and sink layers stored in the landscape object ("source" and "sink"), the life-stages to modify, and the timesteps at which to modify the population. In this example, we provide the kangaroo source ("egk_source") and sink ("egk_sink") layers, a life-stage of "3" (only adults moved), and timesteps one, five, ten and fifteen - meaning each translocation will occur every five years in each simulation replicate. Note, if the number of individuals is not available in the landscape when the translocation is applied, a warning will be generated and only the maximum available individuals will be used.
+To characterise a translocation, we specify two raster layers that map the locations of where we will take individuals from and where we will place individuals in the landscape. Cell values (integers) specify how many individuals will be added/removed. Origin and destination spatial layers are stored in the landscape object and referenced by name. We use a built-in translocation function to modify the population(s) in a simulation at each specified timestep. The function requires the name of origin and destination layers stored in the landscape object ("origins" and "destinations"), the life-stages to modify, and the timesteps at which to modify the population. In this example, we provide the kangaroo origins ("egk_origins") and destinations ("egk_destinations") layers, a life-stage of "3" (only adults moved), and timesteps one, five, ten and fifteen - meaning each translocation will occur every five years in each simulation replicate. Note, if the number of individuals is not available in the landscape when the translocation is applied, a warning will be generated and only the maximum available individuals will be used.
 
 ```{r, message = FALSE, progress = FALSE, fig.align = "center", eval = FALSE}
 egk_landscape <- landscape(population = egk_pop,
                            suitability = NULL,
                            carrying_capacity = NULL,
-                           source = egk_source,
-                           sink = egk_sink)
+                           "origins" = egk_origins,
+                           "destinations" = egk_destinations)
 
 egk_pop_dynamics <- population_dynamics(
   change = growth(transition_matrix = egk_mat,
                   global_stochasticity = egk_mat_stoch),
   dispersal = NULL,
-  modification = translocation(source_layer = "source",
-                               sink_layer = "sink",
+  modification = translocation(origins_layer = "origins",
+                               destinations_layer = "destinations",
                                stages = 3,
                                effect_timesteps = c(1, 5, 10, 15)),
   density_dependence = NULL)
@@ -451,7 +448,7 @@ Thus far, the kangaroo population is the only thing to be dynamically changing i
 egk_landscape <- landscape(population = egk_pop,
                            suitability = egk_hab,
                            carrying_capacity = egk_k,
-                           fires = egk_fire)
+                           "fires" = egk_fire)
 
 egk_pop_dynamics <- population_dynamics(
   change = growth(transition_matrix = egk_mat,
@@ -561,8 +558,8 @@ carrying_cap_fun <- function (landscape, timestep) {
 egk_landscape <- landscape(population = egk_pop,
                            suitability = egk_hab,
                            carrying_capacity = carrying_cap_fun,
-                           fires = egk_fire,
-                           roads = egk_road)
+                           "fires" = egk_fire,
+                           "roads" = egk_road)
 
 egk_pop_dynamics <- population_dynamics(
   change = growth(transition_matrix = egk_mat,

@@ -1,5 +1,4 @@
-#' @title Simulate population trajectories over space and time with custom
-#' dynamic functions.
+#' @title Simulate population trajectories over space and time with dynamic functions.
 #' @name steps
 #' @docType package
 #' @description Simulating shifts in species populations is an important

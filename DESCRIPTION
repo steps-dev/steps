@@ -1,8 +1,8 @@
 Package: steps
 Type: Package
 Title: Spatially- and Temporally-Explicit Population Simulator
-Version: 0.2.1
-Date: 2019-04-02
+Version: 1.0.0
+Date: 2019-10-01
 Authors@R: c(
   person("Casey", "Visintin", email = "casey.visintin@unimelb.edu.au",
   role=c("aut", "cre")),
@@ -14,7 +14,7 @@ Authors@R: c(
   role = "ctb")
   )
 Maintainer: Casey Visintin <casey.visintin@unimelb.edu.au>
-Description: Software to simulate population dynamics across space and time.
+Description: Software to simulate population change across space and time.
 Depends:
     R (>= 3.2.2)
 License: GPL (>= 2)

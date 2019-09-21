@@ -1,6 +1,8 @@
 #' How the population changes in a landscape.
 #'
 #' Pre-defined or custom functions to define population change during a simulation.
+#' Please see the tutorial vignette titled "Creating custom *steps* functions"
+#' for information on how to write custom functions for use in simulations.
 #'
 #' @name population_change_functions
 #'
@@ -16,7 +18,8 @@ NULL
 #' This function applies negative or positive growth to the population using matrix
 #' multiplication. Stochasticty can be added to cell-based transition matrices or globally.
 #' Users can also specify a built-in or custom function to modify the transition matrices
-#' throughout a simulation.
+#' throughout a simulation. Please see the tutorial vignette titled "Creating custom
+#' *steps* functions" for information on how to write custom functions for use in simulations.
 #'
 #' @param transition_matrix A symmetrical age-based (Leslie) or stage-based (Lefkovitch)
 #'   population structure matrix.
@@ -25,8 +28,8 @@ NULL
 #'   the variability (in standard deviations) in the transition matrix either for
 #'   populations in all grid cells (\code{global_stochasticity}) or for each
 #'   grid cell population separately (\code{local_stochasticity})
-#' @param transition_function A custom function defined by the user specifying
-#'   modifications to life-stage transitions at each timestep. See \link[steps]{transition_function}.
+#' @param transition_function A function to specify or modify life-stage transitions
+#'   at each timestep. See \link[steps]{transition_function}.
 #' 
 #' @export
 #' 
@@ -145,14 +148,13 @@ growth <- function (transition_matrix,
 
     if (steps_stash$demo_stochasticity == "full") {
 
-      n_cell <- nrow(population)
       n_stage <- ncol(population)
       
       survival_array <- transition_array
       survival_array[1, , ] <- 0
 
       # loop through stages, getting the stages to which they move (if they survive)
-      survival_stochastic <- matrix(0, n_cell, n_stage)
+      survival_stochastic <- matrix(0, n_cells, n_stage)
       for (stage in seq_len(n_stage)) {
         
         # get the populations that have any of this stage
@@ -164,10 +166,18 @@ growth <- function (transition_matrix,
         sizes <- pop[any]
 
         # probability of transitioning to each other stage
-        probs <- t(survival_array[, stage, any])
+        probs <- t(survival_array[ , stage, any])
 
         # add on probability of dying
         surv_prob <- rowSums(probs)
+
+        # check for sensible values
+        if(any(surv_prob > 1)) {
+          stop("Survival values greater than one have been detected. Please check to ensure\n",
+               "that your transition matrix values or stochasticity (standard deviation) values\n",
+               "are sensible and re-run the simulation.")
+        }
+                
         probs <- cbind(probs, 1 - surv_prob)
 
         # loop through cells with population (rmultinom is not vectorised on probabilities)

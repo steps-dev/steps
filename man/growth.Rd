@@ -17,14 +17,15 @@ the variability (in standard deviations) in the transition matrix either for
 populations in all grid cells (\code{global_stochasticity}) or for each
 grid cell population separately (\code{local_stochasticity})}
 
-\item{transition_function}{A custom function defined by the user specifying
-modifications to life-stage transitions at each timestep. See \link[steps]{transition_function}.}
+\item{transition_function}{A function to specify or modify life-stage transitions
+at each timestep. See \link[steps]{transition_function}.}
 }
 \description{
 This function applies negative or positive growth to the population using matrix
 multiplication. Stochasticty can be added to cell-based transition matrices or globally.
 Users can also specify a built-in or custom function to modify the transition matrices
-throughout a simulation.
+throughout a simulation. Please see the tutorial vignette titled "Creating custom
+*steps* functions" for information on how to write custom functions for use in simulations.
 }
 \examples{
 

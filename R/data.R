@@ -20,9 +20,9 @@
 #'   of the life-stage matrix to be modified.}
 #'   \item{egk_fire}{A raster stack containing values for modifying the habitat
 #'   - in this case the proportion of landscape remaining after fire.}
-#'   \item{egk_source}{A raster stack containing locations and counts of where
+#'   \item{egk_origins}{A raster stack containing locations and counts of where
 #'   to move individual kangaroos from.}
-#'   \item{egk_sink}{A raster stack containing locations and counts of where to
+#'   \item{egk_destinations}{A raster stack containing locations and counts of where to
 #'   move individual kangaroos to.}
 #'   \item{egk_road}{A raster stack containing values for modifying the habitat
 #'   - in this case the proportion of habitat remaining after the construction of a road.}
@@ -50,10 +50,10 @@
 "egk_fire"
 
 #' @rdname egk
-"egk_source"
+"egk_origins"
 
 #' @rdname egk
-"egk_sink"
+"egk_destinations"
 
 #' @rdname egk
 "egk_road"

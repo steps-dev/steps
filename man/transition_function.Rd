@@ -5,12 +5,10 @@
 \title{Create a growth transition function}
 \description{
 A growth transition function defines how spatial objects or custom functions influence
-survival and fecundity. A user may select from built-in functions or provide a custom written function
-to modify survival and fecundity throughout a simulation.
-}
-\details{
-Two built-in functions are provided for the user to select, however, a user may also provide
-other custom written density dependence functions.
+survival and fecundity. Two built-in functions are provided for the user to select, however,
+a user may also provide custom written functions to modify survival and fecundity throughout
+a simulation. Please see the tutorial vignette titled "Creating custom *steps* functions"
+for information on how to write custom functions for use in simulations.
 }
 \seealso{
 \itemize{

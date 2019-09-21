@@ -11,7 +11,9 @@ that disperse from cells based on landscape features.
 The default \code{set_proportion_dispersing} function and parameters returns
 full dispersal for all life stages. Additional proportion dispersing functions
 are provided in the software for the user to select, however, a user may also
-provide a custom written proportion dispersing function.
+provide a custom written proportion dispersing function. Please see the tutorial
+vignette titled "Creating custom *steps* functions" for information on how to
+write custom functions for use in simulations.
 }
 \seealso{
 \itemize{

@@ -6,7 +6,9 @@ NULL
 #'
 #' Pre-defined or custom functions to define population dispersal during a
 #' simulation. Each dispersal method uses different computing resources
-#' and may be applicable to different simulation scenarios.
+#' and may be applicable to different simulation scenarios. Please see the
+#' tutorial vignette titled "Creating custom *steps* functions" for
+#' information on how to write custom functions for use in simulations.
 #' 
 #' @name population_dispersal_functions
 #' 

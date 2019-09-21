@@ -5,6 +5,8 @@
 \title{How the population changes in a landscape.}
 \description{
 Pre-defined or custom functions to define population change during a simulation.
+Please see the tutorial vignette titled "Creating custom *steps* functions"
+for information on how to write custom functions for use in simulations.
 }
 \seealso{
 \itemize{

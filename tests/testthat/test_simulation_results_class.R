@@ -23,16 +23,16 @@ test_that('simulation_results classes work', {
   cull[] <- 1
   cull[sample(1:ncell(cull), 50)] <- 0
   
-  pop_source <- egk_pop[[3]]
-  pop_source[] <- 0
-  pop_source[sample(which(getValues(egk_pop[[3]]) >= 2), 3)] <- 1
-  #plot(pop_source, box = FALSE, axes = FALSE)
+  pop_origin <- egk_pop[[3]]
+  pop_origin[] <- 0
+  pop_origin[sample(which(getValues(egk_pop[[3]]) >= 2), 3)] <- 1
+  #plot(pop_origin, box = FALSE, axes = FALSE)
   
-  pop_sink <- egk_pop[[3]]
-  pop_sink[] <- 0
-  pop_sink[sample(which(getValues(egk_pop[[3]]) <= 2),
-                  cellStats(pop_source, sum))] <- 1
-  #plot(pop_sink, box = FALSE, axes = FALSE)
+  pop_destination <- egk_pop[[3]]
+  pop_destination[] <- 0
+  pop_destination[sample(which(getValues(egk_pop[[3]]) <= 2),
+                  cellStats(pop_origin, sum))] <- 1
+  #plot(pop_destination, box = FALSE, axes = FALSE)
   
   carrying_cap_fun <- function (landscape, timestep) {
     
@@ -53,8 +53,8 @@ test_that('simulation_results classes work', {
                          suitability = egk_hab,
                          carrying_capacity = egk_k,
                          fires = egk_fire,
-                         source = pop_source,
-                         sink = pop_sink,
+                         origin = pop_origin,
+                         destination = pop_destination,
                          barrier = disp_bar,
                          barrier2 = disp_bar2,
                          cull = cull)
@@ -83,22 +83,22 @@ test_that('simulation_results classes work', {
                                   suitability = egk_hab_stack,
                                   carrying_capacity = egk_k,
                                   fires = egk_fire,
-                                  source = pop_source,
-                                  sink = pop_sink)
+                                  origin = pop_origin,
+                                  destination = pop_destination)
   
   expect_error(landscape(population = egk_pop,
                          suitability = egk_hab_stack_na,
                          carrying_capacity = egk_k,
                          fires = egk_fire,
-                         source = pop_source,
-                         sink = pop_sink))
+                         origin = pop_origin,
+                         destination = pop_destination))
   
   pop_dyn <- population_dynamics(change = growth(transition_matrix = egk_mat),
                                  dispersal = cellular_automata_dispersal(max_cells = c(0, 20, 0),
                                                                          dispersal_proportion = set_proportion_dispersing(proportions = 0.5),
                                                                          barriers_map = "barrier"),
-                                 modification = translocation(source_layer = "source",
-                                                              sink_layer = "sink",
+                                 modification = translocation(origins_layer = "origin",
+                                                              destinations_layer = "destination",
                                                               stages = NULL,
                                                               effect_timesteps = 2),
                                  density_dependence = ceiling_density())
@@ -127,15 +127,15 @@ test_that('simulation_results classes work', {
                                   dispersal = cellular_automata_dispersal(max_cells = c(0, 20, 0),
                                                                           dispersal_proportion = density_dependence_dispersing(),
                                                                           barriers_map = "barrier2"),
-                                  modification = translocation(source_layer = "source",
-                                                               sink_layer = "sink",
+                                  modification = translocation(origins_layer = "origin",
+                                                               destinations_layer = "destination",
                                                                stages = 3,
                                                                effect_timesteps = 2),
                                   density_dependence = ceiling_density())
   
   pop_dyn4a <- population_dynamics(change = growth(transition_matrix = egk_mat,
-                                                   global_stochasticity = matrix(c(0.00,0.10,0.00,0.00,0.00,0.10,0.10,0.00,0.10), nrow = 3, ncol = 3),
-                                                   local_stochasticity = matrix(c(0.00,0.10,0.00,0.00,0.00,0.10,0.10,0.00,0.10), nrow = 3, ncol = 3),
+                                                   global_stochasticity = matrix(c(0.00,0.01,0.00,0.01,0.01,0.01,0.01,0.00,0.01), nrow = 3, ncol = 3),
+                                                   local_stochasticity = matrix(c(0.00,0.01,0.00,0.01,0.01,0.01,0.01,0.00,0.01), nrow = 3, ncol = 3),
                                                    transition_function = modified_transition(survival_layer = "suitability",
                                                                                              fecundity_layer = "suitability")),
                                    dispersal = cellular_automata_dispersal(max_cells = 20),
@@ -171,8 +171,8 @@ test_that('simulation_results classes work', {
   
   pop_dyn6 <- population_dynamics(change = growth(transition_matrix = egk_mat),
                                   dispersal = cellular_automata_dispersal(),
-                                  modification = translocation(source_layer = "source",
-                                                               sink_layer = "sink",
+                                  modification = translocation(origins_layer = "origin",
+                                                               destinations_layer = "destination",
                                                                stages = 3,
                                                                effect_timesteps = 2),
                                   density_dependence = ceiling_density())

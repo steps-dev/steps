@@ -25,7 +25,7 @@ rasters?}
 \item{timesteps}{timesteps to display when plotting rasters}
 
 \item{panels}{the number of columns and rows to use when plotting raster
-timeseries - default is 3 x 3 (e.g. c(3,3) )}
+timeseries - default is 3 x 3 (e.g. c(3, 3) )}
 
 \item{emp}{should the expected minimum population of the simulation be
 plotted?}

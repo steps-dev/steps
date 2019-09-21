@@ -10,8 +10,8 @@
 \alias{egk_mat_stoch}
 \alias{egk_sf}
 \alias{egk_fire}
-\alias{egk_source}
-\alias{egk_sink}
+\alias{egk_origins}
+\alias{egk_destinations}
 \alias{egk_road}
 \title{Eastern Grey Kangaroo example data}
 \format{Misc data}
@@ -30,9 +30,9 @@ egk_sf
 
 egk_fire
 
-egk_source
+egk_origins
 
-egk_sink
+egk_destinations
 
 egk_road
 }
@@ -58,9 +58,9 @@ Kangaroos in a hypothetical landscape.
   of the life-stage matrix to be modified.}
   \item{egk_fire}{A raster stack containing values for modifying the habitat
   - in this case the proportion of landscape remaining after fire.}
-  \item{egk_source}{A raster stack containing locations and counts of where
+  \item{egk_origins}{A raster stack containing locations and counts of where
   to move individual kangaroos from.}
-  \item{egk_sink}{A raster stack containing locations and counts of where to
+  \item{egk_destinations}{A raster stack containing locations and counts of where to
   move individual kangaroos to.}
   \item{egk_road}{A raster stack containing values for modifying the habitat
   - in this case the proportion of habitat remaining after the construction of a road.}

@@ -4,8 +4,7 @@
 \name{steps}
 \alias{steps}
 \alias{steps-package}
-\title{Simulate population trajectories over space and time with custom
-dynamic functions.}
+\title{Simulate population trajectories over space and time with dynamic functions.}
 \description{
 Simulating shifts in species populations is an important
 part of ecological management. Species respond to spatial and temporal
