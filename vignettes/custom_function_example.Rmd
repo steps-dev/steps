@@ -521,7 +521,7 @@ plot(results,
      panels = c(5, 1))
 ```
 
-If we look at the transition matrix used in the simulation, we can see why there is a steady increase in population (Rmax ~ 1.17):
+If we look at the transition matrix used in the simulation, we can see why there is a steady increase in population (Rmax ~ 1.14):
 
 ```{r, message = FALSE, echo = FALSE}
 print(egk_mat)

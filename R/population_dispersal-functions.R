@@ -106,20 +106,19 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
     if (is.null(max_distance)) {
       
       # get relative dispersal probabilities on a mesh with similar resolution to the raster
-      distances <- seq(0, default_max, by = res)
+      distances <- seq(0, default_max, by = max(res))
       probs <- dispersal_kernel(distances)
       probs <- probs / sum(probs)
       
       # get approximate cumulative probability of dispersing to each of these distances
       cum_probs <- cumsum(probs) 
       
-      # find distances beyond which there is negligible probability of
-      # dispersal, or return the maximum landscape dimension if we couldn't find
-      # one
+      # find distances beyond which there is negligible probability of dispersal,
+      # or return the maximum landscape dimension if we couldn't find one
       beyond_limit <- cum_probs > (1 - 1e-6) 
       if (any(beyond_limit)) {
         # find the first beyond
-        max_distance <- distances[which(beyond_limit[1])]
+        max_distance <- distances[which(beyond_limit)]
       } else {
         max_distance <- default_max
       }

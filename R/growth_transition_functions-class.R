@@ -156,7 +156,8 @@ competition_density <- function(stages = NULL,
       transition_array[, , i] <- density_modified_transition(N = N[i],
                                                              K = K[i],
                                                              transition_matrix = transition_array[, , i],
-                                                             mask = mask)
+                                                             mask = mask,
+                                                             R_max = R_max)
     }
     
     # return array with required dimensions

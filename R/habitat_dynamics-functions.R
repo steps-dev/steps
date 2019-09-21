@@ -58,7 +58,7 @@ disturbance <- function (disturbance_layers, effect_time = 1) {
     }
     
     if (raster::nlayers(landscape[[disturbance_layers]]) < timestep ) {
-      stop("The number of disturbance layers must match the number of timesteps in the experiment")
+      stop("The number of disturbance layers must match the number of timesteps in the simulation")
     }
     
     # replace NA values with zeros
@@ -140,7 +140,7 @@ fire_effects <- function (fire_layers,
     }
     
     if (raster::nlayers(landscape[[fire_layers]]) < timestep ) {
-      stop("The number of disturbance layers must match the number of timesteps in the experiment")
+      stop("The number of fire layers must match the number of timesteps in the simulation")
     }
     
     # replace NA values with ones

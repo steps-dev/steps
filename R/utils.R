@@ -118,7 +118,7 @@ pretty_int <- function (...) {
 
 int_or_proper_length_vector <- function (input, n_stages, parameter) {
   if (length(input) != 1 & length(input) != n_stages) {
-    stop(paste0("Please provide either a single number or vector of",
+    stop(paste0("Please provide either a single number or vector of ",
                 "numbers that matches the number of life-stages in the ",
                 parameter,
                 " parameter."))
