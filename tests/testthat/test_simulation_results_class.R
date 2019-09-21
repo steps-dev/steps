@@ -232,8 +232,8 @@ test_that('simulation_results classes work', {
                                    modification = NULL,
                                    density_dependence = NULL)
   
-  pop_dyn12 <- population_dynamics(change = growth(transition_matrix = egk_mat,
-                                                   global_stochasticity = matrix(c(0, 1, 0, 1, 1, 1, 1, 0, 1), nrow = 3, ncol = 3),
+  pop_dyn12 <- population_dynamics(change = growth(transition_matrix = matrix(c(0.00, 0.50, 0.00, 0.85, 0.85, 0.85, 0.85, 0.00, 0.85), nrow = 3, ncol = 3),
+                                                   global_stochasticity = .01,
                                                    transition_function = modified_transition(survival_layer = "suitability",
                                                                                              fecundity_layer = "suitability")),
                                    dispersal = NULL,
