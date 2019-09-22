@@ -25,6 +25,8 @@ test_that('simulation_results classes work', {
   cull[] <- 1
   cull[sample(1:ncell(cull), 50)] <- 0
   
+  egk_pop <- round(egk_pop * .75)
+  
   pop_origin <- egk_pop[[3]]
   pop_origin[] <- 0
   pop_origin[sample(which(getValues(egk_pop[[3]]) >= 2), 3)] <- 1
@@ -157,7 +159,8 @@ test_that('simulation_results classes work', {
                                    density_dependence = ceiling_density())
   
   pop_dyn4b <- population_dynamics(change = growth(transition_matrix = egk_mat,
-                                                   transition_function = list(modified_transition(), competition_density(R_max = Rmax_pop))),
+                                                   transition_function = list(modified_transition(), competition_density(stages = c(2, 3),
+                                                                                                                         R_max = Rmax_pop))),
                                    dispersal = NULL,
                                    modification = NULL,
                                    density_dependence = NULL)
@@ -169,9 +172,10 @@ test_that('simulation_results classes work', {
                                    modification = NULL,
                                    density_dependence = NULL)
   
-  pop_dyn4d <- population_dynamics(change = growth(transition_matrix = egk_mat),
+  pop_dyn4d <- population_dynamics(change = growth(transition_matrix = egk_mat,
+                                                   transition_function = competition_density()),
                                    dispersal = cellular_automata_dispersal(max_cells = 20,
-                                                                           carrying_capacity = "suitability"),
+                                                                           carrying_capacity = "carrying_capacity"),
                                    modification = NULL,
                                    density_dependence = ceiling_density())
   
@@ -182,9 +186,7 @@ test_that('simulation_results classes work', {
                                   modification = NULL,
                                   density_dependence = ceiling_density(stages = c(2,3)))
   
-  pop_dyn5e <- population_dynamics(change = growth(transition_matrix = egk_mat,
-                                                  transition_function = modified_transition(survival_layer = NULL,
-                                                                                            fecundity_layer = NULL)),
+  pop_dyn5e <- population_dynamics(change = growth(transition_matrix = egk_mat),
                                   dispersal = kernel_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay = 8000),
                                                                max_distance = c(10, 20)),
                                   modification = NULL,
@@ -263,6 +265,13 @@ test_that('simulation_results classes work', {
                                                                dispersal_proportion = set_proportion_dispersing(proportions = c(0.5, 1))),
                                   modification = NULL,
                                   density_dependence = NULL)
+  
+  pop_dyn16 <- population_dynamics(change = NULL,
+                                   dispersal = kernel_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay = 8000),
+                                                                max_distance = 100000,
+                                                                arrival_probability = "suitability"),
+                                   modification = NULL,
+                                   density_dependence = NULL)
   
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn,
@@ -356,6 +365,12 @@ test_that('simulation_results classes work', {
                                   population_dynamics = pop_dyn13,
                                   habitat_dynamics = NULL,
                                   timesteps = 3),
+                       "simulation_results"))
+  
+  expect_true(inherits(simulation(landscape = landscape,
+                          population_dynamics = pop_dyn16,
+                          habitat_dynamics = NULL,
+                          timesteps = 3),
                        "simulation_results"))
   
   expect_true(inherits(simulation(landscape = landscape,

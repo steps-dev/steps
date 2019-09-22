@@ -131,7 +131,8 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
         
         # cap it at the maximum      
         if (max_distance > default_max) {
-          warning("the provided maximum distance was beyond the largest distance in the landscape, so ")
+          warning("The provided maximum distance was beyond the largest distance in the landscape; ",
+                  "the largest possible dispersal distance will be used.")
           max_distance <- default_max
         }
         
