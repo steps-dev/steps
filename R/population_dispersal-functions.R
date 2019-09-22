@@ -878,8 +878,6 @@ disperse <- function (origin,
                       distance_info = NULL,
                       raster_dim = NULL) {
   
-  #init_pop <- sum(pop, na.rm = TRUE)
-  
   if (is.null(distance_list)) {
     print("Kernel-based dispersal running in single iteration mode to conserve RAM")
     destinations <- get_ids_dists(cell_id = origin,
@@ -895,7 +893,7 @@ disperse <- function (origin,
   # index destination cells that allow arrival in raster
   destination_index <- fast_match(destination_ids, can_arriv_ids)
   
-  if (length(destination_index == 0)) {
+  if (length(destination_index) == 0) {
     return(pop)
   }
   
@@ -915,7 +913,6 @@ disperse <- function (origin,
   # (if this is not the first cell considered, we use the original population
   # to make sure new arrivals don't disperse again)
   n_total <- original_pop[origin, stage]
-  #n_total <- pop[origin, stage]
   n_dispersing <- round_pop(n_total * prop_dispersing[stage])
   n_staying <- n_total - n_dispersing
   
@@ -962,9 +959,7 @@ disperse <- function (origin,
   
   # assign them to their population and return
   pop[destination_ids, stage] <- pop[destination_ids, stage] + dispersals
-  
-  #if(!identical(init_pop, sum(pop, na.rm = TRUE))) browser()
-  
+
   pop
   
 }
