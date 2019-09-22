@@ -21,9 +21,17 @@ NULL
 #' In the built-in \code{modified_transition function}, the values of fecundity and survival
 #' in local cell-based transition matrices are multiplied by values in the named spatial objects
 #' for each cell. The spatial objects can be rasters that are stored in the landscape object.
+#' 
+#' The behaviour of the function is to modify any non-zero values in the first row by
+#' the "fecundity_layer" and non-zero values in rows other than the first by the "survival_layer".
+#' This is irrespective of the type of matrix or any assumptions made by the user in creating
+#' the transition matrix. For example, if the transition matrix values include both the
+#' probabilities of surviving AND growing into the next stage, these can NOT be modified
+#' individually. This operation would require the use of a custom function - see the "Creating
+#' custom *steps* functions" vignette for more information.
 #'
-#' @param survival_layer the name of a spatial layer in the landscape object used to modify survival values.
-#' @param fecundity_layer the name of a spatial layer in the landscape object used to modify fecundity values.
+#' @param survival_layer the name of a spatial layer in the landscape object used to modify survival values (i.e. non-zero values in the first row).
+#' @param fecundity_layer the name of a spatial layer in the landscape object used to modify fecundity values (i.e. non-zero values in rows other than the first).
 #' 
 #' @return An object of class \code{transition_function}
 #' 

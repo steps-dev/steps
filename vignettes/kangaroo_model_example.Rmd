@@ -223,7 +223,7 @@ egk_results <- simulation(landscape = egk_landscape,
 
 ```
 
-A user may also specify a custom function that operates on or defines survival and fecundity in the transition matrix at each timestep. This function will require the name of the spatial object in the landscape object as an input parameter, and must return a modified transition array (transition matrices for each non-NA cell in the landscape). As an example, we have created a custom function below that uses custom spatial data to define survival and fecundities at each timestep. More information on writing custom functions can be found in a tutorial vignette titled "Creating custom *steps* functions". Note, we must also add spatial data (a stack of rasters, "egk_sf" which exists in the *steps* package) to the landscape object (named "sf_mods") in order to access it in the simulation. Because we are deterministically providing transition values, both global and local stochasticity have been set to zero (defaults). 
+A user may also specify a custom function that operates on or defines survival and fecundity in the transition matrix at each timestep. As an example, we have created a custom function below that uses spatial data to define survival and fecundities at each timestep. The function requires the name of the spatial object in the landscape object as an input parameter, and must return a modified transition array (transition matrices for each non-NA cell in the landscape). More information on writing custom functions can be found in a tutorial vignette titled "Creating custom *steps* functions". Note, we must also add spatial data (a stack of rasters, "egk_sf" which exists in the *steps* package) to the landscape object (named "sf_mods") in order to access it in the simulation. The example stack of rasters "egk_sf" contains 120 layers - twenty timesteps of each of the six non-zero transition values in our matrix - all named with an organisational syntax that the function uses to index. For example, the first layer in the raster stack is named "egk_sf_01_0102"; "_01_" refers to the first timestep and "0102" refers to the first row and second column position in the transition matrix. Because we are deterministically providing transition values, both global and local stochasticity have been set to zero (defaults). 
 
 ```{r, message = FALSE, eval = FALSE}
 deterministic_transitions <- function(spatial_object) {
@@ -246,7 +246,6 @@ deterministic_transitions <- function(spatial_object) {
     for (name in names_timestep) {
       r <- as.integer(substr(substr(name, nchar(name) - 3, nchar(name)), 1, 2))
       c <- as.integer(substr(substr(name, nchar(name) - 1, nchar(name)), 1, 2))
-      #note, your working directory will be different
       transition_array[r, c, ] <- egk_sf[[name]][cell_idx]
     }
     
@@ -271,9 +270,7 @@ egk_pop_dynamics <- population_dynamics(
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,
                           habitat_dynamics = NULL,
-                          timesteps = 20,
-                          replicates = 3,
-                          verbose = FALSE)
+                          timesteps = 20)
 
 ```
 
