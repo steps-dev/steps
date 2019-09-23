@@ -347,7 +347,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
 #'   each life stage can disperse in whole integers.
 #' @param dispersal_proportion a built-in or custom function defining the proportions
 #'   of individuals that can disperse in each life stage.
-#' @param barriers_map the name of a spatial layer in the landscape object that
+#' @param barriers the name of a spatial layer in the landscape object that
 #'   contains cell values between 0 (no barrier) and 1 (full barrier) Any
 #'   values between 0 and 1 indicate the permeability of the barrier.   
 #' @param use_suitability should habitat suitability be used to control the
@@ -368,7 +368,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
 #' # (reduced dispersal across barrier).
 #' 
 #' \dontrun{
-#' ca_dispersal <- cellular_automata_dispersal(max_cells = c(0, 100, 100), barriers_map = "roads")
+#' ca_dispersal <- cellular_automata_dispersal(max_cells = c(0, 100, 100), barriers = "roads")
 #' 
 #' ls <- landscape(population = egk_pop,
 #'                 suitability = egk_hab,
@@ -384,7 +384,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
 
 cellular_automata_dispersal <- function (max_cells = Inf,
                                          dispersal_proportion = set_proportion_dispersing(),
-                                         barriers_map = NULL,
+                                         barriers = NULL,
                                          use_suitability = TRUE,
                                          carrying_capacity = "carrying_capacity") {
   
@@ -463,14 +463,14 @@ cellular_automata_dispersal <- function (max_cells = Inf,
     which_stages_disperse <- which(dispersal_proportion > 0 & max_cells > 0)
     
     # if no barrier map is specified, create a barriers matrix with all zeros.
-    if (is.null(barriers_map)) {
+    if (is.null(barriers)) {
       barriers_map <- raster::calc(population_raster[[1]],
                                    function(x){x[!is.na(x)] <- 0; return(x)})
     } else {
-      if (raster::nlayers(landscape[[barriers_map]]) > 1) {
-        barriers_map <- landscape[[barriers_map]][[timestep]]
+      if (raster::nlayers(landscape[[barriers]]) > 1) {
+        barriers_map <- landscape[[barriers]][[timestep]]
       } else {
-        barriers_map <- landscape[[barriers_map]]
+        barriers_map <- landscape[[barriers]]
       }
       
     }
