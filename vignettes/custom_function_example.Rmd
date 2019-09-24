@@ -636,7 +636,6 @@ pd <- population_dynamics(
 results <- simulation(landscape = ls,
                       population_dynamics = pd,
                       habitat_dynamics = NULL,
-                      demo_stochasticity = "none",
                       timesteps = 5,
                       replicates = 1,
                       verbose = FALSE)
