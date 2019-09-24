@@ -340,7 +340,7 @@ ls <- landscape(population = egk_pop,
 We now need to slightly alter our custom function to accept and use the new raster. We start with the same syntax, adding a parameter to specify the name of the raster in the landscape object to use in our function and then extracting using the specified name:
 
 ```{r, message = FALSE}
-percent_mortality_ras <- function (percentage, custom_raster, threshold, stages = NULL) {
+percent_mortality_ras <- function (percentage, masking_raster, threshold, stages = NULL) {
   
   pop_dynamics <- function (landscape, timestep) {
     population_raster <- landscape$population
@@ -350,9 +350,9 @@ percent_mortality_ras <- function (percentage, custom_raster, threshold, stages 
     idx <- which(!is.na(raster::getValues(population_raster[[1]])))
     population_matrix <- raster::extract(population_raster, idx)
     
-    # Note, here we now use the name of the raster ('custom_raster' parameter)
+    # Note, here we now use the name of the raster ('masking_raster' parameter)
     # to extract the object from the landscape object
-    suitable <- raster::extract(landscape[[custom_raster]], idx)
+    suitable <- raster::extract(landscape[[masking_raster]], idx)
     
     if (is.null(stages)) stages <- seq_len(nstages)
     for (stage in stages) {
@@ -382,7 +382,7 @@ In the 'population_dynamics' function, we change the modification parameter to c
 pd <- population_dynamics(change = NULL,
                           dispersal = NULL,
                           modification = percent_mortality_ras(percentage = .10,
-                                                               custom_raster = "sampling_mask",
+                                                               masking_raster = "sampling_mask",
                                                                threshold = 0.7,
                                                                stages = 1),
                           density_dependence = NULL)
@@ -484,7 +484,7 @@ The function then extracts the values of survival and fecundity from the input r
 
 In the next few statements of the internal function ('fun'), the transition values are multiplied by the extracted values of the rasters (or ones). Similar to our original 'mortality' function example, the last statement in the internal function is always "transition_array" so the transition array object is returned when the internal function concludes its operations. The final statement assigns a class to the function - once again, this is optional but useful to maintain an organised structure in the software.
 
-In the next example, we demonstrate the use of rasters to define the fecundity of adult kangaroos. We begin with a simple simulation of population growth. For this simulation we only need initial populations and a growth function based on a transition matrix - environmental stochasticity is set to zero by default in the function. We turn of demographic stochasticity and run the simulation for a single replicate of five iterations:
+In the next example, we demonstrate the use of rasters to define the fecundity of adult kangaroos. We begin with a simple simulation of population growth. For this simulation we only need initial populations and a growth function based on a transition matrix - environmental stochasticity is set to zero by default in the function. We run the simulation for a single replicate of five iterations:
 
 ```{r, message = FALSE}
 ls <- landscape(population = egk_pop,
@@ -499,7 +499,6 @@ pd <- population_dynamics(change = growth(transition_matrix = egk_mat),
 results <- simulation(landscape = ls,
                       population_dynamics = pd,
                       habitat_dynamics = NULL,
-                      demo_stochasticity = "none",
                       timesteps = 5,
                       replicates = 1,
                       verbose = FALSE)
@@ -529,7 +528,7 @@ print(egk_mat)
 paste("Rmax =", abs(eigen(egk_mat)$values[1]))
 ```
 
-Now let's suppose that we want to provide rasters that define the fecundity of adult kangaroos. The methods are similar to our earlier examples but we will need to tailor our custom function to work within the pre-existing 'growth' dynamics function (type ?growth for more information). First, we will construct a raster that will contain our values of influence - in this case numbers that define adult fecudity in each cell (missing values will use existing fecundity):
+Now let's suppose that we want to provide rasters that define the fecundity of adult kangaroos. The methods are similar to our earlier examples but we will need to tailor our custom function to work within the pre-existing 'growth' dynamics function (type ?growth for more information). First, we will construct a raster that will contain our values of influence - in this case numbers that define adult fecudity in each cell (missing values will use existing fecundity). We do this randomly as an example, but users can read in spatial-explicit data that represents mapped factors affecting fecundity/survival (e.g. additional food/water, protection from predators, disease status):
 
 ```{r, message = FALSE, fig.align = "center", warning = FALSE}
 adult_fec <- egk_hab # copy the habitat layer to assume its properties
@@ -543,7 +542,7 @@ adult_fec[sample(seq_len(ncells), 0.8 * ncells, replace = FALSE)] <- runif(ncell
 plot(adult_fec, axes = FALSE, box = FALSE)
 ```
 
-Now let's go about creating our custom function to define the fecundity of adult kangaroos. We start with the first two lines coded similar to the previous 'modified_transition' example and change the function name and retain only one of the parameters:
+Now let's go about creating our custom function to define the fecundity of adult kangaroos. We start with the first two lines coded similar to the previous 'modified_transition' example and change the function name and retain only the fecundity_layer parameter:
 
 ```{r, message = FALSE, eval = FALSE}
 define_fecudity <- function(fecundity_layer) {
