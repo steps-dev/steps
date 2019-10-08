@@ -102,11 +102,15 @@ translocation <- function (origins_layer, destinations_layer, stages = NULL, eff
 
 #' Directly affect populations
 #' 
-#' This function modifies a population by multiplying a spatial layer with populations
-#' in each timestep. The values of the input layers range between 0 and 1 and represent
-#' the proportion reductions in populations (e.g. 0 reduces the population to zero,
-#' whilst 0.5 reduces the population by 50%).
-#'
+#' This function modifies a population by a mortality spatial layer included in a
+#' steps landscape object. The mortality layer consists of values from 0???1 and
+#' modifies the population by multiplying the population of a cell by the value of
+#' the corresponding cell in a mortality layer. For example, a cell with ten
+#' individuals before the mortality function is applied, and corresponding mortality
+#' layer cell with a value of 0.2, would have two individuals remaining after
+#' modification. Note, rounding also occurs after modification using a ceiling method
+#' (i.e the largest whole integer is retained).
+
 #' @param mortality_layer the name of spatial layer(s) in the landscape object with
 #'   mortality proportions used to alter the populations for each timestep (number of
 #'   layers must match the intended timesteps)
