@@ -522,6 +522,10 @@ test_that('simulation_results classes work', {
   
   plot(test_simulation[1],
        object = "population",
+       type = "raster")
+  
+  plot(test_simulation[1],
+       object = "population",
        type = "raster",
        stage = 2)
   
@@ -573,9 +577,9 @@ test_that('simulation_results classes work', {
                     object = "population",
                     type = "raster"))
   
-  expect_error(plot(test_simulation[1],
-                    object = "population",
-                    type = "raster"))
+  # expect_error(plot(test_simulation[1],
+  #                   object = "population",
+  #                   type = "raster"))
   
   expect_true(inherits(extract_spatial(test_simulation2),
                        "RasterLayer"))
