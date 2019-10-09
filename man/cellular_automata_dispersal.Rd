@@ -5,9 +5,8 @@
 \title{Cellular automata dispersal}
 \usage{
 cellular_automata_dispersal(max_cells = Inf,
-  dispersal_proportion = set_proportion_dispersing(),
-  barriers_map = NULL, use_suitability = TRUE,
-  carrying_capacity = "carrying_capacity")
+  dispersal_proportion = set_proportion_dispersing(), barriers = NULL,
+  use_suitability = TRUE, carrying_capacity = "carrying_capacity")
 }
 \arguments{
 \item{max_cells}{the maximum number of cell movements that each individual in
@@ -16,7 +15,7 @@ each life stage can disperse in whole integers.}
 \item{dispersal_proportion}{a built-in or custom function defining the proportions
 of individuals that can disperse in each life stage.}
 
-\item{barriers_map}{the name of a spatial layer in the landscape object that
+\item{barriers}{the name of a spatial layer in the landscape object that
 contains cell values between 0 (no barrier) and 1 (full barrier) Any
 values between 0 and 1 indicate the permeability of the barrier.}
 
@@ -69,7 +68,7 @@ of mean dispersal distances.
 # (reduced dispersal across barrier).
 
 \dontrun{
-ca_dispersal <- cellular_automata_dispersal(max_cells = c(0, 100, 100), barriers_map = "roads")
+ca_dispersal <- cellular_automata_dispersal(max_cells = c(0, 100, 100), barriers = "roads")
 
 ls <- landscape(population = egk_pop,
                 suitability = egk_hab,
