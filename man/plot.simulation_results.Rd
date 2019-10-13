@@ -16,8 +16,8 @@
 
 \item{type}{the plot type - 'graph' (default) or 'raster'}
 
-\item{stages}{life-stages to plot - must be specified for 'raster' plot
-types; by default all life-stages will be plotted}
+\item{stages}{life-stages to plot - by default all life-stages will be plotted.
+Set to zero for totals (i.e. sum of all life-stages).}
 
 \item{animate}{if plotting type 'raster' would you like to animate the
 rasters?}
