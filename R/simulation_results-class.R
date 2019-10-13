@@ -165,6 +165,8 @@ plot.simulation_results <- function (x,
   # don't have a persistent effect on the graphics device
   # op <- graphics::par(no.readonly = TRUE)
   # on.exit(graphics::par(op))
+
+  trellis.par.set(canonical.theme(color = FALSE), warn = FALSE)
   
   total_stages <- raster::nlayers(x[[1]][[1]]$population)
   stage_names <- names(x[[1]][[1]]$population)
