@@ -14,20 +14,20 @@ round_pop <- function (population) {
     return(rmultinom_large_int(population)[, 1])
   }
   
-  if (steps_stash$demo_stochasticity == "deterministic_redistribution") {
-    n <- length(population)
-    k <- round(sum(population)) - sum(population_min)
-    cutoff <- sort(population, partial = n - k)[n - k]
-    idx <- which(population > cutoff)
-    population_min[idx] <- population_min[idx] + 1
-    return(population_min)
-  }
-  
-  if (steps_stash$demo_stochasticity == "stochastic_redistribution") {
-    population_extra <- population - population_min
-    population_extra[] <- stats::rbinom(length(population_extra), 1, population_extra[])
-    return(population_min + population_extra)
-  }
+  # if (steps_stash$demo_stochasticity == "deterministic_redistribution") {
+  #   n <- length(population)
+  #   k <- round(sum(population)) - sum(population_min)
+  #   cutoff <- sort(population, partial = n - k)[n - k]
+  #   idx <- which(population > cutoff)
+  #   population_min[idx] <- population_min[idx] + 1
+  #   return(population_min)
+  # }
+  # 
+  # if (steps_stash$demo_stochasticity == "stochastic_redistribution") {
+  #   population_extra <- population - population_min
+  #   population_extra[] <- stats::rbinom(length(population_extra), 1, population_extra[])
+  #   return(population_min + population_extra)
+  # }
   
   if (steps_stash$demo_stochasticity == "none") return(population)
   

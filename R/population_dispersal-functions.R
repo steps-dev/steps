@@ -568,7 +568,7 @@ fast_dispersal <- function(dispersal_kernel = exponential_dispersal_kernel(dista
       
       pop_dispersing <- landscape$population[[stage]] * dispersal_proportion[[stage]]
       pop_staying <- pop - pop_dispersing
-      
+
       # round population staying
       idx <- not_missing(pop_staying)
       pop_staying_vec <- raster::extract(pop_staying, idx)
@@ -591,6 +591,7 @@ fast_dispersal <- function(dispersal_kernel = exponential_dispersal_kernel(dista
       
       pop_dispersing[] <- pop_dispersed
       pop <- pop_staying + pop_dispersing
+      #pop <- round_pop(pop)
       landscape$population[[stage]] <- pop
       
     }
@@ -765,7 +766,7 @@ dispersalFFT <- function (popmat, fs) {
   if (!is.nan(prop_in)) {
     pop_new[!missing] <- pop_new[!missing] / prop_in
   }
-  
+
   # make sure none are lost or gained (unless all are zeros)
   if (any(pop_new[!missing] > 0)) {
     pop_new[!missing] <- round_pop(pop_new[!missing])

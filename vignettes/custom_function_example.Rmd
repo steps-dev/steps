@@ -93,7 +93,9 @@ So let's go about creating a custom function for use in *steps*. First, we load 
 egk_pop
 
 par(mar=c(0,0,0,0), oma=c(0,0,0,0))
-spplot(egk_pop, col.regions = viridis(100))
+spplot(egk_pop,
+       col.regions = viridis(100),
+       par.settings=list(strip.background = list(col = "white")))
 ```
 
 Let's examine the total population of juveniles:
@@ -225,7 +227,9 @@ pop_stack <- stack(egk_pop[[1]],
 names(pop_stack) <- c("t0", "t1", "t2", "t3")
 
 par(mar=c(0,0,0,0), oma=c(0,0,0,0))
-spplot(pop_stack, col.regions = viridis(100))
+spplot(pop_stack,
+       col.regions = viridis(100),
+       par.settings=list(strip.background = list(col = "white")))
 ```
 
 Because of the internal organisation and structure of *steps*, we are also able to use any information contained within the landscape object in our custom functions. For example, say we would like to reduce the populations in only highly suitable habitat (above a threshold value) - this can be parameterised in the function. 
@@ -312,7 +316,9 @@ pop_stack <- stack(egk_pop[[1]],
 names(pop_stack) <- c("t0", "t1", "t2", "t3")
 
 par(mar=c(0,0,0,0), oma=c(0,0,0,0))
-spplot(pop_stack, col.regions = viridis(100))
+spplot(pop_stack,
+       col.regions = viridis(100),
+       par.settings=list(strip.background = list(col = "white")))
 ```
 
 Notice that whilst the total juvenile population numbers have decreased in a similar fashion, the spatial locations of the reductions have been confined to areas where habitat is highly suitable - as specified by our threshold value.
@@ -418,7 +424,9 @@ pop_stack <- stack(egk_pop[[1]],
 names(pop_stack) <- c("t0", "t1", "t2", "t3")
 
 par(mar=c(0,0,0,0), oma=c(0,0,0,0))
-spplot(pop_stack, col.regions = viridis(100))
+spplot(pop_stack,
+       col.regions = viridis(100),
+       par.settings=list(strip.background = list(col = "white")))
 ```
 
 So far we have been modifying the population rasters in the landscape object, but we can also modify vital rates as well. This may be useful in situations where a user would like to deterministically define, or affect, survival and fecundity.

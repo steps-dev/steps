@@ -12,13 +12,10 @@
 #' @param habitat_dynamics optional list of functions to modify the landscape at
 #'   each timestep - see \link[steps]{habitat_dynamics_functions}
 #' @param demo_stochasticity how should population rounding occur, if at all -
-#'   "full" uses a multinomial draw to return rounded cell populations (default);
-#'   "deterministic_redistribution" redistributes the decimal overages to the
-#'   cells with the largest overages; "stochastic_redistribution" redistributes
-#'   the decimal overages to the cells based on binomial draws using the
-#'   overages as probabilities; "none" returns non-integer cell populations (no
-#'   rounding). Note, this parameter specification is used consistently throughout
-#'   all functions in a simulation.
+#'   "full" uses a multinomial draw to return rounded cell populations (default)
+#'   whilst "none" returns non-integer cell populations (no rounding). Note, this
+#'   parameter specification is used consistently throughout all functions in a
+#'   simulation.
 #' @param timesteps number of timesteps used in one simulation
 #' @param replicates number of simulations to perform
 #' @param verbose print messages and progress to console? (default is TRUE)
@@ -52,7 +49,7 @@
 simulation <- function(landscape,
                        population_dynamics,
                        habitat_dynamics = list(),
-                       demo_stochasticity = c("full", "deterministic_redistribution", "stochastic_redistribution", "none"),
+                       demo_stochasticity = c("full", "none"),
                        timesteps = 3,
                        replicates = 1,
                        verbose = TRUE){
@@ -307,7 +304,7 @@ plot.simulation_results <- function (x,
                                                        width = 0.4),
                                        #main = "population",
                                        par.settings=list(layout.heights = list(xlab.key.padding = 1),
-                                                         strip.background = list(col = "white")),
+                                                         strip.background = list(col = "#ffffff")),
                                        xlab = "individuals",
                                        layout = panels))
           }
@@ -352,7 +349,7 @@ plot.simulation_results <- function (x,
                                                        width = 0.4),
                                        #main = "population",
                                        par.settings=list(layout.heights = list(xlab.key.padding = 1),
-                                                         strip.background = list(col = "white")),
+                                                         strip.background = list(col = "#ffffff")),
                                        xlab = "individuals",
                                        layout = panels))
             
@@ -399,7 +396,7 @@ plot.simulation_results <- function (x,
                                                    width = 0.4),
                                    main = "habitat",
                                    par.settings=list(layout.heights = list(xlab.key.padding = 1),
-                                                     strip.background = list(col = "white")),
+                                                     strip.background = list(col = "#ffffff")),
                                    xlab = "suitability index",
                                    layout = panels))
       }
@@ -468,7 +465,7 @@ plot.simulation_results <- function (x,
                                                      width = 0.4),
                                      main = "k",
                                      par.settings=list(layout.heights = list(xlab.key.padding = 1),
-                                                       strip.background = list(col = "white")),
+                                                       strip.background = list(col = "#ffffff")),
                                      xlab = "individuals",
                                      layout = panels))
         }

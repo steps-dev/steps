@@ -5,13 +5,14 @@
 \title{Population growth}
 \usage{
 growth(transition_matrix, global_stochasticity = 0,
-  local_stochasticity = 0, transition_function = NULL)
+  local_stochasticity = 0, transition_function = NULL,
+  transition_order = c("fecundity", "survival"))
 }
 \arguments{
 \item{transition_matrix}{A symmetrical age-based (Leslie) or stage-based (Lefkovitch)
 population structure matrix.}
 
-\item{global_stochasticity, local_stochasticity}{either scalar values or
+\item{global_stochasticity, local_stochasticity}{Either scalar values or
 matrices (with the same dimension as \code{transition_matrix}) specifying
 the variability (in standard deviations) in the transition matrix either for
 populations in all grid cells (\code{global_stochasticity}) or for each
@@ -19,6 +20,14 @@ grid cell population separately (\code{local_stochasticity})}
 
 \item{transition_function}{A function to specify or modify life-stage transitions
 at each timestep. See \link[steps]{transition_function}.}
+
+\item{transition_order}{Order of transitions performed in growth function. This
+behaviour is only applied when demographic stochasticity is set to "full" (default)
+and transitions are applied sequentially.
+By default "fecundity" is performed first (calculating the number of new individuals to be added
+to the populations), then "survival" is applied. The final population is the sum of these. 
+Users should be cautious of specifying "survival" to be performed first as typically survival 
+of reproductive stages will already be accounted for in the fecundity values of the transition matrix.}
 }
 \description{
 This function applies negative or positive growth to the population using matrix

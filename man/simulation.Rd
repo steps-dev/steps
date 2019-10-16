@@ -5,9 +5,8 @@
 \title{Run a simulation}
 \usage{
 simulation(landscape, population_dynamics, habitat_dynamics = list(),
-  demo_stochasticity = c("full", "deterministic_redistribution",
-  "stochastic_redistribution", "none"), timesteps = 3, replicates = 1,
-  verbose = TRUE)
+  demo_stochasticity = c("full", "none"), timesteps = 3,
+  replicates = 1, verbose = TRUE)
 }
 \arguments{
 \item{landscape}{a \link[steps]{landscape} object representing the initial habitat and
@@ -20,13 +19,10 @@ population changes over time}
 each timestep - see \link[steps]{habitat_dynamics_functions}}
 
 \item{demo_stochasticity}{how should population rounding occur, if at all -
-"full" uses a multinomial draw to return rounded cell populations (default);
-"deterministic_redistribution" redistributes the decimal overages to the
-cells with the largest overages; "stochastic_redistribution" redistributes
-the decimal overages to the cells based on binomial draws using the
-overages as probabilities; "none" returns non-integer cell populations (no
-rounding). Note, this parameter specification is used consistently throughout
-all functions in a simulation.}
+"full" uses a multinomial draw to return rounded cell populations (default)
+whilst "none" returns non-integer cell populations (no rounding). Note, this
+parameter specification is used consistently throughout all functions in a
+simulation.}
 
 \item{timesteps}{number of timesteps used in one simulation}
 

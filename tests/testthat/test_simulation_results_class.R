@@ -122,7 +122,8 @@ test_that('simulation_results classes work', {
                                   modification = mortality(mortality_layer = 'cull', stages = 2),
                                   density_dependence = NULL)
   
-  pop_dyn3 <- population_dynamics(change = growth(transition_matrix = egk_mat),
+  pop_dyn3 <- population_dynamics(change = growth(transition_matrix = egk_mat,
+                                                  transition_order = "survival"),
                                   dispersal = kernel_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay = 8000),
                                                                max_distance = 8000,
                                                                arrival_probability = "suitability",
@@ -279,18 +280,18 @@ test_that('simulation_results classes work', {
                                   timesteps = 3)[1],
                        "simulation_results"))
   
-  expect_true(inherits(simulation(landscape = landscape,
-                                  population_dynamics = pop_dyn,
-                                  habitat_dynamics = NULL,
-                                  demo_stochasticity = "deterministic_redistribution",
-                                  timesteps = 3),
-                       "simulation_results"))
-  
-  expect_true(is.simulation_results(simulation(landscape = landscape,
-                                               population_dynamics = pop_dyn,
-                                               habitat_dynamics = NULL,
-                                               demo_stochasticity = "stochastic_redistribution",
-                                               timesteps = 3)))
+  # expect_true(inherits(simulation(landscape = landscape,
+  #                                 population_dynamics = pop_dyn,
+  #                                 habitat_dynamics = NULL,
+  #                                 demo_stochasticity = "deterministic_redistribution",
+  #                                 timesteps = 3),
+  #                      "simulation_results"))
+  # 
+  # expect_true(is.simulation_results(simulation(landscape = landscape,
+  #                                              population_dynamics = pop_dyn,
+  #                                              habitat_dynamics = NULL,
+  #                                              demo_stochasticity = "stochastic_redistribution",
+  #                                              timesteps = 3)))
   
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn2,
