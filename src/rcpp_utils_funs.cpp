@@ -13,6 +13,12 @@ std::vector<int> fast_match(IntegerVector x, IntegerVector y) {
   return output;
 }
 
+// [[Rcpp::export]]
+NumericVector pmax_zero(NumericVector X) {
+  NumericVector Y = pmax(0, X);
+  return Y;
+}
+
 // // [[Rcpp::export]]
 // NumericVector rtnorm(NumericVector mu, NumericVector sd, double min, double max) {
 //   // Obtain vector sizes

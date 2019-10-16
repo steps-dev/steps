@@ -591,7 +591,6 @@ fast_dispersal <- function(dispersal_kernel = exponential_dispersal_kernel(dista
       
       pop_dispersing[] <- pop_dispersed
       pop <- pop_staying + pop_dispersing
-      #pop <- round_pop(pop)
       landscape$population[[stage]] <- pop
       
     }
@@ -749,7 +748,7 @@ dispersalFFT <- function (popmat, fs) {
   
   # convert back to real domain, apply correction and transpose
   pop_torus_new <- t(Re(pop_new_torus_fft) / length(fs$pop_torus))
-  pop_torus_new <- pmax(pop_torus_new, 0)
+  pop_torus_new <- pmax_zero(pop_torus_new)
   
   # extract the section of the torus representing our 2D plane and return
   pop_new <- pop_torus_new[fs$yidx, fs$xidx]
@@ -914,16 +913,17 @@ disperse <- function (origin,
   # (if this is not the first cell considered, we use the original population
   # to make sure new arrivals don't disperse again)
   n_total <- original_pop[origin, stage]
-  n_dispersing <- round_pop(n_total * prop_dispersing[stage])
+  n_dispersing <- n_total * prop_dispersing[stage]
+  n_dispersing <- round_pop(n_dispersing)
   n_staying <- n_total - n_dispersing
   
   # update pop and original_pop to remove the dispersers
   new_arrivals <- pop[origin, stage] - n_total
   pop[origin, stage] <- n_staying + new_arrivals
   
-  
   # propose some dispersals
-  dispersals <- round_pop(n_dispersing * prob)
+  dispersals <- n_dispersing * prob
+  dispersals <- round_pop(dispersals)
   
   # if we're using carrying capacity, return individuals to the origin if there's no space
   if (!is.null(carrying_capacity)) {
@@ -948,7 +948,7 @@ disperse <- function (origin,
       space_remaining <- floor(space_remaining)
     }
     
-    excess <- pmax(0, dispersals - space_remaining)
+    excess <- pmax_zero(dispersals - space_remaining) ##### Changed
     
     # remove the excess from the dispersers, and say they are dispersing back to
     # the origin

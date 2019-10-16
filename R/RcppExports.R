@@ -17,3 +17,7 @@ fast_match <- function(x, y) {
     .Call('_steps_fast_match', PACKAGE = 'steps', x, y)
 }
 
+pmax_zero <- function(X) {
+    .Call('_steps_pmax_zero', PACKAGE = 'steps', X)
+}
+

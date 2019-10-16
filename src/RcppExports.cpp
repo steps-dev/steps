@@ -61,12 +61,24 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// pmax_zero
+NumericVector pmax_zero(NumericVector X);
+RcppExport SEXP _steps_pmax_zero(SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type X(XSEXP);
+    rcpp_result_gen = Rcpp::wrap(pmax_zero(X));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_steps_shuffle_vec", (DL_FUNC) &_steps_shuffle_vec, 2},
     {"_steps_can_source_cell_disperse", (DL_FUNC) &_steps_can_source_cell_disperse, 7},
     {"_steps_rcpp_dispersal", (DL_FUNC) &_steps_rcpp_dispersal, 5},
     {"_steps_fast_match", (DL_FUNC) &_steps_fast_match, 2},
+    {"_steps_pmax_zero", (DL_FUNC) &_steps_pmax_zero, 1},
     {NULL, NULL, 0}
 };
 
