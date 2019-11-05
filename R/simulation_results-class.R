@@ -65,6 +65,24 @@ simulation <- function(landscape,
                        future.apply::future_lapply,
                        base::lapply)
   
+  landscape_names <- names(landscape)
+  
+  # loop through names of objects and check for layer counts
+  for (name in landscape_names) {
+    
+    if (name != "population" && !is.function(landscape[[name]]) &&
+        !is.null(landscape[[name]]) && raster::nlayers(landscape[[name]]) > 1) {
+      
+      if (raster::nlayers(landscape[[name]]) < timesteps) {
+        stop("A spatial object exists in the landscape that has less layers than specified ",
+             "number timesteps. All spatial objects must have either one layer or a number of ",
+             "layers equal to the intended number of timesteps in a simulation. Please check the ",
+             "landscape object and re-run the simulation.")
+      }
+      
+    }
+    
+  }
   
   simulation_results <- lapply_fun(seq_len(replicates),
                                    FUN = simulate,
@@ -814,7 +832,7 @@ as.simulation_results <- function (simulation_results) {
 }
 
 simulate <- function (i, landscape, population_dynamics, habitat_dynamics, timesteps, verbose, stash, is_multisession) {
-
+  
   # if we are running in parallel, make sure the steps stash is the one from the calling session
   if (is_multisession) {
     replace_stash(stash)
@@ -836,12 +854,35 @@ simulate <- function (i, landscape, population_dynamics, habitat_dynamics, times
     landscape <- population_dynamics(landscape, timestep)
     
     landscape_out <- landscape
-    if (!is.null(landscape_out$suitability) && raster::nlayers(landscape_out$suitability) > 1) {
-      landscape_out$suitability <- landscape_out$suitability[[timestep]]
+    
+    # get names of objects within the landscape object
+    landscape_names <- names(landscape_out)
+    
+    # loop through names of objects and check if not null and greater than length one
+    for (name in landscape_names) {
+      
+      if (name == "carrying_capacity" && !is.null(landscape_out[[name]]) && is.function(landscape_out[[name]])) {
+        
+        landscape_out$carrying_capacity <- get_carrying_capacity(landscape, timestep)
+        
+      } else {
+        
+        if (name != "population" && !is.function(landscape_out[[name]]) &&
+            !is.null(landscape_out[[name]]) && raster::nlayers(landscape_out[[name]]) > 1) {
+          
+          landscape_out[[name]] <- landscape_out[[name]][[timestep]]
+          
+        }
+      }
     }
-    if (!is.null(landscape_out$carrying_capacity) && is.function(landscape_out$carrying_capacity)) {
-      landscape_out$carrying_capacity <- get_carrying_capacity(landscape, timestep)
-    }
+    
+    # if (!is.null(landscape_out$suitability) && raster::nlayers(landscape_out$suitability) > 1) {
+    #   landscape_out$suitability <- landscape_out$suitability[[timestep]]
+    # }
+    # if (!is.null(landscape_out$carrying_capacity) && is.function(landscape_out$carrying_capacity)) {
+    #   landscape_out$carrying_capacity <- get_carrying_capacity(landscape, timestep)
+    # }
+    
     output_landscapes[[timestep]] <- landscape_out
     
     if (!is.null(steps_stash$dispersal_stats)) {
@@ -857,7 +898,7 @@ simulate <- function (i, landscape, population_dynamics, habitat_dynamics, times
     }
     
     if (verbose == TRUE && inherits(future::plan(), "sequential")) utils::setTxtProgressBar(pb, timestep)
-    #if (verbose == TRUE && !inherits(future::plan(), "sequential")) update_parallel_progress(i, n)
+    
   }
   
   if (verbose == TRUE && inherits(future::plan(), "sequential")) close(pb)

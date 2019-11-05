@@ -159,8 +159,10 @@ growth <- function (transition_matrix,
       
       total_pop <- rowSums(population)
       has_pop <- total_pop > 0
+
+      # browser()
       
-      if (transition_order == "fecundity") {
+      if (transition_order == "fecundity" && sum(has_pop) >= 1) {
         # first step - perform fecundity to add individuals to the populations
         new_population <- add_offspring(population[has_pop, ], transition_array[ , , has_pop])
         # second step - perform survival on new population
@@ -170,7 +172,7 @@ growth <- function (transition_matrix,
         population[has_pop, ] <- surv_population
       }
       
-      if (transition_order == "survival") {
+      if (transition_order == "survival" && sum(has_pop) >= 1) {
         # first step - perform survival on population
         surv_population <- surviving_population(population[has_pop, ], transition_array[ , , has_pop])
         # second step - perform fecundity to add individuals to the populations
@@ -218,7 +220,12 @@ add_offspring <- function (population, transition_array) {
   
   # get fecundities for all eligible stages
   # N.B. assumes we can only recruit into the first stage!
-  fecundities <- t(transition_array[1, , ])
+  if (class(transition_array) == "matrix") {
+    fecundities <- t(transition_array[1, ])
+  } else {
+    fecundities <- t(transition_array[1, , ])
+  }
+
   
   # get expected number, then do a poisson draw about this
   expected_offspring <- fecundities * pops
@@ -232,22 +239,45 @@ add_offspring <- function (population, transition_array) {
 
 surviving_population <- function (population, transition_array) {
   survival_array <- transition_array
-  survival_array[1, , ] <- 0
   
-  n_stage <- ncol(population) 
+  if (class(transition_array) == "matrix") {
+    survival_array[1, ] <- 0
+  } else {
+    survival_array[1, , ] <- 0
+  }
+
+  if (class(population) == "numeric") {
+    n_stage <- length(population)
+  } else {
+    n_stage <- ncol(population)
+  }
+   
   
   # loop through stages, getting the stages to which they move (if they survive)
-  survival_stochastic <- matrix(0, nrow(population), n_stage)
+  if (class(population) == "numeric") {
+    survival_stochastic <- matrix(0, 1, n_stage)
+  } else {
+    survival_stochastic <- matrix(0, nrow(population), n_stage)
+  }
 
   for (stage in seq_len(n_stage)) {
     
     # get the populations that have any individuals of this stage
-    pops <- population[, stage]
+    if (class(population) == "numeric") {
+      pops <- population[stage]
+    } else {
+      pops <- population[, stage]
+    }
     
     # probability of transitioning to each other stage
-    probs <- t(survival_array[ , stage, ])
+    if (class(survival_array) == "matrix") {
+      probs <- t(survival_array[ , stage])
+    } else {
+      probs <- t(survival_array[ , stage, ])
+    }
     
     # add on probability of dying
+    
     surv_prob <- rowSums(probs)
     
     # check for sensible values
