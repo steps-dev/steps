@@ -748,7 +748,7 @@ dispersalFFT <- function (popmat, fs) {
   
   # convert back to real domain, apply correction and transpose
   pop_torus_new <- t(Re(pop_new_torus_fft) / length(fs$pop_torus))
-  pop_torus_new <- pmax_zero(pop_torus_new)
+  pop_torus_new <- pmax(pop_torus_new, 0)
   
   # extract the section of the torus representing our 2D plane and return
   pop_new <- pop_torus_new[fs$yidx, fs$xidx]

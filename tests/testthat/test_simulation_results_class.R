@@ -202,7 +202,7 @@ test_that('simulation_results classes work', {
                                   density_dependence = ceiling_density())
   
   pop_dyn7 <- population_dynamics(change = growth(transition_matrix = egk_mat),
-                                  dispersal = fast_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1,
+                                  dispersal = fast_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay = 8000,
                                                                                                              normalize = TRUE)),
                                   modification = NULL,
                                   density_dependence = NULL)
@@ -279,20 +279,7 @@ test_that('simulation_results classes work', {
                                   habitat_dynamics = NULL,
                                   timesteps = 3)[1],
                        "simulation_results"))
-  
-  # expect_true(inherits(simulation(landscape = landscape,
-  #                                 population_dynamics = pop_dyn,
-  #                                 habitat_dynamics = NULL,
-  #                                 demo_stochasticity = "deterministic_redistribution",
-  #                                 timesteps = 3),
-  #                      "simulation_results"))
-  # 
-  # expect_true(is.simulation_results(simulation(landscape = landscape,
-  #                                              population_dynamics = pop_dyn,
-  #                                              habitat_dynamics = NULL,
-  #                                              demo_stochasticity = "stochastic_redistribution",
-  #                                              timesteps = 3)))
-  
+
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn2,
                                   habitat_dynamics = NULL,
@@ -503,7 +490,7 @@ test_that('simulation_results classes work', {
   test_simulation2 <- simulation(landscape = landscape,
                                  population_dynamics = pop_dyn8,
                                  habitat_dynamics = NULL,
-                                 timesteps = 30,
+                                 timesteps = 20,
                                  replicates = 1)
   
   #print(test_simulation)
