@@ -133,8 +133,10 @@ is.simulation_results <- function (x) {
 #' @param object the \code{simulation_results} object to plot - can be 'population'
 #'   (default), 'suitability' or 'carrying_capacity'
 #' @param type the plot type - 'graph' (default) or 'raster'
-#' @param stages life-stages to plot - by default all life-stages will be plotted.
-#'   Set to zero for totals (i.e. sum of all life-stages). 
+#' @param stages life-stages to plot - by default all life-stages will be considered.
+#'   Set to zero for totals (i.e. sum of all life-stages). For raster plotting,
+#'   the life-stages that are specified will be summed, unless a single life-stage
+#'   is specified.
 #' @param animate if plotting type 'raster' would you like to animate the
 #'   rasters?
 #' @param timesteps timesteps to display when plotting rasters
@@ -282,8 +284,8 @@ plot.simulation_results <- function (x,
         #   response <- readLines(n = 1)
         #   if (response != "yes") return(NULL)
         # }
-        
-        if(stages == 0) {
+
+        if(any(stages == 0)) {
           
           rasters_sum <- raster::stack(lapply(x[[1]], function (landscape) sum(landscape$population)))
           #rasters_sum[rasters_sum == 0] <- NA
@@ -331,7 +333,7 @@ plot.simulation_results <- function (x,
           
         } else {
           
-          rasters <- raster::stack(lapply(x[[1]], function (landscape) landscape$population[[stages]]))
+          rasters <- raster::stack(lapply(x[[1]], function (landscape) sum(landscape$population[[stages]])))
           #rasters[rasters == 0] <- NA
           
           names(rasters) <- paste0("Timestep_", 1:raster::nlayers(rasters))
