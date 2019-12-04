@@ -106,7 +106,7 @@ disturbance <- function (disturbance_layers, effect_time = 1) {
 #' \dontrun{
 #' regen <- function (time) {-exp(time)}
 #' 
-#' plot(1:5, rescale(regen(1:5)), type = "l")
+#' plot(1:5, regen(1:5), type = "l")
 #' 
 #' fire <- fire_effects(fire_layers = "fires", effect_time = 5, regeneration_function = regen)
 #' 

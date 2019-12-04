@@ -29,6 +29,7 @@ It operates similarly on all cells and in all timesteps throughout a simulation.
 prop_dispersal <- set_proportion_dispersing(proportions = c(0, 0.5, 0.9))
 
 kb_dispersal <- kernel_dispersal(dispersal_proportion = prop_dispersal,
+                      max_distance = 2000,
                       dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1000))
 
 ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)

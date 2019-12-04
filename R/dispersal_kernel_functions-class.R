@@ -32,7 +32,7 @@ NULL
 #' 
 #' exp_dispersal_fun <- exponential_dispersal_kernel(distance_decay = 50)
 #' 
-#' plot(dists, exp_dispersal_fun(dists))
+#' plot(dists, exp_dispersal_fun(dists), type = 'l')
 #' }
 
 exponential_dispersal_kernel <- function (distance_decay = 0.5, normalize = FALSE) {

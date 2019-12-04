@@ -34,8 +34,9 @@
 #' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
 #' 
 #' pd <- population_dynamics(change = growth(egk_mat),
-#'                           dispersal = kernel_dispersal(max_distance = c(0, 0, 2000),
-#'                           dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1000)),
+#'                           dispersal = kernel_dispersal(max_distance = 2000,
+#'                                         dispersal_kernel = exponential_dispersal_kernel(
+#'                                           distance_decay = 1000)),
 #'                           density_dependence = ceiling_density())
 #' 
 #' # Run a simulation with full demographic stochasticity and without any habitat
@@ -151,8 +152,9 @@ is.simulation_results <- function (x) {
 #' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
 #' 
 #' pd <- population_dynamics(change = growth(egk_mat),
-#'                           dispersal = kernel_dispersal(max_distance = c(0, 0, 2000),
-#'                           dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1000)),
+#'                           dispersal = kernel_dispersal(max_distance = 2000,
+#'                                         dispersal_kernel = exponential_dispersal_kernel(
+#'                                           distance_decay = 1000)),
 #'                           density_dependence = ceiling_density())
 #' 
 #' sim <- simulation(landscape = ls,
@@ -655,8 +657,9 @@ plot.simulation_results <- function (x,
 #' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
 #' 
 #' pd <- population_dynamics(change = growth(egk_mat),
-#'                           dispersal = kernel_dispersal(max_distance = c(0, 0, 2000),
-#'                           dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1000)),
+#'                           dispersal = kernel_dispersal(max_distance = 2000,
+#'                                         dispersal_kernel = exponential_dispersal_kernel(
+#'                                           distance_decay = 1000)),
 #'                           density_dependence = ceiling_density())
 #' 
 #' sim <- simulation(landscape = ls,
@@ -731,11 +734,11 @@ extract_spatial <- function (x,
 #' 
 #' # Create populations dynamics with and without ceiling density dependence
 #' pd1 <- population_dynamics(change = growth(egk_mat),
-#'                            dispersal = kernel_dispersal(max_distance = c(0, 0, 2000),
+#'                            dispersal = kernel_dispersal(max_distance = 2000,
 #'                            dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1000)),
 #'                            density_dependence = ceiling_density())
 #' pd2 <- population_dynamics(change = growth(egk_mat),
-#'                            dispersal = kernel_dispersal(max_distance = c(0, 0, 2000),
+#'                            dispersal = kernel_dispersal(max_distance = 2000,
 #'                            dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1000)))
 #' 
 #' # Run first simulation with ceiling density dependence and three replicates

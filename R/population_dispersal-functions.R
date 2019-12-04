@@ -69,7 +69,7 @@ NULL
 #' # dispersal kernel uses a decay parameter to control how far populations disperse. 
 #' 
 #' \dontrun{
-#' kb_dispersal <- kernel_dispersal(max_distance = c(0, 0, 2000),
+#' kb_dispersal <- kernel_dispersal(max_distance = 2000,
 #'                       dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1000))
 #' 
 #' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)

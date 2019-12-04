@@ -43,8 +43,9 @@ time and space.
 ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
 
 pd <- population_dynamics(change = growth(egk_mat),
-                          dispersal = kernel_dispersal(max_distance = c(0, 0, 2000),
-                          dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1000)),
+                          dispersal = kernel_dispersal(max_distance = 2000,
+                                        dispersal_kernel = exponential_dispersal_kernel(
+                                          distance_decay = 1000)),
                           density_dependence = ceiling_density())
 
 sim <- simulation(landscape = ls,

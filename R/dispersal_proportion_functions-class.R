@@ -44,6 +44,7 @@ NULL
 #' prop_dispersal <- set_proportion_dispersing(proportions = c(0, 0.5, 0.9))
 #' 
 #' kb_dispersal <- kernel_dispersal(dispersal_proportion = prop_dispersal,
+#'                       max_distance = 2000,
 #'                       dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1000))
 #' 
 #' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
@@ -98,6 +99,7 @@ set_proportion_dispersing <- function (proportions = 1) {
 #' prop_dispersal <- density_dependence_dispersing()
 #' 
 #' kb_dispersal <- kernel_dispersal(dispersal_proportion = prop_dispersal,
+#'                       max_distance = 2000,
 #'                       dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1000))
 #' 
 #' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)

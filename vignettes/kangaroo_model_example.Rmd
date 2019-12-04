@@ -160,7 +160,7 @@ plot(egk_results, type = "raster", stage = 2, timesteps = c(1, 10, 20), animate 
 We can also generate multiple replicates of a simulation. For the kangaroo, we specify three replicates of a twenty timestep simulation. The replicates are run sequentially by default, however, to improve computation time, we have included the ability to run all three replicates in parallel - each on a different processor. Type *?plan* for more information on how to operate in parallel. Note *plan()* is only required to be called once at the beginning of a script.
 
 ```{r, message = FALSE, progress = FALSE, eval = FALSE}
-plan(multiprocess, workers = 3) # This is how we specify to simulate
+plan(multisession, workers = 3) # This is how we specify to simulate
 # replicates on separate processors in parallel
 
 egk_results <- simulation(landscape = egk_landscape,
@@ -246,7 +246,7 @@ deterministic_transitions <- function(spatial_object) {
     for (name in names_timestep) {
       r <- as.integer(substr(substr(name, nchar(name) - 3, nchar(name)), 1, 2))
       c <- as.integer(substr(substr(name, nchar(name) - 1, nchar(name)), 1, 2))
-      transition_array[r, c, ] <- egk_sf[[name]][cell_idx]
+      transition_array[r, c, ] <- landscape[[spatial_object]][[name]][cell_idx]
     }
     
     #### Return array with required dimensions
@@ -267,6 +267,7 @@ egk_pop_dynamics <- population_dynamics(
   modification = NULL,
   density_dependence = NULL)
 
+plan(sequential)
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,
                           habitat_dynamics = NULL,
@@ -277,6 +278,8 @@ egk_results <- simulation(landscape = egk_landscape,
 Now let's add some other population dynamics. We can specify ceiling density dependence with the "ceiling_density" function. The population will grow according to the transition matrix until it reaches a ceiling carrying capacity, at which point individuals will die to keep the population at the carrying capacity of the landscape. We must now provide a carrying capacity object in the landscape for this to work - here we provide a spatial layer. By default, all life-stages contribute to density dependence, however, here we specify that it is based on the number of adults only ("stages = 3" in the ceiling_density function). Type *?ceiling_density* at the R prompt for more information.
 
 ```{r, message = FALSE, progress = FALSE, fig.align = "center", eval = FALSE}
+plan(multisession, workers = 3)
+
 egk_landscape <- landscape(population = egk_pop,
                            suitability = egk_hab,
                            carrying_capacity = egk_k)
@@ -386,9 +389,7 @@ egk_results <- simulation(landscape = egk_landscape,
 
 ```
 
-For kernel-based dispersal, specifying a single number for the "max_distance" parameter will indicate maximum dispersal distances for all life-stages whilst a vector of distances (equal in length to the number of life-stages) can also be specified. In the example below, no juveniles (stage 1) disperse, subadults (stage 2) only disperse up to 2500 meters (5 cells), and adults (stage 3) disperse up to 5000 meters (10 cells).
-
-The 'number of cells' representation of distance should be carefully considered when specifying custom distance kernel functions. For example, below we have specified an exponential distance decay function where "r" represents spatial units - in this case 5000 meters (10 cells). How we specify the function will depend on the ecology of the species and known dispersal distances. The function should return a value close to zero when the maximum dispersal distances is specified for "r": 
+For kernel-based dispersal, specifying a single number for the "max_distance" parameter will indicate maximum dispersal distances for all life-stages. The 'number of cells' representation of distance should be carefully considered when specifying custom distance kernel functions. For example, below we have specified an exponential distance decay function where "r" represents spatial units - in this case 5000 meters (10 cells). How we specify the function will depend on the ecology of the species and known dispersal distances. The function should return a value close to zero when the maximum dispersal distances is specified for "r": 
 
 ```{r, message = FALSE, progress = FALSE, fig.align = "center", eval = FALSE}
 egk_landscape <- landscape(population = egk_pop,
@@ -399,7 +400,7 @@ egk_pop_dynamics <- population_dynamics(
   change = growth(transition_matrix = egk_mat,
                   global_stochasticity = egk_mat_stoch),
   dispersal = kernel_dispersal(arrival_probability = "suitability",
-                               max_distance = c(0, 2500, 5000),
+                               max_distance = 5000,
                                dispersal_kernel = function (r) exp(-r / 2000),
                                dispersal_proportion = density_dependence_dispersing()),
   modification = NULL,
@@ -498,12 +499,12 @@ carrying_cap_fun <- function (landscape, timestep) {
     suit <- suit[[timestep]]
   }
   
-  calc(suit, fun)
+  raster::calc(suit, fun)
   
 }
 
 suit_seq <- seq(0, 1, 0.1)
-plot(suit_seq, 75 - round(75 * dlogis(suit_seq, scale = 0.25)))
+plot(suit_seq, 75 - round(75 * dlogis(suit_seq, scale = 0.25)), type = 'l')
 
 
 egk_landscape <- landscape(population = egk_pop,
@@ -548,7 +549,7 @@ carrying_cap_fun <- function (landscape, timestep) {
     suit <- suit[[timestep]]
   }
   
-  calc(suit, fun)
+  raster::calc(suit, fun)
   
 }
 

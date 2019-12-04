@@ -30,7 +30,7 @@ that takes into account other factors of habitat restoration (e.g. growth/re-gro
 \dontrun{
 regen <- function (time) {-exp(time)}
 
-plot(1:5, rescale(regen(1:5)), type = "l")
+plot(1:5, regen(1:5), type = "l")
 
 fire <- fire_effects(fire_layers = "fires", effect_time = 5, regeneration_function = regen)
 

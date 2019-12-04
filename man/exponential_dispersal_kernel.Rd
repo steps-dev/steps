@@ -24,6 +24,6 @@ dists <- seq(0, 100, 1)
 
 exp_dispersal_fun <- exponential_dispersal_kernel(distance_decay = 50)
 
-plot(dists, exp_dispersal_fun(dists))
+plot(dists, exp_dispersal_fun(dists), type = 'l')
 }
 }
