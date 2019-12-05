@@ -4,8 +4,7 @@
 \alias{compare_emp}
 \title{Compare minimum expected populations}
 \usage{
-compare_emp(x, ..., interval = 95, all_points = FALSE,
-  simulation_names = NULL)
+compare_emp(x, ..., interval = 95, all_points = FALSE, simulation_names = NULL)
 }
 \arguments{
 \item{x}{a simulation_results object}

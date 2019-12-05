@@ -4,8 +4,7 @@
 \alias{landscape}
 \title{Create a landscape object.}
 \usage{
-landscape(population, suitability = NULL, carrying_capacity = NULL,
-  ...)
+landscape(population, suitability = NULL, carrying_capacity = NULL, ...)
 }
 \arguments{
 \item{population}{a raster stack (grid cell-based) with one layer for each life

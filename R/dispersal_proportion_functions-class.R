@@ -73,7 +73,7 @@ set_proportion_dispersing <- function (proportions = 1) {
 #' Density-dependent proportions of populations dispersing
 #' 
 #' The proportion of populations dispersing will be density dependent in a simulation. Proportions
-#' of populations in each life stage dispering is adjusted based on available carrying capacity.
+#' of populations in each life stage dispersing is adjusted based on available carrying capacity.
 #' If life-stages are set by the \link[steps]{population_density_dependence_functions}, these
 #' will be used to determine how close the population is to carrying capacity. If no
 #' life-stages are set or density dependence is set to NULL in \link[steps]{population_dynamics},

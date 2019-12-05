@@ -3,7 +3,6 @@
 \docType{package}
 \name{steps}
 \alias{steps}
-\alias{steps-package}
 \title{Simulate population trajectories over space and time with dynamic functions.}
 \description{
 Simulating shifts in species populations is an important

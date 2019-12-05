@@ -4,9 +4,10 @@
 \alias{fast_dispersal}
 \title{Fast diffusion-based dispersal}
 \usage{
-
-  fast_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay
-  = 0.1), dispersal_proportion = set_proportion_dispersing())
+fast_dispersal(
+  dispersal_kernel = exponential_dispersal_kernel(distance_decay = 0.1),
+  dispersal_proportion = set_proportion_dispersing()
+)
 }
 \arguments{
 \item{dispersal_kernel}{a single built-in or user-defined distance dispersal

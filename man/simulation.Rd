@@ -4,9 +4,15 @@
 \alias{simulation}
 \title{Run a simulation}
 \usage{
-simulation(landscape, population_dynamics, habitat_dynamics = list(),
-  demo_stochasticity = c("full", "none"), timesteps = 3,
-  replicates = 1, verbose = TRUE)
+simulation(
+  landscape,
+  population_dynamics,
+  habitat_dynamics = list(),
+  demo_stochasticity = c("full", "none"),
+  timesteps = 3,
+  replicates = 1,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{landscape}{a \link[steps]{landscape} object representing the initial habitat and

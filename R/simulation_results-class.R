@@ -273,19 +273,7 @@ plot.simulation_results <- function (x,
       
       if (type == "raster") {
         
-        if (is.null(stages)) {
-          stages <- seq_len(total_stages)
-        }
-        
-        # if (length(timesteps) > 20) {
-        #   cat("Note, you have specified to plot rasters for more than 20 timesteps;",
-        #       "\nthis could take a while depending on the resolution of your landscape.",
-        #       "\nAre you sure? Enter [yes] to continue, or [any other key] to cancel and adjust settings.")
-        #   response <- readLines(n = 1)
-        #   if (response != "yes") return(NULL)
-        # }
-
-        if(any(stages == 0)) {
+        if(!is.null(stages) && stages == 0) {
           
           rasters_sum <- raster::stack(lapply(x[[1]], function (landscape) sum(landscape$population)))
           #rasters_sum[rasters_sum == 0] <- NA
@@ -333,9 +321,16 @@ plot.simulation_results <- function (x,
           
         } else {
           
-          rasters <- raster::stack(lapply(x[[1]], function (landscape) sum(landscape$population[[stages]])))
-          #rasters[rasters == 0] <- NA
+          if (is.null(stages)) {
+            stages <- seq_len(total_stages)
+          }
           
+          if (length(stages) == 1) {
+            rasters <- raster::stack(lapply(x[[1]], function (landscape) landscape$population[[stages]]))
+          } else {
+            rasters <- raster::stack(lapply(x[[1]], function (landscape) sum(landscape$population[[stages]])))            
+          }
+
           names(rasters) <- paste0("Timestep_", 1:raster::nlayers(rasters))
           
           # Find maximum and minimum population value in raster cells for all timesteps for life-stage

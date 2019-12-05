@@ -8,7 +8,7 @@
 #' 
 #' @seealso
 #' \itemize{
-#'   \item{\link[steps]{ceiling_density} to cap populations at carying capcities}
+#'   \item{\link[steps]{ceiling_density} to cap populations at carrying capacities}
 #'   }
 NULL
 

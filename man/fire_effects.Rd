@@ -4,8 +4,11 @@
 \alias{fire_effects}
 \title{Fire effects with regeneration}
 \usage{
-fire_effects(fire_layers, effect_time = 3,
-  regeneration_function = function(time) {     -time })
+fire_effects(
+  fire_layers,
+  effect_time = 3,
+  regeneration_function = function(time) {     -time }
+)
 }
 \arguments{
 \item{fire_layers}{the name(s) of spatial layer(s) in the landscape object with fire disturbances used

@@ -4,11 +4,12 @@
 \alias{kernel_dispersal}
 \title{Kernel-based dispersal}
 \usage{
-
-  kernel_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay
-  = 1), max_distance = NULL, arrival_probability = c("both",
-  "suitability", "carrying_capacity", "none"),
-  dispersal_proportion = set_proportion_dispersing())
+kernel_dispersal(
+  dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1),
+  max_distance = NULL,
+  arrival_probability = c("both", "suitability", "carrying_capacity", "none"),
+  dispersal_proportion = set_proportion_dispersing()
+)
 }
 \arguments{
 \item{dispersal_kernel}{a single built-in or user-defined distance dispersal

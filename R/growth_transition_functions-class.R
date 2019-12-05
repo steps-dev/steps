@@ -102,7 +102,7 @@ modified_transition <- function(survival_layer = NULL,
 #' Adjusts the life-stage transition matrix in each cell based on the carrying capacity in the cell and
 #' a density dependence function - default is Beverton-Holt. The user may specify which life-stages are 
 #' affected by density dependence. If \code{R_max} is not provided this is calculated from the local cell-based
-#' transition matrices internally. By providing initial stable age distibution values, performance can be
+#' transition matrices internally. By providing initial stable age distribution values, performance can be
 #' increased as the function internally calculates these values through optimisation.
 #' 
 #' @param stages which life-stages contribute to density dependence - default is all

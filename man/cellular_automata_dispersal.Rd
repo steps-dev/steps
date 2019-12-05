@@ -4,9 +4,13 @@
 \alias{cellular_automata_dispersal}
 \title{Cellular automata dispersal}
 \usage{
-cellular_automata_dispersal(max_cells = Inf,
-  dispersal_proportion = set_proportion_dispersing(), barriers = NULL,
-  use_suitability = TRUE, carrying_capacity = "carrying_capacity")
+cellular_automata_dispersal(
+  max_cells = Inf,
+  dispersal_proportion = set_proportion_dispersing(),
+  barriers = NULL,
+  use_suitability = TRUE,
+  carrying_capacity = "carrying_capacity"
+)
 }
 \arguments{
 \item{max_cells}{the maximum number of cell movements that each individual in

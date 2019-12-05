@@ -4,10 +4,13 @@
 \alias{population_dynamics}
 \title{Define population dynamics.}
 \usage{
-population_dynamics(change = NULL, dispersal = NULL,
-  modification = NULL, density_dependence = NULL,
-  dynamics_order = c("change", "dispersal", "modification",
-  "density_dependence"))
+population_dynamics(
+  change = NULL,
+  dispersal = NULL,
+  modification = NULL,
+  density_dependence = NULL,
+  dynamics_order = c("change", "dispersal", "modification", "density_dependence")
+)
 }
 \arguments{
 \item{change}{\link[steps]{population_change_functions} to define how population

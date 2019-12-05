@@ -4,8 +4,14 @@
 \alias{extract_spatial}
 \title{Extract objects from a 'simulation_results' object}
 \usage{
-extract_spatial(x, replicate = 1, timestep = 1,
-  landscape_object = "population", stage = 1, misc = 1)
+extract_spatial(
+  x,
+  replicate = 1,
+  timestep = 1,
+  landscape_object = "population",
+  stage = 1,
+  misc = 1
+)
 }
 \arguments{
 \item{x}{a simulation_results object}

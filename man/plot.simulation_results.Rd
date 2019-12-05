@@ -4,9 +4,17 @@
 \alias{plot.simulation_results}
 \title{Plot the results of a simulation}
 \usage{
-\method{plot}{simulation_results}(x, object = "population",
-  type = "graph", stages = NULL, animate = FALSE,
-  timesteps = c(1:3), panels = c(3, 3), emp = FALSE, ...)
+\method{plot}{simulation_results}(
+  x,
+  object = "population",
+  type = "graph",
+  stages = NULL,
+  animate = FALSE,
+  timesteps = c(1:3),
+  panels = c(3, 3),
+  emp = FALSE,
+  ...
+)
 }
 \arguments{
 \item{x}{a simulation_results object}
@@ -16,8 +24,10 @@
 
 \item{type}{the plot type - 'graph' (default) or 'raster'}
 
-\item{stages}{life-stages to plot - by default all life-stages will be plotted.
-Set to zero for totals (i.e. sum of all life-stages).}
+\item{stages}{life-stages to plot - by default all life-stages will be considered.
+Set to zero for totals (i.e. sum of all life-stages). For raster plotting,
+the life-stages that are specified will be summed, unless a single life-stage
+is specified.}
 
 \item{animate}{if plotting type 'raster' would you like to animate the
 rasters?}

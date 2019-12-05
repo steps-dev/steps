@@ -4,8 +4,12 @@
 \alias{translocation}
 \title{Translocate populations}
 \usage{
-translocation(origins_layer, destinations_layer, stages = NULL,
-  effect_timesteps = 1)
+translocation(
+  origins_layer,
+  destinations_layer,
+  stages = NULL,
+  effect_timesteps = 1
+)
 }
 \arguments{
 \item{origins_layer}{the name of a spatial layer in the landscape object with the locations

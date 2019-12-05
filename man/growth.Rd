@@ -4,9 +4,13 @@
 \alias{growth}
 \title{Population growth}
 \usage{
-growth(transition_matrix, global_stochasticity = 0,
-  local_stochasticity = 0, transition_function = NULL,
-  transition_order = c("fecundity", "survival"))
+growth(
+  transition_matrix,
+  global_stochasticity = 0,
+  local_stochasticity = 0,
+  transition_function = NULL,
+  transition_order = c("fecundity", "survival")
+)
 }
 \arguments{
 \item{transition_matrix}{A symmetrical age-based (Leslie) or stage-based (Lefkovitch)

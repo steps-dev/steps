@@ -486,9 +486,9 @@ modified_transition <- function(survival_layer = NULL,
 
 As with our original pre-built function "mortality", the first statement names the function object and defines any global parameters that will be passed to the function - in this case raster objects specified by the user. The next statement defines an internal function (returned by the main function) and this is where the dynamic operations are specified. Note the two familiar parameters "landscape" and "timestep" and a third additional parameter "transition_array" - these are all required. The new parameter 'transition_array' is required since this function operates within the 'growth' function where a transition array is constructed from the 'transition_matrix' parameter and then passed around and operated on internally. The z-dimension of the transition array matches the number of cells in the landscape.
 
-The next few statements detemine which indices in the transition matrix refer to survival and fecundity and are non-zero (i.e. specified), and identify non-NA cells in the population rasters. The non-NA cells indices are used to exclude transition matrices that correspond to cells that cannot contain populations.
+The next few statements determine which indices in the transition matrix refer to survival and fecundity and are non-zero (i.e. specified), and identify non-NA cells in the population rasters. The non-NA cells indices are used to exclude transition matrices that correspond to cells that cannot contain populations.
 
-The function then extracts the values of survival and fecundity from the input rasters based on the recorded indices - first survival, then fecundity. If a raster layer is specified, its values are extracted - note, the code is written to accomodate both single rasters and raster stacks where the number of layers matches the intended timesteps of a simulation. If a raster layer is not specified, values of ones are stored.
+The function then extracts the values of survival and fecundity from the input rasters based on the recorded indices - first survival, then fecundity. If a raster layer is specified, its values are extracted - note, the code is written to accommodate both single rasters and raster stacks where the number of layers matches the intended timesteps of a simulation. If a raster layer is not specified, values of ones are stored.
 
 In the next few statements of the internal function ('fun'), the transition values are multiplied by the extracted values of the rasters (or ones). Similar to our original 'mortality' function example, the last statement in the internal function is always "transition_array" so the transition array object is returned when the internal function concludes its operations. The final statement assigns a class to the function - once again, this is optional but useful to maintain an organised structure in the software.
 
@@ -536,7 +536,7 @@ print(egk_mat)
 paste("Rmax =", abs(eigen(egk_mat)$values[1]))
 ```
 
-Now let's suppose that we want to provide rasters that define the fecundity of adult kangaroos. The methods are similar to our earlier examples but we will need to tailor our custom function to work within the pre-existing 'growth' dynamics function (type ?growth for more information). First, we will construct a raster that will contain our values of influence - in this case numbers that define adult fecudity in each cell (missing values will use existing fecundity). We do this randomly as an example, but users can read in spatial-explicit data that represents mapped factors affecting fecundity/survival (e.g. additional food/water, protection from predators, disease status):
+Now let's suppose that we want to provide rasters that define the fecundity of adult kangaroos. The methods are similar to our earlier examples but we will need to tailor our custom function to work within the pre-existing 'growth' dynamics function (type ?growth for more information). First, we will construct a raster that will contain our values of influence - in this case numbers that define adult fecundity in each cell (missing values will use existing fecundity). We do this randomly as an example, but users can read in spatial-explicit data that represents mapped factors affecting fecundity/survival (e.g. additional food/water, protection from predators, disease status):
 
 ```{r, message = FALSE, fig.align = "center", warning = FALSE}
 adult_fec <- egk_hab # copy the habitat layer to assume its properties
@@ -553,7 +553,7 @@ plot(adult_fec, axes = FALSE, box = FALSE)
 Now let's go about creating our custom function to define the fecundity of adult kangaroos. We start with the first two lines coded similar to the previous 'modified_transition' example and change the function name and retain only the fecundity_layer parameter:
 
 ```{r, message = FALSE, eval = FALSE}
-define_fecudity <- function(fecundity_layer) {
+define_fecundity <- function(fecundity_layer) {
   
   fun <- function (transition_array, landscape, timestep) { ...
 ```
@@ -561,7 +561,7 @@ define_fecudity <- function(fecundity_layer) {
 Next we define all of the indexing required to move values from the raster to the transition array (excluding zeros in the transition array and NA cells in the population raster):
 
 ```{r, message = FALSE, eval = FALSE}
-define_fecudity <- function(fecundity_layer) {
+define_fecundity <- function(fecundity_layer) {
   
   fun <- function (transition_array, landscape, timestep) {
     transition_matrix <- transition_array[, , 1]
@@ -577,7 +577,7 @@ define_fecudity <- function(fecundity_layer) {
 We then extract the new fecundity values from the user specified raster in the landscape object and assign them to their respective positions in the transition array:
 
 ```{r, message = FALSE, eval = FALSE}
-define_fecudity <- function(fecundity_layer) {
+define_fecundity <- function(fecundity_layer) {
   
   fun <- function (transition_array, landscape, timestep) {
     transition_matrix <- transition_array[, , 1]
@@ -601,7 +601,7 @@ define_fecudity <- function(fecundity_layer) {
 Finally, similar to the original example, we return the modified transition array from the function:
 
 ```{r, message = FALSE}
-define_fecudity <- function(fecundity_layer) {
+define_fecundity <- function(fecundity_layer) {
   
   fun <- function (transition_array, landscape, timestep) {
     transition_matrix <- transition_array[, , 1]
@@ -626,7 +626,7 @@ define_fecudity <- function(fecundity_layer) {
 }
 ```
 
-In the 'population_dynamics' function, we specify 'growth' in the 'change' parameter, use the 'transition_function' parameter to call the new custom function (define_fecudity), and add the new parameter specifying the name of the raster in the landscape object. As previously, we run the simulation for a single replicate of five iterations:
+In the 'population_dynamics' function, we specify 'growth' in the 'change' parameter, use the 'transition_function' parameter to call the new custom function (define_fecundity), and add the new parameter specifying the name of the raster in the landscape object. As previously, we run the simulation for a single replicate of five iterations:
 
 ```{r, message = FALSE}
 ls <- landscape(population = egk_pop,
@@ -636,7 +636,7 @@ ls <- landscape(population = egk_pop,
 
 pd <- population_dynamics(
   change = growth(transition_matrix = egk_mat,
-                  transition_function = define_fecudity(fecundity_layer = "adult_fec")),
+                  transition_function = define_fecundity(fecundity_layer = "adult_fec")),
   dispersal = NULL,
   modification = NULL,
   density_dependence = NULL)
@@ -663,6 +663,84 @@ plot(results,
      type = "raster",
      timesteps = 1:5,
      panels = c(5, 1))
+```
+
+Often analysts would like to specify custom dispersal kernels. As with the other customisations, the dispersal kernel requires a particular structure of nested functions. Let's begin by reviewing an existing dispersal kernel function:
+
+```{r, message = FALSE, eval = FALSE}
+exponential_dispersal_kernel <- function (distance_decay = 0.5, normalize = FALSE) {
+  if (normalize) {
+    fun <- function (r) (1 / (2 * pi * distance_decay ^ 2)) * exp(-r / distance_decay)
+  } else {
+    fun <- function (r) exp(-r / distance_decay)
+  }
+  as.dispersal_function(fun)
+}
+
+r <- seq(1, 1000, 10)
+distance_decay = 100
+plot(r, exp(-r / distance_decay), type = 'l')
+```
+
+We start with a wrapper function that accepts any general parameters - these are optional, of course. Examples may be parameters that control the shape of a curve that relates distance to proportion of dispersing individuals. The next few lines define two alternative dispersal kernel equations (a normalised variant of the other) which are selected by a parameter. Note, the internal functions must take a single parameter - in this case "r", which is distance. The last line assigns a class to the object and is not required for customisation. So let's create a simple logistic function for dispersal:
+
+```{r, message = FALSE, eval = FALSE}
+logistic_dispersal_kernel <- function (dist_shape, dist_slope) {
+fun <- function (dist) 1 / (1 + exp((dist - dist_shape) / dist_slope))
+fun
+}
+
+r <- seq(1, 1000, 10)
+dist_shape = 500
+dist_slope = 20
+plot(r, 1 / (1 + exp((r - dist_shape) / dist_slope)), type = 'l')
+```
+
+Note, that the wrapper structure is still retained and that this function must return a nested function (called "fun" on the last line). The nested function takes in one parameter (dist) which can either be a single number or a vector of numbers - be sure your function can accommodate both.
+
+Now, let's test our dispersal function and compare it to the default exponential dispersal kernel. We will first thin out an example initial population raster stack so we can better see the effect of the new dispersal function.
+
+```{r, message = FALSE, eval = FALSE}
+egk_pop_thin <- egk_pop
+egk_pop_thin[sample(1:ncell(egk_pop), 0.99 * ncell(egk_pop))] <- 0
+
+ls <- landscape(population = egk_pop_thin,
+                suitability = NULL,
+                carrying_capacity = NULL)
+
+pd_exp_disp <- population_dynamics(
+  change = NULL,
+  dispersal = kernel_dispersal(dispersal_kernel = exponential_dispersal_kernel(distance_decay = 100),
+                               max_distance = 1000,
+                               arrival_probability = "none"),
+  modification = NULL,
+  density_dependence = NULL)
+
+results_01 <- simulation(landscape = ls,
+                      population_dynamics = pd_exp_disp,
+                      habitat_dynamics = NULL,
+                      timesteps = 10,
+                      replicates = 1,
+                      verbose = FALSE)
+
+plot(results_01, type = "raster", stages = 3, timesteps = c(1,5,10))
+
+pd_log_disp <- population_dynamics(
+  change = NULL,
+  dispersal = kernel_dispersal(dispersal_kernel = logistic_dispersal_kernel(dist_shape = 500, dist_slope = 20),
+                               max_distance = 1000,
+                               arrival_probability = "none"),
+  modification = NULL,
+  density_dependence = NULL)
+
+results_02 <- simulation(landscape = ls,
+                      population_dynamics = pd_log_disp,
+                      habitat_dynamics = NULL,
+                      timesteps = 10,
+                      replicates = 1,
+                      verbose = FALSE)
+
+plot(results_02, type = "raster", stages = 3, timesteps = c(1,5,10))
 ```
 
 These are simple examples, but users can specify a seemingly endless configuration of dynamics to be used throughout a simulation by following the structures and methods introduced in this vignette. Anything can be stored in a landscape object and then be referred to within a custom function. Thus, the procedure for creating custom functions also applies to habitat dynamics - which are called in the simulation function.

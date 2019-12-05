@@ -10,6 +10,6 @@ functions" for information on how to write custom functions for use in simulatio
 }
 \seealso{
 \itemize{
-  \item{\link[steps]{ceiling_density} to cap populations at carying capcities}
+  \item{\link[steps]{ceiling_density} to cap populations at carrying capacities}
   }
 }
