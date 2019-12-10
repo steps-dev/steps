@@ -676,7 +676,9 @@ exponential_dispersal_kernel <- function (distance_decay = 0.5, normalize = FALS
   }
   as.dispersal_function(fun)
 }
+```
 
+```{r, message = FALSE}
 r <- seq(1, 1000, 10)
 distance_decay = 100
 plot(r, exp(-r / distance_decay), type = 'l')
@@ -684,7 +686,7 @@ plot(r, exp(-r / distance_decay), type = 'l')
 
 We start with a wrapper function that accepts any general parameters - these are optional, of course. Examples may be parameters that control the shape of a curve that relates distance to proportion of dispersing individuals. The next few lines define two alternative dispersal kernel equations (a normalised variant of the other) which are selected by a parameter. Note, the internal functions must take a single parameter - in this case "r", which is distance. The last line assigns a class to the object and is not required for customisation. So let's create a simple logistic function for dispersal:
 
-```{r, message = FALSE, eval = FALSE}
+```{r, message = FALSE}
 logistic_dispersal_kernel <- function (dist_shape, dist_slope) {
 fun <- function (dist) 1 / (1 + exp((dist - dist_shape) / dist_slope))
 fun
@@ -700,7 +702,7 @@ Note, that the wrapper structure is still retained and that this function must r
 
 Now, let's test our dispersal function and compare it to the default exponential dispersal kernel. We will first thin out an example initial population raster stack so we can better see the effect of the new dispersal function.
 
-```{r, message = FALSE, eval = FALSE}
+```{r, message = FALSE}
 egk_pop_thin <- egk_pop
 egk_pop_thin[sample(1:ncell(egk_pop), 0.99 * ncell(egk_pop))] <- 0
 
@@ -723,7 +725,7 @@ results_01 <- simulation(landscape = ls,
                       replicates = 1,
                       verbose = FALSE)
 
-plot(results_01, type = "raster", stages = 3, timesteps = c(1,5,10))
+plot(results_01, type = "raster", stages = 3, timesteps = c(1,5,10), panels = c(3, 1))
 
 pd_log_disp <- population_dynamics(
   change = NULL,
@@ -740,7 +742,7 @@ results_02 <- simulation(landscape = ls,
                       replicates = 1,
                       verbose = FALSE)
 
-plot(results_02, type = "raster", stages = 3, timesteps = c(1,5,10))
+plot(results_02, type = "raster", stages = 3, timesteps = c(1,5,10), panels = c(3, 1))
 ```
 
 These are simple examples, but users can specify a seemingly endless configuration of dynamics to be used throughout a simulation by following the structures and methods introduced in this vignette. Anything can be stored in a landscape object and then be referred to within a custom function. Thus, the procedure for creating custom functions also applies to habitat dynamics - which are called in the simulation function.

@@ -200,7 +200,9 @@ plot(egk_results)
 
 We can also specify how survival and fecundity values are influenced by spatial layers in the landscape object (e.g. habitat suitability, carrying capacity, etc.). We modify the survival and fecundity values in the transition matrix at each time step according to a spatial layer by specifying a transition function within the growth function. This is done by multiplying values in the spatial layers by the survival and fecundity values in the transition matrix. This produces new survival and fecundity values for each grid cell in the landscape. Note, if either the survival or fecundity layer are set to NULL (default), the respective values in the transition matrix will remain unchanged. A user may add any spatial layer(s) to the landscape object to modify the transition matrices; here, we specify the habitat suitability layer in the landscape for the survival only:
 
-```{r, message = FALSE, progress = FALSE, fig.align = "center", eval = FALSE}
+```{r, message = FALSE, progress = FALSE, fig.align = "center"}
+plan(sequential)
+
 egk_landscape <- landscape(population = egk_pop,
                            suitability = egk_hab,
                            carrying_capacity = NULL)
@@ -221,11 +223,12 @@ egk_results <- simulation(landscape = egk_landscape,
                           replicates = 3,
                           verbose = FALSE)
 
+plot(egk_results)
 ```
 
 A user may also specify a custom function that operates on or defines survival and fecundity in the transition matrix at each timestep. As an example, we have created a custom function below that uses spatial data to define survival and fecundities at each timestep. The function requires the name of the spatial object in the landscape object as an input parameter, and must return a modified transition array (transition matrices for each non-NA cell in the landscape). More information on writing custom functions can be found in a tutorial vignette titled "Creating custom *steps* functions". Note, we must also add spatial data (a stack of rasters, "egk_sf" which exists in the *steps* package) to the landscape object (named "sf_mods") in order to access it in the simulation. The example stack of rasters "egk_sf" contains 120 layers - twenty timesteps of each of the six non-zero transition values in our matrix - all named with an organisational syntax that the function uses to index. For example, the first layer in the raster stack is named "egk_sf_01_0102"; "_01_" refers to the first timestep and "0102" refers to the first row and second column position in the transition matrix. Because we are deterministically providing transition values, both global and local environmental stochasticity have been set to zero (defaults). 
 
-```{r, message = FALSE, eval = FALSE}
+```{r, message = FALSE, progress = FALSE, fig.align = "center"}
 deterministic_transitions <- function(spatial_object) {
   
   fun <- function (transition_array, landscape, timestep) {
@@ -267,19 +270,18 @@ egk_pop_dynamics <- population_dynamics(
   modification = NULL,
   density_dependence = NULL)
 
-plan(sequential)
 egk_results <- simulation(landscape = egk_landscape,
                           population_dynamics = egk_pop_dynamics,
                           habitat_dynamics = NULL,
-                          timesteps = 20)
+                          timesteps = 20,
+                          verbose = FALSE)
 
+plot(egk_results)
 ```
 
 Now let's add some other population dynamics. We can specify ceiling density dependence with the "ceiling_density" function. The population will grow according to the transition matrix until it reaches a ceiling carrying capacity, at which point individuals will die to keep the population at the carrying capacity of the landscape. We must now provide a carrying capacity object in the landscape for this to work - here we provide a spatial layer. By default, all life-stages contribute to density dependence, however, here we specify that it is based on the number of adults only ("stages = 3" in the ceiling_density function). Type *?ceiling_density* at the R prompt for more information.
 
 ```{r, message = FALSE, progress = FALSE, fig.align = "center", eval = FALSE}
-plan(multisession, workers = 3)
-
 egk_landscape <- landscape(population = egk_pop,
                            suitability = egk_hab,
                            carrying_capacity = egk_k)
@@ -296,7 +298,6 @@ egk_results <- simulation(landscape = egk_landscape,
                           timesteps = 20,
                           replicates = 3,
                           verbose = FALSE)
-
 ```
 
 So far, the populations are only changing within their cells without any movement between cells. We can either specify assisted species movements (i.e. translocations or reintroductions) or natural species movements (dispersal) in the model simulations. 
@@ -326,7 +327,6 @@ egk_results <- simulation(landscape = egk_landscape,
                           timesteps = 20,
                           replicates = 3,
                           verbose = FALSE)
-
 ```
 
 We can also add dispersal to allow kangaroos to move throughout the landscape. There are several built-in dispersal functions and most of them utilise habitat suitability, carrying capacity, or both to determine arrival probabilities - see package help for more information by typing *?population_dispersal_functions* at the R prompt. Thus, we will need to provide the appropriate habitat layer in the initial landscape. Below, we use kernel-based dispersal (with a maximum dispersal distance of 5000 meters) and habitat suitability to determine the arrival probabilities:
@@ -352,7 +352,6 @@ egk_results <- simulation(landscape = egk_landscape,
                           timesteps = 20,
                           replicates = 3,
                           verbose = FALSE)
-
 ```
 
 Let's have a look at how the adult population is changing in the first replicate of the simulation:
@@ -386,7 +385,6 @@ egk_results <- simulation(landscape = egk_landscape,
                           timesteps = 20,
                           replicates = 3,
                           verbose = FALSE)
-
 ```
 
 For kernel-based dispersal, specifying a single number for the "max_distance" parameter will indicate maximum dispersal distances for all life-stages. The 'number of cells' representation of distance should be carefully considered when specifying custom distance kernel functions. For example, below we have specified an exponential distance decay function where "r" represents spatial units - in this case 5000 meters (10 cells). How we specify the function will depend on the ecology of the species and known dispersal distances. The function should return a value close to zero when the maximum dispersal distances is specified for "r": 
@@ -412,7 +410,6 @@ egk_results <- simulation(landscape = egk_landscape,
                           timesteps = 20,
                           replicates = 3,
                           verbose = FALSE)
-
 ```
 
 For individual-based movements, we also provide a cellular automata-based dispersal function. Because this is an individual-based model, a dispersal kernel is not required. Specifying a single number for the "max_cells" parameter will indicate the maximum number of cells movements (traversed around the landscape), for each dispersing individual, for all life-stages. A vector of max_cells (equal in length to the number of life-stages) can also be specified. In the example below, no juveniles (stage 1) disperse, subadults (stage 2) only disperse up to 10 cells (5000 meters), and adults (stage 3) disperse up to 20 cells (10000 meters):
@@ -437,7 +434,6 @@ egk_results <- simulation(landscape = egk_landscape,
                           timesteps = 20,
                           replicates = 3,
                           verbose = FALSE)
-
 ```
 
 Thus far, the kangaroo population is the only thing to be dynamically changing in the landscape, however, often habitat suitability also changes due to disturbances. To characterise habitat disturbance, we can use a series of raster layers that map the locations and severity of disturbances. Each disturbance raster will be multiplied with the original habitat suitability layer and thus contain values that represent appropriate ranges - zero representing the maximum disturbance and one representing no disturbance. Note, the number of disturbance layers must match the intended number of timesteps in a single simulation. There is an existing spatial dataset of fires in the steps package ("egk_fire") which we store in the landscape object. We use a pre-defined *fire_effects* function to modify the habitat suitability in the simulation at each timestep. The function requires the name of fire layers stored in the landscape object, and an effect time which specifies the number of timesteps that each disturbance layer acts on the habitat suitability (in diminishing intensity). The effect of fires can be cumulative, so if there are two fires in the same cell in succession (i.e. in a shorter space of time than the effect time) then the habitat suitability will equal suitability multiplied by both the first and second disturbance effects. In this example, we provide the kangaroo fire disturbance input name ("fires"), and an effect time of five - meaning each fire layer will affect the habitat suitability (in linear decreasing intensity based on the regeneration function) for five timesteps in each simulation replicate. All functions that act on the habitat must be passed in as a list in the simulation call in the order to be executed:
@@ -532,27 +528,11 @@ egk_results <- simulation(landscape = egk_landscape,
                           timesteps = 20,
                           replicates = 3,
                           verbose = FALSE)
-
 ```
 
 One may specify multiple disturbances affecting the habitat throughout a simulation. To do so, simply add habitat dynamic functions to the list in the simulation function - note, these will be executed in the order that they are listed. To demonstrate this functionality, we have added another disturbance - a road being constructed through the landscape over five years. There is an existing spatial dataset of a road in the steps package ("egk_road") which we store in the landscape object. Since we have already accommodated the movement of the road construction across the landscape, and the vegetation will not regenerate, we specify the effect time as one:
 
 ```{r, message = FALSE, results = 'hide', eval = FALSE}
-carrying_cap_fun <- function (landscape, timestep) {
-  
-  fun <- function(suitability) {
-    75 - round(75 * dlogis(suitability, scale = 0.25))
-  }
-  
-  suit <- landscape$suitability
-  if (raster::nlayers(suit) > 1) {
-    suit <- suit[[timestep]]
-  }
-  
-  raster::calc(suit, fun)
-  
-}
-
 egk_landscape <- landscape(population = egk_pop,
                            suitability = egk_hab,
                            carrying_capacity = carrying_cap_fun,
@@ -582,7 +562,6 @@ egk_results <- simulation(landscape = egk_landscape,
                           timesteps = 20,
                           replicates = 3,
                           verbose = FALSE)
-
 ```
 
 The simulation results object (`egk_results` in our examples) is a list of lists containing spatial objects and is depicted by the following tree diagram:
