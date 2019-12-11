@@ -19,6 +19,9 @@
 #' @param timesteps number of timesteps used in one simulation
 #' @param replicates number of simulations to perform
 #' @param verbose print messages and progress to console? (default is TRUE)
+#' @param future.globals a list of custom functions, and objects called by the functions,
+#'   that a user has created in the global environment for use in a simulation. Note this
+#'   is only required when running simulations in parallel (e.g. plan(multisession)). 
 #'
 #' @return An object of class \code{simulation_results}
 #'
@@ -53,7 +56,13 @@ simulation <- function(landscape,
                        demo_stochasticity = c("full", "none"),
                        timesteps = 3,
                        replicates = 1,
-                       verbose = TRUE){
+                       verbose = TRUE,
+                       future.globals = list()){
+  
+  # gather globals in future.apply call
+  future_lapply_wrapper <- function (...) {
+    future.apply::future_lapply(..., future.globals = future.globals)
+  }
   
   # clear out the stash every time we begin a simulation
   flush_stash()
@@ -63,7 +72,7 @@ simulation <- function(landscape,
   in_parallel <- !inherits(future::plan(), "sequential")
   is_multisession <- inherits(future::plan(), "multisession")
   lapply_fun <- ifelse(in_parallel,
-                       future.apply::future_lapply,
+                       future_lapply_wrapper,
                        base::lapply)
   
   landscape_names <- names(landscape)
@@ -85,15 +94,16 @@ simulation <- function(landscape,
     
   }
   
-  simulation_results <- lapply_fun(seq_len(replicates),
-                                   FUN = simulate,
-                                   landscape = landscape,
-                                   population_dynamics = population_dynamics,
-                                   habitat_dynamics = habitat_dynamics,
-                                   timesteps = timesteps,
-                                   verbose = verbose,
-                                   stash = steps_stash,
-                                   is_multisession = is_multisession)
+  simulation_results <- tryCatch(lapply_fun(seq_len(replicates),
+                                            FUN = simulate,
+                                            landscape = landscape,
+                                            population_dynamics = population_dynamics,
+                                            habitat_dynamics = habitat_dynamics,
+                                            timesteps = timesteps,
+                                            verbose = verbose,
+                                            stash = steps_stash,
+                                            is_multisession = is_multisession),
+                                 error = global_object_error)
   
   as.simulation_results(simulation_results)
 }
@@ -330,7 +340,7 @@ plot.simulation_results <- function (x,
           } else {
             rasters <- raster::stack(lapply(x[[1]], function (landscape) sum(landscape$population[[stages]])))            
           }
-
+          
           names(rasters) <- paste0("Timestep_", 1:raster::nlayers(rasters))
           
           # Find maximum and minimum population value in raster cells for all timesteps for life-stage

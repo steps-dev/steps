@@ -128,3 +128,20 @@ int_or_proper_length_vector <- function (input, n_stages, parameter) {
   }
   input
 }
+
+global_object_error <- function(error) {
+  
+  # see if there's a missing object
+  something_missing <- grepl("could not find", error$message)
+  
+  if (something_missing) {
+    message <- paste(error$message,
+                     "\n\nit looks like the future package can't find an object or",
+                     "function you are using, you can pass it in via the",
+                     "future.globals argument to steps::simulation")
+  } else {
+    message <- error$message
+  }
+  
+  stop (message, call. = FALSE)
+}

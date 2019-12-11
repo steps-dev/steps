@@ -744,6 +744,20 @@ results_02 <- simulation(landscape = ls,
 
 plot(results_02, type = "raster", stages = 3, timesteps = c(1,5,10), panels = c(3, 1))
 ```
+Please note that if any custom functions are used in a simulation that is run in parallel (e.g. plan(multisession)), then a list of the functions and any related objects must be passed into the simulation function using the future.globals argument:
+
+```{r, message = FALSE}
+plan(multisession)
+results_02 <- simulation(landscape = ls,
+                      population_dynamics = pd_log_disp,
+                      habitat_dynamics = NULL,
+                      timesteps = 10,
+                      replicates = 3,
+                      verbose = FALSE,
+                      future.globals = list(logistic_dispersal_kernel = logistic_dispersal_kernel))
+```
+
+
 
 These are simple examples, but users can specify a seemingly endless configuration of dynamics to be used throughout a simulation by following the structures and methods introduced in this vignette. Anything can be stored in a landscape object and then be referred to within a custom function. Thus, the procedure for creating custom functions also applies to habitat dynamics - which are called in the simulation function.
 

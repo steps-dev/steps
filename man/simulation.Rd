@@ -11,7 +11,8 @@ simulation(
   demo_stochasticity = c("full", "none"),
   timesteps = 3,
   replicates = 1,
-  verbose = TRUE
+  verbose = TRUE,
+  future.globals = list()
 )
 }
 \arguments{
@@ -35,6 +36,10 @@ simulation.}
 \item{replicates}{number of simulations to perform}
 
 \item{verbose}{print messages and progress to console? (default is TRUE)}
+
+\item{future.globals}{a list of custom functions, and objects called by the functions,
+that a user has created in the global environment for use in a simulation. Note this
+is only required when running simulations in parallel (e.g. plan(multisession)).}
 }
 \value{
 An object of class \code{simulation_results}
