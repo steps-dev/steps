@@ -17,3 +17,6 @@ Regarding the note, we have intentionally left the connector word (and) in lower
 0 errors | 0 warnings | 1 note
 
 * This is a new release.
+
+## 2020.01.14 - Updated version 1.0.0
+Based on journal reviewer comments, we have added several updates in a new major release of the package.

@@ -277,7 +277,7 @@ test_that('simulation_results classes work', {
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn,
                                   habitat_dynamics = NULL,
-                                  timesteps = 3)[1],
+                                  timesteps = 3),
                        "simulation_results"))
 
   expect_true(inherits(simulation(landscape = landscape,
