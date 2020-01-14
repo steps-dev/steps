@@ -3,7 +3,7 @@ title: "An Eastern Grey Kangaroo population simulation example"
 author: "Casey Visintin"
 date: "`r Sys.Date()`"
 output:
-  pdf_document
+  html_document
 geometry: margin=2cm
 vignette: >
   %\VignetteIndexEntry{Eastern Grey Kangaroo}

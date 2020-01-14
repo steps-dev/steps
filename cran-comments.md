@@ -20,3 +20,12 @@ Regarding the note, we have intentionally left the connector word (and) in lower
 
 ## 2020.01.14 - Updated version 1.0.0
 Based on internal testing and journal reviewer comments, we have added several updates in a new major release of the package.
+
+## Test environments
+* solaris 10, R 3.5.3
+* ubuntu 14.04 (on travis-ci), R 3.5.3, 3.6.2
+* win-builder (devel and release)
+
+## R CMD check results
+
+0 errors | 0 warnings | 1 note
