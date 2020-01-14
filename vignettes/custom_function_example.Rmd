@@ -757,8 +757,6 @@ results_02 <- simulation(landscape = ls,
                       future.globals = list(logistic_dispersal_kernel = logistic_dispersal_kernel))
 ```
 
-
-
 These are simple examples, but users can specify a seemingly endless configuration of dynamics to be used throughout a simulation by following the structures and methods introduced in this vignette. Anything can be stored in a landscape object and then be referred to within a custom function. Thus, the procedure for creating custom functions also applies to habitat dynamics - which are called in the simulation function.
 
 We encourage users to examine the pre-built functions in *steps* to get an idea of their internal operations. Further, these pre-built functions can serve as templates to get users started in customising and creating their own functions.
