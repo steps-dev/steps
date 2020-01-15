@@ -246,7 +246,7 @@ surviving_population <- function (population, transition_array) {
     survival_array[1, , ] <- 0
   }
 
-  if (class(population) == "numeric") {
+  if(inherits(population, "numeric")) {
     n_stage <- length(population)
   } else {
     n_stage <- ncol(population)
@@ -254,7 +254,7 @@ surviving_population <- function (population, transition_array) {
    
   
   # loop through stages, getting the stages to which they move (if they survive)
-  if (class(population) == "numeric") {
+  if(inherits(population, "numeric")) {
     survival_stochastic <- matrix(0, 1, n_stage)
   } else {
     survival_stochastic <- matrix(0, nrow(population), n_stage)
@@ -263,7 +263,7 @@ surviving_population <- function (population, transition_array) {
   for (stage in seq_len(n_stage)) {
     
     # get the populations that have any individuals of this stage
-    if (class(population) == "numeric") {
+    if(inherits(population, "numeric")) {
       pops <- population[stage]
     } else {
       pops <- population[, stage]
