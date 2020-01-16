@@ -18,14 +18,19 @@ Regarding the note, we have intentionally left the connector word (and) in lower
 
 * This is a new release.
 
-## 2020.01.14 - Updated version 1.0.0
+## 2020.01.17 - Updated version 1.0.0
 Based on internal testing and journal reviewer comments, we have added several updates in a new major release of the package.
 
 ## Test environments
-* solaris 10, R 3.5.3
-* ubuntu 14.04 (on travis-ci), R 3.5.3, 3.6.2
+* Oracle Solaris 10, x86, 32 bit, R-patched (experimental)
+* local Mac OS X install, R 3.6.2
+* Windows Server 2008 R2 SP1, R-devel, 32/64 bit
+* Ubuntu Linux 16.04 LTS, R-release, GCC
+* Debian Linux, R-devel, GCC ASAN/UBSAN
+* Fedora Linux, R-devel, clang, gfortran
+* Ubuntu 14.04 (on travis-ci), R 3.5.3, 3.6.2
 * win-builder (devel and release)
 
 ## R CMD check results
 
-0 errors | 0 warnings | 1 note
+0 errors | 0 warnings | 0 note
