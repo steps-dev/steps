@@ -17,13 +17,14 @@ NULL
 #' In-built density dependence function that constrains the number of individuals in a cell
 #' based on the carrying capacity of that cell in a timestep. Note, carrying_capacity must
 #' be provided in the landscape object to use this function (see \link[steps]{landscape}).
-#' Only stages that contribute to density dependence are considered in the calculations,
-#' however, excess individuals are removed equally from across all stages. This type of
-#' density dependence only affects the population once it reaches the carrying capacity.
-#' While population size is below carrying capacity, the population grows according to
-#' the transition matrix. 
+#' Only specified stages that contribute to density dependence are considered in the
+#' calculations and excess individuals are removed from only the contributing stages. This
+#' type of density dependence only affects the population once it reaches the carrying
+#' capacity. While population size is below carrying capacity, the population grows according
+#' to the transition matrix. 
 #'
-#' @param stages which life-stages contribute to density dependence - default is all
+#' @param stages which life-stages contribute to density dependence and are removed in a timestep
+#'  - default is all
 #'
 #' @export
 #' 
@@ -45,6 +46,8 @@ NULL
 ceiling_density <- function (stages = NULL) {
 
   pop_dynamics <- function (landscape, timestep) {
+ 
+    #browser()
     
     population_raster <- landscape$population
 
@@ -57,27 +60,26 @@ ceiling_density <- function (stages = NULL) {
       stop ("carrying capacity must be specified in the landscape object to use ceiling_density",
             call. = FALSE)
     }
-    
+
     # get population as a matrix
     population_matrix <- raster::extract(population_raster, idx)
     carrying_capacity <- raster::extract(cc, idx)
     
     # get degree of overpopulation, and shrink accordingly
-    if (!is.null(stages)) {
-      overpopulation <- as.vector(carrying_capacity) / rowSums(cbind(population_matrix[ , stages], rep(0, length(idx))))
-    } else {
-      overpopulation <- as.vector(carrying_capacity) / rowSums(population_matrix)
-    }
+    if (is.null(stages))
+      stages <- seq_len(ncol(population_matrix))
+    
+    overpopulation <- as.vector(carrying_capacity) / rowSums(population_matrix[ , stages, drop = FALSE])
     
     overpopulation[is.nan(overpopulation)] <- 0
     overpopulation <- pmin(overpopulation, 1)
-    population <- sweep(population_matrix, 1, overpopulation, "*")
+    population_matrix[, stages] <- sweep(population_matrix[, stages, drop = FALSE], 1, overpopulation, "*")
 
     # get whole integers
-    population <- round_pop(population)
+    population_matrix <- round_pop(population_matrix)
     
     # put back in the raster
-    population_raster[idx] <- population
+    population_raster[idx] <- population_matrix
     
     landscape$population <- population_raster
     

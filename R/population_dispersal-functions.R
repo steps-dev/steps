@@ -90,7 +90,6 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
   
   pop_dynamics <- function(landscape, timestep) {
     
-    
     n_rows <- raster::nrow(landscape$population[[1]])
     n_cols <- raster::ncol(landscape$population[[1]])
     res <- raster::res(landscape$population[[1]])
@@ -283,6 +282,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
     indices <- indices[indices[, 2] %in% which_stages_disperse, ]
     
     for(row in sample.int(nrow(indices))) {
+      #if(row == 3683) browser()
       pop <- disperse(origin = indices[row, 1],
                       stage = indices[row, 2],
                       pop = pop,
@@ -568,7 +568,7 @@ fast_dispersal <- function(dispersal_kernel = exponential_dispersal_kernel(dista
       
       pop_dispersing <- landscape$population[[stage]] * dispersal_proportion[[stage]]
       pop_staying <- pop - pop_dispersing
-
+      
       # round population staying
       idx <- not_missing(pop_staying)
       pop_staying_vec <- raster::extract(pop_staying, idx)
@@ -765,7 +765,7 @@ dispersalFFT <- function (popmat, fs) {
   if (!is.nan(prop_in)) {
     pop_new[!missing] <- pop_new[!missing] / prop_in
   }
-
+  
   # make sure none are lost or gained (unless all are zeros)
   if (any(pop_new[!missing] > 0)) {
     pop_new[!missing] <- round_pop(pop_new[!missing])
@@ -929,17 +929,15 @@ disperse <- function (origin,
   if (!is.null(carrying_capacity)) {
     
     # get space left in each, and excess dispersers
-    effective_populations <- pop[destination_ids, ]
+    effective_populations <- pop[destination_ids, , drop = FALSE]
     
     if (length(density_dependence_stages) < total_stages) {
-      effective_populations[, -density_dependence_stages] <- 0      
+      cols <- seq_len(ncol(effective_populations))
+      cols <- cols[cols != density_dependence_stages]
+      effective_populations[, cols] <- 0      
     }
     
-    if (is.vector(effective_populations)) {
-      effective_population <- sum(effective_populations)
-    } else {
-      effective_population <- rowSums(effective_populations)
-    }
+    effective_population <- rowSums(effective_populations)
     
     space_remaining <- carrying_capacity[destination_ids] - effective_population
     
@@ -955,12 +953,12 @@ disperse <- function (origin,
     dispersals <- dispersals - excess
     
     pop[origin, stage] <- pop[origin, stage] + sum(excess)
-
+    
   }
   
   # assign them to their population and return
   pop[destination_ids, stage] <- pop[destination_ids, stage] + dispersals
-
+  
   pop
   
 }

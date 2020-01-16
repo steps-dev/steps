@@ -112,7 +112,7 @@ set_proportion_dispersing <- function (proportions = 1) {
 density_dependence_dispersing <- function (maximum_proportions = 1) {
   
   disp_prop_fun <- function (landscape, timestep) {
-    
+
     # get total life-stages
     n_stages <- raster::nlayers(landscape$population)
     
