@@ -7,17 +7,18 @@
 ceiling_density(stages = NULL)
 }
 \arguments{
-\item{stages}{which life-stages contribute to density dependence - default is all}
+\item{stages}{which life-stages contribute to density dependence and are removed in a timestep
+- default is all}
 }
 \description{
 In-built density dependence function that constrains the number of individuals in a cell
 based on the carrying capacity of that cell in a timestep. Note, carrying_capacity must
 be provided in the landscape object to use this function (see \link[steps]{landscape}).
-Only stages that contribute to density dependence are considered in the calculations,
-however, excess individuals are removed equally from across all stages. This type of
-density dependence only affects the population once it reaches the carrying capacity.
-While population size is below carrying capacity, the population grows according to
-the transition matrix.
+Only specified stages that contribute to density dependence are considered in the
+calculations and excess individuals are removed from only the contributing stages. This
+type of density dependence only affects the population once it reaches the carrying
+capacity. While population size is below carrying capacity, the population grows according
+to the transition matrix.
 }
 \examples{
 
