@@ -89,7 +89,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
   arrival_probability <- match.arg(arrival_probability)
   
   pop_dynamics <- function(landscape, timestep) {
-    
+
     n_rows <- raster::nrow(landscape$population[[1]])
     n_cols <- raster::ncol(landscape$population[[1]])
     res <- raster::res(landscape$population[[1]])
@@ -152,7 +152,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
       }
     }  
     
-    # warn if there was a problen with the distance they entered
+    # warn if there was a problem with the distance they entered
     if (bad_distance) {
       stop("max_distance must be NULL, Inf, or a positive number")
     }
@@ -279,8 +279,8 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
     indices <- which(pop > 0 & !is.na(pop), arr.ind = TRUE)
     
     # subset to stages that disperse
-    indices <- indices[indices[, 2] %in% which_stages_disperse, ]
-    
+    indices <- indices[indices[, 2] %in% which_stages_disperse, , drop = FALSE]
+
     for(row in sample.int(nrow(indices))) {
       #if(row == 3683) browser()
       pop <- disperse(origin = indices[row, 1],

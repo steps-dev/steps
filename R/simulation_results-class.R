@@ -854,15 +854,9 @@ simulate <- function (i, landscape, population_dynamics, habitat_dynamics, times
   output_landscapes <- list()
   output_metrics <- list()
   output_metrics$dispersal_failure_rate <- list()
-  
-  #print("rep: ", i)
-  #if (i == 2) browser()
-  
+
   for (timestep in timesteps) {
-    
-    #print("timestep: ", timestep)
-    #if (i == 2 & timestep == 17) browser()
-    
+
     for (dynamic_function in habitat_dynamics) {
       landscape <- dynamic_function(landscape, timestep)
     }
