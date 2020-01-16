@@ -861,7 +861,7 @@ simulate <- function (i, landscape, population_dynamics, habitat_dynamics, times
   for (timestep in timesteps) {
     
     #print("timestep: ", timestep)
-    if (i == 2 & timestep == 17) browser()
+    #if (i == 2 & timestep == 17) browser()
     
     for (dynamic_function in habitat_dynamics) {
       landscape <- dynamic_function(landscape, timestep)
