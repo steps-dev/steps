@@ -82,7 +82,8 @@ IntegerVector can_source_cell_disperse(int source_x,
          dest_y_vec[direction] >= 0 &&
          dest_y_vec[direction] < ncols &&
          !R_IsNA(carrying_capacity_available(dest_y_vec[direction], dest_x_vec[direction])) &&
-         !R_IsNA(permeability_map(dest_y_vec[direction], dest_x_vec[direction])) && 
+         !R_IsNA(permeability_map(dest_y_vec[direction], dest_x_vec[direction])) &&
+         //!R_IsNA(iterative_population_state(dest_y_vec[direction], dest_x_vec[direction])) &&
          permeability_map(dest_y_vec[direction], dest_x_vec[direction]) > 0){
          
          possible[direction] = 1;
@@ -235,7 +236,7 @@ List rcpp_dispersal(NumericMatrix starting_population_state,
         for (individual = 0; individual < source_pop_dispersed; individual++){
           
           /*
-           ** Sink cell search: Can the source pixel disperse? The each individual will
+           ** Sink cell search: Can the source pixel disperse? Each individual will
            ** search the landscape within the boundaries until it finds a sink pixel
            ** with available carrying capacity.
            */
