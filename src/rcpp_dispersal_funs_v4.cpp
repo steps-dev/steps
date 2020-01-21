@@ -148,12 +148,15 @@ IntegerVector can_source_cell_disperse(int source_x,
     
     sink_carrying_cap = 0;
     
-    if(!R_IsNaN(carrying_capacity_available(dest_y, dest_x)) &&
+    if(!R_IsNA(carrying_capacity_available(dest_y, dest_x)) &&
+       !R_IsNaN(carrying_capacity_available(dest_y, dest_x)) &&
+       !R_IsNA(iterative_population_state(dest_y, dest_x)) &&
        !R_IsNaN(iterative_population_state(dest_y, dest_x)) &&
+       !R_IsNA(future_population_state(dest_y, dest_x)) &&
        !R_IsNaN(future_population_state(dest_y, dest_x))){
        
-    sink_carrying_cap = carrying_capacity_available(dest_y, dest_x) - (iterative_population_state(dest_y, dest_x) + future_population_state(dest_y, dest_x));
-    
+       sink_carrying_cap = carrying_capacity_available(dest_y, dest_x) - (iterative_population_state(dest_y, dest_x) + future_population_state(dest_y, dest_x));
+      
     }
     
     if(sink_carrying_cap >= 1){
