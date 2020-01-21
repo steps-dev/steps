@@ -85,7 +85,6 @@ IntegerVector can_source_cell_disperse(int source_x,
          !R_IsNaN(carrying_capacity_available(dest_y_vec[direction], dest_x_vec[direction])) &&
          !R_IsNA(permeability_map(dest_y_vec[direction], dest_x_vec[direction])) &&
          !R_IsNaN(permeability_map(dest_y_vec[direction], dest_x_vec[direction])) &&
-         //!R_IsNA(iterative_population_state(dest_y_vec[direction], dest_x_vec[direction])) &&
          permeability_map(dest_y_vec[direction], dest_x_vec[direction]) > 0){
          
          possible[direction] = 1;
@@ -147,7 +146,15 @@ IntegerVector can_source_cell_disperse(int source_x,
      ** Check for carrying capacity and, if available, return destination cell
      */
     
+    sink_carrying_cap = 0;
+    
+    if(!R_IsNaN(carrying_capacity_available(dest_y, dest_x)) &&
+       !R_IsNaN(iterative_population_state(dest_y, dest_x)) &&
+       !R_IsNaN(future_population_state(dest_y, dest_x))){
+       
     sink_carrying_cap = carrying_capacity_available(dest_y, dest_x) - (iterative_population_state(dest_y, dest_x) + future_population_state(dest_y, dest_x));
+    
+    }
     
     if(sink_carrying_cap >= 1){
       sink_found[0] = dest_x;
@@ -220,8 +227,9 @@ List rcpp_dispersal(NumericMatrix starting_population_state,
        ** Verify if there is population in the cell
        */
       
-      if(!R_IsNA(iterative_population_state(source_y, source_x)) && iterative_population_state(source_y, source_x) > 0 &&
-         !R_IsNaN(iterative_population_state(source_y, source_x)) && iterative_population_state(source_y, source_x) > 0){
+      if(!R_IsNA(iterative_population_state(source_y, source_x)) &&
+         !R_IsNaN(iterative_population_state(source_y, source_x)) &&
+         iterative_population_state(source_y, source_x) > 0){
         
         /*
          ** Realised number of individuals that can disperse - based on dispersal proportion
