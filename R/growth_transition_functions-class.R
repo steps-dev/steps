@@ -165,7 +165,8 @@ competition_density <- function(stages = NULL,
                                                              K = K[i],
                                                              transition_matrix = transition_array[, , i],
                                                              mask = mask,
-                                                             R_max = R_max)
+                                                             R_max = R_max,
+                                                             stable_age = stable_age)
     }
     
     # return array with required dimensions
@@ -201,16 +202,16 @@ as.transition_function <- function (transition_function) {
   as_class(transition_function, "transition_function", "function")
 }
 
-get_R <- function (transition_matrix, n_stages = ncol(transition_matrix), stable_age = NULL, tolerance = 0.001, max_iter = 100) {
+get_R <- function (transition_matrix, stable_age = NULL, tolerance = 0.001, max_iter = 100) {
   
   if (is.null(stable_age)) {
-    stable_age <- rep(1, n_stages)
+    stable_age <- rep(1, ncol(transition_matrix))
   }
   
   old_stages <- stable_age
   converged <- FALSE
   iter <- 0
-  old_Rs <- rep(.Machine$double.eps, n_stages)
+  old_Rs <- rep(.Machine$double.eps, ncol(transition_matrix))
 
   while (!converged & iter < max_iter) {
     new_stages <- transition_matrix %*% old_stages
@@ -234,9 +235,14 @@ get_R <- function (transition_matrix, n_stages = ncol(transition_matrix), stable
 }
 
 ideal_R <- function (K, N, R_max) {
-  num <- R_max * K
-  denom <- R_max * N - N + K
-  num / denom
+  if(R_max > 1) {
+    num <- R_max * K
+    denom <- R_max * N - N + K
+    R <- num / denom
+  } else {
+    R <- R_max
+  }
+  R
 }
 
 # multiply m by the relevant elements of transition_matrix (specified by mask) and return the growth rate R
@@ -251,19 +257,20 @@ apply_m <- function (m, transition_matrix, mask = NULL) {
 }
 
 # find a value of m with which to modify transition_matrix, to get to this target value of R
-find_m <- function(R_target, transition_matrix, mask = NULL, n_stages = ncol(transition_matrix), stable_age = NULL, init_Rmax_null = init_Rmax_null) {
+find_m <- function(R_target, transition_matrix, mask = NULL, stable_age = NULL) {
   
-  obj <- function (m, R_target, transition_matrix, mask = NULL, n_stages = ncol(transition_matrix), stable_age = NULL) {
+  obj <- function (m, R_target, transition_matrix, mask = NULL, stable_age = NULL) {
     new_transition_matrix <- apply_m(m, transition_matrix, mask)
-    R_current <- get_R(new_transition_matrix, n_stages = n_stages, stable_age = stable_age)
+    R_current <- get_R(new_transition_matrix, stable_age = stable_age)
     (R_current - R_target) ^ 2
   } 
   
-  if (init_Rmax_null) {
-    out <- stats::optimise(obj, c(0, 1.1), R_target, transition_matrix, mask, n_stages = n_stages, stable_age)
-  } else {
-    out <- stats::optimise(obj, c(0, 5), R_target, transition_matrix, mask, n_stages = n_stages, stable_age)
-  }
+  out <- stats::optimise(f = obj,
+                         interval = c(0, 5),
+                         R_target,
+                         transition_matrix,
+                         mask,
+                         stable_age)
   out$minimum
   
 }
@@ -271,28 +278,32 @@ find_m <- function(R_target, transition_matrix, mask = NULL, n_stages = ncol(tra
 density_modified_transition <- function (N,
                                          K,
                                          transition_matrix,
-                                         n_stages = ncol(transition_matrix),
                                          R_max = NULL,
                                          stable_age = NULL,
                                          mask = NULL) {
-
+  
   # if the optimal R isn't provided, recalculate it (ideally pre-calculate it to
   # save computation)
   init_Rmax_null <- is.null(R_max)
   
   if (init_Rmax_null) {
-    R_max <- get_R(transition_matrix, n_stages = n_stages, stable_age = stable_age)
+    R_max <- get_R(transition_matrix, stable_age = stable_age)
   }
   
   # get the target value of R, for this degree of over/under-population
-  R_target <- ideal_R(K, N, R_max)
+  if (R_max > 1) {
+    R_target <- ideal_R(K, N, R_max)
+    #print(R_target)
+    
+    # find a value of m with which to modify transition_matrix, to get to this target value of R
+    m <- find_m(R_target, transition_matrix, mask, stable_age = stable_age)
+    #print(m)
+    
+    # multiply m by the relevant bits of transition_matrix
+    transition_matrix <- apply_m(m, transition_matrix, mask)
+    
+  }
   
-  # find a value of m with which to modify transition_matrix, to get to this target value of R
-  m <- find_m(R_target, transition_matrix, mask, stable_age = stable_age, init_Rmax_null = init_Rmax_null)
-  
-  # multiply m by the relevant bits of transition_matrix
-  transition_matrix_new <- apply_m(m, transition_matrix, mask)
-  
-  transition_matrix_new
+  transition_matrix
   
 }
