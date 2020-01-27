@@ -861,6 +861,13 @@ simulate <- function (i, landscape, population_dynamics, habitat_dynamics, times
       landscape <- dynamic_function(landscape, timestep)
     }
     
+    # 22.01.20 - store carrying capacity function
+    is_k_function <- is.function(landscape$carrying_capacity)
+    
+    if (is_k_function) {
+      k_fun <- landscape$carrying_capacity
+    }
+    
     # 22.01.20 - Added to only transform carrying capacity raster once at each timestep
     landscape$carrying_capacity <- get_carrying_capacity(landscape, timestep)
     
@@ -898,6 +905,11 @@ simulate <- function (i, landscape, population_dynamics, habitat_dynamics, times
     
     output_landscapes[[timestep]] <- landscape_out
     
+    # 22.01.20 - return carrying capacity function
+    if (is_k_function) {
+      landscape$carrying_capacity <- k_fun
+    }
+
     if (!is.null(steps_stash$dispersal_stats)) {
       n_stages <- length(steps_stash$dispersal_stats)
       n_stages_disperse <- which(unlist(lapply(steps_stash$dispersal_stats, function(x) !is.null(x))) == TRUE)
