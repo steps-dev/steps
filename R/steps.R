@@ -37,3 +37,4 @@ replace_stash <- function(new_stash) {
 }
 
 options(future.globals.maxSize= 1000*1024^2)
+raster::rasterOptions(maxmemory = 1e+09)

@@ -128,8 +128,9 @@ density_dependence_dispersing <- function (maximum_proportions = 1) {
 
     pop <- raster::getValues(landscape$population)
     
-    cc <- get_carrying_capacity(landscape, timestep)
-    cc <- raster::getValues(cc)
+    # 22.01.20 - # cc <- get_carrying_capacity(landscape, timestep)
+    # 22.01.20 - # cc <- raster::getValues(cc)
+    cc <- raster::getValues(landscape$carrying_capacity) # 22.01.20
 
     dispersal_proportion <- rep(0, n_stages)
     

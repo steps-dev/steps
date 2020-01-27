@@ -861,6 +861,9 @@ simulate <- function (i, landscape, population_dynamics, habitat_dynamics, times
       landscape <- dynamic_function(landscape, timestep)
     }
     
+    # 22.01.20 - Added to only transform carrying capacity raster once at each timestep
+    landscape$carrying_capacity <- get_carrying_capacity(landscape, timestep)
+    
     landscape <- population_dynamics(landscape, timestep)
     
     landscape_out <- landscape
@@ -871,18 +874,18 @@ simulate <- function (i, landscape, population_dynamics, habitat_dynamics, times
     # loop through names of objects and check if not null and greater than length one
     for (name in landscape_names) {
       
-      if (name == "carrying_capacity" && !is.null(landscape_out[[name]]) && is.function(landscape_out[[name]])) {
+      # 22.01.20 - # if (name == "carrying_capacity" && !is.null(landscape_out[[name]]) && is.function(landscape_out[[name]])) {
         
-        landscape_out$carrying_capacity <- get_carrying_capacity(landscape, timestep)
+      # 22.01.20 - #   landscape_out$carrying_capacity <- get_carrying_capacity(landscape, timestep)
         
-      } else {
+      # 22.01.20 - # } else {
         
         if (name != "population" && !is.function(landscape_out[[name]]) &&
             !is.null(landscape_out[[name]]) && raster::nlayers(landscape_out[[name]]) > 1) {
           
           landscape_out[[name]] <- landscape_out[[name]][[timestep]]
           
-        }
+        # 22.01.20 - # }
       }
     }
     

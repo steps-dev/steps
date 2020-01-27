@@ -54,7 +54,8 @@ ceiling_density <- function (stages = NULL) {
     # Get non-NA cells
     idx <- which(!is.na(raster::getValues(population_raster[[1]])))
     
-    cc <- get_carrying_capacity(landscape, timestep)
+    # 22.01.20 - # cc <- get_carrying_capacity(landscape, timestep)
+    cc <- landscape$carrying_capacity # 22.01.20
 
     if (is.null(cc)) {
       stop ("carrying capacity must be specified in the landscape object to use ceiling_density",

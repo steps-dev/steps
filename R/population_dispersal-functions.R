@@ -230,7 +230,8 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
     
     if ("carrying_capacity" %in% layers) {
       
-      cc <- get_carrying_capacity(landscape, timestep)
+      # 22.01.20 - # cc <- get_carrying_capacity(landscape, timestep)
+      cc <- landscape$carrying_capacity # 22.01.20
       
       if (is.null(cc)) {
         stop ("carrying capacity must be specified in the landscape object to use carrying capacity arrival probabilities",
@@ -419,7 +420,8 @@ cellular_automata_dispersal <- function (max_cells = Inf,
     # handle carrying_capacity as raster, function, or other spatial object in
     # landscape
     if (carrying_cap) {
-      cc <- get_carrying_capacity(landscape, timestep)
+      # 22.01.20 - # cc <- get_carrying_capacity(landscape, timestep)
+      cc <- landscape$carrying_capacity # 22.01.20
     } else {
       cc <- landscape[[carrying_capacity]]
     }

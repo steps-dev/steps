@@ -144,8 +144,9 @@ competition_density <- function(stages = NULL,
     population <- raster::extract(pop_raster, cell_idx)
     
     # get carrying capacity (internal function to STEPS)
-    cc <- get_carrying_capacity(landscape, timestep)
-    K <- raster::extract(cc, cell_idx)
+    # 22.01.20 - # cc <- get_carrying_capacity(landscape, timestep)
+    # 22.01.20 - # K <- raster::extract(cc, cell_idx)
+    K <- raster::extract(landscape$carrying_capacity, cell_idx) # 22.01.20
     
     if (!is.null(stages)) {
       if (length(stages) == 1) {
