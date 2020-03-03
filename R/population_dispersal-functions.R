@@ -406,7 +406,7 @@ cellular_automata_dispersal <- function (max_cells = Inf,
     }
     
     # handle input suitability raster stacks
-    if (use_suitability & raster::nlayers(landscape$suitability) > 1) {
+    if (raster::nlayers(landscape$suitability) > 1) {
       suitability_map <- landscape$suitability[[timestep]]
     } else {
       suitability_map <- landscape$suitability

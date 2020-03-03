@@ -13,8 +13,8 @@ IntegerVector shuffle_vec(int min, int max){
 }
 
 // [[Rcpp::export]]
-IntegerVector can_source_cell_disperse(int source_x,
-                                       int source_y,
+IntegerVector can_source_cell_disperse(int source_y,
+                                       int source_x,
                                        NumericMatrix iterative_population_state,
                                        NumericMatrix future_population_state,
                                        NumericMatrix carrying_capacity_available, 
@@ -25,8 +25,8 @@ IntegerVector can_source_cell_disperse(int source_x,
    ** Initialise parameters used in the function
    */
   
-  int ncols = carrying_capacity_available.ncol();
-  int nrows = carrying_capacity_available.nrow();
+  int ny = carrying_capacity_available.nrow();
+  int nx = carrying_capacity_available.ncol();
   int cell;
   IntegerVector sink_found(2, -1);
   int dest_x;
@@ -43,8 +43,8 @@ IntegerVector can_source_cell_disperse(int source_x,
    ** Assign initial destination coordinates from source cell
    */
   
+  dest_y = 00;
   dest_x = source_x;
-  dest_y = source_y;
   
   for (cell = 0; cell < max_cells; cell++){ // Increment cell movements up to a maximum
     
@@ -78,9 +78,9 @@ IntegerVector can_source_cell_disperse(int source_x,
        */
       
       if(dest_x_vec[direction] >= 0 &&
-         dest_x_vec[direction] < nrows &&
+         dest_x_vec[direction] < nx &&
          dest_y_vec[direction] >= 0 &&
-         dest_y_vec[direction] < ncols &&
+         dest_y_vec[direction] < ny &&
          !R_IsNA(carrying_capacity_available(dest_y_vec[direction], dest_x_vec[direction])) &&
          !R_IsNaN(carrying_capacity_available(dest_y_vec[direction], dest_x_vec[direction])) &&
          !R_IsNA(permeability_map(dest_y_vec[direction], dest_x_vec[direction])) &&
@@ -139,8 +139,8 @@ IntegerVector can_source_cell_disperse(int source_x,
      ** Update destination coordinates with most likely sink cell
      */
     
-    dest_x = dest_x_vec[selected_direction[0]];
     dest_y = dest_y_vec[selected_direction[0]];
+    dest_x = dest_x_vec[selected_direction[0]];
     
     /*
      ** Check for carrying capacity and, if available, return destination cell
@@ -160,8 +160,8 @@ IntegerVector can_source_cell_disperse(int source_x,
     }
     
     if(sink_carrying_cap >= 1){
-      sink_found[0] = dest_x;
-      sink_found[1] = dest_y;
+      sink_found[0] = dest_y;
+      sink_found[1] = dest_x;
       break;
     }
     
@@ -183,31 +183,29 @@ List rcpp_dispersal(NumericMatrix starting_population_state,
    ** Initialise parameters used in the function
    */
   
-  int ncols = starting_population_state.ncol();
-  int nrows = starting_population_state.nrow();
-  NumericMatrix carrying_capacity_available(nrows, ncols);
-  NumericMatrix iterative_population_state(nrows, ncols);
-  NumericMatrix future_population_state(nrows, ncols);
-  NumericMatrix dispersers(nrows, ncols);
-  NumericMatrix failed_dispersers(nrows, ncols);
-  int i, j, individual;
-  IntegerVector source_x_vec = shuffle_vec(0, (ncols - 1));
-  IntegerVector source_y_vec = shuffle_vec(0, (nrows - 1));
-  int nx = source_x_vec.size();
-  int ny = source_y_vec.size();
+  int nx = starting_population_state.ncol();
+  int ny = starting_population_state.nrow();
+  NumericMatrix carrying_capacity_available(ny, nx);
+  NumericMatrix iterative_population_state(ny, nx);
+  NumericMatrix future_population_state(ny, nx);
+  NumericMatrix dispersers(ny, nx);
+  NumericMatrix failed_dispersers(ny, nx);
+  int y, x, individual;
+  IntegerVector source_x_vec = shuffle_vec(0, (nx - 1));
+  IntegerVector source_y_vec = shuffle_vec(0, (ny - 1));
   
   /*
    ** copy values from source to initialised matrices and set zeros
    ** in carrying capacity available matrix where barriers are present
    */
   
-  for(i = 0; i < nrows; i++){
-    for(j = 0; j < ncols; j++){
+  for(y = 0; y < ny; y++){
+    for(x = 0; x < nx; x++){
       
-      iterative_population_state(i, j) = starting_population_state(i, j);
+      iterative_population_state(y, x) = starting_population_state(y, x);
       
-      carrying_capacity_available(i, j) = potential_carrying_capacity(i, j);
-      if(permeability_map(i, j) == 0) carrying_capacity_available(i, j) = 0;
+      carrying_capacity_available(y, x) = potential_carrying_capacity(y, x);
+      if(permeability_map(y, x) == 0) carrying_capacity_available(y, x) = 0;
       
     }
   }
@@ -216,15 +214,15 @@ List rcpp_dispersal(NumericMatrix starting_population_state,
   /* Dispersal starts here.  */
   /* *********************** */
   
-  for (i = 0; i < nx; i++){
-    for (j = 0; j < ny; j++){
+  for (y = 0; y < ny; y++){
+    for (x = 0; x < nx; x++){
       
       /*
        ** Assign source coordinates from shuffled vector of integers
        */
       
-      int source_x = source_x_vec[i];
-      int source_y = source_y_vec[j];        
+      int source_y = source_y_vec[y];        
+      int source_x = source_x_vec[x];
       
       /*
        ** Verify if there is population in the cell
@@ -255,18 +253,18 @@ List rcpp_dispersal(NumericMatrix starting_population_state,
            ** with available carrying capacity.
            */
           
-          IntegerVector eligible_sink_cell_xy = can_source_cell_disperse(source_x,
-                                                                         source_y,
+          IntegerVector eligible_sink_cell_yx = can_source_cell_disperse(source_y,
+                                                                         source_x,
                                                                          iterative_population_state,
                                                                          future_population_state,
                                                                          carrying_capacity_available,
                                                                          permeability_map,
                                                                          max_cells);
           
-          if(eligible_sink_cell_xy[0] >= 0 && eligible_sink_cell_xy[1] >= 0){
+          if(eligible_sink_cell_yx[0] >= 0 && eligible_sink_cell_yx[1] >= 0){
             
-            int sink_x = eligible_sink_cell_xy[0];
-            int sink_y = eligible_sink_cell_xy[1];
+            int sink_y = eligible_sink_cell_yx[0];
+            int sink_x = eligible_sink_cell_yx[1];
             
             iterative_population_state(source_y, source_x) = iterative_population_state(source_y, source_x) - 1;
             
@@ -282,10 +280,10 @@ List rcpp_dispersal(NumericMatrix starting_population_state,
     }
   }
   
-  for(i = 0; i < nrows; i++){
-    for(j = 0; j < ncols; j++){
+  for(y = 0; y < ny; y++){
+    for(x = 0; x < nx; x++){
       
-      future_population_state(i, j) = future_population_state(i, j) + iterative_population_state(i, j);
+      future_population_state(y, x) = future_population_state(y, x) + iterative_population_state(y, x);
       
     }
   }

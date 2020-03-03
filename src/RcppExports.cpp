@@ -18,19 +18,19 @@ BEGIN_RCPP
 END_RCPP
 }
 // can_source_cell_disperse
-IntegerVector can_source_cell_disperse(int source_x, int source_y, NumericMatrix iterative_population_state, NumericMatrix future_population_state, NumericMatrix carrying_capacity_available, NumericMatrix permeability_map, int max_cells);
-RcppExport SEXP _steps_can_source_cell_disperse(SEXP source_xSEXP, SEXP source_ySEXP, SEXP iterative_population_stateSEXP, SEXP future_population_stateSEXP, SEXP carrying_capacity_availableSEXP, SEXP permeability_mapSEXP, SEXP max_cellsSEXP) {
+IntegerVector can_source_cell_disperse(int source_y, int source_x, NumericMatrix iterative_population_state, NumericMatrix future_population_state, NumericMatrix carrying_capacity_available, NumericMatrix permeability_map, int max_cells);
+RcppExport SEXP _steps_can_source_cell_disperse(SEXP source_ySEXP, SEXP source_xSEXP, SEXP iterative_population_stateSEXP, SEXP future_population_stateSEXP, SEXP carrying_capacity_availableSEXP, SEXP permeability_mapSEXP, SEXP max_cellsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type source_x(source_xSEXP);
     Rcpp::traits::input_parameter< int >::type source_y(source_ySEXP);
+    Rcpp::traits::input_parameter< int >::type source_x(source_xSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type iterative_population_state(iterative_population_stateSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type future_population_state(future_population_stateSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type carrying_capacity_available(carrying_capacity_availableSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type permeability_map(permeability_mapSEXP);
     Rcpp::traits::input_parameter< int >::type max_cells(max_cellsSEXP);
-    rcpp_result_gen = Rcpp::wrap(can_source_cell_disperse(source_x, source_y, iterative_population_state, future_population_state, carrying_capacity_available, permeability_map, max_cells));
+    rcpp_result_gen = Rcpp::wrap(can_source_cell_disperse(source_y, source_x, iterative_population_state, future_population_state, carrying_capacity_available, permeability_map, max_cells));
     return rcpp_result_gen;
 END_RCPP
 }
