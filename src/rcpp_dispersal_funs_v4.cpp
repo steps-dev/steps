@@ -207,7 +207,7 @@ List rcpp_dispersal(NumericMatrix starting_population_state,
       iterative_population_state(i, j) = starting_population_state(i, j);
       
       carrying_capacity_available(i, j) = potential_carrying_capacity(i, j);
-      if(permeability_map(i, j) == 1) carrying_capacity_available(i, j) = 0;
+      if(permeability_map(i, j) == 0) carrying_capacity_available(i, j) = 0;
       
     }
   }
