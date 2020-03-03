@@ -29,11 +29,11 @@ IntegerVector can_source_cell_disperse(int source_y,
   int nx = carrying_capacity_available.ncol();
   int cell;
   IntegerVector sink_found(2, -1);
-  int dest_x;
   int dest_y;
+  int dest_x;
   int ndir = 4; // Rook's case
-  IntegerVector dest_x_vec(ndir);
   IntegerVector dest_y_vec(ndir);
+  IntegerVector dest_x_vec(ndir);
   IntegerVector possible(ndir);
   NumericVector prob_vec(ndir);
   int direction, sink_carrying_cap;
@@ -43,7 +43,7 @@ IntegerVector can_source_cell_disperse(int source_y,
    ** Assign initial destination coordinates from source cell
    */
   
-  dest_y = 00;
+  dest_y = source_y;
   dest_x = source_x;
   
   for (cell = 0; cell < max_cells; cell++){ // Increment cell movements up to a maximum
@@ -52,15 +52,15 @@ IntegerVector can_source_cell_disperse(int source_y,
      ** Fill vectors with surrounding cell locations (rook's case)
      */
     
-    dest_x_vec[0] = dest_x;
-    dest_x_vec[1] = dest_x + 1;
-    dest_x_vec[2] = dest_x;
-    dest_x_vec[3] = dest_x - 1;
-    
     dest_y_vec[0] = dest_y + 1;
     dest_y_vec[1] = dest_y;
     dest_y_vec[2] = dest_y - 1;
     dest_y_vec[3] = dest_y;
+    
+    dest_x_vec[0] = dest_x;
+    dest_x_vec[1] = dest_x + 1;
+    dest_x_vec[2] = dest_x;
+    dest_x_vec[3] = dest_x - 1;
     
     /*
     ** Reset parameters used in the loop
@@ -77,10 +77,10 @@ IntegerVector can_source_cell_disperse(int source_y,
        ** Which directions are possible?
        */
       
-      if(dest_x_vec[direction] >= 0 &&
-         dest_x_vec[direction] < nx &&
-         dest_y_vec[direction] >= 0 &&
+      if(dest_y_vec[direction] >= 0 &&
          dest_y_vec[direction] < ny &&
+         dest_x_vec[direction] >= 0 &&
+         dest_x_vec[direction] < nx &&
          !R_IsNA(carrying_capacity_available(dest_y_vec[direction], dest_x_vec[direction])) &&
          !R_IsNaN(carrying_capacity_available(dest_y_vec[direction], dest_x_vec[direction])) &&
          !R_IsNA(permeability_map(dest_y_vec[direction], dest_x_vec[direction])) &&
@@ -183,16 +183,16 @@ List rcpp_dispersal(NumericMatrix starting_population_state,
    ** Initialise parameters used in the function
    */
   
-  int nx = starting_population_state.ncol();
   int ny = starting_population_state.nrow();
+  int nx = starting_population_state.ncol();
   NumericMatrix carrying_capacity_available(ny, nx);
   NumericMatrix iterative_population_state(ny, nx);
   NumericMatrix future_population_state(ny, nx);
   NumericMatrix dispersers(ny, nx);
   NumericMatrix failed_dispersers(ny, nx);
   int y, x, individual;
-  IntegerVector source_x_vec = shuffle_vec(0, (nx - 1));
   IntegerVector source_y_vec = shuffle_vec(0, (ny - 1));
+  IntegerVector source_x_vec = shuffle_vec(0, (nx - 1));
   
   /*
    ** copy values from source to initialised matrices and set zeros
