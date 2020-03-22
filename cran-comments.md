@@ -34,3 +34,23 @@ Based on internal testing and journal reviewer comments, we have added several u
 ## R CMD check results
 
 0 errors | 0 warnings | 0 note
+
+## 2020.03.22 - Updated version 1.1.0
+Bug fixes:
+- tranpositional error in cellular automata dispersal function
+- incorrect modification of transition matrices based on approach to carrying capacity
+  in competition density function
+Performance improvements:
+- carrying capacity raster is generated once per timestep if function is used.
+  
+## Test environments
+* Oracle Solaris 10, x86, 32 bit, R-patched (experimental)
+* local Mac OS X install, R 3.6.2
+* Windows Server 2008 R2 SP1, R-devel, 32/64 bit
+* Ubuntu Linux 16.04 LTS, R-release, GCC
+* Debian Linux, R-devel, GCC ASAN/UBSAN
+* Fedora Linux, R-devel, clang, gfortran
+
+## R CMD check results
+
+0 errors | 0 warnings | 0 note
