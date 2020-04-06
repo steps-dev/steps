@@ -44,38 +44,39 @@ NULL
 #' }
 
 ceiling_density <- function (stages = NULL) {
-
+  
   pop_dynamics <- function (landscape, timestep) {
- 
+    
     #browser()
     
     population_raster <- landscape$population
-
+    
     # Get non-NA cells
     idx <- which(!is.na(raster::getValues(population_raster[[1]])))
     
     # 22.01.20 - # cc <- get_carrying_capacity(landscape, timestep)
     cc <- landscape$carrying_capacity # 22.01.20
-
+    
     if (is.null(cc)) {
       stop ("carrying capacity must be specified in the landscape object to use ceiling_density",
             call. = FALSE)
     }
-
+    
     # get population as a matrix
     population_matrix <- raster::extract(population_raster, idx)
     carrying_capacity <- raster::extract(cc, idx)
     
     # get degree of overpopulation, and shrink accordingly
-    if (is.null(stages))
+    if (is.null(stages)) {
       stages <- seq_len(ncol(population_matrix))
+    }
     
     overpopulation <- as.vector(carrying_capacity) / rowSums(population_matrix[ , stages, drop = FALSE])
     
     overpopulation[is.nan(overpopulation)] <- 0
     overpopulation <- pmin(overpopulation, 1)
     population_matrix[, stages] <- sweep(population_matrix[, stages, drop = FALSE], 1, overpopulation, "*")
-
+    
     # get whole integers
     population_matrix <- round_pop(population_matrix)
     
@@ -86,7 +87,7 @@ ceiling_density <- function (stages = NULL) {
     
     landscape
   }
-
+  
   result <- as.population_density_dependence(pop_dynamics)
   
   attr(result, "density_dependence_stages") <- stages

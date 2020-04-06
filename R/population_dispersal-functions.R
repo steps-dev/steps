@@ -283,7 +283,6 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
     indices <- indices[indices[, 2] %in% which_stages_disperse, , drop = FALSE]
 
     for(row in sample.int(nrow(indices))) {
-      #if(row == 3683) browser()
       pop <- disperse(origin = indices[row, 1],
                       stage = indices[row, 2],
                       pop = pop,
@@ -934,9 +933,10 @@ disperse <- function (origin,
     effective_populations <- pop[destination_ids, , drop = FALSE]
     
     if (length(density_dependence_stages) < total_stages) {
-      cols <- seq_len(ncol(effective_populations))
-      cols <- cols[cols != density_dependence_stages]
-      effective_populations[, cols] <- 0      
+      effective_populations[ , -density_dependence_stages] <- 0
+      # cols <- seq_len(ncol(effective_populations))
+      # cols <- cols[cols != density_dependence_stages]
+      # effective_populations[, cols] <- 0      
     }
     
     effective_population <- rowSums(effective_populations)
