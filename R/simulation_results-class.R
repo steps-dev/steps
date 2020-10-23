@@ -204,7 +204,11 @@ plot.simulation_results <- function (x,
     "#80b1d3",
     "#bebada",
     "#f0ab7e",
-    "#969696"
+    "#969696",
+    "#d1a954",
+    "#81b84d",
+    "#ba5059",
+    "#3c3c7d"
   )
   
   if (length(x) == 1) {
