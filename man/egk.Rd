@@ -14,7 +14,27 @@
 \alias{egk_destinations}
 \alias{egk_road}
 \title{Eastern Grey Kangaroo example data}
-\format{Misc data}
+\format{
+Misc data
+
+An object of class \code{RasterStack} of dimension 35 x 36 x 3.
+
+An object of class \code{RasterLayer} of dimension 35 x 36 x 1.
+
+An object of class \code{matrix} with 3 rows and 3 columns.
+
+An object of class \code{matrix} with 3 rows and 3 columns.
+
+An object of class \code{RasterStack} of dimension 35 x 36 x 120.
+
+An object of class \code{RasterBrick} of dimension 35 x 36 x 20.
+
+An object of class \code{RasterLayer} of dimension 35 x 36 x 1.
+
+An object of class \code{RasterLayer} of dimension 35 x 36 x 1.
+
+An object of class \code{RasterBrick} of dimension 35 x 36 x 20.
+}
 \usage{
 egk_hab
 

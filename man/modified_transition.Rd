@@ -7,9 +7,9 @@
 modified_transition(survival_layer = NULL, fecundity_layer = NULL)
 }
 \arguments{
-\item{survival_layer}{the name of a spatial layer in the landscape object used to modify survival values (i.e. non-zero values in the first row).}
+\item{survival_layer}{the name of a spatial layer in the landscape object used to modify survival values (i.e. non-zero values in rows other than the first).}
 
-\item{fecundity_layer}{the name of a spatial layer in the landscape object used to modify fecundity values (i.e. non-zero values in rows other than the first).}
+\item{fecundity_layer}{the name of a spatial layer in the landscape object used to modify fecundity values (i.e. non-zero values in the first row).}
 }
 \value{
 An object of class \code{transition_function}
@@ -27,6 +27,11 @@ the transition matrix. For example, if the transition matrix values include both
 probabilities of surviving AND growing into the next stage, these can NOT be modified
 individually. This operation would require the use of a custom function - see the "Creating
 custom *steps* functions" vignette for more information.
+
+Note, this function will not work if two-sex transition matrices are specified in a simulation.
+This function can be modified, however, to accomodate two-sex models - review the
+population_change function and see the "Creating custom *steps* functions" vignette for more
+information.
 }
 \examples{
 

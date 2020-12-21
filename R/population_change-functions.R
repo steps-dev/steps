@@ -37,8 +37,8 @@ NULL
 #'   The final population is the sum of these. Users should be cautious of specifying
 #'   "survival" to be performed first as typically survival of reproductive stages will already
 #'   be accounted for in the fecundity values of the transition matrix.
-#' @param two_sex Does the transition matrix include life stages for two-sexes? Default is FALSE
-#'   which assumes a single sex matrix (e.g. females only).
+#' @param two_sex Does the transition matrix include life stages for two sexes (i.e. male and
+#'   female)? Default is FALSE which assumes a single sex matrix (e.g. females only).
 #' 
 #' @export
 #' 

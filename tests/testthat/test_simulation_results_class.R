@@ -277,205 +277,240 @@ test_that('simulation_results classes work', {
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn,
                                   habitat_dynamics = NULL,
-                                  timesteps = 3),
+                                  timesteps = 3,
+                                  verbose = FALSE),
                        "simulation_results"))
 
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn2,
                                   habitat_dynamics = NULL,
                                   demo_stochasticity = "none",
-                                  timesteps = 3),
+                                  timesteps = 3,
+                                  verbose = FALSE),
                        "simulation_results"))
   
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn3,
                                   habitat_dynamics = NULL,
-                                  timesteps = 3),
+                                  timesteps = 3,
+                                  verbose = FALSE),
                        "simulation_results"))
   
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn4,
                                   habitat_dynamics = NULL,
-                                  timesteps = 3),
+                                  timesteps = 3,
+                                  verbose = FALSE),
                        "simulation_results"))
   
   expect_true(inherits(simulation(landscape = landscape_kfun,
                                   population_dynamics = pop_dyn4a,
                                   habitat_dynamics = NULL,
-                                  timesteps = 3),
+                                  timesteps = 3,
+                                  verbose = FALSE),
                        "simulation_results"))
   
   expect_true(inherits(simulation(landscape = landscape_stacks,
                                   population_dynamics = pop_dyn4a,
                                   habitat_dynamics = list(disturbance(disturbance_layers = "fires",
                                                                       effect_time = 2)),
-                                  timesteps = 3),
+                                  timesteps = 3,
+                                  verbose = FALSE),
                        "simulation_results"))
   
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn4b,
                                   habitat_dynamics = NULL,
-                                  timesteps = 3),
+                                  timesteps = 3,
+                                  verbose = FALSE),
                        "simulation_results"))
   
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn4c,
                                   habitat_dynamics = NULL,
-                                  timesteps = 3),
+                                  timesteps = 3,
+                                  verbose = FALSE),
                        "simulation_results"))
   
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn4d,
                                   habitat_dynamics = list(disturbance(disturbance_layers = "fires",
                                                                       effect_time = 2)),
-                                  timesteps = 3),
+                                  timesteps = 3,
+                                  verbose = FALSE),
                        "simulation_results"))
   
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn5,
                                   habitat_dynamics = NULL,
-                                  timesteps = 3),
+                                  timesteps = 3,
+                                  verbose = FALSE),
                        "simulation_results"))
   
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn6,
                                   habitat_dynamics = NULL,
-                                  timesteps = 3),
+                                  timesteps = 3,
+                                  verbose = FALSE),
                        "simulation_results"))
   
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn7,
                                   habitat_dynamics = NULL,
-                                  timesteps = 3),
+                                  timesteps = 3,
+                                  verbose = FALSE),
                        "simulation_results"))
   
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn13,
                                   habitat_dynamics = NULL,
-                                  timesteps = 3),
+                                  timesteps = 3,
+                                  verbose = FALSE),
                        "simulation_results"))
   
   expect_true(inherits(simulation(landscape = landscape,
                           population_dynamics = pop_dyn16,
                           habitat_dynamics = NULL,
-                          timesteps = 3),
+                          timesteps = 3,
+                          verbose = FALSE),
                        "simulation_results"))
   
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn,
                                   habitat_dynamics = list(disturbance(disturbance_layers = "fires",
                                                                       effect_time = 2)),
-                                  timesteps = 3),
+                                  timesteps = 3,
+                                  verbose = FALSE),
                        "simulation_results"))
   
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn2,
                                   habitat_dynamics = list(fire_effects(fire_layers = "fires",
                                                                        effect_time = 2)),
-                                  timesteps = 3),
+                                  timesteps = 3,
+                                  verbose = FALSE),
                        "simulation_results"))
   
   expect_true(inherits(simulation(landscape = landscape,
                                   population_dynamics = pop_dyn,
                                   habitat_dynamics = NULL,
                                   timesteps = 3,
-                                  replicates = 2),
+                                  replicates = 2,
+                                  verbose = FALSE),
                        "simulation_results"))
   
   expect_error(simulation(landscape = landscape_nohab,
                           population_dynamics = pop_dyn,
                           habitat_dynamics = NULL,
-                          timesteps = 3))
+                          timesteps = 3,
+                          verbose = FALSE))
   
   expect_error(simulation(landscape = landscape_nok,
                           population_dynamics = pop_dyn,
                           habitat_dynamics = NULL,
-                          timesteps = 3))
+                          timesteps = 3,
+                          verbose = FALSE))
   
   expect_error(simulation(landscape = landscape_stacks,
                           population_dynamics = pop_dyn2,
                           habitat_dynamics = list(fire_effects(fire_layers = "fires",
                                                                effect_time = 2)),
-                          timesteps = 3))
+                          timesteps = 3,
+                          verbose = FALSE))
   
   expect_error(simulation(landscape = landscape,
                           population_dynamics = pop_dyn2,
                           habitat_dynamics = list(fire_effects(fire_layers = "fires",
                                                                effect_time = 2)),
-                          timesteps = 21))
+                          timesteps = 21,
+                          verbose = FALSE))
   
   expect_error(simulation(landscape = landscape_nohab,
                           population_dynamics = pop_dyn3e,
                           habitat_dynamics = NULL,
-                          timesteps = 3))
+                          timesteps = 3,
+                          verbose = FALSE))
   
   expect_error(simulation(landscape = landscape_nok,
                           population_dynamics = pop_dyn3e,
                           habitat_dynamics = NULL,
-                          timesteps = 3))
+                          timesteps = 3,
+                          verbose = FALSE))
   
   expect_error(simulation(landscape = landscape_nok,
                           population_dynamics = pop_dyn4,
                           habitat_dynamics = NULL,
-                          timesteps = 3))
+                          timesteps = 3,
+                          verbose = FALSE))
   
   expect_error(simulation(landscape = landscape_intk,
                           population_dynamics = pop_dyn4,
                           habitat_dynamics = NULL,
-                          timesteps = 3))
+                          timesteps = 3,
+                          verbose = FALSE))
   
   expect_error(simulation(landscape = landscape,
                           population_dynamics = pop_dyn5e,
                           habitat_dynamics = NULL,
-                          timesteps = 3))
+                          timesteps = 3,
+                          verbose = FALSE))
   
   expect_error(simulation(landscape = landscape,
                           population_dynamics = pop_dyn7e,
                           habitat_dynamics = NULL,
-                          timesteps = 10))
+                          timesteps = 10,
+                          verbose = FALSE))
   
   expect_error(simulation(landscape = landscape_nok,
                           population_dynamics = pop_dyn9,
                           habitat_dynamics = NULL,
-                          timesteps = 10))
+                          timesteps = 10,
+                          verbose = FALSE))
   
   expect_error(simulation(landscape = landscape_nok,
                           population_dynamics = pop_dyn10,
                           habitat_dynamics = NULL,
-                          timesteps = 10))
+                          timesteps = 10,
+                          verbose = FALSE))
   
   expect_error(simulation(landscape = landscape,
                           population_dynamics = pop_dyn11,
                           habitat_dynamics = NULL,
-                          timesteps = 3))
+                          timesteps = 3,
+                          verbose = FALSE))
   
   expect_error(simulation(landscape = landscape,
                           population_dynamics = pop_dyn12,
                           habitat_dynamics = NULL,
-                          timesteps = 3))
+                          timesteps = 3,
+                          verbose = FALSE))
   
   expect_error(simulation(landscape = landscape,
                           population_dynamics = pop_dyn14,
                           habitat_dynamics = NULL,
-                          timesteps = 3))
+                          timesteps = 3,
+                          verbose = FALSE))
   
   expect_error(simulation(landscape = landscape,
                           population_dynamics = pop_dyn15,
                           habitat_dynamics = NULL,
-                          timesteps = 3))
+                          timesteps = 3,
+                          verbose = FALSE))
   
   expect_error(simulation(landscape = landscape,
                           population_dynamics = pop_dyn,
                           habitat_dynamics = list(disturbance(disturbance_layers = "fires",
                                                               effect_time = 2)),
-                          timesteps = 21))
+                          timesteps = 21,
+                          verbose = FALSE))
   
   test_simulation <- simulation(landscape = landscape,
                                 population_dynamics = pop_dyn,
                                 habitat_dynamics = list(disturbance(disturbance_layers = "fires",
                                                                     effect_time = 2)),
                                 timesteps = 10,
-                                replicates = 3)
+                                replicates = 3,
+                                verbose = FALSE)
   
   plan(multisession)
   test_simulation_par <- simulation(landscape = landscape,
@@ -483,7 +518,8 @@ test_that('simulation_results classes work', {
                                 habitat_dynamics = list(disturbance(disturbance_layers = "fires",
                                                                     effect_time = 2)),
                                 timesteps = 10,
-                                replicates = 3)
+                                replicates = 3,
+                                verbose = FALSE)
   
   
   plan(sequential)
@@ -491,7 +527,8 @@ test_that('simulation_results classes work', {
                                  population_dynamics = pop_dyn8,
                                  habitat_dynamics = NULL,
                                  timesteps = 20,
-                                 replicates = 1)
+                                 replicates = 1,
+                                 verbose = FALSE)
   
   #print(test_simulation)
   

@@ -9,7 +9,8 @@ growth(
   global_stochasticity = 0,
   local_stochasticity = 0,
   transition_function = NULL,
-  transition_order = c("fecundity", "survival")
+  transition_order = c("fecundity", "survival"),
+  two_sex = FALSE
 )
 }
 \arguments{
@@ -32,6 +33,9 @@ number of new individuals to be added to the populations), then "survival" is ap
 The final population is the sum of these. Users should be cautious of specifying
 "survival" to be performed first as typically survival of reproductive stages will already
 be accounted for in the fecundity values of the transition matrix.}
+
+\item{two_sex}{Does the transition matrix include life stages for two-sexes? Default is FALSE
+which assumes a single sex matrix (e.g. females only).}
 }
 \description{
 This function applies negative or positive growth to the population using matrix
