@@ -103,6 +103,11 @@ growth <- function (transition_matrix,
   
   idx <- which(transition_matrix != 0)
   is_recruitment <- upper.tri(transition_matrix)[idx]
+  if(two_sex == TRUE) { # added 23.10.20
+    mat <- is.na(transition_matrix)
+    mat[c(1, (nrow(transition_matrix) / 2) + 1), ] <- TRUE
+    is_recruitment <- mat[idx]
+  }
   upper <- ifelse(is_recruitment, Inf, 1)
   vals <- transition_matrix[idx]
   dim <- nrow(transition_matrix)
