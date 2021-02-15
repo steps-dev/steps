@@ -19,9 +19,11 @@ population structure matrix.}
 
 \item{global_stochasticity, local_stochasticity}{Either scalar values or
 matrices (with the same dimension as \code{transition_matrix}) specifying
-the variability (in standard deviations) in the transition matrix either for
-populations in all grid cells (\code{global_stochasticity}) or for each
-grid cell population separately (\code{local_stochasticity})}
+the variability in the transition matrix either for populations in all grid
+cells (\code{global_stochasticity}) or for each grid cell population
+separately (\code{local_stochasticity}). Values supplied here are the
+standard deviation of a truncated normal distribution where the mean is the
+value supplied in the transition matrix.}
 
 \item{transition_function}{A function to specify or modify life-stage transitions
 at each timestep. See \link[steps]{transition_function}.}
@@ -34,12 +36,12 @@ The final population is the sum of these. Users should be cautious of specifying
 "survival" to be performed first as typically survival of reproductive stages will already
 be accounted for in the fecundity values of the transition matrix.}
 
-\item{two_sex}{Does the transition matrix include life stages for two-sexes? Default is FALSE
-which assumes a single sex matrix (e.g. females only).}
+\item{two_sex}{Does the transition matrix include life stages for two sexes (i.e. male and
+female)? Default is FALSE which assumes a single sex matrix (e.g. females only).}
 }
 \description{
 This function applies negative or positive growth to the population using matrix
-multiplication. Stochasticty can be added to cell-based transition matrices or globally.
+multiplication. Stochasticity can be added to cell-based transition matrices or globally.
 Users can also specify a built-in or custom function to modify the transition matrices
 throughout a simulation. Please see the tutorial vignette titled "Creating custom
 *steps* functions" for information on how to write custom functions for use in simulations.

@@ -29,7 +29,7 @@ individually. This operation would require the use of a custom function - see th
 custom *steps* functions" vignette for more information.
 
 Note, this function will not work if two-sex transition matrices are specified in a simulation.
-This function can be modified, however, to accomodate two-sex models - review the
+This function can be modified, however, to accommodate two-sex models - review the
 population_change function and see the "Creating custom *steps* functions" vignette for more
 information.
 }

@@ -13,7 +13,6 @@ Regarding the note, we have intentionally left the connector word (and) in lower
 * win-builder (devel and release)
 
 ## R CMD check results
-
 0 errors | 0 warnings | 1 note
 
 * This is a new release.
@@ -32,7 +31,6 @@ Based on internal testing and journal reviewer comments, we have added several u
 * win-builder (devel and release)
 
 ## R CMD check results
-
 0 errors | 0 warnings | 0 note
 
 ## 2020.03.22 - Updated version 1.1.0
@@ -52,5 +50,29 @@ Performance improvements:
 * Fedora Linux, R-devel, clang, gfortran
 
 ## R CMD check results
-
 0 errors | 0 warnings | 0 note
+
+## 2020.03.22 - Updated version 1.2.0
+Updates:
+- Revised transition matrix stochasticity documentation for clarity
+- Fixed error in growth transition functions documentation
+- Added functionality and documentation for two-sex transition matrices
+Bug fixes:
+- Fixed density_dependence_stages length mismatch in dispersal function
+Performance improvements:
+- revised testing code to speed up test runtimes
+
+## Test environments
+* Oracle Solaris 10, x86, 32 bit, R-release, Oracle Developer Studio 12.6
+* macOS 10.13.6 High Sierra, R-release, brew
+* Windows Server 2008 R2 SP1, R-devel, 32/64 bit
+* Ubuntu Linux 20.04.1, R-release, GCC
+* Debian Linux, R-devel, GCC ASAN/UBSAN
+* Fedora Linux, R-devel, clang, gfortran
+
+## R CMD check results
+0 errors | 0 warnings | 2 notes
+checking sizes of PDF files under 'inst/doc' ... NOTE
+  Unable to find GhostScript executable to run checks on size reduction
+checking top-level files ... NOTE
+Files 'README.md' or 'NEWS.md' cannot be checked without 'pandoc' being installed.
