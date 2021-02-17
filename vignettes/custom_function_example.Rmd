@@ -6,8 +6,10 @@ output:
   pdf_document: default
   html_document: default
 geometry: margin=2cm
-vignette: |
-  %\VignetteIndexEntry{Custom Function} %\VignetteEncoding{UTF-8} %\VignetteEngine{knitr::rmarkdown}
+vignette: >
+  %\VignetteIndexEntry{Custom Function}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}
