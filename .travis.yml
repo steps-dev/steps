@@ -1,4 +1,3 @@
-# Sample .travis.yml for R projects
 language: r
 sudo: false
 cache: packages
@@ -14,11 +13,12 @@ addons:
       - libv8-dev
       - libmagick++-dev
       
-r_binary_packages:
- - rgdal
+#r_binary_packages:
+# - rgdal
       
 r_packages:
   - covr
+  - rgdal
 
 after_success:
   - Rscript -e 'library(covr);codecov()'
