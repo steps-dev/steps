@@ -1,14 +1,15 @@
 #include <Rcpp.h>
+#include <random>
 using namespace Rcpp;
 
 // wrapper around R's RNG such that we get a uniform distribution over
 // [0,n) as required by the STL algorithm - from http://gallery.rcpp.org/articles/stl-random-shuffle/
-inline int randWrapper(const int n) { return floor(unif_rand()*n); }
+//inline int randWrapper(const int n) { return floor(unif_rand()*n); }
 
 // [[Rcpp::export]]
 IntegerVector shuffle_vec(int min, int max){
   IntegerVector vec = seq(min, max);
-  std::random_shuffle(vec.begin(), vec.end(), randWrapper);
+  std::shuffle(vec.begin(), vec.end(), std::mt19937(std::random_device()()));
   return vec;
 }
 

@@ -52,11 +52,12 @@ Performance improvements:
 ## R CMD check results
 0 errors | 0 warnings | 0 note
 
-## 2020.03.22 - Updated version 1.2.0
+## 2021.03.02 - Updated version 1.2.0
 Updates:
 - Revised transition matrix stochasticity documentation for clarity
 - Fixed error in growth transition functions documentation
 - Added functionality and documentation for two-sex transition matrices
+- Revised deprecated C++ function
 Bug fixes:
 - Fixed density_dependence_stages length mismatch in dispersal function
 Performance improvements:

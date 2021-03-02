@@ -4,7 +4,6 @@ author: "Casey Visintin"
 date: "`r Sys.Date()`"
 output:
   pdf_document: default
-  html_document: default
 geometry: margin=2cm
 vignette: >
   %\VignetteIndexEntry{Custom Function}
@@ -14,10 +13,10 @@ vignette: >
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
-  dpi = 300,
+  dpi = 150,
   fig.width = 7,
   out.width = "100%",
-  cache = TRUE
+  cache = FALSE
 )
 ```
 

@@ -3,7 +3,7 @@ title: "An Eastern Grey Kangaroo population simulation example"
 author: "Casey Visintin"
 date: "`r Sys.Date()`"
 output:
-  html_document
+  pdf_document: default
 geometry: margin=2cm
 vignette: >
   %\VignetteIndexEntry{Eastern Grey Kangaroo}
@@ -13,10 +13,10 @@ vignette: >
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
-  dpi = 300,
+  dpi = 150,
   fig.width = 7,
   out.width = "100%",
-  cache = TRUE
+  cache = FALSE
 )
 ```
 

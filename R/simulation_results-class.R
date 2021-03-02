@@ -61,7 +61,7 @@ simulation <- function(landscape,
   
   # gather globals in future.apply call
   future_lapply_wrapper <- function (...) {
-    future.apply::future_lapply(..., future.globals = future.globals)
+    future.apply::future_lapply(..., future.globals = future.globals, future.seed = TRUE)
   }
   
   # clear out the stash every time we begin a simulation
