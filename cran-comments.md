@@ -52,12 +52,11 @@ Performance improvements:
 ## R CMD check results
 0 errors | 0 warnings | 0 note
 
-## 2021.03.02 - Updated version 1.2.0
+## 2021.02.25 - Updated version 1.2.0
 Updates:
 - Revised transition matrix stochasticity documentation for clarity
 - Fixed error in growth transition functions documentation
 - Added functionality and documentation for two-sex transition matrices
-- Revised deprecated C++ function
 Bug fixes:
 - Fixed density_dependence_stages length mismatch in dispersal function
 Performance improvements:
@@ -77,3 +76,11 @@ checking sizes of PDF files under 'inst/doc' ... NOTE
   Unable to find GhostScript executable to run checks on size reduction
 checking top-level files ... NOTE
 Files 'README.md' or 'NEWS.md' cannot be checked without 'pandoc' being installed.
+
+## 2021.03.03 - Minor updated version 1.2.1
+Updates:
+- Revised deprecated C++ function
+- Reduced installation size in vignettes
+
+## R CMD check results
+0 errors | 0 warnings | 0 notes
