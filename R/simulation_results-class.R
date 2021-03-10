@@ -27,7 +27,7 @@
 #'
 #' @export
 #'
-#' @importFrom future plan multiprocess future values
+#' @importFrom future plan multisession future value
 #' @importFrom raster animate
 #' @importFrom viridisLite viridis
 #'
