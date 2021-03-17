@@ -79,7 +79,7 @@ translocation <- function (origins_layer, destinations_layer, stages = NULL, eff
                         stage,
                         "- only the maximum number of available\nindividuals in each cell will be translocated. Please check the\nspecified origins and destination layers."),
                   warning_name = paste0("translocated_individuals_", stage))
-
+        
         population_matrix[ , stage] <- population_matrix[ , stage] + destinations - pmin(origins, population_matrix[ , stage])
         
       }
@@ -112,8 +112,9 @@ translocation <- function (origins_layer, destinations_layer, stages = NULL, eff
 #' (i.e the largest whole integer is retained).
 
 #' @param mortality_layer the name of spatial layer(s) in the landscape object with
-#'   mortality proportions used to alter the populations for each timestep (number of
-#'   layers must match the intended timesteps)
+#'   mortality proportions used to alter the populations for each timestep. If
+#'   a stack of rasters is used then the number of layers must match the intended
+#'   number of timesteps in the simulation.
 #' @param stages which life-stages are modified - default is all
 #'
 #' @export
@@ -137,29 +138,33 @@ translocation <- function (origins_layer, destinations_layer, stages = NULL, eff
 mortality <- function (mortality_layer, stages = NULL) {
   
   pop_dynamics <- function (landscape, timestep) {
-
-      population_raster <- landscape$population
-      nstages <- raster::nlayers(population_raster)
-      
-      # get population as a matrix
-      idx <- which(!is.na(raster::getValues(population_raster[[1]])))
-      population_matrix <- raster::extract(population_raster, idx)
-      
+    
+    population_raster <- landscape$population
+    nstages <- raster::nlayers(population_raster)
+    
+    # get population as a matrix
+    idx <- which(!is.na(raster::getValues(population_raster[[1]])))
+    population_matrix <- raster::extract(population_raster, idx)
+    
+    if (raster::nlayers(landscape[[mortality_layer]]) > 1) {
       mortality_prop <- raster::extract(landscape[[mortality_layer]][[timestep]], idx)
+    } else {
+      mortality_prop <- raster::extract(landscape[[mortality_layer]], idx)
+    }
+    
+    if (is.null(stages)) stages <- seq_len(nstages)
+    
+    for (stage in stages) {
       
-      if (is.null(stages)) stages <- seq_len(nstages)
+      population_matrix[ , stage] <- ceiling(population_matrix[ , stage] * mortality_prop)
       
-      for (stage in stages) {
-        
-        population_matrix[ , stage] <- ceiling(population_matrix[ , stage] * mortality_prop)
-        
-      }
-      
-      # put back in the raster
-      population_raster[idx] <- population_matrix
-      
-      landscape$population <- population_raster
-
+    }
+    
+    # put back in the raster
+    population_raster[idx] <- population_matrix
+    
+    landscape$population <- population_raster
+    
     
     landscape
     
