@@ -18,6 +18,28 @@ round_pop <- function (population) {
   
 }
 
+get_pop_replicate <- function(x, ...) {
+  total_stages <- raster::nlayers(x[[1]]$population)
+  idx <- which(!is.na(raster::getValues(x[[1]]$population[[1]])))
+  pops <- lapply(x, function(x) raster::extract(x$population, idx))
+  pop_sums <- lapply(pops, function(x) colSums(x))
+  pop_matrix <- matrix(unlist(pop_sums), ncol = total_stages, byrow = TRUE)
+  return(pop_matrix)
+}
+
+get_pop_simulation <- function(x, ...) {
+  total_stages <- raster::nlayers(x[[1]][[1]]$population)
+  timesteps <- length(x[[1]])
+  sims <- length(x)
+  
+  pop_array <- array(dim=c(timesteps, total_stages, sims))
+  
+  for(i in seq_len(sims)) {
+    pop_array[, , i] <- get_pop_replicate(x[[i]])
+  }
+  return(pop_array)
+}
+
 get_carrying_capacity <- function (landscape, timestep) {
   
   cc <- landscape$carrying_capacity

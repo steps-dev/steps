@@ -8,8 +8,9 @@ mortality(mortality_layer, stages = NULL)
 }
 \arguments{
 \item{mortality_layer}{the name of spatial layer(s) in the landscape object with
-mortality proportions used to alter the populations for each timestep (number of
-layers must match the intended timesteps)}
+mortality proportions used to alter the populations for each timestep. If
+a stack of rasters is used then the number of layers must match the intended
+number of timesteps in the simulation.}
 
 \item{stages}{which life-stages are modified - default is all}
 }
