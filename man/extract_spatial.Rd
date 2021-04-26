@@ -2,7 +2,7 @@
 % Please edit documentation in R/simulation_results-class.R
 \name{extract_spatial}
 \alias{extract_spatial}
-\title{Extract objects from a 'simulation_results' object}
+\title{Extract spatial object from a 'simulation_results' object}
 \usage{
 extract_spatial(
   x,
@@ -19,7 +19,7 @@ extract_spatial(
 \item{replicate}{which replicate to extract from a \code{simulation_results}
 object}
 
-\item{timestep}{timestep(s) to extract from a \code{simulation_results}}
+\item{timestep}{which timestep to extract from a \code{simulation_results}}
 
 \item{landscape_object}{which landscape object to extract from a
 \code{simulation_results} object - can be specified by name
@@ -76,6 +76,6 @@ sim <- simulation(landscape = ls,
 
 # Extract the population raster for the second life-stage in the first
 # replicate and ninth timestep
-extract_spatial(sim, timestep = 9, stage = 2)
+extract_spatial(sim, replicate = 1, timestep = 9, stage = 2)
 }
 }

@@ -248,7 +248,7 @@ plot.simulation_results <- function (x,
 }
 
 
-#' Extract objects from a 'simulation_results' object
+#' Extract spatial object from a 'simulation_results' object
 #' 
 #' The simulation results object is a list of lists containing spatial (and other) objects and
 #' is organised by the following tree diagram:
@@ -278,7 +278,7 @@ plot.simulation_results <- function (x,
 #' @param x a simulation_results object 
 #' @param replicate which replicate to extract from a \code{simulation_results}
 #'   object
-#' @param timestep timestep(s) to extract from a \code{simulation_results}
+#' @param timestep which timestep to extract from a \code{simulation_results}
 #' @param landscape_object which landscape object to extract from a
 #'   \code{simulation_results} object - can be specified by name
 #'   (e.g. "suitability") or index number
@@ -308,7 +308,7 @@ plot.simulation_results <- function (x,
 #' 
 #' # Extract the population raster for the second life-stage in the first
 #' # replicate and ninth timestep
-#' extract_spatial(sim, timestep = 9, stage = 2)
+#' extract_spatial(sim, replicate = 1, timestep = 9, stage = 2)
 #' }
 
 extract_spatial <- function (x,
@@ -318,15 +318,15 @@ extract_spatial <- function (x,
                              stage = 1,
                              misc = 1) {
   if (landscape_object == 1 | landscape_object == "population") {
-    x[[replicate]][[timestep]][[landscape_object]][[stage]]
+    return(x[[replicate]][[timestep]][[landscape_object]][[stage]])
   }
   if (landscape_object > 3 |
       !landscape_object == "population" |
       !landscape_object == "suitability" |
       !landscape_object == "carrying_capacity") {
-    x[[replicate]][[timestep]][[landscape_object]][[misc]]
+    return(x[[replicate]][[timestep]][[landscape_object]][[misc]])
   }
-  
+  return(x[[replicate]][[timestep]][[landscape_object]])
 }
 
 # #' @rdname simulation
@@ -349,122 +349,6 @@ extract_spatial <- function (x,
 #   om[[info_object]][[timestep]][[]]
 #   
 # }
-
-#' Compare minimum expected populations
-#' 
-#' Compare minimum expected populations from two or more 'simulation_results' objects.
-#'
-#' @param x a simulation_results object 
-#' @param ... additional simulation results objects
-#' @param interval the desired confidence interval representing the uncertainty around
-#'  the expected minimum population estimates from simulation comparisons; expressed as 
-#'  a whole integer between 0 and 100 (default value is 95).
-#' @param all_points should the expected minimum populations from all simulation
-#'  replicates be shown on the plot?
-#' @param simulation_names an optional character vector of simulation names to override
-#' the defaults
-#'
-#' @export
-#'
-#' @examples
-#' 
-#' \dontrun{
-#' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
-#' 
-#' # Create populations dynamics with and without ceiling density dependence
-#' pd1 <- population_dynamics(change = growth(egk_mat),
-#'                            dispersal = kernel_dispersal(max_distance = 1000,
-#'                            dispersal_kernel = exponential_dispersal_kernel(distance_decay = 500)),
-#'                            density_dependence = ceiling_density())
-#' pd2 <- population_dynamics(change = growth(egk_mat),
-#'                            dispersal = kernel_dispersal(max_distance = 3000,
-#'                            dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1500)))
-#' 
-#' # Run first simulation with ceiling density dependence and three replicates
-#' sim1 <- simulation(landscape = ls,
-#'                    population_dynamics = pd1,
-#'                    habitat_dynamics = NULL,
-#'                    timesteps = 20,
-#'                    replicates = 3)
-#'                    
-#' # Run second simulation without ceiling density dependence and three replicates
-#' sim2 <- simulation(landscape = ls,
-#'                    population_dynamics = pd2,
-#'                    habitat_dynamics = NULL,
-#'                    timesteps = 20,
-#'                    replicates = 3)
-#' 
-#' compare_emp(sim1, sim2)
-#' }
-
-compare_emp <- function (x, ..., interval = 95, all_points = FALSE, simulation_names = NULL) {
-  
-  # read in simulation objects to compare
-  sim_objects <- list(x, ...)
-  n_objects <- length(sim_objects)
-  
-  # get names of simulations
-  sim_names <- as.character(substitute(list(x, ...)))[-1L]
-  
-  interval_range <- c((100 - interval) / 2, 100 - (100 - interval) / 2) / 100
-  
-  # initiate table of values
-  df <- data.frame("name" = sim_names,
-                   "emp_mean" = NA,
-                   "emp_lower" = NA,
-                   "emp_upper" = NA)
-  
-  if(is.null(simulation_names)) simulation_names <- sim_names
-  
-  # populate table with emp mean and error values
-  for (i in seq_len(n_objects)){
-    pops <- get_pop_simulation(sim_objects[[i]])
-    min_total_pops <- apply(pops, 3, function(x) min(rowSums(x)))
-    emp_mean <- mean(min_total_pops)
-    emp_lower <- stats::quantile(min_total_pops, interval_range)[1]
-    emp_upper <- stats::quantile(min_total_pops, interval_range)[2]
-    df[i, -1] <- c(emp_mean, emp_lower, emp_upper)
-  }
-  
-  graphics::par(mar=c(4, 4.5, 1.5, 1.5) + 0.1)
-  
-  graphics::plot(NULL,
-                 xlim = c(0.5, n_objects + 0.5),
-                 xaxt = "n",
-                 xlab = "Simulation Name",
-                 ylim = range(c(df$emp_lower, df$emp_upper)),
-                 yaxt = "n",
-                 ylab = "",
-                 main = "",
-                 lwd = 0.5)
-  if (all_points == TRUE) {
-    for (i in seq_len(n_objects)){
-      pops <- get_pop_simulation(sim_objects[[i]])
-      min_total_pops <- apply(pops, 3, function(x) min(rowSums(x)))
-      graphics::points(jitter(rep(i, length(min_total_pops))),
-                       min_total_pops,
-                       col = "lightgrey",
-                       pch = 19,
-                       cex = 0.8)
-    }
-  }
-  graphics::points(seq_len(n_objects),
-                   df$emp_mean,
-                   pch = 19)
-  graphics::arrows(seq_len(n_objects),
-                   df$emp_lower,
-                   seq_len(n_objects),
-                   df$emp_upper,
-                   length=0.05,
-                   angle=90,
-                   code=3)
-  graphics::axis(1, at = seq_len(n_objects), labels = simulation_names)
-  graphics::axis(2, at = pretty(range(c(df$emp_lower, df$emp_upper)), 5))
-  graphics::mtext(paste0("Minimum Population (", interval, "% Interval)"),
-                  side = 2,
-                  line = 2.5)
-}
-
 
 ##########################
 ### internal functions ###

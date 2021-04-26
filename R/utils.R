@@ -18,24 +18,32 @@ round_pop <- function (population) {
   
 }
 
-get_pop_replicate <- function(x, ...) {
-  total_stages <- raster::nlayers(x[[1]]$population)
-  idx <- which(!is.na(raster::getValues(x[[1]]$population[[1]])))
-  pops <- lapply(x, function(x) raster::extract(x$population, idx))
+get_pop_replicate <- function(replicate_result, init_pops, ...) {
+  total_stages <- raster::nlayers(replicate_result[[1]]$population)
+  idx <- which(!is.na(raster::getValues(replicate_result[[1]]$population[[1]])))
+  
+  init_pops <- raster::extract(init_pops, idx)
+  init_pop_sums <- colSums(init_pops)
+  
+  pops <- lapply(replicate_result, function(x) raster::extract(x$population, idx))
   pop_sums <- lapply(pops, function(x) colSums(x))
+  
   pop_matrix <- matrix(unlist(pop_sums), ncol = total_stages, byrow = TRUE)
+  pop_matrix <- unname(rbind(init_pop_sums, pop_matrix))
+  
   return(pop_matrix)
 }
 
-get_pop_simulation <- function(x, ...) {
-  total_stages <- raster::nlayers(x[[1]][[1]]$population)
-  timesteps <- length(x[[1]])
-  sims <- length(x)
+get_pop_simulation <- function(sim_result, ...) {
+  total_stages <- raster::nlayers(sim_result[[1]][[1]]$population)
+  timesteps <- length(sim_result[[1]])
+  sims <- length(sim_result)
   
-  pop_array <- array(dim=c(timesteps, total_stages, sims))
-  
+  pop_array <- array(dim = c(timesteps + 1, total_stages, sims))
+
   for(i in seq_len(sims)) {
-    pop_array[, , i] <- get_pop_replicate(x[[i]])
+    pop_array[, , i] <- get_pop_replicate(replicate_result = sim_result[[i]],
+                                          init_pops = attr(sim_result, "initial_population"))
   }
   return(pop_array)
 }
@@ -114,12 +122,6 @@ rmultinom_large_int <- function (population) {
   
   pop
   
-}
-
-pretty_int <- function (...) {
-  at <- pretty(...)
-  at <- at[at %% 1 == 0]
-  at[at != 0]
 }
 
 int_or_proper_length_vector <- function (input, n_stages, parameter) {
