@@ -183,11 +183,10 @@ plot.simulation_results <- function (x,
   # avoid a persistent effect on the graphics device
   op <- graphics::par(no.readonly = TRUE)
   on.exit(graphics::par(op))
-
+  
   pop_data_stages <- get_pop_simulation(x)
-  init_pops <- sapply(seq_len(ncol(pop_data_stages)), function(r) sum(attr(x, "initial_population")[[r]][], na.rm = TRUE)) 
-  pop_data_totals <- rbind(init_pops, apply(pop_data_stages, 3, function(x) rowSums(x)))
-
+  pop_data_totals <- apply(pop_data_stages, 3, function(x) rowSums(x))
+  
   timesteps <- seq_len(length(x[[1]]))
   
   pop_spatial <- lapply(replicates,
@@ -210,38 +209,38 @@ plot.simulation_results <- function (x,
       graphics::par(mar = c(4,3,3,0), mfrow = c(1, 2), mgp = c(2,0.7,0))
       
       graphics::plot(x = 0:j, y = c(pop_data_totals[1, i], pop_data_totals[-1, i][1:j]),
-           type = 'l',
-           ylab  = 'Population size',
-           ylim = c(0, max(pop_data_totals) * 1.1),
-           xlab = "Year",
-           xlim = c(0, max(timesteps)),
-           main = paste0("Simulation replicate ", i),
-           font.main = 1,
-           cex.main = 0.9)
+                     type = 'l',
+                     ylab  = 'Population size',
+                     ylim = c(0, max(pop_data_totals) * 1.1),
+                     xlab = "Year",
+                     xlim = c(0, max(timesteps)),
+                     main = paste0("Simulation replicate ", i),
+                     font.main = 1,
+                     cex.main = 0.9)
       graphics::grid()
       
       mat <- t(apply(raster::as.matrix(pop_spatial[[i]][[j]]), 2, rev))
       
       graphics::par(mar = c(2,2,1.2,1))
       graphics::image(mat,
-            col = cols,
-            axes = FALSE,
-            asp = 1)
+                      col = cols,
+                      axes = FALSE,
+                      asp = 1)
       graphics::title(paste0(layer_names[j]),
-            line = -0.7,
-            font.main = 1,
-            cex.main = 0.9)
+                      line = -0.7,
+                      font.main = 1,
+                      cex.main = 0.9)
       graphics::legend(0,
-             0, 
-             cuts,
-             fill = cols,
-             border = 'white',
-             bty = 'n',
-             xpd = NA,
-             horiz = TRUE,
-             x.intersp = 0,
-             y.intersp = 0,
-             cex = 0.7)
+                       0, 
+                       cuts,
+                       fill = cols,
+                       border = 'white',
+                       bty = 'n',
+                       xpd = NA,
+                       horiz = TRUE,
+                       x.intersp = 0,
+                       y.intersp = 0,
+                       cex = 0.7)
     }
   }
   
@@ -372,7 +371,7 @@ simulate <- function (i, landscape, population_dynamics, habitat_dynamics, times
   output_metrics$dispersal_failure_rate <- list()
   
   for (timestep in timesteps) {
-
+    
     for (dynamic_function in habitat_dynamics) {
       landscape <- dynamic_function(landscape, timestep)
     }
@@ -398,16 +397,16 @@ simulate <- function (i, landscape, population_dynamics, habitat_dynamics, times
     for (name in landscape_names) {
       
       # 22.01.20 - # if (name == "carrying_capacity" && !is.null(landscape_out[[name]]) && is.function(landscape_out[[name]])) {
-        
+      
       # 22.01.20 - #   landscape_out$carrying_capacity <- get_carrying_capacity(landscape, timestep)
-        
+      
       # 22.01.20 - # } else {
+      
+      if (name != "population" && !is.function(landscape_out[[name]]) &&
+          !is.null(landscape_out[[name]]) && raster::nlayers(landscape_out[[name]]) > 1) {
         
-        if (name != "population" && !is.function(landscape_out[[name]]) &&
-            !is.null(landscape_out[[name]]) && raster::nlayers(landscape_out[[name]]) > 1) {
-          
-          landscape_out[[name]] <- landscape_out[[name]][[timestep]]
-          
+        landscape_out[[name]] <- landscape_out[[name]][[timestep]]
+        
         # 22.01.20 - # }
       }
     }
@@ -425,7 +424,7 @@ simulate <- function (i, landscape, population_dynamics, habitat_dynamics, times
     if (is_k_function) {
       landscape$carrying_capacity <- k_fun
     }
-
+    
     if (!is.null(steps_stash$dispersal_stats)) {
       n_stages <- length(steps_stash$dispersal_stats)
       n_stages_disperse <- which(unlist(lapply(steps_stash$dispersal_stats, function(x) !is.null(x))) == TRUE)
@@ -441,7 +440,7 @@ simulate <- function (i, landscape, population_dynamics, habitat_dynamics, times
     if (verbose == TRUE && inherits(future::plan(), "sequential")) utils::setTxtProgressBar(pb, timestep)
     
   }
-
+  
   if (verbose == TRUE && inherits(future::plan(), "sequential")) close(pb)
   
   as_class(output_landscapes, "replicate", "list")
