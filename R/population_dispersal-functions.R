@@ -907,8 +907,8 @@ disperse <- function (origin,
   # probability of dispersing multiplied by probability of arrival
   prob <- prob * arrival_prob_values[destination_ids]
   
-  # standardise probabilities
-  prob <- prob / sum(prob)
+  # standardise probabilities & check for NaN values
+  prob <- ifelse(!prob, 0, prob / sum(prob))
   
   # get number dispersing and staying
   # (if this is not the first cell considered, we use the original population
