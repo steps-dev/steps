@@ -777,7 +777,7 @@ dispersalFFT <- function (popmat, fs) {
 
 seq_range <- function (range, by = 1) seq(range[1], range[2], by = by)
 
-# compute the *relative* distances to all neightbouring cells within a maximum
+# compute the *relative* distances to all neighbouring cells within a maximum
 # distance
 get_distance_info <- function(res, max_distance) {
   
@@ -791,7 +791,7 @@ get_distance_info <- function(res, max_distance) {
   keep <- dists < max_distance
   
   # relative coordinates of cells that are within the distance
-  ur <- cell_coord[keep, ]
+  ur <- cell_coord[keep, , drop = FALSE]
   ul <- cbind(-ur[, 1], ur[, 2])
   ll <- -ur
   lr <- cbind(ur[, 1], -ur[, 2])
