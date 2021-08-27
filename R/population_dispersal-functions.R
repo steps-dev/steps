@@ -791,7 +791,8 @@ get_distance_info <- function(res, max_distance) {
   keep <- dists < max_distance
   
   # relative coordinates of cells that are within the distance
-  ur <- cell_coord[keep, , drop = FALSE]
+  # ur <- cell_coord[keep, , drop = FALSE]
+  ur <- cell_coord[keep, ]
   ul <- cbind(-ur[, 1], ur[, 2])
   ll <- -ur
   lr <- cbind(ur[, 1], -ur[, 2])
@@ -908,7 +909,8 @@ disperse <- function (origin,
   prob <- prob * arrival_prob_values[destination_ids]
   
   # standardise probabilities & check for NaN values
-  prob <- ifelse(!prob, 0, prob / sum(prob))
+  # prob <- ifelse(!prob, 0, prob / sum(prob))
+  prob <- prob / sum(prob)
   
   # get number dispersing and staying
   # (if this is not the first cell considered, we use the original population

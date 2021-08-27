@@ -197,16 +197,24 @@ plot.simulation_results <- function (x,
                                            function(t) max(pop_spatial[[r]][[t]][],
                                                            na.rm = TRUE))))
   
-  rounded_max_ind <- 50 * ceiling(max_ind / 50)
+  # rounded_max_ind <- 50 * ceiling(max_ind / 50)
+  # cuts <- seq(0, rounded_max_ind, 50)
   
-  cuts <- seq(0, rounded_max_ind, 50)
-  cols <- c("lightgray", viridis(length(cuts) - 1))
-  
+  if (max_ind < 5) {
+    cuts <- pretty(seq_len(max_ind), 2)
+  }else{
+    cuts <- pretty(seq_len(max_ind), 5)
+  }
+  # cols <- c("lightgray", viridis(length(cuts) - 1))
+
+  cols <- c("lightgray", viridis(max_ind - 1))
   layer_names <- paste0("Population in year ", timesteps)
   
   for (i in replicates){
     for (j in timesteps) {
-      graphics::par(mar = c(4,3,3,0), mfrow = c(1, 2), mgp = c(2,0.7,0))
+
+      layout(matrix(c(1, 1, 1, 2, 2, 3), ncol = 2), width = c(1, 1, 1), height = c(3, 2, 1))
+      graphics::par(mar = c(4, 3, 3, 0), mgp = c(2, 0.7, 0))
       
       graphics::plot(x = 0:j, y = c(pop_data_totals[1, i], pop_data_totals[-1, i][1:j]),
                      type = 'l',
@@ -221,26 +229,23 @@ plot.simulation_results <- function (x,
       
       mat <- t(apply(raster::as.matrix(pop_spatial[[i]][[j]]), 2, rev))
       
-      graphics::par(mar = c(2,2,1.2,1))
+      graphics::par(mar = c(2, 2, 1.2, 1.2))
       graphics::image(mat,
                       col = cols,
                       axes = FALSE,
-                      asp = 1)
+                      asp = 1,
+                      zlim = c(0, max_ind))
       graphics::title(paste0(layer_names[j]),
                       line = -0.7,
                       font.main = 1,
                       cex.main = 0.9)
-      graphics::legend(0,
-                       0, 
-                       cuts,
-                       fill = cols,
-                       border = 'white',
-                       bty = 'n',
-                       xpd = NA,
-                       horiz = TRUE,
-                       x.intersp = 0,
-                       y.intersp = 0,
-                       cex = 0.7)
+
+      legend_image <- raster::as.raster(matrix(cols, nrow = 1))
+      
+      plot.new()
+      graphics::par(mar = c(2, 2, 1.2, 0.8))
+      graphics::rasterImage(legend_image, 0, 0.8, 0.9, 1)
+      text(x = (cuts / max_ind) * 0.9, y = 0.4, labels = cuts)
     }
   }
   
