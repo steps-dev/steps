@@ -112,7 +112,7 @@ plot_pop_trend <- function (x,
     pop <- structure(sapply(seq_len(replicates), FUN = function(x) rowSums(pop[ , , x])),
                      dim = c(timesteps + 1, 1, replicates))
     pop_mn <- data.frame(round(apply(pop, 1, mean), 0))
-    emp <- round(mean(apply(pop, 3, function(x) min(rowSums(x)))), 0)
+    emp_value <- round(mean(apply(pop, 3, function(x) min(rowSums(x)))), 0)
     graphics::par(mar = c(5.1, 4.1, 4.1, 2.1), mfrow = c(1, 1))
     y_label <- "Total Population (all stages)"
     y_range <- range(pretty(pop_mn[ , 1]))
@@ -147,7 +147,7 @@ plot_pop_trend <- function (x,
                       #lwd = 3,
                       col = graph_pal[i])
       if (emp & exists("emp_0")) {
-        graphics::abline(h = emp, lwd = 1, lty = 2)
+        graphics::abline(h = emp_value, lwd = 1, lty = 2)
       }
     }
     
