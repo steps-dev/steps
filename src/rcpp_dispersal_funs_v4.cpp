@@ -20,7 +20,8 @@ IntegerVector can_source_cell_disperse(int source_y,
                                        NumericMatrix future_population_state,
                                        NumericMatrix carrying_capacity_available, 
                                        NumericMatrix permeability_map,
-                                       int max_cells){
+                                       int max_cells,
+                                       int min_cells){
   
   /*
    ** Initialise parameters used in the function
@@ -64,8 +65,8 @@ IntegerVector can_source_cell_disperse(int source_y,
     dest_x_vec[3] = dest_x - 1;
     
     /*
-    ** Reset parameters used in the loop
-    */
+     ** Reset parameters used in the loop
+     */
     
     possible[0] = 0;
     possible[1] = 0;
@@ -87,8 +88,8 @@ IntegerVector can_source_cell_disperse(int source_y,
          !R_IsNA(permeability_map(dest_y_vec[direction], dest_x_vec[direction])) &&
          !R_IsNaN(permeability_map(dest_y_vec[direction], dest_x_vec[direction])) &&
          permeability_map(dest_y_vec[direction], dest_x_vec[direction]) > 0){
-         
-         possible[direction] = 1;
+        
+        possible[direction] = 1;
         
       }
       
@@ -144,32 +145,33 @@ IntegerVector can_source_cell_disperse(int source_y,
     dest_x = dest_x_vec[selected_direction[0]];
     
     /*
-     ** Check for carrying capacity and, if available, return destination cell
+     ** Check for carrying capacity after minimum number of cells is reached and,
+     ** if available, return destination cell
      */
     
-    sink_carrying_cap = 0;
-    
-    if(!R_IsNA(carrying_capacity_available(dest_y, dest_x)) &&
-       !R_IsNaN(carrying_capacity_available(dest_y, dest_x)) &&
-       !R_IsNA(iterative_population_state(dest_y, dest_x)) &&
-       !R_IsNaN(iterative_population_state(dest_y, dest_x)) &&
-       !R_IsNA(future_population_state(dest_y, dest_x)) &&
-       !R_IsNaN(future_population_state(dest_y, dest_x))){
-       
-       sink_carrying_cap = carrying_capacity_available(dest_y, dest_x) - (iterative_population_state(dest_y, dest_x) + future_population_state(dest_y, dest_x));
+    if (cell > min_cells) {
+      sink_carrying_cap = 0;
+      
+      if(!R_IsNA(carrying_capacity_available(dest_y, dest_x)) &&
+         !R_IsNaN(carrying_capacity_available(dest_y, dest_x)) &&
+         !R_IsNA(iterative_population_state(dest_y, dest_x)) &&
+         !R_IsNaN(iterative_population_state(dest_y, dest_x)) &&
+         !R_IsNA(future_population_state(dest_y, dest_x)) &&
+         !R_IsNaN(future_population_state(dest_y, dest_x))){
+         
+         sink_carrying_cap = carrying_capacity_available(dest_y, dest_x) - (iterative_population_state(dest_y, dest_x) + future_population_state(dest_y, dest_x));
+        
+      }
+      
+      if(sink_carrying_cap >= 1){
+        sink_found[0] = dest_y;
+        sink_found[1] = dest_x;
+        break;
+      }
       
     }
-    
-    if(sink_carrying_cap >= 1){
-      sink_found[0] = dest_y;
-      sink_found[1] = dest_x;
-      break;
-    }
-    
   }
-  
   return(sink_found);
-  
 }
 
 
@@ -178,6 +180,7 @@ List rcpp_dispersal(NumericMatrix starting_population_state,
                     NumericMatrix potential_carrying_capacity,
                     NumericMatrix permeability_map,
                     int max_cells,
+                    int min_cells,
                     double dispersal_proportion){
   
   /*
@@ -260,7 +263,8 @@ List rcpp_dispersal(NumericMatrix starting_population_state,
                                                                          future_population_state,
                                                                          carrying_capacity_available,
                                                                          permeability_map,
-                                                                         max_cells);
+                                                                         max_cells,
+                                                                         min_cells);
           
           if(eligible_sink_cell_yx[0] >= 0 && eligible_sink_cell_yx[1] >= 0){
             

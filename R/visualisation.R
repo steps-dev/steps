@@ -455,11 +455,12 @@ plot_hab_spatial <- function (x,
 #'
 #' @param x a simulation_results object 
 #' @param ... additional simulation results objects
+#' @param show_interval should the interval bars be shown on the plot? Default is TRUE.
 #' @param interval the desired confidence interval representing the uncertainty around
 #'  the expected minimum population estimates from simulation comparisons; expressed as 
 #'  a whole integer between 0 and 100 (default value is 95).
 #' @param all_points should the expected minimum populations from all simulation
-#'  replicates be shown on the plot?
+#'  replicates be shown on the plot? Default is FALSE.
 #' @param simulation_names an optional character vector of simulation names to override
 #' the defaults
 #'
@@ -496,7 +497,7 @@ plot_hab_spatial <- function (x,
 #' compare_emp(sim1, sim2)
 #' }
 
-compare_emp <- function (x, ..., interval = 95, all_points = FALSE, simulation_names = NULL) {
+compare_emp <- function (x, ..., show_interval = TRUE, interval = 95, all_points = FALSE, simulation_names = NULL) {
   
   # read in simulation objects to compare
   sim_objects <- list(x, ...)
@@ -550,13 +551,15 @@ compare_emp <- function (x, ..., interval = 95, all_points = FALSE, simulation_n
   graphics::points(seq_len(n_objects),
                    df$emp_mean,
                    pch = 19)
-  graphics::arrows(seq_len(n_objects),
-                   df$emp_lower,
-                   seq_len(n_objects),
-                   df$emp_upper,
-                   length=0.05,
-                   angle=90,
-                   code=3)
+  if (show_interval == TRUE) {
+    graphics::arrows(seq_len(n_objects),
+                     df$emp_lower,
+                     seq_len(n_objects),
+                     df$emp_upper,
+                     length=0.05,
+                     angle=90,
+                     code=3)
+  }
   graphics::axis(1, at = seq_len(n_objects), labels = simulation_names)
   graphics::axis(2, at = pretty(range(c(df$emp_lower, df$emp_upper)), 5))
   graphics::mtext(paste0("Minimum Population (", interval, "% Interval)"),

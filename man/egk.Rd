@@ -21,9 +21,9 @@ An object of class \code{RasterStack} of dimension 35 x 36 x 3.
 
 An object of class \code{RasterLayer} of dimension 35 x 36 x 1.
 
-An object of class \code{matrix} with 3 rows and 3 columns.
+An object of class \code{matrix} (inherits from \code{array}) with 3 rows and 3 columns.
 
-An object of class \code{matrix} with 3 rows and 3 columns.
+An object of class \code{matrix} (inherits from \code{array}) with 3 rows and 3 columns.
 
 An object of class \code{RasterStack} of dimension 35 x 36 x 120.
 

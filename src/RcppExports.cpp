@@ -5,6 +5,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // shuffle_vec
 IntegerVector shuffle_vec(int min, int max);
 RcppExport SEXP _steps_shuffle_vec(SEXP minSEXP, SEXP maxSEXP) {
@@ -18,8 +23,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // can_source_cell_disperse
-IntegerVector can_source_cell_disperse(int source_y, int source_x, NumericMatrix iterative_population_state, NumericMatrix future_population_state, NumericMatrix carrying_capacity_available, NumericMatrix permeability_map, int max_cells);
-RcppExport SEXP _steps_can_source_cell_disperse(SEXP source_ySEXP, SEXP source_xSEXP, SEXP iterative_population_stateSEXP, SEXP future_population_stateSEXP, SEXP carrying_capacity_availableSEXP, SEXP permeability_mapSEXP, SEXP max_cellsSEXP) {
+IntegerVector can_source_cell_disperse(int source_y, int source_x, NumericMatrix iterative_population_state, NumericMatrix future_population_state, NumericMatrix carrying_capacity_available, NumericMatrix permeability_map, int max_cells, int min_cells);
+RcppExport SEXP _steps_can_source_cell_disperse(SEXP source_ySEXP, SEXP source_xSEXP, SEXP iterative_population_stateSEXP, SEXP future_population_stateSEXP, SEXP carrying_capacity_availableSEXP, SEXP permeability_mapSEXP, SEXP max_cellsSEXP, SEXP min_cellsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -30,13 +35,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericMatrix >::type carrying_capacity_available(carrying_capacity_availableSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type permeability_map(permeability_mapSEXP);
     Rcpp::traits::input_parameter< int >::type max_cells(max_cellsSEXP);
-    rcpp_result_gen = Rcpp::wrap(can_source_cell_disperse(source_y, source_x, iterative_population_state, future_population_state, carrying_capacity_available, permeability_map, max_cells));
+    Rcpp::traits::input_parameter< int >::type min_cells(min_cellsSEXP);
+    rcpp_result_gen = Rcpp::wrap(can_source_cell_disperse(source_y, source_x, iterative_population_state, future_population_state, carrying_capacity_available, permeability_map, max_cells, min_cells));
     return rcpp_result_gen;
 END_RCPP
 }
 // rcpp_dispersal
-List rcpp_dispersal(NumericMatrix starting_population_state, NumericMatrix potential_carrying_capacity, NumericMatrix permeability_map, int max_cells, double dispersal_proportion);
-RcppExport SEXP _steps_rcpp_dispersal(SEXP starting_population_stateSEXP, SEXP potential_carrying_capacitySEXP, SEXP permeability_mapSEXP, SEXP max_cellsSEXP, SEXP dispersal_proportionSEXP) {
+List rcpp_dispersal(NumericMatrix starting_population_state, NumericMatrix potential_carrying_capacity, NumericMatrix permeability_map, int max_cells, int min_cells, double dispersal_proportion);
+RcppExport SEXP _steps_rcpp_dispersal(SEXP starting_population_stateSEXP, SEXP potential_carrying_capacitySEXP, SEXP permeability_mapSEXP, SEXP max_cellsSEXP, SEXP min_cellsSEXP, SEXP dispersal_proportionSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -44,8 +50,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericMatrix >::type potential_carrying_capacity(potential_carrying_capacitySEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type permeability_map(permeability_mapSEXP);
     Rcpp::traits::input_parameter< int >::type max_cells(max_cellsSEXP);
+    Rcpp::traits::input_parameter< int >::type min_cells(min_cellsSEXP);
     Rcpp::traits::input_parameter< double >::type dispersal_proportion(dispersal_proportionSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_dispersal(starting_population_state, potential_carrying_capacity, permeability_map, max_cells, dispersal_proportion));
+    rcpp_result_gen = Rcpp::wrap(rcpp_dispersal(starting_population_state, potential_carrying_capacity, permeability_map, max_cells, min_cells, dispersal_proportion));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -75,8 +82,8 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_steps_shuffle_vec", (DL_FUNC) &_steps_shuffle_vec, 2},
-    {"_steps_can_source_cell_disperse", (DL_FUNC) &_steps_can_source_cell_disperse, 7},
-    {"_steps_rcpp_dispersal", (DL_FUNC) &_steps_rcpp_dispersal, 5},
+    {"_steps_can_source_cell_disperse", (DL_FUNC) &_steps_can_source_cell_disperse, 8},
+    {"_steps_rcpp_dispersal", (DL_FUNC) &_steps_rcpp_dispersal, 6},
     {"_steps_fast_match", (DL_FUNC) &_steps_fast_match, 2},
     {"_steps_pmax_zero", (DL_FUNC) &_steps_pmax_zero, 1},
     {NULL, NULL, 0}

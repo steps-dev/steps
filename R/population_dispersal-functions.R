@@ -316,12 +316,14 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
 #' The cellular_automata_dispersal function simulates movements of
 #' individuals using rule-based cell movements. In each cell that has
 #' population, every individual up to a specified proportion of the
-#' total population attempts to move. For each step up to a specified
-#' maximum number of movements, a weighted draw of four directions, based on
-#' habitat suitability, is made and then the destination cell is checked
-#' for available carrying capacity. If there is carrying capacity available,
-#' the individual moves to the cell, if not, it remains in its current cell.
-#' This is repeated until the maximum number of cell movements is reached. 
+#' total population attempts to move. For each step from a specified minimum up
+#' to a specified maximum number of movements, a weighted draw of four
+#' directions, based on habitat suitability, is made and then the destination
+#' cell is checked for available carrying capacity. If there is carrying capacity
+#' available, the individual moves to the cell, if not, it remains in its current
+#' cell. This is repeated until the maximum number of cell movements is reached.
+#' If no cell is found with available carrying capacity, the individual is
+#' returned to the source cell.
 #' 
 #' This function allows the use of barriers in the landscape to influence
 #' dispersal. The function is computationally efficient, however, because
@@ -331,20 +333,23 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
 #' The maximum number of cell movements in cellular automata dispersal does not
 #' correspond exactly to the distance decay of a dispersal kernel, since cellular
 #' automata dispersal depends on the permeability of the landscape, and is
-#' interrupted on reaching a cell with available capacity. A heuristic that can be
-#' used to determine a reasonable number of steps from a mean dispersal distance `d`
-#' and cell resolution `res` is: `max_cells = round(2 * (d / (res * 1.25)) ^ 2)`.
-#' This corresponds approximately to the number of cell-steps in an infinite,
+#' interrupted on reaching a cell with available capacity (above the minimum
+#' specified number of cell movements). A heuristic that can be used to determine
+#' a reasonable number of steps from a mean dispersal distance `d` and cell
+#' resolution `res` is: `max_cells = round(2 * (d / (res * 1.25)) ^ 2)`. This
+#' corresponds approximately to the number of cell-steps in an infinite,
 #' homogenous landscape with no early stopping, for which d is the mean
 #' end-to-end dispersal distance of all individuals.
 #'
 #' Rather than relying on this value, we recommend that the user experiment with
-#' the \code{max_cells} parameter to find a value such that the the mean dispersal
-#' distance in a reasonably realistic simulation corresponds with field estimates
-#' of mean dispersal distances.
+#' the \code{max_cells} and \code{min_cells} parameters to find a value such that
+#' the the mean dispersal distance in a reasonably realistic simulation
+#' corresponds with field estimates of mean dispersal distances.
 #'
 #' @param max_cells the maximum number of cell movements that each individual in
 #'   each life stage can disperse in whole integers.
+#' @param min_cells the minimum number of cell movements that each individual in
+#'   each life stage will disperse in whole integers.
 #' @param dispersal_proportion a built-in or custom function defining the proportions
 #'   of individuals that can disperse in each life stage.
 #' @param barriers the name of a spatial layer in the landscape object that
@@ -383,6 +388,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
 #' }
 
 cellular_automata_dispersal <- function (max_cells = Inf,
+                                         min_cells = max_cells, ### Added 07.02.22
                                          dispersal_proportion = set_proportion_dispersing(),
                                          barriers = NULL,
                                          use_suitability = TRUE,
@@ -442,6 +448,7 @@ cellular_automata_dispersal <- function (max_cells = Inf,
       n_cols <- raster::ncol(population_raster[[1]])
       res <- raster::res(population_raster[[1]])
       max_cells <- sqrt( (n_cols * res[1])^2 + (n_rows * res[2])^2 )
+      min_cells <- max_cells ### Added 07.02.22
     }
     
     # handle dispersal distances as both scalars and vectors
@@ -454,14 +461,25 @@ cellular_automata_dispersal <- function (max_cells = Inf,
                       paste(max_cells, collapse = ", "),
                       "were specified.\nAll life stages will use this distance."),
                 warning_name = "dispersal_distances")
+      warn_once(length(min_cells) < n_stages | length(min_cells) > n_stages, ### Added 07.02.22
+                paste(n_stages,
+                      "life stages exist but",
+                      length(min_cells),
+                      "minimum cell movement(s) of",
+                      paste(min_cells, collapse = ", "),
+                      "were specified.\nAll life stages will use this distance."),
+                warning_name = "dispersal_distances")
     }
     
     if (length(max_cells) < n_stages | length(max_cells) > n_stages) {
       max_cells <- rep_len(max_cells, n_stages)
     }
+    if (length(min_cells) < n_stages | length(min_cells) > n_stages) { ### Added 07.02.22
+      min_cells <- rep_len(min_cells, n_stages)
+    }
     
     # identify dispersing stages
-    which_stages_disperse <- which(dispersal_proportion > 0 & max_cells > 0)
+    which_stages_disperse <- which(dispersal_proportion > 0 & max_cells > 0 & min_cells > 0) ### Revised 07.02.22
     
     # if no barrier map is specified, create a barriers matrix with all zeros.
     if (is.null(barriers)) {
@@ -491,6 +509,7 @@ cellular_automata_dispersal <- function (max_cells = Inf,
                                   raster::as.matrix(cc),
                                   raster::as.matrix(permeability_map),
                                   as.integer(max_cells[i]),
+                                  as.integer(min_cells[i]), ### Added 07.02.22
                                   as.numeric(dispersal_proportion[i]))
       
       population_raster[[i]][] <- dispersed$future_population

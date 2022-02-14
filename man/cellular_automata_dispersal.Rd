@@ -6,6 +6,7 @@
 \usage{
 cellular_automata_dispersal(
   max_cells = Inf,
+  min_cells = max_cells,
   dispersal_proportion = set_proportion_dispersing(),
   barriers = NULL,
   use_suitability = TRUE,
@@ -15,6 +16,9 @@ cellular_automata_dispersal(
 \arguments{
 \item{max_cells}{the maximum number of cell movements that each individual in
 each life stage can disperse in whole integers.}
+
+\item{min_cells}{the minimum number of cell movements that each individual in
+each life stage will disperse in whole integers.}
 
 \item{dispersal_proportion}{a built-in or custom function defining the proportions
 of individuals that can disperse in each life stage.}
@@ -35,12 +39,14 @@ that specifies the carrying capacity in each cell.}
 The cellular_automata_dispersal function simulates movements of
 individuals using rule-based cell movements. In each cell that has
 population, every individual up to a specified proportion of the
-total population attempts to move. For each step up to a specified
-maximum number of movements, a weighted draw of four directions, based on
-habitat suitability, is made and then the destination cell is checked
-for available carrying capacity. If there is carrying capacity available,
-the individual moves to the cell, if not, it remains in its current cell.
-This is repeated until the maximum number of cell movements is reached.
+total population attempts to move. For each step from a specified minimum up
+to a specified maximum number of movements, a weighted draw of four
+directions, based on habitat suitability, is made and then the destination
+cell is checked for available carrying capacity. If there is carrying capacity
+available, the individual moves to the cell, if not, it remains in its current
+cell. This is repeated until the maximum number of cell movements is reached.
+If no cell is found with available carrying capacity, the individual is
+returned to the source cell.
 }
 \details{
 This function allows the use of barriers in the landscape to influence
@@ -51,17 +57,18 @@ in each cell across a landscape and the maximum number of cell movements.
 The maximum number of cell movements in cellular automata dispersal does not
 correspond exactly to the distance decay of a dispersal kernel, since cellular
 automata dispersal depends on the permeability of the landscape, and is
-interrupted on reaching a cell with available capacity. A heuristic that can be
-used to determine a reasonable number of steps from a mean dispersal distance `d`
-and cell resolution `res` is: `max_cells = round(2 * (d / (res * 1.25)) ^ 2)`.
-This corresponds approximately to the number of cell-steps in an infinite,
+interrupted on reaching a cell with available capacity (above the minimum
+specified number of cell movements). A heuristic that can be used to determine
+a reasonable number of steps from a mean dispersal distance `d` and cell
+resolution `res` is: `max_cells = round(2 * (d / (res * 1.25)) ^ 2)`. This
+corresponds approximately to the number of cell-steps in an infinite,
 homogenous landscape with no early stopping, for which d is the mean
 end-to-end dispersal distance of all individuals.
 
 Rather than relying on this value, we recommend that the user experiment with
-the \code{max_cells} parameter to find a value such that the the mean dispersal
-distance in a reasonably realistic simulation corresponds with field estimates
-of mean dispersal distances.
+the \code{max_cells} and \code{min_cells} parameters to find a value such that
+the the mean dispersal distance in a reasonably realistic simulation
+corresponds with field estimates of mean dispersal distances.
 }
 \examples{
 

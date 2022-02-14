@@ -4,19 +4,28 @@
 \alias{compare_emp}
 \title{Compare minimum expected populations}
 \usage{
-compare_emp(x, ..., interval = 95, all_points = FALSE, simulation_names = NULL)
+compare_emp(
+  x,
+  ...,
+  show_interval = TRUE,
+  interval = 95,
+  all_points = FALSE,
+  simulation_names = NULL
+)
 }
 \arguments{
 \item{x}{a simulation_results object}
 
 \item{...}{additional simulation results objects}
 
+\item{show_interval}{should the interval bars be shown on the plot? Default is TRUE.}
+
 \item{interval}{the desired confidence interval representing the uncertainty around
 the expected minimum population estimates from simulation comparisons; expressed as 
 a whole integer between 0 and 100 (default value is 95).}
 
 \item{all_points}{should the expected minimum populations from all simulation
-replicates be shown on the plot?}
+replicates be shown on the plot? Default is FALSE.}
 
 \item{simulation_names}{an optional character vector of simulation names to override
 the defaults}

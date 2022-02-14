@@ -370,11 +370,8 @@ spplot(pop_stack,
 #      }
 #  
 #      for (i in seq_len(array_length)) {
-#        new_surv <- transition_array[, , i][idx[!is_recruitment]] * surv_mult[i]
-#        new_fec <- transition_array[, , i][idx[is_recruitment]] * fec_mult[i]
-#  
-#        transition_array[, , i][idx[!is_recruitment]] <- new_surv
-#        transition_array[, , i][idx[is_recruitment]] <- new_fec
+#        transition_array[, , i][idx[!is_recruitment]] <- transition_array[, , i][idx[!is_recruitment]] * surv_mult[i]
+#        transition_array[, , i][idx[is_recruitment]] <- transition_array[, , i][idx[is_recruitment]] * fec_mult[i]
 #      }
 #  
 #      transition_array
@@ -403,14 +400,12 @@ results <- simulation(landscape = ls,
                       verbose = FALSE)
 
 ## ---- message = FALSE, fig.align = "center"-----------------------------------
-plot(results, stages = 1)
+plot_pop_trend(results, stages = 1)
 
 ## ---- message = FALSE, fig.align = "center"-----------------------------------
-plot(results,
-     stages = 1,
-     type = "raster",
-     timesteps = 1:5,
-     panels = c(5, 1))
+plot_pop_spatial(results,
+     stage = 1,
+     timesteps = 1:5)
 
 ## ---- message = FALSE, echo = FALSE-------------------------------------------
 print(egk_mat)
@@ -423,7 +418,7 @@ adult_fec[] <- NA # set all values to NA
 
 ncells <- ncell(adult_fec)
 
-# assign random numbers between 0.1 and 0.4 to 80% of the cells
+# assign random numbers between 0.1 and 0.5 to 80% of the cells
 adult_fec[sample(seq_len(ncells), 0.8 * ncells, replace = FALSE)] <- runif(ncells, 0.1, 0.5)
 
 plot(adult_fec, axes = FALSE, box = FALSE)
@@ -513,14 +508,12 @@ results <- simulation(landscape = ls,
                       verbose = FALSE)
 
 ## ---- message = FALSE, fig.align = "center"-----------------------------------
-plot(results, stages = 1)
+plot_pop_trend(results, stages = 1)
 
 ## ---- message = FALSE, fig.align = "center"-----------------------------------
-plot(results,
-     stages = 1,
-     type = "raster",
-     timesteps = 1:5,
-     panels = c(5, 1))
+plot_pop_spatial(results,
+     stage = 1,
+     timesteps = 1:5)
 
 ## ---- message = FALSE, eval = FALSE-------------------------------------------
 #  exponential_dispersal_kernel <- function (distance_decay = 0.5, normalize = FALSE) {
@@ -571,7 +564,7 @@ results_01 <- simulation(landscape = ls,
                       replicates = 1,
                       verbose = FALSE)
 
-plot(results_01, type = "raster", stages = 3, timesteps = c(1,5,10), panels = c(3, 1))
+plot_pop_spatial(results_01, stage = 3, timesteps = c(1,5,10))
 
 pd_log_disp <- population_dynamics(
   change = NULL,
@@ -588,15 +581,15 @@ results_02 <- simulation(landscape = ls,
                       replicates = 1,
                       verbose = FALSE)
 
-plot(results_02, type = "raster", stages = 3, timesteps = c(1,5,10), panels = c(3, 1))
+plot_pop_spatial(results_02, stage = 3, timesteps = c(1,5,10))
 
-## ---- message = FALSE---------------------------------------------------------
-plan(multisession)
-results_02 <- simulation(landscape = ls,
-                      population_dynamics = pd_log_disp,
-                      habitat_dynamics = NULL,
-                      timesteps = 10,
-                      replicates = 3,
-                      verbose = FALSE,
-                      future.globals = list("logistic_dispersal_kernel" = logistic_dispersal_kernel))
+## ---- message = FALSE, eval = FALSE-------------------------------------------
+#  plan(multisession)
+#  results_02 <- simulation(landscape = ls,
+#                        population_dynamics = pd_log_disp,
+#                        habitat_dynamics = NULL,
+#                        timesteps = 10,
+#                        replicates = 3,
+#                        verbose = FALSE,
+#                        future.globals = list("logistic_dispersal_kernel" = logistic_dispersal_kernel))
 
