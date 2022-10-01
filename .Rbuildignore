@@ -19,3 +19,4 @@ vignettes/egk_example_cache
 ^tests_x64$
 ^examples_i386$
 ^examples_x64$
+^\.github$
