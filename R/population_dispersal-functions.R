@@ -322,8 +322,8 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
 #' cell is checked for available carrying capacity. If there is carrying capacity
 #' available, the individual moves to the cell, if not, it remains in its current
 #' cell. This is repeated until the maximum number of cell movements is reached.
-#' If no cell is found with available carrying capacity, the individual is
-#' returned to the source cell.
+#' If no cell is found with available carrying capacity, the individual remains
+#' in the source cell.
 #' 
 #' This function allows the use of barriers in the landscape to influence
 #' dispersal. The function is computationally efficient, however, because
@@ -431,6 +431,11 @@ cellular_automata_dispersal <- function (max_cells = Inf,
       cc <- landscape[[carrying_capacity]]
     }
     
+    # do the minimum and maximum values have the same length? - Added 07.02.22
+    if (length(min_cells) != length(max_cells)) {
+      stop("Minimum cells and maximum cells must have the same length (i.e. number of life stages)")
+    }
+    
     # get population as a matrix
     population <- raster::extract(population_raster, idx)
     
@@ -447,7 +452,7 @@ cellular_automata_dispersal <- function (max_cells = Inf,
       n_rows <- raster::nrow(population_raster[[1]])
       n_cols <- raster::ncol(population_raster[[1]])
       res <- raster::res(population_raster[[1]])
-      max_cells <- sqrt( (n_cols * res[1])^2 + (n_rows * res[2])^2 )
+      max_cells <- round(2 * (max(n_rows, n_cols) / (res * 1.25)) ^ 2)
       min_cells <- max_cells ### Added 07.02.22
     }
     
