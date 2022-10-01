@@ -1,8 +1,5 @@
 **steps**: Spatially- and Temporally-Explicit Population Simulator
 ------------------------------------------------------------------
-
-[![Build
-Status](https://travis-ci.org/steps-dev/steps.svg?branch=master)](https://travis-ci.org/steps-dev/steps?branch=master)
 [![codecov.io](https://codecov.io/github/steps-dev/steps/coverage.svg?branch=master)](https://codecov.io/github/steps-dev/steps?branch=master)
 
 The package will enable the setup and execution of dynamic spatial
