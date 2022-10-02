@@ -174,7 +174,6 @@ IntegerVector can_source_cell_disperse(int source_y,
   return(sink_found);
 }
 
-
 // [[Rcpp::export]]
 List rcpp_dispersal(NumericMatrix starting_population_state,
                     NumericMatrix potential_carrying_capacity,
