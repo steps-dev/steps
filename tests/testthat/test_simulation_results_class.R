@@ -97,7 +97,7 @@ test_that('simulation_results classes work', {
                                 habitat_dynamics = list(disturbance(disturbance_layers = "fires",
                                                                     effect_time = 2)),
                                 timesteps = 10,
-                                replicates = 3,
+                                replicates = 2,
                                 verbose = FALSE)
 
   plan(multisession)  
@@ -112,7 +112,7 @@ test_that('simulation_results classes work', {
                           population_dynamics = pop_dyn2,
                           habitat_dynamics = NULL,
                           timesteps = 10,
-                          replicates = 3,
+                          replicates = 2,
                           verbose = FALSE))
 
   plan(sequential)
