@@ -34,8 +34,8 @@ NULL
 #' Plot linear graphs to illustrate population changes through time.
 #' 
 #' @param x a simulation_results object
-#' @param stages life-stages to plot - by default all life-stages will be considered. 
-#' Set to zero for totals (i.e. sum of all life-stages).
+#' @param stages life-stages to plot - by default all life-stages will be shown. 
+#' Set to zero for totals (i.e. sums of all life-stages).
 #' @param emp (TRUE/FALSE) add a dashed line indicating the expected minimum
 #' population of the simulation (for multiple replicates only)
 #' @param return_data (TRUE/FALSE) should the data used to create the plots be returned?

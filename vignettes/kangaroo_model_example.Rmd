@@ -3,12 +3,12 @@ title: "An Eastern Grey Kangaroo population simulation example"
 author: "Casey Visintin"
 date: "`r Sys.Date()`"
 output:
+  html_document:
+    df_print: paged
   pdf_document: default
 geometry: margin=2cm
-vignette: >
-  %\VignetteIndexEntry{Eastern Grey Kangaroo}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+vignette: |
+  %\VignetteIndexEntry{Eastern Grey Kangaroo} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}
@@ -130,31 +130,31 @@ egk_results <- simulation(landscape = egk_landscape,
 Once a simulation has been run, we can plot spatially-explicit and temporally-explicit information. For the simulation run above, we can view the kangaroo population trajectories of each life-stage:
 
 ```{r, message = FALSE, fig.align = "center"}
-plot(egk_results)
+plot_pop_trend(egk_results)
 ```
 
-Or view the total kangaroo population trajectory (by setting the stage parameter to 0 - type *?plot.simulation_results* for more information):
+Or view the total kangaroo population trajectory (by setting the stage parameter to 0 - type *?plot_pop_trend* for more information):
 
 ```{r, message = FALSE, fig.align = "center", fig.width = 3, fig.height = 4, out.width = "33%"}
-plot(egk_results, stage = 0)
+plot_pop_trend(egk_results, stage = 0)
 ```
 
 Or view the kangaroo population trajectory for a single life-stage:
 
 ```{r, message = FALSE, fig.align = "center", fig.width = 3, fig.height = 4, out.width = "33%"}
-plot(egk_results, stage = 2)
+plot_pop_trend(egk_results, stage = 2)
 ```
 
-We can also view the population distribution over the landscape for a single life-stage (only timesteps one, ten, and twenty shown):
+We can also view the population distribution over the landscape for a single life-stage (only timesteps one, ten, and twenty shown) - type *?plot_pop_spatial* for more information:
 
 ```{r, message = FALSE, fig.align = "center", fig.show='hold'}
-plot(egk_results, type = "raster", stage = 2, timesteps = c(1, 10, 20), panels = c(3, 1))
+plot_pop_spatial(egk_results, stage = 2, timesteps = c(1, 10, 20))
 ```
 
-To view the changes in population distribution over time, all of the rasters may also be plotted as animations. Here is code to animate the the population rasters of subadults for timesteps one, ten and twenty (change these to show other timesteps of the simulation):
+To view the changes in population distribution over time, all of the trends and rasters may also be plotted as animations. Here is code to animate the the population trends and rasters of subadults for all timesteps:
 
 ```{r, message = FALSE, eval = FALSE}
-plot(egk_results, type = "raster", stage = 2, timesteps = c(1, 10, 20), animate = TRUE)
+plot(egk_results)
 ```
 
 We can also generate multiple replicates of a simulation. For the kangaroo, we specify three replicates of a twenty timestep simulation. The replicates are run sequentially by default, however, to improve computation time, we have included the ability to run all three replicates in parallel - each on a different processor. Type *?plan* for more information on how to operate in parallel. Note *plan()* is only required to be called once at the beginning of a script.
@@ -172,10 +172,10 @@ egk_results <- simulation(landscape = egk_landscape,
 
 ```
 
-Note, if several replicates of a simulation are run, we must explicitly specify which one to plot for rasters (i.e. *egk_results[1]*). The components of the landscape object are stored for each timestep (if they are originally specified) so it is possible to also view the population throughout a single simulation. Note, only timesteps one, ten, and twenty are shown - this is controlled by specifying the "timesteps" parameter in the plot call. Also note that the "panels" option is used to control the layout of the plot (three columns and one row):
+Note, if several replicates of a simulation are run, we must explicitly specify which one to plot for spatial visualisation (default is the first). The components of the landscape object are stored for each timestep (if they are originally specified) so it is possible to also view the population throughout a single simulation. Note, only timesteps one, ten, and twenty are shown - this is controlled by specifying the "timesteps" parameter in the plot call:
 
 ```{r, message = FALSE, fig.align = "center"}
-plot(egk_results[1], type = "raster", stage = 0, timesteps = c(1, 10, 20), panels = c(3, 1))
+plot_pop_spatial(egk_results, replicate = 1, timesteps = c(1, 10, 20))
 ```
 
 Up to this point, the projected population changes in a multiple replicate simulation will all be similar to the population projection in the single replicate simulation. This is because we have not added any stochastic dynamics to the landscape. However, demographic stochasticity IS on by default because it's incorporated into the transition probabilities that the growth function uses - this behaviour can be disabled by setting 'demo_stochasticity = "none"' in the simulation parameters. Let's try adding some globally-acting (applies to all cells in the landscape) environmental stochasticity to the growth function:
@@ -195,7 +195,7 @@ egk_results <- simulation(landscape = egk_landscape,
                           replicates = 3,
                           verbose = FALSE)
 
-plot(egk_results)
+plot_pop_trend(egk_results)
 ```
 
 We can also specify how survival and fecundity values are influenced by spatial layers in the landscape object (e.g. habitat suitability, carrying capacity, etc.). We modify the survival and fecundity values in the transition matrix at each time step according to a spatial layer by specifying a transition function within the growth function. This is done by multiplying values in the spatial layers by the survival and fecundity values in the transition matrix. This produces new survival and fecundity values for each grid cell in the landscape. Note, if either the survival or fecundity layer are set to NULL (default), the respective values in the transition matrix will remain unchanged. A user may add any spatial layer(s) to the landscape object to modify the transition matrices; here, we specify the habitat suitability layer in the landscape for the survival only:
@@ -223,7 +223,7 @@ egk_results <- simulation(landscape = egk_landscape,
                           replicates = 3,
                           verbose = FALSE)
 
-plot(egk_results)
+plot_pop_trend(egk_results)
 ```
 
 A user may also specify a custom function that operates on or defines survival and fecundity in the transition matrix at each timestep. As an example, we have created a custom function below that uses spatial data to define survival and fecundities at each timestep. The function requires the name of the spatial object in the landscape object as an input parameter, and must return a modified transition array (transition matrices for each non-NA cell in the landscape). More information on writing custom functions can be found in a tutorial vignette titled "Creating custom *steps* functions". Note, we must also add spatial data (a stack of rasters, "egk_sf" which exists in the *steps* package) to the landscape object (named "sf_mods") in order to access it in the simulation. The example stack of rasters "egk_sf" contains 120 layers - twenty timesteps of each of the six non-zero transition values in our matrix - all named with an organisational syntax that the function uses to index. For example, the first layer in the raster stack is named "egk_sf_01_0102"; "_01_" refers to the first timestep and "0102" refers to the first row and second column position in the transition matrix. Because we are deterministically providing transition values, both global and local environmental stochasticity have been set to zero (defaults). 
@@ -276,7 +276,7 @@ egk_results <- simulation(landscape = egk_landscape,
                           timesteps = 20,
                           verbose = FALSE)
 
-plot(egk_results)
+plot_pop_trend(egk_results)
 ```
 
 Now let's add some other population dynamics. We can specify ceiling density dependence with the "ceiling_density" function. The population will grow according to the transition matrix until it reaches a ceiling carrying capacity, at which point individuals will die to keep the population at the carrying capacity of the landscape. We must now provide a carrying capacity object in the landscape for this to work - here we provide a spatial layer. By default, all life-stages contribute to density dependence, however, here we specify that it is based on the number of adults only ("stages = 3" in the ceiling_density function). Type *?ceiling_density* at the R prompt for more information.
@@ -357,7 +357,7 @@ egk_results <- simulation(landscape = egk_landscape,
 Let's have a look at how the adult population is changing in the first replicate of the simulation:
 
 ```{r, message = FALSE, fig.align = "center"}
-plot(egk_results[1], type = "raster", stage = 3, timesteps = c(1, 10, 20), panels = c(3, 1))
+plot_pop_spatial(egk_results, timesteps = c(1, 10, 20))
 ```
 
 The proportion of individuals dispersing can also be specified in the dispersal functions. If dispersal proportions are not specified, the default behaviour is to disperse all individuals in all life-stages. This is done using a default function called *all_dispersing()*. This default function uses a parameter called "proportions". If proportions are specified as a single number, then all life-stages disperse with that proportion, however, a vector of proportions (equal in length to the number of life-stages) can also be specified. Note, if a vector of numbers is specified that has fewer elements than life stages, the vector will be recycled to match its number of elements to life stages (i.e. "dispersal_proportion = c(0, 0.5, 1)" with five life-stages will become 0, 0.5, 1, 0, 0.5). Alternatively, a user can provide a custom function to influence the proportions of populations in life-stages dispersing based on features of the landscape.  In the example below, the proportions of populations for each life-stage dispersing are based on the carrying capacity - a built-in function of the software. This function uses a global parameter set by "density_dependence" to work out which stages contribute to the carrying capacity of a landscape - below only the adults (stage 3) contribute.
@@ -466,19 +466,19 @@ egk_results <- simulation(landscape = egk_landscape,
                           replicates = 3,
                           verbose = FALSE)
 
-plot(egk_results)
+plot_pop_trend(egk_results)
 ```
 
 And now let's have a look at how the adult population is changing with fires occurring in the landscape:
 
 ```{r, message = FALSE, fig.align = "center"}
-plot(egk_results[1], type = "raster", stage = 3, timesteps = c(1, 10, 20), panels = c(3, 1))
+plot_pop_spatial(egk_results, stage = 3, timesteps = c(1, 10, 20))
 ```
 
-Since we are using habitat dynamics we may want to have a look at how the habitat suitability changes in a landscape. Similar to carrying capacity - as shown earlier - it is possible to view the habitat suitability throughout a single simulation:
+Since we are using habitat dynamics we may want to have a look at how the habitat suitability changes in a landscape; it is possible to view the habitat suitability throughout a single simulation:
 
 ```{r, message = FALSE, fig.align = "center"}
-plot(egk_results[1], object = "suitability", timesteps = c(1, 10, 20), panels = c(3, 1))
+plot_hab_spatial(egk_results, timesteps = c(1, 10, 20))
 ```
 
 In all of the examples above, carrying capacity has remained unchanged throughout a simulation. However, carrying capacity is often derived from dynamically changing habitat suitabilities. A function of this relationship can be specified in place of the carrying_capacity raster layer when constructing the landscape object. Internally, the carrying capacity raster will be constructed by applying the function to the habitat suitability raster at each timestep. Here we have created a function that produces descending integers from our hypothetical maximum carrying capacity population of 75 based on decreasing values of habitat suitability (one to zero):

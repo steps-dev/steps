@@ -1,14 +1,14 @@
 ---
 title: "Creating custom *steps* functions"
 author: "Casey Visintin"
-date: "`r Sys.Date()`"
+date: '`r Sys.Date()`'
 output:
+  html_document:
+    df_print: paged
   pdf_document: default
 geometry: margin=2cm
-vignette: >
-  %\VignetteIndexEntry{Custom Function}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+vignette: |
+  %\VignetteIndexEntry{Custom Function} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}
@@ -718,7 +718,7 @@ results_01 <- simulation(landscape = ls,
                       replicates = 1,
                       verbose = FALSE)
 
-plot_pop_spatial(results_01, stage = 3, timesteps = c(1,5,10))
+plot_pop_spatial(results_01, stage = 3, timesteps = c(1, 5, 10))
 
 pd_log_disp <- population_dynamics(
   change = NULL,
@@ -735,7 +735,7 @@ results_02 <- simulation(landscape = ls,
                       replicates = 1,
                       verbose = FALSE)
 
-plot_pop_spatial(results_02, stage = 3, timesteps = c(1,5,10))
+plot_pop_spatial(results_02, stage = 3, timesteps = c(1, 5, 10))
 ```
 Please note that if any custom functions are used in a simulation that is run in parallel (e.g. plan(multisession)), then a list of the functions and any related objects must be passed into the simulation function using the future.globals argument:
 

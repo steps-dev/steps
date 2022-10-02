@@ -25,6 +25,13 @@ test_that('population modification functions class works', {
                          "destination" = pop_destination,
                          "cull" = cull)
   
+  landscape2 <- landscape(population = egk_pop,
+                         suitability = egk_hab,
+                         carrying_capacity = egk_k,
+                         "origin" = pop_origin,
+                         "destination" = pop_destination,
+                         "cull" = cull[[1]])
+  
   pop_dyn_trans <- population_dynamics(change = NULL,
                                  dispersal = NULL,
                                  modification = translocation(origins_layer = "origin",
@@ -33,6 +40,11 @@ test_that('population modification functions class works', {
                                                               effect_timesteps = c(2, 5, 8)),
                                  density_dependence = NULL)
   
+  pop_dyn_mort <- population_dynamics(change = NULL,
+                                      dispersal = NULL,
+                                      modification = mortality(mortality_layer = 'cull'),
+                                      density_dependence = NULL)
+  
   
   sim <- simulation(landscape = landscape,
                     population_dynamics = pop_dyn_trans,
@@ -40,14 +52,15 @@ test_that('population modification functions class works', {
                     timesteps = 10,
                     replicates = 3,
                     verbose = FALSE)
-  
-  pop_dyn_mort <- population_dynamics(change = NULL,
-                                    dispersal = NULL,
-                                    modification = mortality(mortality_layer = 'cull', stages = 2),
-                                    density_dependence = NULL)
-  
-  
+
   sim <- simulation(landscape = landscape,
+                    population_dynamics = pop_dyn_mort,
+                    habitat_dynamics = NULL,
+                    timesteps = 10,
+                    replicates = 3,
+                    verbose = FALSE)
+  
+  sim <- simulation(landscape = landscape2,
                     population_dynamics = pop_dyn_mort,
                     habitat_dynamics = NULL,
                     timesteps = 10,

@@ -14,9 +14,21 @@ test_that('dispersal kernel functions class works', {
                                  modification = NULL,
                                  density_dependence = NULL)
   
+  pop_dyn_norm <- population_dynamics(change = growth(transition_matrix = egk_mat),
+                                 dispersal = kernel_dispersal(exponential_dispersal_kernel(distance_decay = 8000,
+                                                                                           normalize = TRUE)),
+                                 modification = NULL,
+                                 density_dependence = NULL)
   
   sim <- simulation(landscape = landscape,
                     population_dynamics = pop_dyn,
+                    habitat_dynamics = NULL,
+                    timesteps = 10,
+                    replicates = 3,
+                    verbose = FALSE)
+  
+  sim <- simulation(landscape = landscape,
+                    population_dynamics = pop_dyn_norm,
                     habitat_dynamics = NULL,
                     timesteps = 10,
                     replicates = 3,
