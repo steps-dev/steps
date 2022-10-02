@@ -8,7 +8,7 @@ output:
   pdf_document: default
 geometry: margin=2cm
 vignette: |
-  %\VignetteIndexEntry{Eastern Grey Kangaroo} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Eastern Grey Kangaroo} %\VignetteEngine{knitr::knitr} %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}

@@ -1,2 +1,1 @@
 CXX_STD=C++11
-CXXFLAGS+=-O0

@@ -9,8 +9,8 @@ plot_pop_trend(x, stages = NULL, emp = FALSE, return_data = FALSE, ...)
 \arguments{
 \item{x}{a simulation_results object}
 
-\item{stages}{life-stages to plot - by default all life-stages will be considered. 
-Set to zero for totals (i.e. sum of all life-stages).}
+\item{stages}{life-stages to plot - by default all life-stages will be shown. 
+Set to zero for totals (i.e. sums of all life-stages).}
 
 \item{emp}{(TRUE/FALSE) add a dashed line indicating the expected minimum
 population of the simulation (for multiple replicates only)}

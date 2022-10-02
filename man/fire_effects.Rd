@@ -7,7 +7,9 @@
 fire_effects(
   fire_layers,
   effect_time = 3,
-  regeneration_function = function(time) {     -time }
+  regeneration_function = function(time) {
+     -time
+ }
 )
 }
 \arguments{

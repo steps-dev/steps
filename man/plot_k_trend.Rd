@@ -10,8 +10,9 @@ plot_k_trend(x, summary_stat = "mean", return_data = FALSE, ...)
 \item{x}{a simulation_results object}
 
 \item{summary_stat}{how to summarize the values across the landscape - "mean" (default)
-or "sum"
-#' @param return_data (TRUE/FALSE) should the data used to create the plots be returned?}
+or "sum"}
+
+\item{return_data}{(TRUE/FALSE) should the data used to create the plots be returned?}
 
 \item{...}{further arguments passed to/from other methods}
 }

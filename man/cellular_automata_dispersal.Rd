@@ -45,8 +45,8 @@ directions, based on habitat suitability, is made and then the destination
 cell is checked for available carrying capacity. If there is carrying capacity
 available, the individual moves to the cell, if not, it remains in its current
 cell. This is repeated until the maximum number of cell movements is reached.
-If no cell is found with available carrying capacity, the individual is
-returned to the source cell.
+If no cell is found with available carrying capacity, the individual remains
+in the source cell.
 }
 \details{
 This function allows the use of barriers in the landscape to influence

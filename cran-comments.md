@@ -84,3 +84,9 @@ Updates:
 
 ## R CMD check results
 0 errors | 0 warnings | 0 notes
+
+## 2020.10.01 - Updated version 1.3.0
+Updates:
+- Re-wrote plotting and visualisation functions and updated vignettes accordingly
+- Added support for two-sex simulations
+- Added minimum distance parameter to cellular automata dispersal function

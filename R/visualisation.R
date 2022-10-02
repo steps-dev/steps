@@ -175,7 +175,7 @@ plot_pop_trend <- function (x,
 #' @param x a simulation_results object
 #' @param summary_stat how to summarize the values across the landscape - "mean" (default)
 #' or "sum"
-#' #' @param return_data (TRUE/FALSE) should the data used to create the plots be returned?
+#' @param return_data (TRUE/FALSE) should the data used to create the plots be returned?
 #' @param ... further arguments passed to/from other methods
 #'   
 #' @export

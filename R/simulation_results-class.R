@@ -213,7 +213,7 @@ plot.simulation_results <- function (x,
   for (i in replicates){
     for (j in timesteps) {
 
-      layout(matrix(c(1, 1, 1, 2, 2, 3), ncol = 2), width = c(1, 1, 1), height = c(3, 2, 1))
+      graphics::layout(matrix(c(1, 1, 1, 2, 2, 3), ncol = 2), width = c(1, 1, 1), height = c(3, 2, 1))
       graphics::par(mar = c(4, 3, 3, 0), mgp = c(2, 0.7, 0))
       
       graphics::plot(x = 0:j, y = c(pop_data_totals[1, i], pop_data_totals[-1, i][1:j]),
@@ -242,10 +242,10 @@ plot.simulation_results <- function (x,
 
       legend_image <- raster::as.raster(matrix(cols, nrow = 1))
       
-      plot.new()
+      graphics::plot.new()
       graphics::par(mar = c(2, 2, 1.2, 0.8))
       graphics::rasterImage(legend_image, 0, 0.8, 0.9, 1)
-      text(x = (cuts / max_ind) * 0.9, y = 0.4, labels = cuts)
+      graphics::text(x = (cuts / max_ind) * 0.9, y = 0.4, labels = cuts)
     }
   }
   
