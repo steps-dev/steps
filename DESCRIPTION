@@ -36,6 +36,6 @@ Suggests:
     knitr,
     rmarkdown,
     foreach
-VignetteBuilder: knitr
+VignetteBuilder: knitr, rmarkdown
 Encoding: UTF-8
 LazyData: true

@@ -2,13 +2,12 @@
 title: "Creating custom *steps* functions"
 author: "Casey Visintin"
 date: '`r Sys.Date()`'
-output:
-  pdf_document: default
-  html_document:
-    df_print: paged
+output: rmarkdown::html_vignette
 geometry: margin=2cm
-vignette: |
-  %\VignetteIndexEntry{Custom Function} %\VignetteEngine{knitr::knitr} %\VignetteEncoding{UTF-8}
+vignette: >
+  %\VignetteIndexEntry{Custom Function}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}

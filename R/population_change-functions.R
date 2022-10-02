@@ -236,7 +236,7 @@ add_offspring <- function (population, transition_array, fec_rows) { # updated 2
   new_offspring <- sapply(fec_rows,
                           function(x) {
                             # get fecundities for all eligible stages
-                            if (class(transition_array) == "matrix") {
+                            if (inherits(transition_array, "matrix")) {
                               fecundities <- t(transition_array[x, ])
                             } else {
                               fecundities <- t(transition_array[x, , ])
@@ -257,7 +257,7 @@ add_offspring <- function (population, transition_array, fec_rows) { # updated 2
 surviving_population <- function (population, transition_array, fec_rows) { # updated 23.10.20
   survival_array <- transition_array
   
-  if (class(transition_array) == "matrix") {
+  if (inherits(transition_array, "matrix")) {
     survival_array[fec_rows, ] <- 0
   } else {
     survival_array[fec_rows, , ] <- 0
@@ -286,7 +286,7 @@ surviving_population <- function (population, transition_array, fec_rows) { # up
     }
     
     # probability of transitioning to each other stage
-    if (class(survival_array) == "matrix") {
+    if (inherits(survival_array, "matrix")) {
       probs <- t(survival_array[ , stage])
     } else {
       probs <- t(survival_array[ , stage, ])

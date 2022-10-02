@@ -8,3 +8,5 @@ working/*
 doc
 Meta
 vignettes/egk_example_cache
+/doc/
+/Meta/
