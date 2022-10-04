@@ -276,7 +276,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
     # store the original population, so that individuals don't disperse twice
     original_pop <- pop
     
-    # loop through origins and stages where there is at least one individual    
+    # index all pop origins and stages where there is at least one individual    
     indices <- which(pop > 0 & !is.na(pop), arr.ind = TRUE)
     
     # subset to stages that disperse
@@ -831,16 +831,12 @@ get_distance_info <- function(res, max_distance) {
 
 # given a cell id, find the coordinates (in number of cells from the origin)
 id2coord <- function (id, dim) {
-  # get coordinates in cell numbers. 
-  # index from 0
-  id0 <- id - 1
-  
   # how many rows have been covered
-  row0 <- id0 %/% dim[1]
+  row <- id %/% dim[2]
   # how many columns have been covered in the most recent row
-  col0 <- id0 %% dim[1]
-  # combine and switch back to indexing from 1
-  coord <- cbind(col0, row0) + 1
+  col <- id %% dim[2]
+  # combine
+  coord <- cbind(col, (row + 1))
   # make sure they are within the raster (for completeness)
   max_id <- prod(dim)
   invalid_id <- id > max_id | id < 1
