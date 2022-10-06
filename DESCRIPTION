@@ -12,7 +12,7 @@ Authors@R: c(
   role = "ctb")
   )
 Maintainer: Casey Visintin <casey.visintin@unimelb.edu.au>
-Description: Software to simulate population change across space and time. Visintin et al. (2020) <https://doi.org/10.1111/2041-210X.13354>.
+Description: Software to simulate population change across space and time. Visintin et al. (2020) <doi:10.1111/2041-210X.13354>.
 BugReports: https://github.com/steps-dev/steps/issues
 URL: https://github.com/steps-dev/steps
 Depends:
