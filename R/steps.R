@@ -1,6 +1,7 @@
 #' @title Simulate population trajectories over space and time with dynamic functions.
 #' @name steps
 #' @docType package
+#' @aliases steps-package
 #' @description Simulating shifts in species populations is an important
 #' part of ecological management. Species respond to spatial and temporal
 #' changes in the landscape resulting from environmental phenomena, managerial

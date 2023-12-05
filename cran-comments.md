@@ -116,3 +116,29 @@ Misc:
   NOTE
   Found the following files/directories:
     'lastMiKTeXException'
+
+
+## 2023.12.5 - Updated version 1.3.1
+Misc:
+- manually added '@aliases steps-package' to steps.R due to roxygen2 issue:
+https://github.com/r-lib/roxygen2/issues/1491
+
+## Test environments
+* macOS 13.3.1 Ventura, R-release, brew
+* Windows Server 2022, R-devel, 64 bit
+* Ubuntu Linux 20.04.1 LTS, R-release, GCC
+* Ubuntu Linux 20.04.1 LTS, R-devel, GCC
+* Debian Linux, R-devel, GCC ASAN/UBSAN
+* Fedora Linux, R-devel, clang, gfortran
+* win-builder (devel and release)
+
+## R CMD check results
+0 errors | 1 warnings | 2 notes
+  WARNING
+  'qpdf' is needed for checks on size reduction of PDFs
+  NOTE
+  Found the following files/directories:
+    ''NULL''
+  NOTE
+  Found the following files/directories:
+    'lastMiKTeXException'
