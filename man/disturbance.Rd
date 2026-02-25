@@ -27,7 +27,7 @@ the user can specify an 'effect time' of disturbances.
 \dontrun{
 road_effect <- disturbance(disturbance_layers = "roads", effect_time = 1)
 
-ls <- landscape(population = egk_pop, suitability = egk_hab, "roads" = egk_road)
+ls <- landscape(population = egk_pop(), suitability = egk_hab(), "roads" = egk_road())
 
 pd <- population_dynamics(change = growth(egk_mat))
 

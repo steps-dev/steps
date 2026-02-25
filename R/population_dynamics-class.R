@@ -41,7 +41,7 @@
 #' # Example of setting up population dynamics to only use a population change function.
 #' 
 #' \dontrun{
-#' ls <- landscape(population = egk_pop, suitability = NULL, carrying_capacity = NULL)
+#' ls <- landscape(population = egk_pop(), suitability = NULL, carrying_capacity = NULL)
 #' 
 #' pd <- population_dynamics(change = growth(egk_mat))
 #' 
@@ -53,6 +53,7 @@ population_dynamics <- function (change = NULL,
                                  modification = NULL,
                                  density_dependence = NULL,
                                  dynamics_order = c("change", "dispersal", "modification", "density_dependence")) {
+
   
   if (!is.null(density_dependence)) {
     

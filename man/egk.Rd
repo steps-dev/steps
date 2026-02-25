@@ -6,55 +6,41 @@
 \alias{egk_hab}
 \alias{egk_pop}
 \alias{egk_k}
-\alias{egk_mat}
-\alias{egk_mat_stoch}
 \alias{egk_sf}
 \alias{egk_fire}
 \alias{egk_origins}
 \alias{egk_destinations}
 \alias{egk_road}
+\alias{egk_mat}
+\alias{egk_mat_stoch}
 \title{Eastern Grey Kangaroo example data}
 \format{
 Misc data
 
-An object of class \code{RasterStack} of dimension 35 x 36 x 3.
-
-An object of class \code{RasterLayer} of dimension 35 x 36 x 1.
-
 An object of class \code{matrix} (inherits from \code{array}) with 3 rows and 3 columns.
 
 An object of class \code{matrix} (inherits from \code{array}) with 3 rows and 3 columns.
-
-An object of class \code{RasterStack} of dimension 35 x 36 x 120.
-
-An object of class \code{RasterBrick} of dimension 35 x 36 x 20.
-
-An object of class \code{RasterLayer} of dimension 35 x 36 x 1.
-
-An object of class \code{RasterLayer} of dimension 35 x 36 x 1.
-
-An object of class \code{RasterBrick} of dimension 35 x 36 x 20.
 }
 \usage{
-egk_hab
+egk_hab()
 
-egk_pop
+egk_pop()
 
-egk_k
+egk_k()
+
+egk_sf()
+
+egk_fire()
+
+egk_origins()
+
+egk_destinations()
+
+egk_road()
 
 egk_mat
 
 egk_mat_stoch
-
-egk_sf
-
-egk_fire
-
-egk_origins
-
-egk_destinations
-
-egk_road
 }
 \description{
 Example data for simulating spatial population dynamics of Eastern Grey
@@ -62,28 +48,39 @@ Kangaroos in a hypothetical landscape.
 }
 \details{
 \describe{
-  \item{egk_hab}{A raster layer containing the predicted relative habitat
+  \item{egk_hab}{A function that generates the SpatRaster containing the
+   predicted relative habitat
   suitability for the Eastern Grey Kangaroo.}
-  \item{egk_pop}{A raster stack containing initial populations for each
+  \item{egk_pop}{A function that generates the SpatRaster stack containing
+   initial populations for each
   life-stage of the Eastern Grey Kangaroo.}
-  \item{egk_k}{A raster layer containing the total number of Eastern Grey
+  \item{egk_k}{A function that generates the SpatRaster layer containing the
+   total number of Eastern Grey
   Kangaroos each grid cell can support.}
   \item{egk_mat}{A matrix containing the survival and fecundity of Eastern
-  Grey Kangaroos at each of three life-stages - juvenile, subadult, and adult.}
+  Grey Kangaroos at each of three life-stages - juvenile, subadult, and 
+  adult.}
   \item{egk_mat_stoch}{A matrix containing the uncertainty around survival
   and fecundity of Eastern Grey Kangaroos at each of three life-stages -
   juvenile, subadult, and adult.}
-  \item{egk_sf}{A raster stack containing values for modifying survival and
-  fecundities - each is raster is named according to the timestep and position
+  \item{egk_sf}{A function that generates the SpatRaster stack containing 
+  values for modifying survival and
+  fecundities - each is raster is named according to the timestep and 
+  position
   of the life-stage matrix to be modified.}
-  \item{egk_fire}{A raster stack containing values for modifying the habitat
+  \item{egk_fire}{A function that generates the SpatRaster stack containing 
+  values for modifying the habitat
   - in this case the proportion of landscape remaining after fire.}
-  \item{egk_origins}{A raster stack containing locations and counts of where
+  \item{egk_origins}{A function that generates the SpatRaster stack 
+  containing locations and counts of where
   to move individual kangaroos from.}
-  \item{egk_destinations}{A raster stack containing locations and counts of where to
+  \item{egk_destinations}{A function that generates the SpatRaster stack
+   containing locations and counts of where to
   move individual kangaroos to.}
-  \item{egk_road}{A raster stack containing values for modifying the habitat
-  - in this case the proportion of habitat remaining after the construction of a road.}
+  \item{egk_road}{A function that generates the SpatRaster stack containing
+   values for modifying the habitat
+  - in this case the proportion of habitat remaining after the construction
+   of a road.}
 }
 }
 \keyword{datasets}

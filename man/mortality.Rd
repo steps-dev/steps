@@ -30,10 +30,10 @@ modification. Note, rounding also occurs after modification using a ceiling meth
 \dontrun{
 fire_mortal <- mortality(mortality_layer = "fire", stages = NULL)
 
-ls <- landscape(population = egk_pop,
-                suitability = egk_hab,
-                carrying_capacity = egk_k,
-                "fire" = egk_fire)
+ls <- landscape(population = egk_pop(),
+                suitability = egk_hab(),
+                carrying_capacity = egk_k(),
+                "fire" = egk_fire())
 
 pd <- population_dynamics(change = growth(egk_mat), modification = fire_mortal)
 

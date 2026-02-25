@@ -19,13 +19,13 @@ round_pop <- function (population) {
 }
 
 get_pop_replicate <- function(replicate_result, init_pops, ...) {
-  total_stages <- raster::nlayers(replicate_result[[1]]$population)
-  idx <- which(!is.na(raster::getValues(replicate_result[[1]]$population[[1]])))
+  total_stages <- terra::nlyr(replicate_result[[1]]$population)
+  idx <- which(!is.na(terra::values(replicate_result[[1]]$population[[1]])))
   
-  init_pops <- raster::extract(init_pops, idx)
+  init_pops <- as.matrix(terra::extract(init_pops, idx))
   init_pop_sums <- colSums(init_pops)
   
-  pops <- lapply(replicate_result, function(x) raster::extract(x$population, idx))
+  pops <- lapply(replicate_result, function(x) as.matrix(terra::extract(x$population, idx)))
   pop_sums <- lapply(pops, function(x) colSums(x))
   
   pop_matrix <- matrix(unlist(pop_sums), ncol = total_stages, byrow = TRUE)
@@ -35,7 +35,7 @@ get_pop_replicate <- function(replicate_result, init_pops, ...) {
 }
 
 get_pop_simulation <- function(sim_result, ...) {
-  total_stages <- raster::nlayers(sim_result[[1]][[1]]$population)
+  total_stages <- terra::nlyr(sim_result[[1]][[1]]$population)
   timesteps <- length(sim_result[[1]])
   sims <- length(sim_result)
   
@@ -56,7 +56,7 @@ get_carrying_capacity <- function (landscape, timestep) {
     # if there's no carrying capacity specified, return a NULL
     res <- NULL
     
-  } else if (inherits(cc, "RasterLayer")) {
+  } else if (inherits(cc, "SpatRaster")) {
 
     # if there's a carrying capacity raster, use that
     
@@ -89,7 +89,7 @@ get_carrying_capacity <- function (landscape, timestep) {
 }
 
 not_missing <- function (raster) {
-  which(!is.na(raster::getValues(raster)))
+  which(!is.na(terra::values(raster)))
 }
 
 warn_once <- function (condition, message, warning_name) {

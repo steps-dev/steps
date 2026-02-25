@@ -35,7 +35,7 @@ NULL
 #' \dontrun{
 #' road_effect <- disturbance(disturbance_layers = "roads", effect_time = 1)
 #' 
-#' ls <- landscape(population = egk_pop, suitability = egk_hab, "roads" = egk_road)
+#' ls <- landscape(population = egk_pop(), suitability = egk_hab(), "roads" = egk_road())
 #' 
 #' pd <- population_dynamics(change = growth(egk_mat))
 #' 
@@ -48,28 +48,28 @@ NULL
 #' }
 
 disturbance <- function (disturbance_layers, effect_time = 1) {
-  
+
   dist_fun <- function (landscape, timestep) {
-    
-    if (raster::nlayers(landscape$suitability) > 1) {
+
+    if (terra::nlyr(landscape$suitability) > 1) {
       original_habitat <- landscape$suitability[[timestep]]
     } else {
       original_habitat <- landscape$suitability
     }
     
-    if (raster::nlayers(landscape[[disturbance_layers]]) < timestep ) {
+    if (terra::nlyr(landscape[[disturbance_layers]]) < timestep ) {
       stop("The number of disturbance layers must match the number of timesteps in the simulation")
     }
     
     # replace NA values with zeros
     landscape[[disturbance_layers]][is.na(landscape[[disturbance_layers]])] <- 0
     
-    modified_habitat <- original_habitat * raster::overlay(landscape[[disturbance_layers]][[utils::tail(seq_len(timestep),
+    modified_habitat <- original_habitat * terra::app(landscape[[disturbance_layers]][[utils::tail(seq_len(timestep),
                                                                                                         effect_time)]],
                                                            fun = prod)
     names(modified_habitat) <- paste0("Habitat_", timestep)
 
-    if (raster::nlayers(landscape$suitability) > 1) {
+    if (terra::nlyr(landscape$suitability) > 1) {
       landscape$suitability[[timestep]] <- modified_habitat
     } else {
       landscape$suitability <- modified_habitat
@@ -110,7 +110,7 @@ disturbance <- function (disturbance_layers, effect_time = 1) {
 #' 
 #' fire <- fire_effects(fire_layers = "fires", effect_time = 5, regeneration_function = regen)
 #' 
-#' ls <- landscape(population = egk_pop, suitability = egk_hab, "fires" = egk_fire)
+#' ls <- landscape(population = egk_pop(), suitability = egk_hab(), "fires" = egk_fire())
 #' 
 #' pd <- population_dynamics(change = growth(egk_mat))
 #' 
@@ -125,10 +125,10 @@ disturbance <- function (disturbance_layers, effect_time = 1) {
 fire_effects <- function (fire_layers,
                           effect_time = 3,
                           regeneration_function = function (time) {-time}) {
-  
+
   dist_fun <- function (landscape, timestep) {
     
-    if (raster::nlayers(landscape$suitability) > 1) {
+    if (terra::nlyr(landscape$suitability) > 1) {
       stop("This function only operates on landscape objects with a single initial habitat suitability layer -\n
            Please check that you have not provided a raster stack as a suitability component of a landscape object.")
     }
@@ -139,7 +139,7 @@ fire_effects <- function (fire_layers,
       original_habitat <- steps_stash$orig_suitability
     }
     
-    if (raster::nlayers(landscape[[fire_layers]]) < timestep ) {
+    if (terra::nlyr(landscape[[fire_layers]]) < timestep ) {
       stop("The number of fire layers must match the number of timesteps in the simulation")
     }
     
@@ -167,7 +167,7 @@ fire_effects <- function (fire_layers,
     annual_impact <- 1 - fires_weighted
     
     # get the cumulative impact
-    if(raster::nlayers(annual_impact) == 1) total_impact <- annual_impact
+    if(terra::nlyr(annual_impact) == 1) total_impact <- annual_impact
     else total_impact <- prod(annual_impact)
     
     # apply the habitat reduction

@@ -2,25 +2,25 @@ context('population_dispersal_functions-class')
 
 test_that('population dispersal functions class works', {
   
-  library(raster)
+  library(terra)
   library(future)
   
-  landscape <- landscape(population = egk_pop,
-                         suitability = egk_hab,
-                         carrying_capacity = egk_k,
-                         "barriers" = egk_road)
+  landscape <- landscape(population = egk_pop(),
+                         suitability = egk_hab(),
+                         carrying_capacity = egk_k(),
+                         "barriers" = egk_road())
   
-  landscape_sing_roads <- landscape(population = egk_pop,
-                         suitability = egk_hab,
-                         carrying_capacity = egk_k,
-                         "barriers" = egk_road[[1]])
+  landscape_sing_roads <- landscape(population = egk_pop(),
+                         suitability = egk_hab(),
+                         carrying_capacity = egk_k(),
+                         "barriers" = egk_road()[[1]])
   
-  landscape_nohab <- landscape(population = egk_pop,
+  landscape_nohab <- landscape(population = egk_pop(),
                          suitability = NULL,
-                         carrying_capacity = egk_k)
+                         carrying_capacity = egk_k())
   
-  landscape_nok <- landscape(population = egk_pop,
-                               suitability = egk_hab,
+  landscape_nok <- landscape(population = egk_pop(),
+                               suitability = egk_hab(),
                                carrying_capacity = NULL)
 
   pop_dyn_kd <- population_dynamics(change = NULL,
@@ -35,7 +35,7 @@ test_that('population dispersal functions class works', {
                                     density_dependence = NULL)
 
   pop_dyn_kd_large <- population_dynamics(change = NULL,
-                                     dispersal = kernel_dispersal(exponential_dispersal_kernel(distance_decay = 8000), max_distance = 100000),
+                                     dispersal = kernel_dispersal(exponential_dispersal_kernel(distance_decay = 8000), max_distance = 1000),
                                      modification = NULL,
                                      density_dependence = NULL)
   
@@ -60,8 +60,8 @@ test_that('population dispersal functions class works', {
                                     density_dependence = NULL)
   
   pop_dyn_ca_sls <- population_dynamics(change = NULL,
-                                        dispersal = cellular_automata_dispersal(min_cells = 0,
-                                                                                max_cells = 10),
+                                        dispersal = cellular_automata_dispersal(min_cells = c(0, 0, 0),
+                                                                                max_cells = c(5, 10, 10)),
                                         modification = NULL,
                                         density_dependence = NULL)
   
@@ -81,27 +81,34 @@ test_that('population dispersal functions class works', {
                                     modification = NULL,
                                     density_dependence = NULL)
   
-  sim <- simulation(landscape = landscape,
+  expect_no_error(
+    sim <- simulation(landscape = landscape,
                     population_dynamics = pop_dyn_kd,
                     habitat_dynamics = NULL,
                     timesteps = 10,
                     replicates = 3,
                     verbose = FALSE)
+  )
   
-  sim <- simulation(landscape = landscape,
+  expect_no_error(
+      sim <- simulation(landscape = landscape,
                     population_dynamics = pop_dyn_kd_large,
                     habitat_dynamics = NULL,
                     timesteps = 10,
                     replicates = 3,
                     verbose = FALSE)
-  
-  sim <- simulation(landscape = landscape,
+  )
+
+  expect_no_error(
+     sim <- simulation(landscape = landscape,
                     population_dynamics = pop_dyn_kd_inf,
                     habitat_dynamics = NULL,
                     timesteps = 10,
                     replicates = 3,
                     verbose = FALSE)
-  
+  )
+ 
+
   expect_error(simulation(landscape = landscape,
                           population_dynamics = pop_dyn_kd_bad,
                           habitat_dynamics = NULL,
@@ -136,34 +143,43 @@ test_that('population dispersal functions class works', {
                           timesteps = 10,
                           replicates = 3,
                           verbose = FALSE))
- 
-  sim <- simulation(landscape = landscape,
+  
+  expect_no_error(
+    sim <- simulation(landscape = landscape,
                     population_dynamics = pop_dyn_ca,
                     habitat_dynamics = NULL,
                     timesteps = 10,
                     replicates = 3,
                     verbose = FALSE)
-
-  sim <- simulation(landscape = landscape,
+  )
+  
+  expect_no_error(
+    sim <- simulation(landscape = landscape,
                     population_dynamics = pop_dyn_ca_sls,
                     habitat_dynamics = NULL,
                     timesteps = 10,
                     replicates = 3,
                     verbose = FALSE)
+  )
   
-  sim <- simulation(landscape = landscape,
+  expect_no_error(
+    sim <- simulation(landscape = landscape,
                     population_dynamics = pop_dyn_ca_barriers,
                     habitat_dynamics = NULL,
                     timesteps = 10,
                     replicates = 3,
                     verbose = FALSE)
+  )
   
-  sim <- simulation(landscape = landscape_sing_roads,
+  expect_no_error(
+    sim <- simulation(landscape = landscape_sing_roads,
                     population_dynamics = pop_dyn_ca_barriers,
                     habitat_dynamics = NULL,
                     timesteps = 10,
                     replicates = 3,
                     verbose = FALSE)
+  )
+  
   
   expect_error(simulation(landscape = landscape_nohab,
                           population_dynamics = pop_dyn_ca,
@@ -185,12 +201,14 @@ test_that('population dispersal functions class works', {
                           timesteps = 10,
                           replicates = 3,
                           verbose = FALSE))
-   
-  sim <- simulation(landscape = landscape,
+  expect_no_error(
+     sim <- simulation(landscape = landscape,
                     population_dynamics = pop_dyn_fd,
                     habitat_dynamics = NULL,
                     timesteps = 10,
                     replicates = 3,
                     verbose = FALSE)
+  )
+ 
 
 })

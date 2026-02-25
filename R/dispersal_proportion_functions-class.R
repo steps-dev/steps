@@ -47,7 +47,7 @@ NULL
 #'                       max_distance = 2000,
 #'                       dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1000))
 #' 
-#' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+#' ls <- landscape(population = egk_pop(), suitability = egk_hab(), carrying_capacity = egk_k())
 #' 
 #' pd <- population_dynamics(change = growth(egk_mat), dispersal = kb_dispersal)
 #' 
@@ -59,7 +59,7 @@ set_proportion_dispersing <- function (proportions = 1) {
   disp_prop_fun <- function (landscape, timestep) {
    
     # get total life-stages
-    n_stages <- raster::nlayers(landscape$population)
+    n_stages <- terra::nlyr(landscape$population)
 
     dispersal_proportion <- int_or_proper_length_vector(proportions, n_stages, "proportions")
 
@@ -102,7 +102,7 @@ set_proportion_dispersing <- function (proportions = 1) {
 #'                       max_distance = 2000,
 #'                       dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1000))
 #' 
-#' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+#' ls <- landscape(population = egk_pop(), suitability = egk_hab(), carrying_capacity = egk_k())
 #' 
 #' pd <- population_dynamics(change = growth(egk_mat), dispersal = kb_dispersal)
 #' 
@@ -114,7 +114,7 @@ density_dependence_dispersing <- function (maximum_proportions = 1) {
   disp_prop_fun <- function (landscape, timestep) {
 
     # get total life-stages
-    n_stages <- raster::nlayers(landscape$population)
+    n_stages <- terra::nlyr(landscape$population)
     
     maximum_proportions <- int_or_proper_length_vector(maximum_proportions, n_stages, "maximum_proportions")
     
@@ -124,13 +124,13 @@ density_dependence_dispersing <- function (maximum_proportions = 1) {
     }
     
     # get non-NA cells
-    cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])))
+    cell_idx <- which(!is.na(terra::values(landscape$population[[1]])))
 
-    pop <- raster::getValues(landscape$population)
+    pop <- terra::values(landscape$population)
     
     # 22.01.20 - # cc <- get_carrying_capacity(landscape, timestep)
-    # 22.01.20 - # cc <- raster::getValues(cc)
-    cc <- raster::getValues(landscape$carrying_capacity) # 22.01.20
+    # 22.01.20 - # cc <- terra::values(cc)
+    cc <- terra::values(landscape$carrying_capacity) # 22.01.20
 
     dispersal_proportion <- rep(0, n_stages)
     

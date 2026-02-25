@@ -40,7 +40,7 @@ information.
 \dontrun{
 mod_fun <- modified_transition(survival_layer = "suitability", fecundity_layer = "suitability")
 
-ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = NULL)
+ls <- landscape(population = egk_pop(), suitability = egk_hab(), carrying_capacity = NULL)
 
 pd <- population_dynamics(change = growth(egk_mat, transition_function = mod_fun))
 

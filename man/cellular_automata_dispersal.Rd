@@ -81,10 +81,10 @@ corresponds with field estimates of mean dispersal distances.
 \dontrun{
 ca_dispersal <- cellular_automata_dispersal(max_cells = c(0, 100, 100), barriers = "roads")
 
-ls <- landscape(population = egk_pop,
-                suitability = egk_hab,
-                carrying_capacity = egk_k,
-                "roads" = egk_road)
+ls <- landscape(population = egk_pop(),
+                suitability = egk_hab(),
+                carrying_capacity = egk_k(),
+                "roads" = egk_road())
 
 pd <- population_dynamics(change = growth(egk_mat),
                           dispersal = ca_dispersal,
