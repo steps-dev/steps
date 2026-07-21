@@ -35,7 +35,7 @@ test_that('population dispersal functions class works', {
                                     density_dependence = NULL)
 
   pop_dyn_kd_large <- population_dynamics(change = NULL,
-                                     dispersal = kernel_dispersal(exponential_dispersal_kernel(distance_decay = 8000), max_distance = 1000),
+                                     dispersal = kernel_dispersal(exponential_dispersal_kernel(distance_decay = 8000), max_distance = 100000),
                                      modification = NULL,
                                      density_dependence = NULL)
   

@@ -64,8 +64,8 @@ test_that('population change functions class works', {
     sim <- simulation(landscape = landscape,
                     population_dynamics = pop_dyn,
                     habitat_dynamics = NULL,
-                    timesteps = 3,
-                    replicates = 2,
+                    timesteps = 10,
+                    replicates = 3,
                     verbose = FALSE)
   ) 
   
@@ -73,8 +73,8 @@ test_that('population change functions class works', {
     sim <- simulation(landscape = landscape_2sex,
                     population_dynamics = pop_dyn_2sex,
                     habitat_dynamics = NULL,
-                    timesteps = 3,
-                    replicates = 2,
+                    timesteps = 10,
+                    replicates = 3,
                     verbose = FALSE)
   )
   
@@ -82,8 +82,8 @@ test_that('population change functions class works', {
     sim <- simulation(landscape = landscape,
                     population_dynamics = pop_dyn_trans_fun,
                     habitat_dynamics = NULL,
-                    timesteps = 3,
-                    replicates = 2,
+                    timesteps = 10,
+                    replicates = 3,
                     verbose = FALSE,
                     demo_stochasticity = "none")
   )
@@ -92,16 +92,16 @@ test_that('population change functions class works', {
   expect_error(simulation(landscape = landscape,
                           population_dynamics = pop_dyn_bad_mat_values,
                           habitat_dynamics = NULL,
-                          timesteps = 3,
-                          replicates = 2,
+                          timesteps = 10,
+                          replicates = 3,
                           verbose = FALSE))
   
   expect_error(
     suppress_warnings(simulation(landscape = landscape,
                           population_dynamics = pop_dyn_bad_trans_fun,
                           habitat_dynamics = NULL,
-                          timesteps = 3,
-                          replicates = 2,
+                          timesteps = 10,
+                          replicates = 3,
                           verbose = FALSE)))
   
 })
