@@ -56,7 +56,7 @@ matrix. For more information on this, please refer to Kendall et al, (2019)
 # Example of setting up population dynamics to only use a population change function.
 
 \dontrun{
-ls <- landscape(population = egk_pop, suitability = NULL, carrying_capacity = NULL)
+ls <- landscape(population = egk_pop(), suitability = NULL, carrying_capacity = NULL)
 
 pd <- population_dynamics(change = growth(egk_mat))
 

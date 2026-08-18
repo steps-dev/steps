@@ -46,7 +46,7 @@ NULL
 #' @examples
 #' 
 #' \dontrun{
-#' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+#' ls <- landscape(population = egk_pop(), suitability = egk_hab(), carrying_capacity = egk_k())
 #' 
 #' pd <- population_dynamics(change = growth(egk_mat),
 #'                           dispersal = kernel_dispersal(max_distance = 2000,
@@ -71,7 +71,7 @@ plot_pop_trend <- function (x,
                             emp = FALSE,
                             return_data = FALSE,
                             ...){
-  
+
   # avoid a persistent effect on the graphics device
   op <- graphics::par(no.readonly = TRUE)
   on.exit(graphics::par(op))
@@ -89,7 +89,7 @@ plot_pop_trend <- function (x,
     "#3c3c7d"
   )
   
-  total_stages <- raster::nlayers(x[[1]][[1]]$population)
+  total_stages <- terra::nlyr(x[[1]][[1]]$population)
   stage_names <- names(x[[1]][[1]]$population)
   replicates <- length(x)
   timesteps <- length(x[[1]])
@@ -102,7 +102,7 @@ plot_pop_trend <- function (x,
   }
   
   graphics::par(mar = c(5.1, 4.1, 4.1, 2.1), mfrow = c(1, length(stages)))
-  
+
   y_label <- paste0("Total Population: ", stage_names[stages])
   y_range <- range(pretty(pop))
   
@@ -119,12 +119,14 @@ plot_pop_trend <- function (x,
     graph_pal <- "black"
   }
   
-  for (i in stages) {
+  for (k in seq_along(stages)) {
+    
+    i <- stages[k]
     
     graphics::plot(c(0, seq_len(timesteps)),
                    pop_mn[ , i],
                    type = 'l',
-                   ylab = y_label[i],
+                   ylab = y_label[k],
                    xlab = "Timesteps",
                    #lwd = 3,
                    col = graph_pal[i],
@@ -183,7 +185,7 @@ plot_pop_trend <- function (x,
 #' @examples
 #' 
 #' \dontrun{
-#' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+#' ls <- landscape(population = egk_pop(), suitability = egk_hab(), carrying_capacity = egk_k())
 #' 
 #' pd <- population_dynamics(change = growth(egk_mat),
 #'                           dispersal = kernel_dispersal(max_distance = 2000,
@@ -283,7 +285,7 @@ plot_k_trend <- function (x,
 #' @examples
 #' 
 #' \dontrun{
-#' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+#' ls <- landscape(population = egk_pop(), suitability = egk_hab(), carrying_capacity = egk_k())
 #' 
 #' pd <- population_dynamics(change = growth(egk_mat),
 #'                           dispersal = kernel_dispersal(max_distance = 2000,
@@ -305,8 +307,8 @@ plot_pop_spatial <- function (x,
                               replicate = 1,
                               timesteps = NULL,
                               ...){
-  
-  total_stages <- raster::nlayers(x[[1]][[1]]$population)
+
+  total_stages <- terra::nlyr(x[[1]][[1]]$population)
   stage_names <- names(x[[1]][[1]]$population)
   total_timesteps <- length(x[[1]])
   
@@ -314,16 +316,32 @@ plot_pop_spatial <- function (x,
     timesteps <- seq_len(total_timesteps)
   }
   
-  r <- lapply(seq_len(total_timesteps), FUN = function(t) raster::stack(lapply(seq_len(total_stages), FUN = function(s) extract_spatial(x,
-                                                                                                                                        replicate = replicate,
-                                                                                                                                        timestep = t,
-                                                                                                                                        stage = s))))
-  
-  if(stage == 0){
-    r <- raster::stack(lapply(seq_len(total_timesteps), FUN = function(t) sum(r[[t]])))
+  r <- lapply(seq_len(total_timesteps), function(t) {
+    layers <- lapply(seq_len(total_stages), function(s) {
+      extract_spatial(x,
+                      replicate = replicate,
+                      timestep = t,
+                      stage = s)
+    })
+    
+    terra::rast(layers)
+  })
+
+  if (stage == 0){
+    
+    r_sum <- lapply(seq_len(total_timesteps), function(t) {
+     
+    terra::app(r[[t]], sum)  
+    })
+    
+    r <- terra::rast(r_sum)
     names(r) <- paste0("total_", seq_len(total_timesteps))
-  }else{
-    r <- raster::stack(lapply(seq_len(total_timesteps), FUN = function(t) r[[t]][[stage]]))
+    
+  } else {
+   
+    r_stage <- lapply(seq_len(total_timesteps), function(t) r[[t]][[stage]])
+    
+    r <- terra::rast(r_stage)
     names(r) <- paste0(stage_names[stage], "_", seq_len(total_timesteps))
   }
   
@@ -350,7 +368,7 @@ plot_pop_spatial <- function (x,
 #' @examples
 #' 
 #' \dontrun{
-#' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+#' ls <- landscape(population = egk_pop(), suitability = egk_hab(), carrying_capacity = egk_k())
 #' 
 #' pd <- population_dynamics(change = growth(egk_mat),
 #'                           dispersal = kernel_dispersal(max_distance = 2000,
@@ -371,17 +389,21 @@ plot_k_spatial <- function (x,
                             replicate = 1,
                             timesteps = NULL,
                             ...){
-  
+
   total_timesteps <- length(x[[1]])
   
   if (is.null(timesteps)){
     timesteps <- seq_len(total_timesteps)
   }
   
-  r <- raster::stack(lapply(seq_len(total_timesteps), FUN = function(t) extract_spatial(x,
-                                                                                        replicate = replicate,
-                                                                                        timestep = t,
-                                                                                        landscape_object = "carrying_capacity")))
+  r <- terra::rast(
+    lapply(seq_len(total_timesteps), function(t) {
+      extract_spatial(x,
+                      replicate = replicate,
+                      timestep = t,
+                      landscape_object = "carrying_capacity")
+    })
+  )
   names(r) <- paste0("Timestep_", seq_len(total_timesteps))
   
   r <- r[[timesteps]]
@@ -407,7 +429,7 @@ plot_k_spatial <- function (x,
 #' @examples
 #' 
 #' \dontrun{
-#' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+#' ls <- landscape(population = egk_pop(), suitability = egk_hab(), carrying_capacity = egk_k())
 #' 
 #' pd <- population_dynamics(change = growth(egk_mat),
 #'                           dispersal = kernel_dispersal(max_distance = 2000,
@@ -435,10 +457,14 @@ plot_hab_spatial <- function (x,
     timesteps <- seq_len(total_timesteps)
   }
   
-  r <- raster::stack(lapply(seq_len(total_timesteps), FUN = function(t) extract_spatial(x,
-                                                                                        replicate = replicate,
-                                                                                        timestep = t,
-                                                                                        landscape_object = "suitability")))
+  r <- terra::rast(
+    lapply(seq_len(total_timesteps), function(t) {
+      extract_spatial(x,
+                      replicate = replicate,
+                      timestep = t,
+                      landscape_object = "suitability")
+    })
+  )
   names(r) <- paste0("Timestep_", seq_len(total_timesteps))
   
   r <- r[[timesteps]]
@@ -469,7 +495,7 @@ plot_hab_spatial <- function (x,
 #' @examples
 #' 
 #' \dontrun{
-#' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+#' ls <- landscape(population = egk_pop(), suitability = egk_hab(), carrying_capacity = egk_k())
 #' 
 #' # Create populations dynamics with and without ceiling density dependence
 #' pd1 <- population_dynamics(change = growth(egk_mat),
@@ -573,13 +599,13 @@ compare_emp <- function (x, ..., show_interval = TRUE, interval = 95, all_points
 ##########################
 
 plot_spatial <- function(raster_stack, label, ...){
-  
+
   # avoid a persistent effect on the graphics device
   op <- graphics::par(no.readonly = TRUE)
   on.exit(graphics::par(op))
   
-  scale_max <- ceiling(max(raster::cellStats(raster_stack, max)))
-  scale_min <- floor(min(raster::cellStats(raster_stack, min)))
+  scale_max <- ceiling(max(terra::global(raster_stack, max, na.rm = TRUE)))
+  scale_min <- floor(min(terra::global(raster_stack, min, na.rm = TRUE)))
   
   breaks <- seq(scale_min, scale_max, (scale_max - scale_min) / 100)
   

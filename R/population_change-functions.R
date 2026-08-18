@@ -52,7 +52,7 @@ NULL
 #' \dontrun{
 #' stoch_growth <- growth(transition_matrix = egk_mat, global_stochasticity = egk_mat_stoch)
 #' 
-#' ls <- landscape(population = egk_pop, suitability = NULL, carrying_capacity = NULL)
+#' ls <- landscape(population = egk_pop(), suitability = NULL, carrying_capacity = NULL)
 #' 
 #' pd <- population_dynamics(change = stoch_growth)
 #' 
@@ -127,13 +127,13 @@ growth <- function (transition_matrix,
   }
   
   pop_dynamics <- function (landscape, timestep) {
-    
+
     # import components from landscape object
     population_raster <- landscape$population
     
     # get population as a matrix
-    cell_idx <- which(!is.na(raster::getValues(population_raster[[1]])))
-    population <- raster::extract(population_raster, cell_idx)
+    cell_idx <- which(!is.na(terra::values(population_raster[[1]])))
+    population <- as.matrix(terra::extract(population_raster, cell_idx))
     
     n_cells <- length(cell_idx)
     
@@ -151,7 +151,7 @@ growth <- function (transition_matrix,
       # create transition array and fill with initial matrix values
       transition_array <- array(0, c(dim, dim, n_cells))
       transition_array[] <- transition_matrix[]
-      
+
       # update the transition array
       transition_array <- transition_function(transition_array, landscape, timestep)
       
@@ -164,7 +164,7 @@ growth <- function (transition_matrix,
     values <- pmax_zero(values)
     values <- pmin(values, rep(upper, n_cells))
     transition_array[idx_full] <- values
-    
+
     if (steps_stash$demo_stochasticity == "full") {
       
       total_pop <- rowSums(population)
@@ -205,11 +205,11 @@ growth <- function (transition_matrix,
       population <- t(population)
       
     }
-    
+
     # put back in the raster
-    population_raster[cell_idx] <- population
-    
-    landscape$population <- population_raster
+    population_raster_copy <- terra::rast(population_raster)  
+    population_raster_copy[cell_idx] <- population
+    landscape$population <- population_raster_copy
     
     landscape
   }

@@ -51,7 +51,7 @@ specified number of timesteps.
 \examples{
 
 \dontrun{
-ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+ls <- landscape(population = egk_pop(), suitability = egk_hab(), carrying_capacity = egk_k())
 
 pd <- population_dynamics(change = growth(egk_mat),
                           dispersal = kernel_dispersal(max_distance = 2000,
@@ -60,7 +60,7 @@ pd <- population_dynamics(change = growth(egk_mat),
                           density_dependence = ceiling_density())
 
 # Run a simulation with full demographic stochasticity and without any habitat
-# dynamics for tewnty timesteps.
+# dynamics for twenty timesteps.
 sim <- simulation(landscape = ls,
                   population_dynamics = pd,
                   habitat_dynamics = NULL,

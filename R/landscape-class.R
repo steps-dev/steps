@@ -9,16 +9,19 @@
 #' 
 #' @rdname landscape
 #' 
-#' @param population a raster stack (grid cell-based) with one layer for each life
+#' @param population a SpatRaster stack (grid cell-based) with one layer for 
+#' each life
 #'  stage.
-#' @param suitability an optional raster layer or stack (multiple layers) containing
+#' @param suitability an optional SpatRaster layer or stack (multiple layers)
+#'  containing
 #'  habitat suitability values for all cells in a landscape. Note, using a raster
 #'  stack assumes that the user has provided a layer for each intended timestep
 #'  in a simulation.
 #' @param carrying_capacity an optional raster layer specifying carrying capacity
 #'  values for all cells in a landscape or a function defining how carrying capacity
 #'  is determined by habitat suitability.
-#' @param ... named raster objects representing different aspects of the landscape
+#' @param ... named SpatRaster objects representing different aspects of the
+#'  landscape
 #'  used to modify the landscape object in a simulation. Note, this is intended to
 #'  store objects that are accessed by dynamic functions and used to modify the
 #'  landscape in a simulation. Also, further arguments passed to or from other methods.
@@ -32,7 +35,7 @@
 #' # Example of setting up a landscape object.
 #' 
 #' \dontrun{
-#' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+#' ls <- landscape(population = egk_pop(), suitability = egk_hab(), carrying_capacity = egk_k())
 #' 
 #' pd <- population_dynamics(change = growth(egk_mat))
 #' 
@@ -47,7 +50,7 @@ landscape <- function (population, suitability = NULL, carrying_capacity = NULL,
     check_raster_na_matches(suitability, population)
   }
   
-  if(!is.null(carrying_capacity) & identical(class(carrying_capacity)[1], "RasterLayer")) {
+  if(!is.null(carrying_capacity) & identical(class(carrying_capacity)[1], "SpatRaster")) {
     check_raster_matches_population(carrying_capacity, population)
     check_raster_na_matches(carrying_capacity, population)
   }
@@ -94,27 +97,27 @@ as.landscape <- function (landscape) {
 }
 
 check_raster_matches_population <- function (raster, population) {
-  if (!identical(raster::res(raster), raster::res(population))) stop("Landscape rasters do not have matching resolution. ",
+  if (!identical(terra::res(raster), terra::res(population))) stop("Landscape rasters do not have matching resolution. ",
                                                                      "This must be corrected before running a simulation.")
-  if (!identical(raster::extent(raster), raster::extent(population))) stop("Landscape rasters do not have matching extents. ",
+  if (!all(terra::ext(raster)[] == terra::ext(population)[])) stop("Landscape rasters do not have matching extents. ",
                                                                            "This must be corrected before running a simulation.")
 }
 
 check_raster_na_matches <- function (raster, population) {
   
-  pop_na <- which(is.na(raster::getValues(population[[1]])))
-  suit_layers <- raster::nlayers(raster)
+  pop_na <- which(is.na(terra::values(population[[1]])))
+  suit_layers <- terra::nlyr(raster)
   
   if (suit_layers > 1) {
     for (i in seq_len(suit_layers)) {
-      ras_na <- which(is.na(raster::getValues(raster[[i]])))
+      ras_na <- which(is.na(terra::values(raster[[i]])))
       if (!identical(ras_na, pop_na)) stop(paste0("Landscape suitability raster for timestep ",
                                            i,
                                            " does not have matching NA cells. ",
                                            "This must be corrected before running a simulation."))
     }
   } else { 
-    ras_na <- which(is.na(raster::getValues(raster[[1]])))
+    ras_na <- which(is.na(terra::values(raster[[1]])))
     if (!identical(ras_na, pop_na)) stop("Landscape rasters do not have matching NA cells. ",
                                          "This must be corrected before running a simulation.")
   }

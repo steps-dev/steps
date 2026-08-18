@@ -1,6 +1,5 @@
 #' @title Simulate population trajectories over space and time with dynamic functions.
 #' @name steps
-#' @docType package
 #' @aliases steps-package
 #' @description Simulating shifts in species populations is an important
 #' part of ecological management. Species respond to spatial and temporal
@@ -15,9 +14,15 @@
 #' dynamics functions contained in a \link[steps]{population_dynamics} object.
 #' \link[steps]{habitat_dynamics_functions} can also be added to the simulation to
 #' modify the habitat during a simulation.
-NULL
+"_PACKAGE"
 
-steps_stash <- new.env()
+
+if (!exists("steps_stash", envir = .GlobalEnv)) {
+  steps_stash <- new.env()
+}
+# steps_stash environment- only create if does not exist
+# KH - no longer supporting multisessions because of terra pointer issue
+# without this change, simulations crash because environments continue to renew and terra pointers are lost
 
 flush_stash <- function() {
   for (name in names(steps_stash)) {
@@ -27,7 +32,7 @@ flush_stash <- function() {
 
 # replace the values in the steps stash with those in this new one (used to pass the stash onto parallel workers)
 replace_stash <- function(new_stash) {
-  
+
   # flush the old one
   flush_stash()
   
@@ -38,4 +43,4 @@ replace_stash <- function(new_stash) {
 }
 
 options(future.globals.maxSize= 1000*1024^2)
-raster::rasterOptions(maxmemory = 1e+09)
+terra::terraOptions(memmax = 1e+09)

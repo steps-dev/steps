@@ -36,7 +36,7 @@ increased as the function internally calculates these values through optimisatio
 \dontrun{
 mod_fun <- competition_density(stages = c(2, 3))
 
-ls <- landscape(population = egk_pop, suitability = NULL, carrying_capacity = egk_k)
+ls <- landscape(population = egk_pop(), suitability = NULL, carrying_capacity = egk_k())
 
 pd <- population_dynamics(change = growth(egk_mat, transition_function = mod_fun))
 

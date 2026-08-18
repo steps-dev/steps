@@ -36,7 +36,7 @@ NULL
 #' \dontrun{
 #' cap_population <- ceiling_density(stages = c(2, 3))
 #' 
-#' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+#' ls <- landscape(population = egk_pop(), suitability = egk_hab(), carrying_capacity = egk_k())
 #' 
 #' pd <- population_dynamics(change = growth(egk_mat), density_dependence = cap_population)
 #' 
@@ -47,12 +47,10 @@ ceiling_density <- function (stages = NULL) {
   
   pop_dynamics <- function (landscape, timestep) {
     
-    #browser()
-    
     population_raster <- landscape$population
     
     # Get non-NA cells
-    idx <- which(!is.na(raster::getValues(population_raster[[1]])))
+    idx <- which(!is.na(terra::values(population_raster[[1]])))
     
     # 22.01.20 - # cc <- get_carrying_capacity(landscape, timestep)
     cc <- landscape$carrying_capacity # 22.01.20
@@ -63,8 +61,8 @@ ceiling_density <- function (stages = NULL) {
     }
     
     # get population as a matrix
-    population_matrix <- raster::extract(population_raster, idx)
-    carrying_capacity <- raster::extract(cc, idx)
+    population_matrix <- as.matrix(terra::extract(population_raster, idx))
+    carrying_capacity <- as.matrix(terra::extract(cc, idx))
     
     # get degree of overpopulation, and shrink accordingly
     if (is.null(stages)) {

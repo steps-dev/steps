@@ -25,7 +25,7 @@ First, we load required packages:
 
 ```{r, message = FALSE}
 library(steps)
-library(raster)
+library(terra)
 library(viridisLite)
 library(future)
 ```
@@ -45,29 +45,33 @@ Let's examine a pre-built *steps* dynamics function "mortality" which changes po
 mortality <- function (mortality_layer, stages = NULL) {
   
   pop_dynamics <- function (landscape, timestep) {
-
-      population_raster <- landscape$population
-      nstages <- raster::nlayers(population_raster)
+    
+    population_raster <- landscape$population
+    nstages <- terra::nlyr(population_raster)
+    
+    # get population as a matrix
+    idx <- which(!is.na(terra::values(population_raster[[1]])))
+    population_matrix <- as.matrix(terra::extract(population_raster, idx))
+    
+    if (terra::nlyr(landscape[[mortality_layer]]) > 1) {
+      mortality_prop <- as.matrix(terra::extract(landscape[[mortality_layer]][[timestep]], idx))
+    } else {
+      mortality_prop <- as.matrix(terra::extract(landscape[[mortality_layer]], idx))
+    }
+    
+    if (is.null(stages)) stages <- seq_len(nstages)
+    
+    for (stage in stages) {
       
-      # get population as a matrix
-      idx <- which(!is.na(raster::getValues(population_raster[[1]])))
-      population_matrix <- raster::extract(population_raster, idx)
+      population_matrix[ , stage] <- ceiling(population_matrix[ , stage] * mortality_prop)
       
-      mortality_prop <- raster::extract(landscape[[mortality_layer]][[timestep]], idx)
-      
-      if (is.null(stages)) stages <- seq_len(nstages)
-      
-      for (stage in stages) {
-        
-        population_matrix[ , stage] <- ceiling(population_matrix[ , stage] * mortality_prop)
-        
-      }
-      
-      # put back in the raster
-      population_raster[idx] <- population_matrix
-      
-      landscape$population <- population_raster
-
+    }
+    
+    # put back in the raster
+    population_raster[idx] <- population_matrix
+    
+    landscape$population <- population_raster
+    
     
     landscape
     
@@ -86,21 +90,20 @@ The next few statements operate on the landscape object by extracting the popula
 
 The final statement assigns a class to the function. This is optional but useful to maintain an organised structure in the software. We recommend using the appropriate function based on the category of the function a user is defining. In this case, this function is a "population_modification" class since its operations change the population in the landscape object.
 
-So let's go about creating a custom function for use in *steps*. First, we load some initial kangaroo populations:
+So let's go about creating a custom function for use in *steps*. First, we load some initial kangaroo populations (note that raster data available as part of the *steps* package must be read in as a function call):
 
 ```{r, message = FALSE, fig.align = "center"}
-egk_pop
 
-par(mar=c(0,0,0,0), oma=c(0,0,0,0))
-spplot(egk_pop,
-       col.regions = viridis(100),
-       par.settings=list(strip.background = list(col = "white")))
+terra::plot(egk_pop())
+
 ```
 
 Let's examine the total population of juveniles:
 
 ```{r, message = FALSE}
-cellStats(egk_pop[[1]], sum)
+as.numeric(
+  terra::global(egk_pop()[[1]], fun = "sum", na.rm = TRUE)
+  )
 ```
 
 Now, let's create a function that reduces cell populations randomly across the landscape by a given percentage for the life stages specified. We start with the first two lines coded similar to the previous example and change the function name and one of the parameters:
@@ -118,11 +121,14 @@ percent_mortality <- function (percentage, stages = NULL) {
   
   pop_dynamics <- function (landscape, timestep) {
       population_raster <- landscape$population
-      nstages <- raster::nlayers(population_raster)
+      nstages <- terra::nlyr(population_raster)
       
       # get population as a matrix
-      idx <- which(!is.na(raster::getValues(population_raster[[1]])))
-      population_matrix <- raster::extract(population_raster, idx) ...
+      idx <- which(!is.na(terra::values(population_raster[[1]])))
+      population_matrix <- as.matrix(
+        terra::extract(population_raster, idx)
+        )
+      ...
 ```
 
 We then randomly sample cells (by non-zero indices) to be modified through an iterative process and then stop when we reach our specified target percentage reduction:
@@ -132,23 +138,26 @@ percent_mortality <- function (percentage, stages = NULL) {
   
   pop_dynamics <- function (landscape, timestep) {
       population_raster <- landscape$population
-      nstages <- raster::nlayers(population_raster)
+      nstages <- terra::nlyr(population_raster)
       
       # get population as a matrix
-      idx <- which(!is.na(raster::getValues(population_raster[[1]])))
-      population_matrix <- raster::extract(population_raster, idx)
+      idx <- which(!is.na(terra::values(population_raster[[1]])))
+      population_matrix <- as.matrix(
+        terra::extract(population_raster, idx)
+        )
       
       if (is.null(stages)) stages <- seq_len(nstages)
       for (stage in stages) {
         initial_pop <- sum(population_matrix[ , stage])
         changing_pop <- sum(population_matrix[ , stage])
         while (changing_pop > initial_pop * percentage) {
-          non_zero <- which(population_matrix[idx , stage] > 0)
+          non_zero <- which(population_matrix[ , stage] > 0)
           i <- sample(non_zero, 1)
           population_matrix[i , stage] <- population_matrix[i , stage] - 1
           changing_pop <- sum(population_matrix[ , stage])
         }
-      } ...
+      } 
+      ...
 ```
 
 Finally, similar to the original example, we return the modified populations to the landscape object and then return it from the function:
@@ -157,26 +166,32 @@ Finally, similar to the original example, we return the modified populations to 
 percent_mortality <- function (percentage, stages = NULL) {
   
   pop_dynamics <- function (landscape, timestep) {
-    population_raster <- landscape$population
-    nstages <- raster::nlayers(population_raster)
-    
-    # get population as a matrix
-    idx <- which(!is.na(raster::getValues(population_raster[[1]])))
-    population_matrix <- raster::extract(population_raster, idx)
-    
-    if (is.null(stages)) stages <- seq_len(nstages)
-    for (stage in stages) {
-      initial_pop <- sum(population_matrix[ , stage])
-      changing_pop <- sum(population_matrix[ , stage])
-      while (changing_pop > initial_pop * (1 - percentage)) {
-        non_zero <- which(population_matrix[ , stage] > 0)
-        i <- sample(non_zero, 1)
-        population_matrix[i , stage] <- population_matrix[i , stage] - 1
+      population_raster <- landscape$population
+      nstages <- terra::nlyr(population_raster)
+      
+      # get population as a matrix
+      idx <- which(!is.na(terra::values(population_raster[[1]])))
+      population_matrix <- as.matrix(
+        terra::extract(population_raster, idx)
+        )
+      
+      if (is.null(stages)) stages <- seq_len(nstages)
+      for (stage in stages) {
+        initial_pop <- sum(population_matrix[ , stage])
         changing_pop <- sum(population_matrix[ , stage])
-      }
-    }
+        while (changing_pop > initial_pop * percentage) {
+          non_zero <- which(population_matrix[ , stage] > 0)
+          i <- sample(non_zero, 1)
+          population_matrix[i , stage] <- population_matrix[i , stage] - 1
+          changing_pop <- sum(population_matrix[ , stage])
+        }
+      } 
     
-    population_raster[idx] <- population_matrix
+      
+    for (i in seq_len(nstages)) {
+      population_raster[[i]][idx] <- population_matrix[, i]
+    }  
+    
     landscape$population <- population_raster
     landscape
   }
@@ -186,7 +201,7 @@ percent_mortality <- function (percentage, stages = NULL) {
 Now that we have a custom function defined in the R environment we can specify it in the model setup. Note, we specify a 10% (percentage = 0.1) reduction in the total landscape population of juveniles (stages = 1) and run the simulation for a single replicate of three iterations (timesteps = 3):
 
 ```{r, message = FALSE}
-ls <- landscape(population = egk_pop,
+ls <- landscape(population = egk_pop(),
                 suitability = NULL,
                 carrying_capacity = NULL)
 
@@ -208,27 +223,23 @@ results <- simulation(landscape = ls,
 We can view the initial total juvenile landscape population and the modified population in each of the timesteps:
 
 ```{r, message = FALSE}
-cbind(c("t0", "t1", "t2", "t3"),
-      c(cellStats(egk_pop[[1]], sum),
-        cellStats(results[[1]][[1]][["population"]][[1]], sum),
-        cellStats(results[[1]][[2]][["population"]][[1]], sum),
-        cellStats(results[[1]][[3]][["population"]][[1]], sum)))
+cbind(
+  c("t0", "t1", "t2", "t3"),
+  c(
+    as.numeric(terra::global(egk_pop()[[1]], "sum", na.rm = TRUE)),
+    as.numeric(terra::global(results[[1]][[1]][["population"]][[1]], "sum", na.rm = TRUE)),
+    as.numeric(terra::global(results[[1]][[2]][["population"]][[1]], "sum", na.rm = TRUE)),
+    as.numeric(terra::global(results[[1]][[3]][["population"]][[1]], "sum", na.rm = TRUE))
+  )
+)
 
 ```
 And here is a plot of the temporally-changing juvenile cell populations:
 
 ```{r, message = FALSE, fig.align = "center"}
-pop_stack <- stack(egk_pop[[1]],
-                   results[[1]][[1]][["population"]][[1]],
-                   results[[1]][[2]][["population"]][[1]],
-                   results[[1]][[3]][["population"]][[1]])
 
-names(pop_stack) <- c("t0", "t1", "t2", "t3")
+plot_pop_spatial(results, stage = 1)
 
-par(mar=c(0,0,0,0), oma=c(0,0,0,0))
-spplot(pop_stack,
-       col.regions = viridis(100),
-       par.settings=list(strip.background = list(col = "white")))
 ```
 
 Because of the internal organisation and structure of *steps*, we are also able to use any information contained within the landscape object in our custom functions. For example, say we would like to reduce the populations in only highly suitable habitat (above a threshold value) - this can be parameterised in the function. 
@@ -240,14 +251,18 @@ percent_mortality_hab <- function (percentage, threshold, stages = NULL) {
   
   pop_dynamics <- function (landscape, timestep) {
     population_raster <- landscape$population
-    nstages <- raster::nlayers(population_raster)
+    nstages <- terra::nlyr(population_raster)
     
     # get population as a matrix
-    idx <- which(!is.na(raster::getValues(population_raster[[1]])))
-    population_matrix <- raster::extract(population_raster, idx)
+    idx <- which(!is.na(terra::values(population_raster[[1]])))
+    population_matrix <- as.matrix(
+      terra::extract(population_raster, idx)
+      )
     
     # get suitability cell indexes
-    suitable <- raster::extract(landscape$suitability, idx)
+    suitable <- as.numeric(
+      terra::extract(landscape$suitability, idx)[, 1]
+    )
     
     if (is.null(stages)) stages <- seq_len(nstages)
     for (stage in stages) {
@@ -264,7 +279,10 @@ percent_mortality_hab <- function (percentage, threshold, stages = NULL) {
       }
     }
     
-    population_raster[idx] <- population_matrix
+    for (i in seq_len(nstages)) {
+      population_raster[[i]][idx] <- population_matrix[, i]
+    }
+    
     landscape$population <- population_raster
     landscape
   }
@@ -274,8 +292,8 @@ percent_mortality_hab <- function (percentage, threshold, stages = NULL) {
 Now we run our simulation again using the new custom function and a suitability threshold of 0.7. Note, we must also now include a suitability raster layer in the landscape object or else our function will not work:
 
 ```{r, message = FALSE}
-ls <- landscape(population = egk_pop,
-                suitability = egk_hab,
+ls <- landscape(population = egk_pop(),
+                suitability = egk_hab(),
                 carrying_capacity = NULL)
 
 pd <- population_dynamics(change = NULL,
@@ -297,27 +315,21 @@ results <- simulation(landscape = ls,
 Again, we can view the initial total juvenile landscape population and the modified population in each of the timesteps:
 
 ```{r, message = FALSE}
-cbind(c("t0", "t1", "t2", "t3"),
-      c(cellStats(egk_pop[[1]], sum),
-        cellStats(results[[1]][[1]][["population"]][[1]], sum),
-        cellStats(results[[1]][[2]][["population"]][[1]], sum),
-        cellStats(results[[1]][[3]][["population"]][[1]], sum)))
-
+cbind(
+  c("t0", "t1", "t2", "t3"),
+  c(
+    as.numeric(terra::global(egk_pop()[[1]], "sum", na.rm = TRUE)),
+    as.numeric(terra::global(results[[1]][[1]][["population"]][[1]], "sum", na.rm = TRUE)),
+    as.numeric(terra::global(results[[1]][[2]][["population"]][[1]], "sum", na.rm = TRUE)),
+    as.numeric(terra::global(results[[1]][[3]][["population"]][[1]], "sum", na.rm = TRUE))
+  )
+)
 ```
 And here is an updated plot of the juvenile cell populations:
 
 ```{r, message = FALSE, fig.align = "center"}
-pop_stack <- stack(egk_pop[[1]],
-                   results[[1]][[1]][["population"]][[1]],
-                   results[[1]][[2]][["population"]][[1]],
-                   results[[1]][[3]][["population"]][[1]])
+plot_pop_spatial(results, stage = 1)
 
-names(pop_stack) <- c("t0", "t1", "t2", "t3")
-
-par(mar=c(0,0,0,0), oma=c(0,0,0,0))
-spplot(pop_stack,
-       col.regions = viridis(100),
-       par.settings=list(strip.background = list(col = "white")))
 ```
 
 Notice that whilst the total juvenile population numbers have decreased in a similar fashion, the spatial locations of the reductions have been confined to areas where habitat is highly suitable - as specified by our threshold value.
@@ -325,18 +337,18 @@ Notice that whilst the total juvenile population numbers have decreased in a sim
 But what if we want to influence the locations of the random samples by our own custom raster layer? This is accomplished by creating/loading a new raster that matches the properties (extent, resolution, and projection) of the population raster stack and adding it to the landscape object:
 
 ```{r, message = FALSE, fig.align = "center"}
-sampling_mask <- egk_hab # copy the habitat layer to assume its properties
-sampling_mask[!is.na(egk_hab)] <- 0 # set all non-NA values to zero
+sampling_mask <- egk_hab() # copy the habitat layer to assume its properties
+sampling_mask[!is.na(egk_hab())] <- 0 # set all non-NA values to zero
 
 # get index values of the top-right corner (15 x 15 cells)
 idx_corner <- sort(unlist(lapply(0:15, function (x) seq(21, 541, by = 36) + x)))
 
 # set non-NA raster values in top-right corner to one
-sampling_mask[intersect(idx_corner, which(!is.na(egk_hab[])))] <- 1
+sampling_mask[intersect(idx_corner, which(!is.na(egk_hab()[])))] <- 1
 
 plot(sampling_mask, axes = FALSE, box = FALSE)
 
-ls <- landscape(population = egk_pop,
+ls <- landscape(population = egk_pop(),
                 suitability = NULL,
                 carrying_capacity = NULL,
                 "sampling_mask" = sampling_mask) # name the object to reference in our function
@@ -349,15 +361,19 @@ percent_mortality_ras <- function (percentage, masking_raster, threshold, stages
   
   pop_dynamics <- function (landscape, timestep) {
     population_raster <- landscape$population
-    nstages <- raster::nlayers(population_raster)
+    nstages <- terra::nlyr(population_raster)
     
     # get population as a matrix
-    idx <- which(!is.na(raster::getValues(population_raster[[1]])))
-    population_matrix <- raster::extract(population_raster, idx)
+    idx <- which(!is.na(terra::values(population_raster[[1]])))
+    population_matrix <- as.matrix(
+      terra::extract(population_raster, idx)
+      )
     
     # Note, here we now use the name of the raster ('masking_raster' parameter)
     # to extract the object from the landscape object
-    suitable <- raster::extract(landscape[[masking_raster]], idx)
+    suitable <- as.numeric(
+      terra::extract(landscape[[masking_raster]], idx)[, 1]
+    )
     
     if (is.null(stages)) stages <- seq_len(nstages)
     for (stage in stages) {
@@ -374,7 +390,10 @@ percent_mortality_ras <- function (percentage, masking_raster, threshold, stages
       }
     }
     
-    population_raster[idx] <- population_matrix
+    for (i in seq_len(nstages)) {
+      population_raster[[i]][idx] <- population_matrix[, i]
+    }
+    
     landscape$population <- population_raster
     landscape
   }
@@ -404,28 +423,22 @@ results <- simulation(landscape = ls,
 The changes in total juvenile landscape population are as expected:
 
 ```{r, message = FALSE}
-cbind(c("t0", "t1", "t2", "t3"),
-      c(cellStats(egk_pop[[1]], sum),
-        cellStats(results[[1]][[1]][["population"]][[1]], sum),
-        cellStats(results[[1]][[2]][["population"]][[1]], sum),
-        cellStats(results[[1]][[3]][["population"]][[1]], sum)))
+cbind(
+  c("t0", "t1", "t2", "t3"),
+  c(
+    as.numeric(terra::global(egk_pop()[[1]], "sum", na.rm = TRUE)),
+    as.numeric(terra::global(results[[1]][[1]][["population"]][[1]], "sum", na.rm = TRUE)),
+    as.numeric(terra::global(results[[1]][[2]][["population"]][[1]], "sum", na.rm = TRUE)),
+    as.numeric(terra::global(results[[1]][[3]][["population"]][[1]], "sum", na.rm = TRUE))
+  )
+)
 
 ```
 
 But now the changes in juvenile cell populations are confined to our 'sampling_mask' layer:
 
 ```{r, message = FALSE, fig.align = "center"}
-pop_stack <- stack(egk_pop[[1]],
-                   results[[1]][[1]][["population"]][[1]],
-                   results[[1]][[2]][["population"]][[1]],
-                   results[[1]][[3]][["population"]][[1]])
-
-names(pop_stack) <- c("t0", "t1", "t2", "t3")
-
-par(mar=c(0,0,0,0), oma=c(0,0,0,0))
-spplot(pop_stack,
-       col.regions = viridis(100),
-       par.settings=list(strip.background = list(col = "white")))
+plot_pop_spatial(results, stage = 1)
 ```
 
 So far we have been modifying the population rasters in the landscape object, but we can also modify vital rates as well. This may be useful in situations where a user would like to deterministically define, or affect, survival and fecundity.
@@ -437,40 +450,40 @@ modified_transition <- function(survival_layer = NULL,
                                 fecundity_layer = NULL) {
   
   fun <- function (transition_array, landscape, timestep) {
-    
+
     transition_matrix <- transition_array[, , 1]
     idx <- which(transition_matrix != 0)
     is_recruitment <- upper.tri(transition_matrix)[idx]
     
     array_length <- dim(transition_array)[3]
 
-    cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])))
+    cell_idx <- which(!is.na(terra::values(landscape$population[[1]])))
     
     if (is.null(survival_layer)) {
       surv_mult <- rep(1, length(cell_idx))
     } else {
-      if (raster::nlayers(landscape$suitability) > 1) {
-        surv_mult <- landscape[[survival_layer]][[timestep]][cell_idx]
+      if (terra::nlyr(landscape$suitability) > 1) {
+        surv_mult <- terra::values(landscape[[survival_layer]][[timestep]])[cell_idx]
       } else {
-        surv_mult <- landscape[[survival_layer]][cell_idx]
+        surv_mult <- terra::values(landscape[[survival_layer]])[cell_idx]
       }
     }
     
     if (is.null(fecundity_layer)) {
       fec_mult <- rep(1, length(cell_idx))
     } else {
-      if (raster::nlayers(landscape$suitability) > 1) {
-        fec_mult <- landscape[[fecundity_layer]][[timestep]][cell_idx]
+      if (terra::nlyr(landscape$suitability) > 1) {
+        fec_mult <- terra::values(landscape[[fecundity_layer]][[timestep]])[cell_idx]
       } else {
-        fec_mult <- landscape[[fecundity_layer]][cell_idx]
+        fec_mult <- terra::values(landscape[[fecundity_layer]])[cell_idx]
       }
     }
-    
+
     for (i in seq_len(array_length)) {
       transition_array[, , i][idx[!is_recruitment]] <- transition_array[, , i][idx[!is_recruitment]] * surv_mult[i]
       transition_array[, , i][idx[is_recruitment]] <- transition_array[, , i][idx[is_recruitment]] * fec_mult[i]
     }
-
+    
     transition_array
     
   }
@@ -491,7 +504,7 @@ In the next few statements of the internal function ('fun'), the transition valu
 In the next example, we demonstrate the use of rasters to define the fecundity of adult kangaroos. We begin with a simple simulation of population growth. For this simulation we only need initial populations and a growth function based on a transition matrix - environmental stochasticity is set to zero by default in the function. We run the simulation for a single replicate of five iterations:
 
 ```{r, message = FALSE}
-ls <- landscape(population = egk_pop,
+ls <- landscape(population = egk_pop(),
                 suitability = NULL,
                 carrying_capacity = NULL)
 
@@ -533,13 +546,13 @@ paste("Rmax =", abs(eigen(egk_mat)$values[1]))
 Now let's suppose that we want to provide rasters that define the fecundity of adult kangaroos. The methods are similar to our earlier examples but we will need to tailor our custom function to work within the pre-existing 'growth' dynamics function (type ?growth for more information). First, we will construct a raster that will contain our values of influence - in this case numbers that define adult fecundity in each cell (missing values will use existing fecundity). We do this randomly as an example, but users can read in spatial-explicit data that represents mapped factors affecting fecundity/survival (e.g. additional food/water, protection from predators, disease status):
 
 ```{r, message = FALSE, fig.align = "center", warning = FALSE}
-adult_fec <- egk_hab # copy the habitat layer to assume its properties
+adult_fec <- egk_hab() # copy the habitat layer to assume its properties
 adult_fec[] <- NA # set all values to NA
 
 ncells <- ncell(adult_fec)
 
 # assign random numbers between 0.1 and 0.5 to 80% of the cells
-adult_fec[sample(seq_len(ncells), 0.8 * ncells, replace = FALSE)] <- runif(ncells, 0.1, 0.5)
+adult_fec[sample(seq_len(ncells), 0.8 * ncells, replace = FALSE)] <- runif(0.8 *ncells, 0.1, 0.5)
 
 plot(adult_fec, axes = FALSE, box = FALSE)
 ```
@@ -561,7 +574,7 @@ define_fecundity <- function(fecundity_layer) {
     transition_matrix <- transition_array[, , 1]
     idx <- which(transition_matrix != 0)
     is_recruitment <- upper.tri(transition_matrix)[idx]
-    cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])
+    cell_idx <- which(!is.na(terra::values(landscape$population[[1]])
     
     # this length should be pre-defined by non-NA cells in the landscape
     array_length <- dim(transition_array)[3]
@@ -577,7 +590,7 @@ define_fecundity <- function(fecundity_layer) {
     transition_matrix <- transition_array[, , 1]
     idx <- which(transition_matrix != 0)
     is_recruitment <- upper.tri(transition_matrix)[idx]
-    cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])
+    cell_idx <- which(!is.na(terra::values(landscape$population[[1]])
     
     # this length should be pre-defined by non-NA cells in the landscape
     array_length <- dim(transition_array)[3]
@@ -601,12 +614,14 @@ define_fecundity <- function(fecundity_layer) {
     transition_matrix <- transition_array[, , 1]
     idx <- which(transition_matrix != 0)
     is_recruitment <- upper.tri(transition_matrix)[idx]
-    cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])))
+    cell_idx <- which(!is.na(terra::values(landscape$population[[1]])))
     
     # this length should be pre-defined by non-NA cells in the landscape
     array_length <- dim(transition_array)[3]
           
-    fec_values <- landscape[[fecundity_layer]][cell_idx]
+    fec_values <- as.numeric(
+      terra::extract(landscape[[fecundity_layer]], cell_idx)[, 1]
+      )
     
     for (i in seq_len(array_length)) {
       new_fec <- fec_values[i]
@@ -623,7 +638,7 @@ define_fecundity <- function(fecundity_layer) {
 In the 'population_dynamics' function, we specify 'growth' in the 'change' parameter, use the 'transition_function' parameter to call the new custom function (define_fecundity), and add the new parameter specifying the name of the raster in the landscape object. As previously, we run the simulation for a single replicate of five iterations:
 
 ```{r, message = FALSE}
-ls <- landscape(population = egk_pop,
+ls <- landscape(population = egk_pop(),
                 suitability = NULL,
                 carrying_capacity = NULL,
                 "adult_fec" = adult_fec)
@@ -695,8 +710,8 @@ Note, that the wrapper structure is still retained and that this function must r
 Now, let's test our dispersal function and compare it to the default exponential dispersal kernel. We will first thin out an example initial population raster stack so we can better see the effect of the new dispersal function.
 
 ```{r, message = FALSE}
-egk_pop_thin <- egk_pop
-egk_pop_thin[sample(1:ncell(egk_pop), 0.99 * ncell(egk_pop))] <- 0
+egk_pop_thin <- egk_pop()
+egk_pop_thin[sample(1:ncell(egk_pop()), 0.99 * ncell(egk_pop()))] <- 0
 
 ls <- landscape(population = egk_pop_thin,
                 suitability = NULL,
@@ -736,18 +751,7 @@ results_02 <- simulation(landscape = ls,
 
 plot_pop_spatial(results_02, stage = 3, timesteps = c(1, 5, 10))
 ```
-Please note that if any custom functions are used in a simulation that is run in parallel (e.g. plan(multisession)), then a list of the functions and any related objects must be passed into the simulation function using the future.globals argument:
 
-```{r, message = FALSE, eval = FALSE}
-plan(multisession)
-results_02 <- simulation(landscape = ls,
-                      population_dynamics = pd_log_disp,
-                      habitat_dynamics = NULL,
-                      timesteps = 10,
-                      replicates = 3,
-                      verbose = FALSE,
-                      future.globals = list("logistic_dispersal_kernel" = logistic_dispersal_kernel))
-```
 
 These are simple examples, but users can specify a seemingly endless configuration of dynamics to be used throughout a simulation by following the structures and methods introduced in this vignette. Anything can be stored in a landscape object and then be referred to within a custom function. Thus, the procedure for creating custom functions also applies to habitat dynamics - which are called in the simulation function.
 

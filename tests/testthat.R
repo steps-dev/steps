@@ -1,5 +1,5 @@
 library(testthat)
-library(raster)
+library(terra)
 library(steps)
 
 test_check("steps")

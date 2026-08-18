@@ -7,10 +7,12 @@
 landscape(population, suitability = NULL, carrying_capacity = NULL, ...)
 }
 \arguments{
-\item{population}{a raster stack (grid cell-based) with one layer for each life
-stage.}
+\item{population}{a SpatRaster stack (grid cell-based) with one layer for 
+each life
+ stage.}
 
-\item{suitability}{an optional raster layer or stack (multiple layers) containing
+\item{suitability}{an optional SpatRaster layer or stack (multiple layers)
+containing
 habitat suitability values for all cells in a landscape. Note, using a raster
 stack assumes that the user has provided a layer for each intended timestep
 in a simulation.}
@@ -19,7 +21,8 @@ in a simulation.}
 values for all cells in a landscape or a function defining how carrying capacity
 is determined by habitat suitability.}
 
-\item{...}{named raster objects representing different aspects of the landscape
+\item{...}{named SpatRaster objects representing different aspects of the
+landscape
 used to modify the landscape object in a simulation. Note, this is intended to
 store objects that are accessed by dynamic functions and used to modify the
 landscape in a simulation. Also, further arguments passed to or from other methods.}
@@ -41,7 +44,7 @@ based on dynamic functions selected or created by the user.
 # Example of setting up a landscape object.
 
 \dontrun{
-ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+ls <- landscape(population = egk_pop(), suitability = egk_hab(), carrying_capacity = egk_k())
 
 pd <- population_dynamics(change = growth(egk_mat))
 

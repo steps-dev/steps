@@ -54,7 +54,7 @@ throughout a simulation. Please see the tutorial vignette titled "Creating custo
 \dontrun{
 stoch_growth <- growth(transition_matrix = egk_mat, global_stochasticity = egk_mat_stoch)
 
-ls <- landscape(population = egk_pop, suitability = NULL, carrying_capacity = NULL)
+ls <- landscape(population = egk_pop(), suitability = NULL, carrying_capacity = NULL)
 
 pd <- population_dynamics(change = stoch_growth)
 

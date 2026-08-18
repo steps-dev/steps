@@ -43,11 +43,11 @@ NULL
 #'                            stages = NULL,
 #'                            effect_timesteps = c(5, 10, 15))
 #' 
-#' ls <- landscape(population = egk_pop,
+#' ls <- landscape(population = egk_pop(),
 #'                 suitability = NULL,
 #'                 carrying_capacity = NULL,
-#'                 "origins" = egk_origins,
-#'                 "destinations" = egk_destinations)
+#'                 "origins" = egk_origins(),
+#'                 "destinations" = egk_destinations())
 #' 
 #' pd <- population_dynamics(change = growth(egk_mat), modification = trans_pop)
 #' 
@@ -61,14 +61,14 @@ translocation <- function (origins_layer, destinations_layer, stages = NULL, eff
     if (timestep %in% effect_timesteps) {
       
       population_raster <- landscape$population
-      nstages <- raster::nlayers(population_raster)
+      nstages <- terra::nlyr(population_raster)
       
       # get population as a matrix
-      idx <- which(!is.na(raster::getValues(population_raster[[1]])))
-      population_matrix <- raster::extract(population_raster, idx)
+      idx <- which(!is.na(terra::values(population_raster[[1]])))
+      population_matrix <- as.matrix(terra::extract(population_raster, idx))
       
-      origins <- raster::extract(landscape[[origins_layer]], idx)
-      destinations <- raster::extract(landscape[[destinations_layer]], idx)
+      origins <- as.matrix(terra::extract(landscape[[origins_layer]], idx))
+      destinations <- as.matrix(terra::extract(landscape[[destinations_layer]], idx))
       
       if (is.null(stages)) stages <- seq_len(nstages)
       
@@ -125,10 +125,10 @@ translocation <- function (origins_layer, destinations_layer, stages = NULL, eff
 #' \dontrun{
 #' fire_mortal <- mortality(mortality_layer = "fire", stages = NULL)
 #' 
-#' ls <- landscape(population = egk_pop,
-#'                 suitability = egk_hab,
-#'                 carrying_capacity = egk_k,
-#'                 "fire" = egk_fire)
+#' ls <- landscape(population = egk_pop(),
+#'                 suitability = egk_hab(),
+#'                 carrying_capacity = egk_k(),
+#'                 "fire" = egk_fire())
 #' 
 #' pd <- population_dynamics(change = growth(egk_mat), modification = fire_mortal)
 #' 
@@ -140,16 +140,16 @@ mortality <- function (mortality_layer, stages = NULL) {
   pop_dynamics <- function (landscape, timestep) {
     
     population_raster <- landscape$population
-    nstages <- raster::nlayers(population_raster)
+    nstages <- terra::nlyr(population_raster)
     
     # get population as a matrix
-    idx <- which(!is.na(raster::getValues(population_raster[[1]])))
-    population_matrix <- raster::extract(population_raster, idx)
+    idx <- which(!is.na(terra::values(population_raster[[1]])))
+    population_matrix <- as.matrix(terra::extract(population_raster, idx))
     
-    if (raster::nlayers(landscape[[mortality_layer]]) > 1) {
-      mortality_prop <- raster::extract(landscape[[mortality_layer]][[timestep]], idx)
+    if (terra::nlyr(landscape[[mortality_layer]]) > 1) {
+      mortality_prop <- as.matrix(terra::extract(landscape[[mortality_layer]][[timestep]], idx))
     } else {
-      mortality_prop <- raster::extract(landscape[[mortality_layer]], idx)
+      mortality_prop <- as.matrix(terra::extract(landscape[[mortality_layer]], idx))
     }
     
     if (is.null(stages)) stages <- seq_len(nstages)

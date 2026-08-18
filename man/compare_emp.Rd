@@ -36,7 +36,7 @@ Compare minimum expected populations from two or more 'simulation_results' objec
 \examples{
 
 \dontrun{
-ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+ls <- landscape(population = egk_pop(), suitability = egk_hab(), carrying_capacity = egk_k())
 
 # Create populations dynamics with and without ceiling density dependence
 pd1 <- population_dynamics(change = growth(egk_mat),

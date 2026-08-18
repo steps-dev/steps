@@ -28,13 +28,14 @@
 #' @export
 #'
 #' @importFrom future plan multisession future value
-#' @importFrom raster animate
+#' @importFrom terra nlyr as.matrix rast
 #' @importFrom viridisLite viridis
+#' @importFrom grDevices as.raster
 #'
 #' @examples
 #' 
 #' \dontrun{
-#' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+#' ls <- landscape(population = egk_pop(), suitability = egk_hab(), carrying_capacity = egk_k())
 #' 
 #' pd <- population_dynamics(change = growth(egk_mat),
 #'                           dispersal = kernel_dispersal(max_distance = 2000,
@@ -43,7 +44,7 @@
 #'                           density_dependence = ceiling_density())
 #' 
 #' # Run a simulation with full demographic stochasticity and without any habitat
-#' # dynamics for tewnty timesteps.
+#' # dynamics for twenty timesteps.
 #' sim <- simulation(landscape = ls,
 #'                   population_dynamics = pd,
 #'                   habitat_dynamics = NULL,
@@ -71,6 +72,11 @@ simulation <- function(landscape,
   
   in_parallel <- !inherits(future::plan(), "sequential")
   is_multisession <- inherits(future::plan(), "multisession")
+  
+  # added KH 2.20.26 to prevent multisession errors due to terra memory/serialization issues
+  if (is_multisession) stop("The latest update of steps cannot support multisessions.")
+  
+  
   lapply_fun <- ifelse(in_parallel,
                        future_lapply_wrapper,
                        base::lapply)
@@ -81,9 +87,9 @@ simulation <- function(landscape,
   for (name in landscape_names) {
     
     if (name != "population" && !is.function(landscape[[name]]) &&
-        !is.null(landscape[[name]]) && raster::nlayers(landscape[[name]]) > 1) {
+        !is.null(landscape[[name]]) && terra::nlyr(landscape[[name]]) > 1) {
       
-      if (raster::nlayers(landscape[[name]]) < timesteps) {
+      if (terra::nlyr(landscape[[name]]) < timesteps) {
         stop("A spatial object exists in the landscape that has less layers than specified ",
              "number timesteps. All spatial objects must have either one layer or a number of ",
              "layers equal to the intended number of timesteps in a simulation. Please check the ",
@@ -94,11 +100,11 @@ simulation <- function(landscape,
     
   }
   
-  # store intitial population, habitat, and carrying capacity objects
+  # store initial population, habitat, and carrying capacity objects
   initial_population <- landscape$population
   initial_suitability <- landscape$suitability
   initial_carrying_capacity <- get_carrying_capacity(landscape, 1)
-  
+
   simulation_results <- tryCatch(lapply_fun(seq_len(replicates),
                                             FUN = simulate,
                                             landscape = landscape,
@@ -159,7 +165,7 @@ is.simulation_results <- function (x) {
 #' @examples
 #' 
 #' \dontrun{
-#' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+#' ls <- landscape(population = egk_pop(), suitability = egk_hab(), carrying_capacity = egk_k())
 #' 
 #' pd <- population_dynamics(change = growth(egk_mat),
 #'                           dispersal = kernel_dispersal(max_distance = 2000,
@@ -213,7 +219,11 @@ plot.simulation_results <- function (x,
   for (i in replicates){
     for (j in timesteps) {
 
-      graphics::layout(matrix(c(1, 1, 1, 2, 2, 3), ncol = 2), width = c(1, 1, 1), height = c(3, 2, 1))
+      graphics::layout(
+        matrix(c(1, 1, 1, 2, 2, 3), ncol = 2),
+        width = c(1, 1, 1),
+        height = c(3, 2, 1))
+      
       graphics::par(mar = c(4, 3, 3, 0), mgp = c(2, 0.7, 0))
       
       graphics::plot(x = 0:j, y = c(pop_data_totals[1, i], pop_data_totals[-1, i][1:j]),
@@ -227,20 +237,26 @@ plot.simulation_results <- function (x,
                      cex.main = 0.9)
       graphics::grid()
       
-      mat <- t(apply(raster::as.matrix(pop_spatial[[i]][[j]]), 2, rev))
-      
+      # mat <- t(apply(terra::as.matrix(pop_spatial[[i]][[j]]), 2, rev))
+      # 
       graphics::par(mar = c(2, 2, 1.2, 1.2))
-      graphics::image(mat,
-                      col = cols,
-                      axes = FALSE,
-                      asp = 1,
-                      zlim = c(0, max_ind))
+      
+      terra::plot(pop_spatial[[i]][[j]],
+                  col = cols,
+                  axes = FALSE,
+                  zlim = c(0, max_ind))
+      # graphics::image(mat,
+      #                 col = cols,
+      #                 axes = FALSE,
+      #                 asp = 1,
+      #                 zlim = c(0, max_ind))
       graphics::title(paste0(layer_names[j]),
                       line = -0.7,
                       font.main = 1,
                       cex.main = 0.9)
 
-      legend_image <- raster::as.raster(matrix(cols, nrow = 1))
+
+      legend_image <- as.raster(matrix(cols, nrow = 1))
       
       graphics::plot.new()
       graphics::par(mar = c(2, 2, 1.2, 0.8))
@@ -261,15 +277,15 @@ plot.simulation_results <- function (x,
 #'   \itemize{
 #'     \item{Timestep}
 #'     \itemize{
-#'       \item{Population Raster Stack}
+#'       \item{Population SpatRaster Stack}
 #'       \itemize{
-#'         \item{Life-Stage Raster}
+#'         \item{Life-Stage SpatRaster}
 #'       }
-#'       \item{Habitat Suitability Raster (or Stack)}
+#'       \item{Habitat Suitability SpatRaster (or Stack)}
 #'       \itemize{
-#'         \item{Habitat Raster (if stack is used)}
+#'         \item{Habitat SpatRaster (if stack is used)}
 #'       }
-#'       \item{Carrying Capacity Raster}
+#'       \item{Carrying Capacity SpatRaster}
 #'       \item{Other Raster Stack}
 #'       \itemize{
 #'         \item{Raster}
@@ -297,7 +313,7 @@ plot.simulation_results <- function (x,
 #' @examples
 #' 
 #' \dontrun{
-#' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+#' ls <- landscape(population = egk_pop(), suitability = egk_hab(), carrying_capacity = egk_k())
 #' 
 #' pd <- population_dynamics(change = growth(egk_mat),
 #'                           dispersal = kernel_dispersal(max_distance = 2000,
@@ -362,12 +378,14 @@ as.simulation_results <- function (simulation_results) {
 }
 
 simulate <- function (i, landscape, population_dynamics, habitat_dynamics, timesteps, verbose, stash, is_multisession) {
-  
+
   # if we are running in parallel, make sure the steps stash is the one from the calling session
-  if (is_multisession) {
-    replace_stash(stash)
-  }
-  
+# 
+#   if (is_multisession) {
+#     replace_stash(stash)
+#   }
+  # commented out KH- 2.20.26  Stash value was also wiped with flush_stash() (terra objects in memory not serialized correctly?) so value of stash$demo_stochasticity becomes NULL and breaks later on .
+
   timesteps <- seq_len(timesteps)
   if (verbose == TRUE && inherits(future::plan(), "sequential")) pb <- utils::txtProgressBar(min = 0, max = max(timesteps), style = 3)
   
@@ -378,6 +396,7 @@ simulate <- function (i, landscape, population_dynamics, habitat_dynamics, times
   for (timestep in timesteps) {
     
     for (dynamic_function in habitat_dynamics) {
+      
       landscape <- dynamic_function(landscape, timestep)
     }
     
@@ -408,9 +427,10 @@ simulate <- function (i, landscape, population_dynamics, habitat_dynamics, times
       # 22.01.20 - # } else {
       
       if (name != "population" && !is.function(landscape_out[[name]]) &&
-          !is.null(landscape_out[[name]]) && raster::nlayers(landscape_out[[name]]) > 1) {
+          !is.null(landscape_out[[name]]) && terra::nlyr(landscape_out[[name]]) > 1) {
         
-        landscape_out[[name]] <- landscape_out[[name]][[timestep]]
+        # create new raster to prevent pointer issues
+        landscape_out[[name]] <- terra::rast(landscape_out[[name]][[timestep]])
         
         # 22.01.20 - # }
       }

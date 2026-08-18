@@ -40,15 +40,15 @@ is organised by the following tree diagram:
   \itemize{
     \item{Timestep}
     \itemize{
-      \item{Population Raster Stack}
+      \item{Population SpatRaster Stack}
       \itemize{
-        \item{Life-Stage Raster}
+        \item{Life-Stage SpatRaster}
       }
-      \item{Habitat Suitability Raster (or Stack)}
+      \item{Habitat Suitability SpatRaster (or Stack)}
       \itemize{
-        \item{Habitat Raster (if stack is used)}
+        \item{Habitat SpatRaster (if stack is used)}
       }
-      \item{Carrying Capacity Raster}
+      \item{Carrying Capacity SpatRaster}
       \item{Other Raster Stack}
       \itemize{
         \item{Raster}
@@ -61,7 +61,7 @@ is organised by the following tree diagram:
 \examples{
 
 \dontrun{
-ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+ls <- landscape(population = egk_pop(), suitability = egk_hab(), carrying_capacity = egk_k())
 
 pd <- population_dynamics(change = growth(egk_mat),
                           dispersal = kernel_dispersal(max_distance = 2000,

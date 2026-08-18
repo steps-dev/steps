@@ -3,6 +3,7 @@
 \docType{package}
 \name{steps}
 \alias{steps}
+\alias{steps-package}
 \title{Simulate population trajectories over space and time with dynamic functions.}
 \description{
 Simulating shifts in species populations is an important
@@ -18,4 +19,22 @@ A \link[steps]{simulation} is run on a \link[steps]{landscape} using population
 dynamics functions contained in a \link[steps]{population_dynamics} object.
 \link[steps]{habitat_dynamics_functions} can also be added to the simulation to
 modify the habitat during a simulation.
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/steps-dev/steps}
+  \item Report bugs at \url{https://github.com/steps-dev/steps/issues}
+}
+
+}
+\author{
+\strong{Maintainer}: Casey Visintin \email{casey.visintin@unimelb.edu.au} (\href{https://orcid.org/0000-0003-2245-8998}{ORCID})
+
+Other contributors:
+\itemize{
+  \item Nick Golding \email{nick.golding.research@gmail.com} [contributor]
+  \item Skipton Woolley \email{skip.woolley@csiro.au} [contributor]
+}
+
 }

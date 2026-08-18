@@ -72,7 +72,7 @@ NULL
 #' kb_dispersal <- kernel_dispersal(max_distance = 2000,
 #'                       dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1000))
 #' 
-#' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+#' ls <- landscape(population = egk_pop(), suitability = egk_hab(), carrying_capacity = egk_k())
 #' 
 #' pd <- population_dynamics(change = growth(egk_mat),
 #'                           dispersal = kb_dispersal,
@@ -85,14 +85,14 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
                               max_distance = NULL,
                               arrival_probability = c("both", "suitability", "carrying_capacity", "none"),
                               dispersal_proportion = set_proportion_dispersing()) {
-  
+
   arrival_probability <- match.arg(arrival_probability)
-  
+
   pop_dynamics <- function(landscape, timestep) {
 
-    n_rows <- raster::nrow(landscape$population[[1]])
-    n_cols <- raster::ncol(landscape$population[[1]])
-    res <- raster::res(landscape$population[[1]])
+    n_rows <- terra::nrow(landscape$population[[1]])
+    n_cols <- terra::ncol(landscape$population[[1]])
+    res <- terra::res(landscape$population[[1]])
     default_max <- sqrt( (n_cols * res[1])^2 + (n_rows * res[2])^2 )
     
     bad_distance <- FALSE
@@ -164,19 +164,19 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
       raster_dim <- dim(landscape$population[[1]])[-3]
       raster_dim <- force(raster_dim)
       
-      distance_info <- get_distance_info(res = raster::res(landscape$population),
+      distance_info <- get_distance_info(res = terra::res(landscape$population),
                                          max_distance = max_distance)
       
       sys_mem_available <- memuse::Sys.meminfo()$freeram
       
       sys_mem_available <- memuse::mu.size(sys_mem_available, as.is = FALSE) * 0.8
       
-      n_elem <- nrow(distance_info) * raster::ncell(landscape$population)
+      n_elem <- nrow(distance_info) * terra::ncell(landscape$population)
       sys_mem_required <- (n_elem * (64 + 32)) / 8
       
       if (sys_mem_required < sys_mem_available) {
         print("Kernel-based dispersal utilising available RAM to speed up operations")
-        distance_list <- steps_stash$distance_list <- lapply(seq_len(raster::ncell(landscape$population)),
+        distance_list <- steps_stash$distance_list <- lapply(seq_len(terra::ncell(landscape$population)),
                                                              function (x) get_ids_dists(cell_id = x,
                                                                                         distance_info = distance_info,
                                                                                         raster_dim = raster_dim))
@@ -185,10 +185,10 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
     }
     
     # how many life stages?
-    n_stages <- raster::nlayers(landscape$population)
+    n_stages <- terra::nlyr(landscape$population)
     
     # create masking layer
-    mask <- raster::getValues(landscape$population[[1]])
+    mask <- terra::values(landscape$population[[1]])
     mask[!is.na(mask)] <- 1
     
     # check the required landscape rasters/functions are available
@@ -220,13 +220,24 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
     which_stages_disperse <- which(dispersal_proportion > 0)
     
     # get non-NA cells
-    cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])))
+    cell_idx <- which(!is.na(terra::values(landscape$population[[1]])))
     
-    delayedAssign(
-      "habitat_suitability_values",
-      if (raster::nlayers(landscape$suitability) > 1) raster::getValues(landscape$suitability[[timestep]])
-      else raster::getValues(landscape$suitability)
-    )
+    if (!is.null(landscape$suitability)) {
+      if (terra::nlyr(landscape$suitability) > 1) {
+        habitat_suitability_values <- terra::values(landscape$suitability[[timestep]])
+      } else {
+        habitat_suitability_values <- terra::values(landscape$suitability)
+      }
+    } else {
+      # just use the population mask (1 if no mask)
+      habitat_suitability_values <- mask
+    }
+    
+    # delayedAssign(
+    #   "habitat_suitability_values",
+    #   if (terra::nlyr(landscape$suitability) > 1) terra::values(landscape$suitability[[timestep]])
+    #   else terra::values(landscape$suitability)
+    # )
     
     if ("carrying_capacity" %in% layers) {
       
@@ -238,19 +249,27 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
               call. = FALSE)
       }
       
-      delayedAssign(
-        "carrying_capacity_proportion",
-        raster::getValues(
-          raster::calc(
-            raster::stack(landscape$population)[[
-              density_dependence_stages
-              ]],
-            sum
-          ) / cc
+      carrying_capacity_proportion <- terra::values(
+          terra::app(
+            landscape$population[[density_dependence_stages]],  
+            fun = function(x) sum(x, na.rm = TRUE)             
+          ) / landscape$carrying_capacity                      
         )
-      )
       
-      cc_values <- raster::getValues(cc)
+      
+      # delayedAssign(
+      #   "carrying_capacity_proportion",
+      #   terra::values(
+      #     raster::app(
+      #       raster::stack(landscape$population)[[
+      #         density_dependence_stages
+      #       ]],
+      #       sum
+      #     ) / cc
+      #   )
+      # )
+      
+      cc_values <- terra::values(cc)
       
     } else {
       
@@ -271,7 +290,7 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
     can_arriv_ids <- which(arrival_prob_values > 0 & !is.na(arrival_prob_values))
     
     # Extract the population values
-    pop <- raster::getValues(landscape$population)
+    pop <- terra::values(landscape$population)
     
     # store the original population, so that individuals don't disperse twice
     original_pop <- pop
@@ -375,10 +394,10 @@ kernel_dispersal <- function (dispersal_kernel = exponential_dispersal_kernel(di
 #' \dontrun{
 #' ca_dispersal <- cellular_automata_dispersal(max_cells = c(0, 100, 100), barriers = "roads")
 #' 
-#' ls <- landscape(population = egk_pop,
-#'                 suitability = egk_hab,
-#'                 carrying_capacity = egk_k,
-#'                 "roads" = egk_road)
+#' ls <- landscape(population = egk_pop(),
+#'                 suitability = egk_hab(),
+#'                 carrying_capacity = egk_k(),
+#'                 "roads" = egk_road())
 #' 
 #' pd <- population_dynamics(change = growth(egk_mat),
 #'                           dispersal = ca_dispersal,
@@ -403,7 +422,7 @@ cellular_automata_dispersal <- function (max_cells = Inf,
     population_raster <- landscape$population
     
     # get non-NA cells
-    idx <- which(!is.na(raster::getValues(population_raster[[1]])))
+    idx <- which(!is.na(terra::values(population_raster[[1]])))
     
     # is suitability specified without raster existing in landscape?
     if (use_suitability & is.null(landscape$suitability)) {
@@ -411,7 +430,7 @@ cellular_automata_dispersal <- function (max_cells = Inf,
     }
     
     # handle input suitability raster stacks
-    if (raster::nlayers(landscape$suitability) > 1) {
+    if (terra::nlyr(landscape$suitability) > 1) {
       suitability_map <- landscape$suitability[[timestep]]
     } else {
       suitability_map <- landscape$suitability
@@ -437,10 +456,10 @@ cellular_automata_dispersal <- function (max_cells = Inf,
     }
     
     # get population as a matrix
-    population <- raster::extract(population_raster, idx)
+    population <- as.matrix(terra::extract(population_raster, idx))
     
     # get number of life-stages
-    n_stages <- raster::nlayers(population_raster)
+    n_stages <- terra::nlyr(population_raster)
     
     # work out dispersal proportions for eligible life-stages with input function
     dispersal_proportion <- dispersal_proportion(landscape, timestep)
@@ -449,9 +468,9 @@ cellular_automata_dispersal <- function (max_cells = Inf,
     default_distance <- identical(max_cells, Inf)
     
     if (default_distance) {
-      n_rows <- raster::nrow(population_raster[[1]])
-      n_cols <- raster::ncol(population_raster[[1]])
-      res <- raster::res(population_raster[[1]])
+      n_rows <- terra::nrow(population_raster[[1]])
+      n_cols <- terra::ncol(population_raster[[1]])
+      res <- terra::res(population_raster[[1]])
       max_cells <- round(2 * (max(n_rows, n_cols) / (res * 1.25)) ^ 2)
       min_cells <- max_cells ### Added 07.02.22
     }
@@ -488,10 +507,10 @@ cellular_automata_dispersal <- function (max_cells = Inf,
     
     # if no barrier map is specified, create a barriers matrix with all zeros.
     if (is.null(barriers)) {
-      barriers_map <- raster::calc(population_raster[[1]],
+      barriers_map <- terra::app(population_raster[[1]],
                                    function(x){x[!is.na(x)] <- 0; return(x)})
     } else {
-      if (raster::nlayers(landscape[[barriers]]) > 1) {
+      if (terra::nlyr(landscape[[barriers]]) > 1) {
         barriers_map <- landscape[[barriers]][[timestep]]
       } else {
         barriers_map <- landscape[[barriers]]
@@ -499,6 +518,7 @@ cellular_automata_dispersal <- function (max_cells = Inf,
       
     }
     
+   
     if (use_suitability) {
       permeability_map <- suitability_map * (1 - barriers_map)
     } else {
@@ -510,9 +530,9 @@ cellular_automata_dispersal <- function (max_cells = Inf,
     
     # could do this in parallel
     for (i in which_stages_disperse){
-      dispersed <- rcpp_dispersal(raster::as.matrix(population_raster[[i]]),
-                                  raster::as.matrix(cc),
-                                  raster::as.matrix(permeability_map),
+      dispersed <- rcpp_dispersal(terra::as.matrix(population_raster[[i]]),
+                                  terra::as.matrix(cc),
+                                  terra::as.matrix(permeability_map),
                                   as.integer(max_cells[i]),
                                   as.integer(min_cells[i]), ### Added 07.02.22
                                   as.numeric(dispersal_proportion[i]))
@@ -564,7 +584,7 @@ cellular_automata_dispersal <- function (max_cells = Inf,
 #' fft_dispersal <- fast_dispersal(dispersal_proportion = density_dependence_dispersing(),
 #'                      dispersal_kernel = exponential_dispersal_kernel(distance_decay = 1000))
 #' 
-#' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+#' ls <- landscape(population = egk_pop(), suitability = egk_hab(), carrying_capacity = egk_k())
 #' 
 #' pd <- population_dynamics(change = growth(egk_mat),
 #'                           dispersal = fft_dispersal,
@@ -577,8 +597,8 @@ fast_dispersal <- function(dispersal_kernel = exponential_dispersal_kernel(dista
                            dispersal_proportion = set_proportion_dispersing()) {
   
   pop_dynamics <- function(landscape, timestep) {
-    
-    n_stages <- raster::nlayers(landscape$population)
+   
+    n_stages <- terra::nlyr(landscape$population)
     
     dispersal_proportion <- dispersal_proportion(landscape, timestep)
     
@@ -595,18 +615,23 @@ fast_dispersal <- function(dispersal_kernel = exponential_dispersal_kernel(dista
       pop_staying <- pop - pop_dispersing
       
       # round population staying
-      idx <- not_missing(pop_staying)
-      pop_staying_vec <- raster::extract(pop_staying, idx)
-      pop_staying_vec <- round_pop(pop_staying_vec)
-      pop_staying[idx] <- pop_staying_vec
+      # idx <- not_missing(pop_staying)
+      # pop_staying_vec <- as.matrix(terra::extract(pop_staying, idx))
+      # pop_staying_vec <- round_pop(pop_staying_vec)
+      # pop_staying[idx] <- pop_staying_vec
+      
+      vals <- terra::values(pop_staying, mat = FALSE)
+      idx <- which(!is.na(vals))
+      vals[idx] <- round_pop(vals[idx])
+      terra::values(pop_staying) <- vals
       
       pop_dispersed <- dispersalFFT(
-        popmat = raster::as.matrix(
+        popmat = terra::as.matrix(
           pop_dispersing
         ),
         fs = setupFFT(
-          x = seq_len(raster::ncol(landscape$population)),
-          y = seq_len(raster::nrow(landscape$population)),
+          x = seq_len(terra::ncol(landscape$population)),
+          y = seq_len(terra::nrow(landscape$population)),
           f = function(d) {
             disp <- dispersal_kernel(d)
             disp / sum(disp)
@@ -614,7 +639,8 @@ fast_dispersal <- function(dispersal_kernel = exponential_dispersal_kernel(dista
         )
       )
       
-      pop_dispersing[] <- pop_dispersed
+
+      terra::values(pop_dispersing) <- as.vector(pop_dispersed)
       pop <- pop_staying + pop_dispersing
       landscape$population[[stage]] <- pop
       

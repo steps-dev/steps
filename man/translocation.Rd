@@ -42,11 +42,11 @@ trans_pop <- translocation(origins_layer = "origins",
                            stages = NULL,
                            effect_timesteps = c(5, 10, 15))
 
-ls <- landscape(population = egk_pop,
+ls <- landscape(population = egk_pop(),
                 suitability = NULL,
                 carrying_capacity = NULL,
-                "origins" = egk_origins,
-                "destinations" = egk_destinations)
+                "origins" = egk_origins(),
+                "destinations" = egk_destinations())
 
 pd <- population_dynamics(change = growth(egk_mat), modification = trans_pop)
 

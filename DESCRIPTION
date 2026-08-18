@@ -20,14 +20,14 @@ Depends:
 License: GPL (>= 2)
 Imports:
     Rcpp,
-    raster,
+    terra,
     future,
     future.apply,
     rasterVis,
     viridisLite,
     memuse
 LinkingTo: Rcpp
-RoxygenNote: 7.2.1
+RoxygenNote: 7.3.3
 Suggests:
     testthat,
     fields,

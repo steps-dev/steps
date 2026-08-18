@@ -22,7 +22,7 @@ Plot spatial grids to illustrate carrying capacity changes through time.
 \examples{
 
 \dontrun{
-ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = egk_k)
+ls <- landscape(population = egk_pop(), suitability = egk_hab(), carrying_capacity = egk_k())
 
 pd <- population_dynamics(change = growth(egk_mat),
                           dispersal = kernel_dispersal(max_distance = 2000,

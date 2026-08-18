@@ -39,7 +39,7 @@ plot(1:5, regen(1:5), type = "l")
 
 fire <- fire_effects(fire_layers = "fires", effect_time = 5, regeneration_function = regen)
 
-ls <- landscape(population = egk_pop, suitability = egk_hab, "fires" = egk_fire)
+ls <- landscape(population = egk_pop(), suitability = egk_hab(), "fires" = egk_fire())
 
 pd <- population_dynamics(change = growth(egk_mat))
 

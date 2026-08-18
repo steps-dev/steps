@@ -49,7 +49,7 @@ NULL
 #' \dontrun{
 #' mod_fun <- modified_transition(survival_layer = "suitability", fecundity_layer = "suitability")
 #' 
-#' ls <- landscape(population = egk_pop, suitability = egk_hab, carrying_capacity = NULL)
+#' ls <- landscape(population = egk_pop(), suitability = egk_hab(), carrying_capacity = NULL)
 #' 
 #' pd <- population_dynamics(change = growth(egk_mat, transition_function = mod_fun))
 #' 
@@ -60,40 +60,40 @@ modified_transition <- function(survival_layer = NULL,
                                 fecundity_layer = NULL) {
   
   fun <- function (transition_array, landscape, timestep) {
-    
+
     transition_matrix <- transition_array[, , 1]
     idx <- which(transition_matrix != 0)
     is_recruitment <- upper.tri(transition_matrix)[idx]
     
     array_length <- dim(transition_array)[3]
 
-    cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])))
+    cell_idx <- which(!is.na(terra::values(landscape$population[[1]])))
     
     if (is.null(survival_layer)) {
       surv_mult <- rep(1, length(cell_idx))
     } else {
-      if (raster::nlayers(landscape$suitability) > 1) {
-        surv_mult <- landscape[[survival_layer]][[timestep]][cell_idx]
+      if (terra::nlyr(landscape$suitability) > 1) {
+        surv_mult <- terra::values(landscape[[survival_layer]][[timestep]])[cell_idx]
       } else {
-        surv_mult <- landscape[[survival_layer]][cell_idx]
+        surv_mult <- terra::values(landscape[[survival_layer]])[cell_idx]
       }
     }
     
     if (is.null(fecundity_layer)) {
       fec_mult <- rep(1, length(cell_idx))
     } else {
-      if (raster::nlayers(landscape$suitability) > 1) {
-        fec_mult <- landscape[[fecundity_layer]][[timestep]][cell_idx]
+      if (terra::nlyr(landscape$suitability) > 1) {
+        fec_mult <- terra::values(landscape[[fecundity_layer]][[timestep]])[cell_idx]
       } else {
-        fec_mult <- landscape[[fecundity_layer]][cell_idx]
+        fec_mult <- terra::values(landscape[[fecundity_layer]])[cell_idx]
       }
     }
-    
+
     for (i in seq_len(array_length)) {
       transition_array[, , i][idx[!is_recruitment]] <- transition_array[, , i][idx[!is_recruitment]] * surv_mult[i]
       transition_array[, , i][idx[is_recruitment]] <- transition_array[, , i][idx[is_recruitment]] * fec_mult[i]
     }
-
+    
     transition_array
     
   }
@@ -126,7 +126,7 @@ modified_transition <- function(survival_layer = NULL,
 #' \dontrun{
 #' mod_fun <- competition_density(stages = c(2, 3))
 #' 
-#' ls <- landscape(population = egk_pop, suitability = NULL, carrying_capacity = egk_k)
+#' ls <- landscape(population = egk_pop(), suitability = NULL, carrying_capacity = egk_k())
 #' 
 #' pd <- population_dynamics(change = growth(egk_mat, transition_function = mod_fun))
 #' 
@@ -141,17 +141,17 @@ competition_density <- function(stages = NULL,
   fun <- function (transition_array, landscape, timestep) {
 
     # get metrics and constructor info
-    cell_idx <- which(!is.na(raster::getValues(landscape$population[[1]])))
+    cell_idx <- which(!is.na(terra::values(landscape$population[[1]])))
     n_cells <- length(cell_idx)
     
     # get population matrix
     pop_raster <- landscape$population
-    population <- raster::extract(pop_raster, cell_idx)
+    population <- as.matrix(terra::extract(pop_raster, cell_idx))
     
     # get carrying capacity (internal function to STEPS)
     # 22.01.20 - # cc <- get_carrying_capacity(landscape, timestep)
-    # 22.01.20 - # K <- raster::extract(cc, cell_idx)
-    K <- raster::extract(landscape$carrying_capacity, cell_idx) # 22.01.20
+    # 22.01.20 - # K <- terra::extract(cc, cell_idx)
+    K <- as.matrix(terra::extract(landscape$carrying_capacity, cell_idx)) # 22.01.20
     
     if (!is.null(stages)) {
       if (length(stages) == 1) {
@@ -167,6 +167,7 @@ competition_density <- function(stages = NULL,
 
     # modify life-stage transition array
     for (i in target_cells) {
+      
       transition_array[, , i] <- density_modified_transition(N = N[i],
                                                              K = K[i],
                                                              transition_matrix = transition_array[, , i],
@@ -287,7 +288,7 @@ density_modified_transition <- function (N,
                                          R_max = NULL,
                                          stable_age = NULL,
                                          mask = NULL) {
-  
+
   # if the optimal R isn't provided, recalculate it (ideally pre-calculate it to
   # save computation)
   init_Rmax_null <- is.null(R_max)

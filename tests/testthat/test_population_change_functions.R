@@ -2,12 +2,14 @@ context('population_change_functions-class')
 
 test_that('population change functions class works', {
   
-  library(raster)
+  library(terra)
   library(future)
   
-  landscape <- landscape(population = egk_pop,
-                         suitability = egk_hab,
-                         carrying_capacity = egk_k)
+  future::plan(sequential)
+  
+  landscape <- landscape(population = egk_pop(),
+                         suitability = egk_hab(),
+                         carrying_capacity = egk_k())
   
   two_sex_names <- c(paste0(colnames(egk_mat), "_F"), paste0(colnames(egk_mat), "_M"))
   
@@ -20,12 +22,12 @@ test_that('population change functions class works', {
   egk_mat_2sex[1:3, 1:3] <- egk_mat
   egk_mat_2sex[4, 1:3] <- egk_mat[1, ]
   
-  egk_pop_2sex <- stack(egk_pop, egk_pop)
+  egk_pop_2sex <- c(egk_pop(), egk_pop())
   names(egk_pop_2sex) <- two_sex_names
   
   landscape_2sex <- landscape(population = egk_pop_2sex,
-                              suitability = egk_hab,
-                              carrying_capacity = egk_k)
+                              suitability = egk_hab(),
+                              carrying_capacity = egk_k())
 
   pop_dyn <- population_dynamics(change = growth(transition_matrix = egk_mat,
                                                  transition_order = "survival",
@@ -57,28 +59,35 @@ test_that('population change functions class works', {
                                                 dispersal = NULL,
                                                 modification = NULL,
                                                 density_dependence = NULL)
-  
-  sim <- simulation(landscape = landscape,
+ 
+  expect_no_error(
+    sim <- simulation(landscape = landscape,
                     population_dynamics = pop_dyn,
                     habitat_dynamics = NULL,
                     timesteps = 10,
                     replicates = 3,
                     verbose = FALSE)
+  ) 
   
-  sim <- simulation(landscape = landscape_2sex,
+  expect_no_error(
+    sim <- simulation(landscape = landscape_2sex,
                     population_dynamics = pop_dyn_2sex,
                     habitat_dynamics = NULL,
                     timesteps = 10,
                     replicates = 3,
                     verbose = FALSE)
+  )
   
-  sim <- simulation(landscape = landscape,
+  expect_no_error(
+    sim <- simulation(landscape = landscape,
                     population_dynamics = pop_dyn_trans_fun,
                     habitat_dynamics = NULL,
                     timesteps = 10,
                     replicates = 3,
                     verbose = FALSE,
                     demo_stochasticity = "none")
+  )
+  
   
   expect_error(simulation(landscape = landscape,
                           population_dynamics = pop_dyn_bad_mat_values,
@@ -87,11 +96,12 @@ test_that('population change functions class works', {
                           replicates = 3,
                           verbose = FALSE))
   
-  expect_error(simulation(landscape = landscape,
+  expect_error(
+    suppress_warnings(simulation(landscape = landscape,
                           population_dynamics = pop_dyn_bad_trans_fun,
                           habitat_dynamics = NULL,
                           timesteps = 10,
                           replicates = 3,
-                          verbose = FALSE))
+                          verbose = FALSE)))
   
 })
